@@ -1,0 +1,9 @@
+[submodule "Libs/glfw"]
+	path = Libs/glfw
+	url = https://github.com/glfw/glfw
+[submodule "Libs/entt"]
+	path = Libs/entt
+	url = https://github.com/skypjack/entt
+[submodule "Libs/imgui"]
+	path = Libs/imgui
+	url = https://github.com/ocornut/imgui
