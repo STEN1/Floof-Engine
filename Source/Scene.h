@@ -15,7 +15,8 @@ namespace FLOOF {
         entt::registry& GetCulledScene();
     private:
         /// <summary>
-        /// Clears entt registry
+        /// Clears entt registry, has no vulkan safety. 
+        /// Make sure no registry resource is being used on the gpu
         /// </summary>
         void Clear();
     private:

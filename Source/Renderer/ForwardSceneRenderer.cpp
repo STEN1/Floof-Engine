@@ -15,8 +15,8 @@ namespace FLOOF {
 
         // Camera setup
         auto extent = m_Renderer->GetExtent();
-        CameraComponent& camera = m_Registry.get<CameraComponent>(app.m_CameraEntity);
-        glm::mat4 vp = camera.GetVP(glm::radians(70.f), extent.width / (float)extent.height, 0.01f, 2000.f);
+        CameraComponent* camera = app.GetRenderCamera();
+        glm::mat4 vp = camera->GetVP(glm::radians(70.f), extent.width / (float)extent.height, 0.01f, 2000.f);
   
         // Draw models
         auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Basic);

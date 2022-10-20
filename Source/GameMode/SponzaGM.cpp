@@ -1,13 +1,11 @@
-#include "PhysicsGM.h"
+#include "SponzaGM.h"
 #include "../Components.h"
-#include "../Application.h"
 
-
-void FLOOF::PhysicsGM::OnCreate()
+void FLOOF::SponzaGM::OnCreate()
 {
-    int height = 10;
-    int width = 10;
-    float spacing = 5.f;
+    int height = 20;
+    int width = 20;
+    float spacing = 10.f;
 
     for (size_t y = 0; y < height; y++)
     {
@@ -18,18 +16,11 @@ void FLOOF::PhysicsGM::OnCreate()
     }
 }
 
-void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
+void FLOOF::SponzaGM::OnUpdateEditor(float deltaTime)
 {
-    ImGui::Begin("Physics");
-    if (ImGui::Button("Spawn ball")) {
-        auto& reg = m_Scene.GetCulledScene();
-        auto* camera = Application::Get().GetRenderCamera();
-        SpawnBall(camera->Position, 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
-    }
-    ImGui::End();
 }
 
-const void FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture)
+const void FLOOF::SponzaGM::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture)
 {
     auto& m_Registry = m_Scene.GetCulledScene();
 

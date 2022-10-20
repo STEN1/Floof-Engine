@@ -15,9 +15,10 @@
 #include "Renderer/DeferredSceneRenderer.h"
 
 #include "GameMode/PhysicsGM.h"
+#include "GameMode/SponzaGM.h"
 
 namespace FLOOF {
-    Application::Application() {
+    Application::Application() : m_EditorCamera(glm::vec3(0.f, 30.f, -30.f)) {
         // Init glfw and create window
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -63,10 +64,10 @@ namespace FLOOF {
         Utils::Logger::s_Logger = new Utils::Logger("Floof.log");
 
         /*SceneRenderer*/
-        CreateSceneRenderer();
-
+        SetRendererType(SceneRendererType::Forward);
+        
         /*GameMode*/
-        SetGameMode(new PhysicsGM(m_Scene));
+        SetGameModeType(GameModeType::Physics);
     }
 
     Application::~Application() {
@@ -77,6 +78,7 @@ namespace FLOOF {
         MeshComponent::ClearMeshDataCache();
         TextureComponent::ClearTextureDataCache();
 
+        DestroyGameMode();
         DestroySceneRenderer();
         delete m_Renderer;
         delete Utils::Logger::s_Logger;
@@ -86,15 +88,11 @@ namespace FLOOF {
     }
 
     int Application::Run() {
-        DebugInit();
-
         {
-            auto& m_Registry = m_Scene.GetCulledScene();
-            m_CameraEntity = m_Registry.create();
             glm::vec3 cameraPos(0.3f, 0.2f, -1.3f);
-            auto& camera = m_Registry.emplace<CameraComponent>(m_CameraEntity, cameraPos);
-            camera.Pitch(0.5f);
         }
+
+        SetRenderCamera(m_EditorCamera);
 
         if (m_GameMode) m_GameMode->OnCreate();
 
@@ -120,8 +118,6 @@ namespace FLOOF {
                 frameCounter = 0.f;
             }
 
-            DebugClearDebugData();
-
             if (deltaTime > 0.1f) {
                 deltaTime = 0.1f;
             }
@@ -131,11 +127,6 @@ namespace FLOOF {
             ImGui::NewFrame();
 
             Update(deltaTime);
-
-            if (m_DebugDraw) {
-                DebugUpdateLineBuffer();
-            }
-
             Draw();
         }
 
@@ -147,58 +138,60 @@ namespace FLOOF {
 
     void Application::UpdateImGui(float deltaTime)
     {
-        static int selectedItem = 0;
+        static int selectedRenderType = 0;
+        static int selectedGameType = 0;
 
         ImGui::Begin("Application");
         if (ImGui::Combo("SceneRendererType", 
-            &selectedItem, 
+            &selectedRenderType,
             SceneRendererTypeStrings, 
             IM_ARRAYSIZE(SceneRendererTypeStrings)))
         {
-            SetRendererType(static_cast<SceneRendererType>(selectedItem));
+            SetRendererType(static_cast<SceneRendererType>(selectedRenderType));
+        }
+        if (ImGui::Combo("GameMode",
+            &selectedGameType,
+            GameModeTypeStrings,
+            IM_ARRAYSIZE(GameModeTypeStrings)))
+        {
+            SetGameModeType(static_cast<GameModeType>(selectedGameType));
         }
         ImGui::End();
     }
 
     void Application::UpdateCameraSystem(float deltaTime)
     {
-        {	// Update camera.
-            auto& m_Registry = m_Scene.GetCulledScene();
-            auto view = m_Registry.view<CameraComponent>();
-            for (auto [entity, camera] : view.each()) {
-                auto moveAmount = static_cast<float>(m_CameraSpeed * deltaTime);
-                if (Input::Key(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-                    moveAmount *= 8;
-                }
-                if (Input::Key(GLFW_KEY_W) == GLFW_PRESS) {
-                    camera.MoveForward(moveAmount);
-                }
-                if (Input::Key(GLFW_KEY_S) == GLFW_PRESS) {
-                    camera.MoveForward(-moveAmount);
-                }
-                if (Input::Key(GLFW_KEY_D) == GLFW_PRESS) {
-                    camera.MoveRight(moveAmount);
-                }
-                if (Input::Key(GLFW_KEY_A) == GLFW_PRESS) {
-                    camera.MoveRight(-moveAmount);
-                }
-                if (Input::Key(GLFW_KEY_Q) == GLFW_PRESS) {
-                    camera.MoveUp(-moveAmount);
-                }
-                if (Input::Key(GLFW_KEY_E) == GLFW_PRESS) {
-                    camera.MoveUp(moveAmount);
-                }
-                static glm::vec2 oldMousePos = glm::vec2(0.f);
-                glm::vec2 mousePos = Input::MousePos();
-                glm::vec2 mouseDelta = mousePos - oldMousePos;
-                oldMousePos = mousePos;
-                static constexpr float mouseSpeed = 0.002f;
-                if (Input::MouseButton(GLFW_MOUSE_BUTTON_2) == GLFW_PRESS
-                    || Input::Key(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-                    camera.Yaw(mouseDelta.x * mouseSpeed);
-                    camera.Pitch(mouseDelta.y * mouseSpeed);
-                }
-            }
+        auto moveAmount = static_cast<float>(m_CameraSpeed * deltaTime);
+        if (Input::Key(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            moveAmount *= 8;
+        }
+        if (Input::Key(GLFW_KEY_W) == GLFW_PRESS) {
+            m_EditorCamera.MoveForward(moveAmount);
+        }
+        if (Input::Key(GLFW_KEY_S) == GLFW_PRESS) {
+            m_EditorCamera.MoveForward(-moveAmount);
+        }
+        if (Input::Key(GLFW_KEY_D) == GLFW_PRESS) {
+            m_EditorCamera.MoveRight(moveAmount);
+        }
+        if (Input::Key(GLFW_KEY_A) == GLFW_PRESS) {
+            m_EditorCamera.MoveRight(-moveAmount);
+        }
+        if (Input::Key(GLFW_KEY_Q) == GLFW_PRESS) {
+            m_EditorCamera.MoveUp(-moveAmount);
+        }
+        if (Input::Key(GLFW_KEY_E) == GLFW_PRESS) {
+            m_EditorCamera.MoveUp(moveAmount);
+        }
+        static glm::vec2 oldMousePos = glm::vec2(0.f);
+        glm::vec2 mousePos = Input::MousePos();
+        glm::vec2 mouseDelta = mousePos - oldMousePos;
+        oldMousePos = mousePos;
+        static constexpr float mouseSpeed = 0.002f;
+        if (Input::MouseButton(GLFW_MOUSE_BUTTON_2) == GLFW_PRESS
+            || Input::Key(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+            m_EditorCamera.Yaw(mouseDelta.x * mouseSpeed);
+            m_EditorCamera.Pitch(mouseDelta.y * mouseSpeed);
         }
     }
 
@@ -208,19 +201,7 @@ namespace FLOOF {
         if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
 
-    void Application::DrawDebugLines()
-    {
-        // World axis
-        if (m_BDebugLines[DebugLine::WorldAxis]) {
-            DebugDrawLine(glm::vec3(0.f), glm::vec3(10.f, 0.f, 0.f), glm::vec3(1.f, 0.f, 0.f));
-            DebugDrawLine(glm::vec3(0.f), glm::vec3(0.f, 10.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-            DebugDrawLine(glm::vec3(0.f), glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, 0.f, 1.f));
-        }
-    }
-
     void Application::Draw() {
-        DrawDebugLines();
-
         if (m_SceneRenderer)
         {
             auto& m_Registry = m_Scene.GetCulledScene();
@@ -230,104 +211,9 @@ namespace FLOOF {
         m_Renderer->SubmitAndPresent();
     }
 
-    void Application::DebugInit() {
-        auto& m_Registry = m_Scene.GetCulledScene();
-
-        m_DebugLineBuffer.resize(m_DebugLineSpace);
-        m_DebugLineEntity = m_Registry.create();
-        m_Registry.emplace<LineMeshComponent>(m_DebugLineEntity, m_DebugLineBuffer);
-        m_Registry.emplace<DebugComponent>(m_DebugLineEntity);
-
-        m_DebugSphereEntity = m_Registry.create();
-        m_Registry.emplace<LineMeshComponent>(m_DebugSphereEntity, Utils::LineVertexDataFromObj("Assets/Ball.obj"));
-        m_Registry.emplace<DebugComponent>(m_DebugSphereEntity);
-
-        m_DebugAABBEntity = m_Registry.create();
-        m_Registry.emplace<LineMeshComponent>(m_DebugAABBEntity, Utils::MakeBox(glm::vec3(1.f), glm::vec3(1.f, 0.f, 0.f)));
-        m_Registry.emplace<DebugComponent>(m_DebugAABBEntity);
-
-        m_BDebugLines[DebugLine::Velocity] = false;
-        m_BDebugLines[DebugLine::Friction] = false;
-        m_BDebugLines[DebugLine::Acceleration] = false;
-        m_BDebugLines[DebugLine::CollisionShape] = false;
-        m_BDebugLines[DebugLine::WorldAxis] = true;
-        m_BDebugLines[DebugLine::TerrainTriangle] = false;
-        m_BDebugLines[DebugLine::ClosestPointToBall] = false;
-        m_BDebugLines[DebugLine::GravitationalPull] = false;
-        m_BDebugLines[DebugLine::Path] = false;
-        m_BDebugLines[DebugLine::BSpline] = true;
-        m_BDebugLines[DebugLine::OctTree] = false;
-    }
-
-    void Application::DebugClearLineBuffer() {
-        m_DebugLineBuffer.clear();
-        m_DebugLineBuffer.reserve(m_DebugLineSpace);
-    }
-
-    void Application::DebugClearSpherePositions() {
-        m_DebugSphereTransforms.clear();
-    }
-
-    void Application::DebugClearAABBTransforms() {
-        m_DebugAABBTransforms.clear();
-    }
-
-    void Application::DebugClearDebugData() {
-        DebugClearLineBuffer();
-        DebugClearSpherePositions();
-        DebugClearAABBTransforms();
-    }
-
-    void Application::DebugUpdateLineBuffer() {
-        auto& m_Registry = m_Scene.GetCulledScene();
-        auto commandBuffer = m_Renderer->AllocateBeginOneTimeCommandBuffer();
-        auto& lineMesh = m_Registry.get<LineMeshComponent>(m_DebugLineEntity);
-        lineMesh.UpdateBuffer(m_DebugLineBuffer);
-        m_Renderer->EndSubmitFreeCommandBuffer(commandBuffer);
-    }
-
-    void Application::DebugToggleDrawNormals() {
-        m_DrawNormals = !m_DrawNormals;
-    }
-
-    void Application::DebugDrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3 color) {
-        ColorVertex v;
-        v.Color = color;
-        v.Pos = start;
-        m_DebugLineBuffer.push_back(v);
-        v.Pos = end;
-        m_DebugLineBuffer.push_back(v);
-    }
-
-    void Application::DebugDrawTriangle(const Triangle& triangle, const glm::vec3& color) {
-        DebugDrawLine(triangle.A, triangle.B, color);
-        DebugDrawLine(triangle.B, triangle.C, color);
-        DebugDrawLine(triangle.C, triangle.A, color);
-        glm::vec3 midPoint = (triangle.A + triangle.B + triangle.C) / 3.f;
-        DebugDrawLine(midPoint, midPoint + (triangle.N * 0.02f), color);
-    }
-
-    void Application::DebugDrawSphere(const glm::vec3& pos, float radius) {
-        glm::mat4 transform = glm::translate(pos);
-        transform = glm::scale(transform, glm::vec3(radius));
-        m_DebugSphereTransforms.push_back(transform);
-    }
-
-    void Application::DebugDrawAABB(const glm::vec3& pos, const glm::vec3& extents) {
-        glm::mat4 transform(1.f);
-        transform[3].x = pos.x;
-        transform[3].y = pos.y;
-        transform[3].z = pos.z;
-
-        transform[0].x = extents.x;
-        transform[1].y = extents.y;
-        transform[2].z = extents.z;
-        m_DebugAABBTransforms.push_back(transform);
-    }
-
     void Application::SetRendererType(SceneRendererType type)
     {
-        if (type == m_SceneRendererType) return;
+        if (type == m_SceneRendererType && m_SceneRenderer) return;
 
         m_SceneRendererType = type;
         UpdateSceneRenderer();
@@ -338,18 +224,28 @@ namespace FLOOF {
         return m_SceneRendererType;
     }
 
-    void Application::SetGameMode(GameMode* gm)
+    void Application::SetRenderCamera(CameraComponent& cam)
     {
-        if (gm == m_GameMode) return;
-
-        delete m_GameMode;
-        m_GameMode = gm;
-        m_GameMode->OnCreate();
+        m_RenderCamera = &cam;
     }
 
-    const GameMode* Application::GetGameMode() const
+    CameraComponent* Application::GetRenderCamera()
     {
-        return m_GameMode;
+        return m_RenderCamera;
+    }
+
+    void Application::SetGameModeType(GameModeType type)
+    {
+        if (type == m_GameModeType && m_GameMode) return;
+    
+        m_GameModeType = type;
+
+        UpdateGameMode();
+    }
+
+    GameModeType Application::GetGameModeType() const
+    {
+        return m_GameModeType;
     }
 
     void Application::CreateSceneRenderer()
@@ -393,9 +289,48 @@ namespace FLOOF {
         CreateSceneRenderer();
     }
 
-    void Application::DebugDrawPath(std::vector<glm::vec3>& path) {
-        for (int i{ 1 }; i < path.size(); i++) {
-            DebugDrawLine(path[i - 1], path[i], glm::vec3(255.f, 255.f, 255.f));
+    void Application::CreateGameMode()
+    {
+        if (m_GameMode)
+        {
+            Utils::Logger::s_Logger->log(Utils::Logger::ERROR, "GameMode exists! Delete previous instance to create a new one\n"); 
+            return; 
+        }
+            
+        switch (m_GameModeType)
+        {
+        case GameModeType::Physics:
+        {
+            m_GameMode = new PhysicsGM(m_Scene);
+            m_GameMode->OnCreate();
+        }
+        break;
+        case GameModeType::Sponza:
+        {
+            m_GameMode = new SponzaGM(m_Scene);
+            m_GameMode->OnCreate();
+        }
+        break;
+        default:
+        {
+            m_GameMode = nullptr;
+            LOG("GameModeType is invalid\n");
+        }
+        break;
         }
     }
+
+    void Application::DestroyGameMode()
+    {
+        delete m_GameMode; m_GameMode = nullptr;
+        m_Renderer->FinishAllFrames();
+        m_Scene.Clear();
+    }
+
+    void Application::UpdateGameMode()
+    {
+        DestroyGameMode();
+        CreateGameMode();
+    }
+
 }

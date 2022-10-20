@@ -3,6 +3,16 @@
 
 namespace FLOOF
 { 
+	enum class GameModeType
+	{
+		Physics, Sponza
+	};
+
+	static const char* GameModeTypeStrings[] =
+	{
+		"Physics", "Sponza"
+	};
+
 	/// <summary>
 	/// Temporarily gamemode class
 	/// For easy c++ scripting
@@ -16,7 +26,7 @@ namespace FLOOF
 		GameMode(FLOOF::Scene& scene) :m_Scene(scene) {};
 		~GameMode() {};
 
-		FLOOF::Scene& m_Scene;
+		Scene& m_Scene;
 
 		/// <summary>
 		/// Called at application initialization
