@@ -13,14 +13,15 @@ namespace FLOOF {
     template<typename VertexType>
     class StaticMesh {
     public:
-        StaticMesh();
+        StaticMesh() = default;
         std::vector<MeshData> Data{};
+        std::string Path;
     };
 
     template<typename VertexType>
     class DynamicMesh {
     public:
-        DynamicMesh();
+        DynamicMesh() = default;
         MeshData Data{};
     };
 
