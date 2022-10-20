@@ -2,7 +2,7 @@
 project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Floof 
+add_executable(Floof
     Source/Floof.cpp
     Source/Floof.h
     Source/Renderer/VulkanRenderer.h
@@ -32,25 +32,7 @@ add_executable(Floof
     Source/Octree.h 
     Source/Octree.cpp
     Source/Simulate.cpp
-    Source/Simulate.h 
-    Source/Renderer/ModelManager.h 
-    Source/Renderer/TextureManager.h 
-    Source/Renderer/ModelManager.cpp 
-    Source/Renderer/TextureManager.cpp 
-    Source/Renderer/Mesh.h 
-    Source/Renderer/Texture.h 
-    Source/Renderer/Texture.cpp  
-    Source/Renderer/SceneRenderer.h 
-    Source/Renderer/ForwardSceneRenderer.h 
-    Source/Renderer/DeferredSceneRenderer.h 
-    Source/Renderer/DeferredSceneRenderer.cpp 
-    Source/Renderer/ForwardSceneRenderer.cpp 
-    Source/Scene.h
-    Source/Scene.cpp 
-    Source/GameMode/GameMode.h 
-    Source/GameMode/PhysicsGM.h 
-    Source/GameMode/PhysicsGM.cpp 
-)
+    Source/Simulate.h "Source/Renderer/MeshManager.h" "Source/Renderer/TextureManager.h" "Source/Renderer/MeshManager.cpp" "Source/Renderer/TextureManager.cpp" "Source/Renderer/Mesh.h" "Source/Renderer/Texture.h" "Source/Renderer/Texture.cpp" "Source/Renderer/Mesh.cpp")
 
 
 find_package(Vulkan REQUIRED)
@@ -67,6 +49,11 @@ target_link_libraries(Floof glfw)
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
 
+#find_package(Bullet REQUIRED)
+add_subdirectory(Libs/bullet3)
+include_directories(Libs/bullet3/src)
+target_link_libraries(Floof BULLET_PHYSICS)
+
 set(IMGUI_DIR Libs/imgui)
 add_library(IMGUI STATIC)
 
@@ -81,7 +68,7 @@ target_sources(IMGUI
     PRIVATE
     ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-)
+    )
 
 target_include_directories(IMGUI
     PUBLIC ${IMGUI_DIR}
