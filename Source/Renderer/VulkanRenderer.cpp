@@ -114,19 +114,6 @@ namespace FLOOF {
             params.PushConstantSize = sizeof(ColorPushConstants);
             CreateGraphicsPipeline(params);
         }
-        {	// Debug shader for normals
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/Normal.frag.spv";
-            params.VertexPath = "Shaders/Normal.vert.spv";
-            params.Key = RenderPipelineKeys::Normal;
-            params.PolygonMode = VK_POLYGON_MODE_FILL;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            params.BindingDescription = NormalVertex::GetBindingDescription();
-            params.AttributeDescriptions = NormalVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
-            CreateGraphicsPipeline(params);
-        }
         CreateDescriptorPools();
         CreateFramebuffers();
         CreateCommandPool();

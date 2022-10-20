@@ -6,6 +6,8 @@
 #include "Physics.h"
 #include <chrono>
 #include <entt/entt.hpp>
+#include "Renderer/Mesh.h"
+#include "Renderer/Texture.h"
 
 namespace FLOOF {
     struct Relationship {

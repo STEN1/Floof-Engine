@@ -4,4 +4,7 @@ namespace FLOOF {
     Scene::Scene() {
 
     }
+    entt::registry& Scene::GetCulledScene() {
+        return m_Scene;
+    }
 }

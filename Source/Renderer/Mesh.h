@@ -1,8 +1,20 @@
 #include "../Floof.h"
+#include "Vertex.h"
 
 namespace FLOOF {
-    class Mesh {
+    template<typename VertexType>
+    class StaticMesh {
     public:
-        Mesh();
+        StaticMesh();
     };
+
+    template<typename VertexType>
+    class DynamicMesh {
+    public:
+        DynamicMesh();
+    };
+
+    using StaticMeshComponent = StaticMesh<MeshVertex>;
+    using StaticLineMeshComponent = StaticMesh<ColorVertex>;
+    using DynamicLineMeshComponent = DynamicMesh<ColorVertex>;
 }

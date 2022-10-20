@@ -124,36 +124,4 @@ namespace FLOOF {
             return attributeDescriptions;
         }
     };
-
-    struct NormalVertex {
-        glm::vec3 Pos{};
-        glm::vec3 Normal{};
-
-        static VkVertexInputBindingDescription GetBindingDescription() {
-            VkVertexInputBindingDescription bindingDescription{};
-
-            bindingDescription.binding = 0;
-            // Shader is used with MeshVertex data for visualization, so stride is sizeof(MeshVertex).
-            bindingDescription.stride = sizeof(MeshVertex);
-            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-            return bindingDescription;
-        }
-
-        static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
-            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
-
-            attributeDescriptions[0].binding = 0;
-            attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[0].offset = offsetof(NormalVertex, Pos);
-
-            attributeDescriptions[1].binding = 0;
-            attributeDescriptions[1].location = 1;
-            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(NormalVertex, Normal);
-
-            return attributeDescriptions;
-        }
-    };
 }
