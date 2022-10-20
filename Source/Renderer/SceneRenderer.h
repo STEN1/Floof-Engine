@@ -1,9 +1,22 @@
+#pragma once
+
 #include "../Floof.h"
 #include "VulkanRenderer.h"
 #include <entt/entt.hpp>
 
 namespace FLOOF {
-    class SceneRenderer {
+  
+    enum class SceneRendererType
+    {
+        Forward, Deferred, Size
+    };
+
+    static const char* SceneRendererTypeStrings[] =
+    {
+        "Forward", "Deferred"
+    };
+
+    class SceneRenderer {      
     public:
         SceneRenderer() = default;
         virtual ~SceneRenderer() = default;

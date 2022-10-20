@@ -1,8 +1,7 @@
 ﻿#include "Application.h"
 
 int main() {
-    FLOOF::Application* app = new FLOOF::Application;
-    int result = app->Run();
-    delete app;
+    FLOOF::Application& app = FLOOF::Application::Get();
+    int result = app.Run();
     return result;
 }

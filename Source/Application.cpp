@@ -11,6 +11,11 @@
 #include "Octree.h"
 #include "Simulate.h"
 
+#include "Renderer/ForwardSceneRenderer.h"
+#include "Renderer/DeferredSceneRenderer.h"
+
+#include "GameMode/PhysicsGM.h"
+
 namespace FLOOF {
     Application::Application() {
         // Init glfw and create window
@@ -57,6 +62,11 @@ namespace FLOOF {
         // Init Logger. Writes to specified log file.
         Utils::Logger::s_Logger = new Utils::Logger("Floof.log");
 
+        /*SceneRenderer*/
+        CreateSceneRenderer();
+
+        /*GameMode*/
+        SetGameMode(new PhysicsGM(m_Scene));
     }
 
     Application::~Application() {
@@ -67,8 +77,8 @@ namespace FLOOF {
         MeshComponent::ClearMeshDataCache();
         TextureComponent::ClearTextureDataCache();
 
+        DestroySceneRenderer();
         delete m_Renderer;
-
         delete Utils::Logger::s_Logger;
 
         glfwDestroyWindow(m_Window);
@@ -79,26 +89,14 @@ namespace FLOOF {
         DebugInit();
 
         {
-            LasLoader mapData("Assets/jotun.las");
-            auto [vData, iData] = mapData.GetIndexedColorNormalVertexData();
-            auto terrainData = mapData.GetTerrainData();
-
-            m_TerrainEntity = m_Registry.create();
-            m_Registry.emplace<PointCloudComponent>(m_TerrainEntity, mapData.GetPointData());
-            m_Registry.emplace<MeshComponent>(m_TerrainEntity, vData, iData);
-            m_Registry.emplace<TransformComponent>(m_TerrainEntity);
-            auto& terrain = m_Registry.emplace<TerrainComponent>(m_TerrainEntity, terrainData);
-            terrain.MinY = mapData.GetMinY();
-        }
-
-        {
+            auto& m_Registry = m_Scene.GetCulledScene();
             m_CameraEntity = m_Registry.create();
             glm::vec3 cameraPos(0.3f, 0.2f, -1.3f);
             auto& camera = m_Registry.emplace<CameraComponent>(m_CameraEntity, cameraPos);
             camera.Pitch(0.5f);
         }
 
-        MakeHeightLines();
+        if (m_GameMode) m_GameMode->OnCreate();
 
         Timer timer;
         float titleBarUpdateTimer{};
@@ -133,61 +131,39 @@ namespace FLOOF {
             ImGui::NewFrame();
 
             Update(deltaTime);
-            Simulate(deltaTime);
 
             if (m_DebugDraw) {
                 DebugUpdateLineBuffer();
             }
+
             Draw();
         }
 
         m_Renderer->FinishAllFrames();
-        m_Registry.clear();
+        m_Scene.Clear();
 
         return 0;
     }
 
-    void Application::Update(double deltaTime) {
-        // World axis
-        if (m_BDebugLines[DebugLine::WorldAxis]) {
-            DebugDrawLine(glm::vec3(0.f), glm::vec3(10.f, 0.f, 0.f), glm::vec3(1.f, 0.f, 0.f));
-            DebugDrawLine(glm::vec3(0.f), glm::vec3(0.f, 10.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-            DebugDrawLine(glm::vec3(0.f), glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, 0.f, 1.f));
-        }
+    void Application::UpdateImGui(float deltaTime)
+    {
+        static int selectedItem = 0;
 
-        // Terrain triangles
-        if (m_BDebugLines[DebugLine::TerrainTriangle]) {
-            TerrainComponent& triangleSurface = m_Registry.get<TerrainComponent>(m_TerrainEntity);
-            glm::vec3 surfaceTriangleColor{ 1.f, 0.f, 1.f };
-            for (auto& triangle : triangleSurface.Triangles) {
-                DebugDrawTriangle(triangle, surfaceTriangleColor);
-            }
+        ImGui::Begin("Application");
+        if (ImGui::Combo("SceneRendererType", 
+            &selectedItem, 
+            SceneRendererTypeStrings, 
+            IM_ARRAYSIZE(SceneRendererTypeStrings)))
+        {
+            SetRendererType(static_cast<SceneRendererType>(selectedItem));
         }
+        ImGui::End();
+    }
 
-        // Closest point on triangle to ball center
-        if (m_BDebugLines[DebugLine::ClosestPointToBall]) {
-            auto& terrain = m_Registry.get<TerrainComponent>(m_TerrainEntity);
-            auto view = m_Registry.view<BallComponent>();
-            static constexpr glm::vec3 pointColor = glm::vec3(1.f);
-            for (auto [entity, ball] : view.each()) {
-                for (auto& triangle : terrain.Triangles) {
-                    glm::vec3 start = CollisionShape::ClosestPointToPointOnTriangle(ball.CollisionSphere.pos, triangle);
-                    glm::vec3 end = start + (triangle.N * 0.1f);
-                    DebugDrawLine(start, end, pointColor);
-                }
-            }
-        }
-
-        // Terrain triangles
-        if (m_BDebugLines[DebugLine::TerrainTriangle]) {
-            TerrainComponent& triangleSurface = m_Registry.get<TerrainComponent>(m_TerrainEntity);
-            glm::vec3 surfaceTriangleColor{ 1.f, 0.f, 1.f };
-            for (auto& triangle : triangleSurface.Triangles) {
-                DebugDrawTriangle(triangle, surfaceTriangleColor);
-            }
-        }
-
+    void Application::UpdateCameraSystem(float deltaTime)
+    {
         {	// Update camera.
+            auto& m_Registry = m_Scene.GetCulledScene();
             auto view = m_Registry.view<CameraComponent>();
             for (auto [entity, camera] : view.each()) {
                 auto moveAmount = static_cast<float>(m_CameraSpeed * deltaTime);
@@ -224,311 +200,39 @@ namespace FLOOF {
                 }
             }
         }
-
-        {	// UI
-            if (m_ShowImguiDemo)
-                ImGui::ShowDemoWindow(&m_ShowImguiDemo);
-
-            ImGui::Begin("Utils");
-            if (ImGui::Button("Spawn ball")) {
-                const auto& camera = m_Registry.get<CameraComponent>(m_CameraEntity);
-                SpawnBall(camera.Position, 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
-            }
-            /*if(ImGui::Button("DrawNormals")){
-                DebugToggleDrawNormals();
-            }*/
-            ImGui::SliderFloat("Deltatime Modifer", &m_DeltaTimeModifier, 0.f, 1.f);
-            ImGui::SliderFloat("Camera Speed", &m_CameraSpeed, 50, 300);
-            ImGui::End();
-
-
-            ImGui::Begin("Toggle DebugLines");
-            (ImGui::Checkbox(("All Debug Lines"), &m_DebugDraw));
-            (ImGui::Checkbox(("Velocity Vector"), &m_BDebugLines[DebugLine::Velocity]));
-            (ImGui::Checkbox(("Friction Vector"), &m_BDebugLines[DebugLine::Friction]));
-            (ImGui::Checkbox(("Gravitational Pull"), &m_BDebugLines[DebugLine::GravitationalPull]));
-            (ImGui::Checkbox(("Collision shapes"), &m_BDebugLines[DebugLine::CollisionShape]));
-            (ImGui::Checkbox(("Terrain Triangles"), &m_BDebugLines[DebugLine::TerrainTriangle]));
-            (ImGui::Checkbox(("Terrain Collision"), &m_BDebugLines[DebugLine::CollisionTriangle]));
-            //shhhhh maybe crash program :)
-            // (ImGui::Checkbox(("Closest triangle point"), &m_BDebugLines[DebugLine::ClosestPointToBall]));
-            //(ImGui::Checkbox(("Path Trace"), &m_BDebugLines[DebugLine::Path]));
-            (ImGui::Checkbox(("BSpline Trace"), &m_BDebugLines[DebugLine::BSpline]));
-            (ImGui::Checkbox(("Oct Tree"), &m_BDebugLines[DebugLine::OctTree]));
-            (ImGui::Checkbox(("World Axis"), &m_BDebugLines[DebugLine::WorldAxis]));
-            (ImGui::Checkbox(("Point Cloud"), &m_BShowPointcloud));
-            ImGui::End();
-
-            ImGui::Begin("Oppgaver");
-            static int raincount = 100;
-            ImGui::SliderInt("Rain Ball Count", &raincount, 100, 5000);
-            if (ImGui::Button("Spawn Rain"))
-                SpawnRain(raincount);
-            ImGui::Text("Balls In World = %i", m_BallCount);
-            ImGui::End();
-        }
     }
 
-    void Application::Simulate(double deltaTime) {
+    void Application::Update(double deltaTime) {
+        UpdateCameraSystem(deltaTime);
+        UpdateImGui(deltaTime);  
+        if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
+    }
 
-        deltaTime *= m_DeltaTimeModifier;
-
-        auto& terrain = m_Registry.get<TerrainComponent>(m_TerrainEntity);
-        AABB worldExtents{};
-        worldExtents.extent = glm::vec3(static_cast<float>(terrain.Width));
-        worldExtents.pos = worldExtents.extent / 2.f;
-        Octree octree(worldExtents);
-
-        {
-            auto view = m_Registry.view<TransformComponent, VelocityComponent, BallComponent>();
-            for (auto [entity, transform, velocity, ball] : view.each()) {
-                octree.Insert(std::make_shared<CollisionObject>(&ball.CollisionSphere, transform, velocity, ball));
-            }
-
-
-            if (m_BDebugLines[DebugLine::OctTree]) {
-                std::vector<Octree*> leafNodes;
-                octree.GetActiveLeafNodes(leafNodes);
-
-                for (auto& node : leafNodes) {
-                    auto aabb = node->GetAABB();
-                    DebugDrawAABB(aabb.pos, aabb.extent);
-                }
-            }
-
-        }
-
-        {	// Calculate ball
-
-            std::vector<std::pair<CollisionObject*, CollisionObject*>> collisionPairs;
-            octree.GetCollisionPairs(collisionPairs);
-
-            for (auto& [obj1, obj2] : collisionPairs) {
-                Simulate::CalculateCollision(obj1, obj2);
-                Simulate::BallBallOverlap(obj1, obj2);
-
-            }
-
-            glm::vec3 fri(0.f);
-
-            auto view = m_Registry.view<TransformComponent, BallComponent, VelocityComponent, TimeComponent, BSplineComponent>();
-            for (auto [entity, transform, ball, velocity, time, bSpline] : view.each()) {
-
-                CollisionObject ballObject(&ball.CollisionSphere, transform, velocity, ball);
-
-                velocity.Force = Math::GravitationalPull * ball.Mass;
-
-                //ball Large terrain collision//
-                auto collisions = terrain.GetOverlappingTriangles(&ball.CollisionSphere);
-                for (auto& tri : collisions) {
-                    if (ball.CollisionSphere.Intersect(tri)) {
-                        Simulate::CalculateCollision(&ballObject, *tri, time, fri);
-                        if (bSpline.empty()) {
-                            std::vector<glm::vec3> first;
-                            for (int i{ 0 }; i <= (BSplineComponent::D + 1); i++)
-                                first.emplace_back(transform.Position);
-                            bSpline.Update(first);
-                        }
-
-                    }
-                    //Triangle checking collision with
-                    if (m_BDebugLines[DebugLine::CollisionTriangle])
-                        DebugDrawTriangle(*tri, glm::vec3(255.f, 0.f, 0.f));
-                }
-
-                //https://en.wikipedia.org/wiki/Verlet_integration
-                transform.Position += (velocity.Velocity * static_cast<float>(deltaTime)) + (((velocity.Force) + fri) * (static_cast<float>(deltaTime) * static_cast<float>(deltaTime) * 0.5f));
-                velocity.Velocity += (((velocity.Force / ball.Mass) + fri) * static_cast<float>(deltaTime) * 0.5f);
-
-                //set collision sphere location
-                ball.CollisionSphere.pos = transform.Position;
-
-                const float pointIntervall{ 0.5f };
-
-                // Save ball path and draw BSpline
-                if (Timer::GetTimeSince(time.LastPoint) >= pointIntervall && !bSpline.empty()) {
-                    time.LastPoint = Timer::GetTime();
-                    if (bSpline.Isvalid() && bSpline.size() < m_MaxBSplineLines) {
-                        bSpline.AddControllPoint(transform.Position);
-
-                        if (m_BDebugLines[DebugLine::BSpline]) {
-                            std::vector<ColorVertex> vBuffer(m_MaxBSplineLines);
-                            float deltaT = (bSpline.TMax - bSpline.TMin) / (float)m_MaxBSplineLines;
-                            glm::vec3 color{ 0.05f, 0.1f, 0.8f };
-                            //glm::vec3 color{4,  Math::RandFloat(0.f,1.f),  Math::RandFloat(0.f,1.f) };
-                            float currentT = bSpline.TMin;
-                            for (auto& vertex : vBuffer) {
-                                vertex.Pos = bSpline.EvaluateBSpline(currentT);
-                                vertex.Color = color;
-                                currentT += deltaT;
-                            }
-
-                            auto& lineMesh = m_Registry.get<LineMeshComponent>(entity);
-                            lineMesh.UpdateBuffer(vBuffer);
-                        }
-                    }
-                }
-
-                if (m_BDebugLines[DebugLine::Friction])
-                    DebugDrawLine(transform.Position, transform.Position + fri, glm::vec3(0.f, 125.f, 125.f));
-                if (m_BDebugLines[DebugLine::CollisionShape])
-                    DebugDrawSphere(ball.CollisionSphere.pos, ball.CollisionSphere.radius);
-                if (m_BDebugLines[DebugLine::Velocity])
-                    DebugDrawLine(transform.Position, transform.Position + velocity.Velocity, glm::vec3(0.f, 0.f, 255.f));
-                if (m_BDebugLines[DebugLine::Force])
-                    DebugDrawLine(transform.Position, transform.Position + velocity.Force, glm::vec3(255.f, 0.f, 0.f));
-                if (m_BDebugLines[DebugLine::GravitationalPull])
-                    DebugDrawLine(transform.Position, transform.Position + Math::GravitationalPull, glm::vec3(255.f, 255.f, 255.f));
-
-                //reset force
-                velocity.Force = glm::vec3(0.f);
-
-                //move ball when they fall and reset path
-                if (transform.Position.y <= terrain.MinY * 1.2f) {
-                    const int minX{ 0 };
-                    const int maxX{ terrain.Height };
-                    const int minZ{ 0 };
-                    const int maxZ{ terrain.Width };
-                    glm::vec3 loc(Math::RandDouble(minX, maxX), 20.f, Math::RandDouble(minZ, maxZ));
-                    transform.Position = loc;
-                    velocity.Velocity = glm::vec3(0.f);
-                    bSpline.clear();
-                }
-
-            }
+    void Application::DrawDebugLines()
+    {
+        // World axis
+        if (m_BDebugLines[DebugLine::WorldAxis]) {
+            DebugDrawLine(glm::vec3(0.f), glm::vec3(10.f, 0.f, 0.f), glm::vec3(1.f, 0.f, 0.f));
+            DebugDrawLine(glm::vec3(0.f), glm::vec3(0.f, 10.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+            DebugDrawLine(glm::vec3(0.f), glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, 0.f, 1.f));
         }
     }
 
     void Application::Draw() {
-        auto commandBuffer = m_Renderer->StartRecording();
+        DrawDebugLines();
 
-        // Camera setup
-        auto extent = m_Renderer->GetExtent();
-        CameraComponent& camera = m_Registry.get<CameraComponent>(m_CameraEntity);
-        glm::mat4 vp = camera.GetVP(glm::radians(70.f), extent.width / (float)extent.height, 0.01f, 2000.f);
+        if (m_SceneRenderer)
+        {
+            auto& m_Registry = m_Scene.GetCulledScene();
+            m_SceneRenderer->Render(m_Registry);
+        }    
 
-        if (!m_DrawNormals) {	// Geometry pass
-
-            { // Draw height lines
-                ColorPushConstants constants;
-                constants.MVP = vp;
-                auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::LineWithDepth);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(ColorPushConstants), &constants);
-
-                auto& lineMesh = m_Registry.get<LineMeshComponent>(m_HeightLinesEntity);
-                lineMesh.Draw(commandBuffer);
-            }
-            if (m_BDebugLines[DebugLine::BSpline]) {	// Draw BSplines
-                ColorPushConstants constants;
-                constants.MVP = vp;
-                auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::LineStripWithDepth);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(ColorPushConstants), &constants);
-
-                auto view = m_Registry.view<LineMeshComponent, BSplineComponent>();
-                for (auto [entity, lineMesh, bSpline] : view.each()) {
-                    lineMesh.Draw(commandBuffer);
-                }
-            }
-            {	// Draw terrain
-                MeshPushConstants constants;
-                constants.MVP = vp;
-                constants.InvModelMat = glm::mat4(1.f);
-                auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::LitColor);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
-                auto& terrain = m_Registry.get<MeshComponent>(m_TerrainEntity);
-                terrain.Draw(commandBuffer);
-            }
-            {	// Draw models
-                auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Basic);
-                auto view = m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
-                for (auto [entity, transform, mesh, texture] : view.each()) {
-                    MeshPushConstants constants;
-                    //constants.MVP = vp * transform.GetTransform();
-                    glm::mat4 modelMat = glm::translate(transform.Position);
-                    modelMat = glm::scale(modelMat, transform.Scale);
-                    constants.MVP = vp * modelMat;
-                    constants.InvModelMat = glm::inverse(modelMat);
-                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                        0, sizeof(MeshPushConstants), &constants);
-
-                    texture.Bind(commandBuffer);
-
-                    mesh.Draw(commandBuffer);
-                }
-            }
-        } else { // Debug drawing of normals for geometry
-            auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Normal);
-            auto view = m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
-            for (auto [entity, transform, mesh, texture] : view.each()) {
-                MeshPushConstants constants;
-                //constants.MVP = vp * transform.GetTransform();
-                glm::mat4 modelMat = glm::translate(transform.Position);
-                modelMat = glm::scale(modelMat, transform.Scale);
-                constants.MVP = vp * modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
-
-                texture.Bind(commandBuffer);
-
-                mesh.Draw(commandBuffer);
-            }
-        }
-
-        if (m_BShowPointcloud) {	// Draw point cloud
-            auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Point);
-            auto view = m_Registry.view<PointCloudComponent>();
-            for (auto [entity, cloud] : view.each()) {
-                ColorPushConstants constants;
-                constants.MVP = vp;
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(ColorPushConstants), &constants);
-                cloud.Draw(commandBuffer);
-            }
-        }
-
-        if (m_DebugDraw) { // Draw debug lines
-            auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
-
-            ColorPushConstants constants;
-            constants.MVP = vp;
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                0, sizeof(ColorPushConstants), &constants);
-
-            auto& lineMesh = m_Registry.get<LineMeshComponent>(m_DebugLineEntity);
-            lineMesh.Draw(commandBuffer);
-
-            auto& sphereMesh = m_Registry.get<LineMeshComponent>(m_DebugSphereEntity);
-            for (auto& transform : m_DebugSphereTransforms) {
-                constants.MVP = vp * transform;
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(ColorPushConstants), &constants);
-                sphereMesh.Draw(commandBuffer);
-            }
-
-            auto& boxMesh = m_Registry.get<LineMeshComponent>(m_DebugAABBEntity);
-            for (auto& transform : m_DebugAABBTransforms) {
-                constants.MVP = vp * transform;
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(ColorPushConstants), &constants);
-                boxMesh.Draw(commandBuffer);
-            }
-        }
-
-        {	// Draw ImGui
-            ImGui::Render();
-            ImDrawData* drawData = ImGui::GetDrawData();
-            ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
-        }
-
-        m_Renderer->EndRecording();
         m_Renderer->SubmitAndPresent();
     }
 
     void Application::DebugInit() {
+        auto& m_Registry = m_Scene.GetCulledScene();
+
         m_DebugLineBuffer.resize(m_DebugLineSpace);
         m_DebugLineEntity = m_Registry.create();
         m_Registry.emplace<LineMeshComponent>(m_DebugLineEntity, m_DebugLineBuffer);
@@ -575,6 +279,7 @@ namespace FLOOF {
     }
 
     void Application::DebugUpdateLineBuffer() {
+        auto& m_Registry = m_Scene.GetCulledScene();
         auto commandBuffer = m_Renderer->AllocateBeginOneTimeCommandBuffer();
         auto& lineMesh = m_Registry.get<LineMeshComponent>(m_DebugLineEntity);
         lineMesh.UpdateBuffer(m_DebugLineBuffer);
@@ -620,146 +325,77 @@ namespace FLOOF {
         m_DebugAABBTransforms.push_back(transform);
     }
 
-    void Application::MakeHeightLines() {
-        std::vector<ColorVertex> heightLines;
-        glm::vec3 color{ 1.f, 1.f, 1.f };
-        auto& terrain = m_Registry.get<TerrainComponent>(m_TerrainEntity);
-        float minY = std::numeric_limits<float>::max();
-        float maxY = std::numeric_limits<float>::min();
-        for (auto& triangle : terrain.Triangles) {
-            if (triangle.A.y < minY)
-                minY = triangle.A.y;
-            if (triangle.B.y < minY)
-                minY = triangle.B.y;
-            if (triangle.C.y < minY)
-                minY = triangle.C.y;
+    void Application::SetRendererType(SceneRendererType type)
+    {
+        if (type == m_SceneRendererType) return;
 
-            if (triangle.A.y > maxY)
-                maxY = triangle.A.y;
-            if (triangle.B.y > maxY)
-                maxY = triangle.B.y;
-            if (triangle.C.y > maxY)
-                maxY = triangle.C.y;
-        }
-
-        Plane p;
-        p.pos = glm::vec3(0.f, minY, 0.f);
-        p.normal = glm::vec3(0.f, 1.f, 0.f);
-        for (float height = minY; height < maxY; height += 50.f) {
-            p.pos.y = height;
-            for (auto triangle : terrain.Triangles) {
-                bool above = false;
-                bool below = false;
-
-                if (triangle.A.y > p.pos.y) {
-                    above = true;
-                } else {
-                    below = true;
-                }
-                if (triangle.B.y > p.pos.y) {
-                    above = true;
-                } else {
-                    below = true;
-                }
-                if (triangle.C.y > p.pos.y) {
-                    above = true;
-                } else {
-                    below = true;
-                }
-
-                // Check if triangle is intersecting plane
-                if (above && below) {
-                    std::vector<glm::vec3> abovePositions;
-                    std::vector<glm::vec3> belowPositions;
-
-                    if (triangle.A.y > p.pos.y) {
-                        abovePositions.push_back(triangle.A);
-                    } else {
-                        belowPositions.push_back(triangle.A);
-                    }
-                    if (triangle.B.y > p.pos.y) {
-                        abovePositions.push_back(triangle.B);
-                    } else {
-                        belowPositions.push_back(triangle.B);
-                    }
-                    if (triangle.C.y > p.pos.y) {
-                        abovePositions.push_back(triangle.C);
-                    } else {
-                        belowPositions.push_back(triangle.C);
-                    }
-
-                    for (auto& a : abovePositions) {
-                        for (auto& b : belowPositions) {
-                            glm::vec3 ab = b - a;
-                            float d = glm::dot(p.normal, p.pos);
-                            float t = (d - glm::dot(p.normal, a)) / glm::dot(p.normal, ab);
-                            glm::vec3 intersectionPoint = a + t * ab;
-
-                            ColorVertex v;
-                            // Small offset to combat z-fighting
-                            v.Pos = intersectionPoint + triangle.N * 0.005f;
-                            v.Color = color;
-                            heightLines.push_back(v);
-                        }
-                    }
-                }
-            }
-        }
-        m_HeightLinesEntity = m_Registry.create();
-        m_Registry.emplace<LineMeshComponent>(m_HeightLinesEntity, heightLines);
+        m_SceneRendererType = type;
+        UpdateSceneRenderer();
     }
 
-    const void Application::SpawnRain(const int count) {
+    SceneRendererType Application::GetRendererType() const
+    {
+        return m_SceneRendererType;
+    }
 
-        auto& terrain = m_Registry.get<TerrainComponent>(m_TerrainEntity);
-        const int minX{ 0 };
-        const int maxX{ terrain.Height };
-        const int minZ{ 0 };
-        const int maxZ{ terrain.Width };
+    void Application::SetGameMode(GameMode* gm)
+    {
+        if (gm == m_GameMode) return;
 
-        for (int i = 0; i < count; i++) {
-            float rad = Math::RandFloat(0.2f, 0.7f);
-            float mass = rad * 10.f;
-            glm::vec3 loc(Math::RandDouble(minX, maxX), 20.f, Math::RandDouble(minZ, maxZ));
-            SpawnBall(loc, rad, mass, 0.10f);
+        delete m_GameMode;
+        m_GameMode = gm;
+        m_GameMode->OnCreate();
+    }
+
+    const GameMode* Application::GetGameMode() const
+    {
+        return m_GameMode;
+    }
+
+    void Application::CreateSceneRenderer()
+    {
+        if (m_SceneRenderer)
+        {
+            Utils::Logger::s_Logger->log(Utils::Logger::ERROR, "SceneRenderer exists! Delete previous instance to create a new one\n");
+            return;
+        }
+
+        switch (m_SceneRendererType)
+        {
+        case SceneRendererType::Forward:
+        {
+            m_SceneRenderer = new ForwardSceneRenderer;
+        }
+        break;
+        case SceneRendererType::Deferred:
+        {
+            m_SceneRenderer = new DeferredSceneRenderer;
+        }
+        break;
+        default:
+        {
+            m_SceneRenderer = nullptr;
+            LOG("SceneRendererType is invalid\n");
+        }
+        break;
         }
     }
 
-    const void Application::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture) {
-        const auto ballEntity = m_Registry.create();
-        auto& transform = m_Registry.emplace<TransformComponent>(ballEntity);
-        auto& ball = m_Registry.emplace<BallComponent>(ballEntity);
-        auto& time = m_Registry.emplace<TimeComponent>(ballEntity);
-        auto& spline = m_Registry.emplace<BSplineComponent>(ballEntity);
-        std::vector<ColorVertex> tempBuffer(m_MaxBSplineLines);
-        auto& lineMesh = m_Registry.emplace<LineMeshComponent>(ballEntity, tempBuffer);
-        tempBuffer.clear();
-        lineMesh.UpdateBuffer(tempBuffer);
+    void Application::DestroySceneRenderer()
+    {
+        m_Renderer->FinishAllFrames();
+        delete m_SceneRenderer; m_SceneRenderer = nullptr;
+    }
 
-        ball.Radius = radius;
-        ball.Mass = mass;
-        ball.Elasticity = elasticity;
-        time.CreationTime = Timer::GetTime();
-        time.LastPoint = time.CreationTime;
-
-        auto& velocity = m_Registry.emplace<VelocityComponent>(ballEntity);
-        m_Registry.emplace<MeshComponent>(ballEntity, "Assets/Ball.obj");
-        m_Registry.emplace<TextureComponent>(ballEntity, texture);
-
-        transform.Position = location;
-        transform.Scale = glm::vec3(ball.Radius);
-
-        ball.CollisionSphere.radius = ball.Radius;
-        ball.CollisionSphere.pos = transform.Position;
-
-        m_BallCount++;
+    void Application::UpdateSceneRenderer()
+    {
+        DestroySceneRenderer();
+        CreateSceneRenderer();
     }
 
     void Application::DebugDrawPath(std::vector<glm::vec3>& path) {
         for (int i{ 1 }; i < path.size(); i++) {
             DebugDrawLine(path[i - 1], path[i], glm::vec3(255.f, 255.f, 255.f));
         }
-
     }
-
 }

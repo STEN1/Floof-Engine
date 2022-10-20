@@ -7,4 +7,8 @@ namespace FLOOF {
     entt::registry& Scene::GetCulledScene() {
         return m_Scene;
     }
+    void Scene::Clear()
+    {
+        m_Scene.clear();
+    }
 }

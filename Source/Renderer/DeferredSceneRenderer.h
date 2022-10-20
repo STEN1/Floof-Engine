@@ -1,3 +1,5 @@
+#pragma once
+
 #include "SceneRenderer.h"
 
 namespace FLOOF {

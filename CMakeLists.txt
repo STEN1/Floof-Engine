@@ -32,7 +32,25 @@ add_executable(Floof
     Source/Octree.h 
     Source/Octree.cpp
     Source/Simulate.cpp
-    Source/Simulate.h "Source/Renderer/ModelManager.h" "Source/Renderer/TextureManager.h" "Source/Renderer/ModelManager.cpp" "Source/Renderer/TextureManager.cpp" "Source/Renderer/Mesh.h" "Source/Renderer/Texture.h" "Source/Renderer/Texture.cpp"  "Source/Renderer/SceneRenderer.h" "Source/Renderer/ForwardSceneRenderer.h" "Source/Renderer/DeferredSceneRenderer.h" "Source/Renderer/DeferredSceneRenderer.cpp" "Source/Renderer/ForwardSceneRenderer.cpp" "Source/Scene.h" "Source/Scene.cpp")
+    Source/Simulate.h 
+    Source/Renderer/ModelManager.h 
+    Source/Renderer/TextureManager.h 
+    Source/Renderer/ModelManager.cpp 
+    Source/Renderer/TextureManager.cpp 
+    Source/Renderer/Mesh.h 
+    Source/Renderer/Texture.h 
+    Source/Renderer/Texture.cpp  
+    Source/Renderer/SceneRenderer.h 
+    Source/Renderer/ForwardSceneRenderer.h 
+    Source/Renderer/DeferredSceneRenderer.h 
+    Source/Renderer/DeferredSceneRenderer.cpp 
+    Source/Renderer/ForwardSceneRenderer.cpp 
+    Source/Scene.h
+    Source/Scene.cpp 
+    Source/GameMode/GameMode.h 
+    Source/GameMode/PhysicsGM.h 
+    Source/GameMode/PhysicsGM.cpp 
+)
 
 
 find_package(Vulkan REQUIRED)
@@ -63,7 +81,7 @@ target_sources(IMGUI
     PRIVATE
     ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-    )
+)
 
 target_include_directories(IMGUI
     PUBLIC ${IMGUI_DIR}

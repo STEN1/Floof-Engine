@@ -10,35 +10,50 @@
 #include <unordered_map>
 #include "Physics.h"
 #include "LasLoader.h"
+#include "Scene.h"
+#include "Renderer/SceneRenderer.h"
+#include "GameMode/GameMode.h"
+#include "Scene.h"
 
 namespace FLOOF {
     class Application {
-    public:
         Application();
         ~Application();
+        
+    public:
         int Run();
+
+        static Application& Get()
+        {
+            static Application app;
+            return app;
+        };
+   
+        entt::entity m_CameraEntity;
     private:
+        /// <summary>
+        /// Updates GUI for application
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        void UpdateImGui(float deltaTime);
+
+        /// <summary>
+        /// Updates all cameras
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        void UpdateCameraSystem(float deltaTime);
+
         void Update(double deltaTime);
-        void Simulate(double deltaTime);
+
+        void DrawDebugLines();
+
         void Draw();
-        entt::registry m_Registry;
+        
         GLFWwindow* m_Window;
         ImGuiContext* m_ImguiContext;
         VulkanRenderer* m_Renderer;
-        entt::entity m_CameraEntity;
-        entt::entity m_TerrainEntity;
-
+       
         uint32_t m_MaxBSplineLines = 1000;
-
-        // ----------- Terrain -------------------
-        void MakeHeightLines();
-        entt::entity m_HeightLinesEntity;
-
-        // ----------- Physics utils -------------
-        const void SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity = 0.5f, const std::string& texture = "Assets/LightBlue.png");
-        const void SpawnRain(const int count);
-
-        int m_BallCount{ 0 };
 
         enum DebugLine {
             WorldAxis = 0,
@@ -94,5 +109,39 @@ namespace FLOOF {
         uint32_t m_DebugLineSpace = 9000000;
 
         float m_CameraSpeed{ 100.f };
+
+    public:
+        /*SceneRenderer Methods*/
+        void SetRendererType(SceneRendererType type);
+        SceneRendererType GetRendererType() const;
+
+        /*GameMode Methods*/
+        void SetGameMode(class GameMode* gm);
+        const GameMode* GetGameMode() const;
+    private: 
+        /// <summary>
+        /// Creates a new scene renderer based on current SceneRenderType
+        /// </summary>
+        void CreateSceneRenderer();
+
+        /// <summary>
+        /// Deletes current scene renderer
+        /// </summary>
+        void DestroySceneRenderer();
+
+        /// <summary>
+        /// Deletes and Creates a new SceneRenderer based on SceneRendererType
+        /// </summary>
+        void UpdateSceneRenderer();
+
+        /*SceneRenderer Objects*/     
+        class SceneRenderer* m_SceneRenderer{nullptr};
+        SceneRendererType m_SceneRendererType{ SceneRendererType::Forward };
+
+        /*GameMode, temp*/
+        GameMode* m_GameMode{ nullptr };
+        
+        /*Scene objects*/
+        Scene m_Scene;
     };
 }

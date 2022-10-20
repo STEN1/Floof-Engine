@@ -1,3 +1,5 @@
+#pragma once
+
 #include "SceneRenderer.h"
 
 namespace FLOOF {
@@ -5,6 +7,6 @@ namespace FLOOF {
     public:
         ForwardSceneRenderer();
         ~ForwardSceneRenderer();
-        void Render(entt::registry& scene) override;
+        void Render(entt::registry& scene) override;  
     };
 }
