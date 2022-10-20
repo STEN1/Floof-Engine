@@ -146,6 +146,9 @@ namespace FLOOF {
 
         void CreateSurface();
         void CreateInstance();
+#ifndef NDEBUG
+        void CreateDebugUtilsMessenger();
+#endif
         void CreateDevice();
 
         void CreatePhysicalDevice();
@@ -252,6 +255,9 @@ namespace FLOOF {
 #ifdef VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
             VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
 #endif
+#ifndef NDEBUG
+            VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+#endif
         };
 
         struct QueueFamilyIndices {
@@ -276,6 +282,7 @@ namespace FLOOF {
         const std::vector<const char*> m_ValidationLayers = {
         "VK_LAYER_KHRONOS_validation"
         };
+        VkDebugUtilsMessengerEXT m_DebugMessenger;
 #endif
     };
 
