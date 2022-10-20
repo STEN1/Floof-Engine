@@ -32,7 +32,7 @@ add_executable(Floof
     Source/Octree.h 
     Source/Octree.cpp
     Source/Simulate.cpp
-    Source/Simulate.h)
+    Source/Simulate.h "Source/Renderer/MeshManager.h" "Source/Renderer/TextureManager.h" "Source/Renderer/MeshManager.cpp" "Source/Renderer/TextureManager.cpp" "Source/Renderer/Mesh.h" "Source/Renderer/Texture.h" "Source/Renderer/Texture.cpp" "Source/Renderer/Mesh.cpp")
 
 
 find_package(Vulkan REQUIRED)
