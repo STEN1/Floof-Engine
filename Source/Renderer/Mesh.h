@@ -1,17 +1,27 @@
 #include "../Floof.h"
 #include "Vertex.h"
+#include "VulkanRenderer.h"
 
 namespace FLOOF {
+    struct MeshData {
+        VulkanBuffer VertexBuffer{};
+        VulkanBuffer IndexBuffer{};
+        uint32_t VertexCount{};
+        uint32_t IndexCount{};
+    };
+
     template<typename VertexType>
     class StaticMesh {
     public:
         StaticMesh();
+        std::vector<MeshData> Data{};
     };
 
     template<typename VertexType>
     class DynamicMesh {
     public:
         DynamicMesh();
+        MeshData Data{};
     };
 
     using ModelMesh = StaticMesh<MeshVertex>;

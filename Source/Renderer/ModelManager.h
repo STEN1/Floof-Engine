@@ -9,7 +9,7 @@ namespace FLOOF {
         ModelManager();
     private:
         struct ModelData {
-            std::vector<ModelMesh> Meshes;
+            ModelMesh Model;
             uint32_t RefCount = 0;
         };
         std::unordered_map<std::string, ModelData> s_MeshCache;
