@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "Floof.h"
-#include "Vertex.h"
+#include "Renderer/Vertex.h"
 #include "Physics.h"
 class LasLoader {
 

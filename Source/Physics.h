@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math.h"
-#include "Vertex.h"
+#include "Renderer/Vertex.h"
 
 namespace FLOOF {
     class CollisionShape;
