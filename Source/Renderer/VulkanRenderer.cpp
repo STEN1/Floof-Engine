@@ -16,6 +16,7 @@ namespace FLOOF {
         // Message is important enough to show
         if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
             std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+            int breakMeDaddy = 80085;
         }
 
         return VK_FALSE;
