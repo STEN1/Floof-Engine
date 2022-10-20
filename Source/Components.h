@@ -5,8 +5,18 @@
 #include "Floof.h"
 #include "Physics.h"
 #include <chrono>
+#include <entt/entt.hpp>
 
 namespace FLOOF {
+    struct Relationship {
+        entt::entity Parent = entt::null;
+        std::vector<entt::entity> Children;
+    };
+
+    struct TagComponent {
+        std::string Tag = "Entity";
+    };
+
     struct TransformComponent {
         inline static constexpr bool in_place_delete = true;
 
