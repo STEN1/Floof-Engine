@@ -32,7 +32,7 @@ add_executable(Floof
     Source/Octree.h 
     Source/Octree.cpp
     Source/Simulate.cpp
-    Source/Simulate.h "Source/Renderer/MeshManager.h" "Source/Renderer/TextureManager.h" "Source/Renderer/MeshManager.cpp" "Source/Renderer/TextureManager.cpp" "Source/Renderer/Mesh.h" "Source/Renderer/Texture.h" "Source/Renderer/Texture.cpp"  "Source/Renderer/SceneRenderer.h" "Source/Renderer/ForwardSceneRenderer.h" "Source/Renderer/DeferredSceneRenderer.h" "Source/Renderer/DeferredSceneRenderer.cpp" "Source/Renderer/ForwardSceneRenderer.cpp" "Source/Scene.h" "Source/Scene.cpp")
+    Source/Simulate.h "Source/Renderer/ModelManager.h" "Source/Renderer/TextureManager.h" "Source/Renderer/ModelManager.cpp" "Source/Renderer/TextureManager.cpp" "Source/Renderer/Mesh.h" "Source/Renderer/Texture.h" "Source/Renderer/Texture.cpp"  "Source/Renderer/SceneRenderer.h" "Source/Renderer/ForwardSceneRenderer.h" "Source/Renderer/DeferredSceneRenderer.h" "Source/Renderer/DeferredSceneRenderer.cpp" "Source/Renderer/ForwardSceneRenderer.cpp" "Source/Scene.h" "Source/Scene.cpp")
 
 
 find_package(Vulkan REQUIRED)

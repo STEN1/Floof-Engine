@@ -14,7 +14,7 @@ namespace FLOOF {
         DynamicMesh();
     };
 
-    using StaticMeshComponent = StaticMesh<MeshVertex>;
+    using ModelMesh = StaticMesh<MeshVertex>;
     using StaticLineMeshComponent = StaticMesh<ColorVertex>;
     using DynamicLineMeshComponent = DynamicMesh<ColorVertex>;
 }
