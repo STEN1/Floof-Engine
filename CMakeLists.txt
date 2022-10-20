@@ -53,24 +53,24 @@ set(IMGUI_DIR Libs/imgui)
 add_library(IMGUI STATIC)
 
 target_sources(IMGUI
-               PRIVATE
-                    ${IMGUI_DIR}/imgui_demo.cpp
-                    ${IMGUI_DIR}/imgui_draw.cpp
-                    ${IMGUI_DIR}/imgui_tables.cpp
-                    ${IMGUI_DIR}/imgui_widgets.cpp
-                    ${IMGUI_DIR}/imgui.cpp
+    PRIVATE
+    ${IMGUI_DIR}/imgui_demo.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui.cpp
 
-                PRIVATE
-                    ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
-                    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-                )
+    PRIVATE
+    ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    )
 
 target_include_directories(IMGUI
-                            PUBLIC ${IMGUI_DIR}
-                            PUBLIC ${IMGUI_DIR}/backends
-                            PUBLIC ${Vulkan_INCLUDE_DIRS}
-                            PUBLIC Libs/glfw/include
-                            )
+    PUBLIC ${IMGUI_DIR}
+    PUBLIC ${IMGUI_DIR}/backends
+    PUBLIC ${Vulkan_INCLUDE_DIRS}
+    PUBLIC Libs/glfw/include
+    )
 
 target_link_libraries(Floof IMGUI)
 
@@ -85,14 +85,14 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Normal.frag -o ${CMAKE_C
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.frag.spv")
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_CURRENT_SOURCE_DIR}/Shaders
-                ${CMAKE_CURRENT_BINARY_DIR}/Shaders
-)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND 
+    ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/Shaders
+    ${CMAKE_CURRENT_BINARY_DIR}/Shaders
+    )
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_CURRENT_SOURCE_DIR}/Assets
-                ${CMAKE_CURRENT_BINARY_DIR}/Assets
-)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+    ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/Assets
+    ${CMAKE_CURRENT_BINARY_DIR}/Assets
+    )
