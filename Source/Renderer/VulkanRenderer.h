@@ -35,9 +35,9 @@ namespace FLOOF {
     };
 
     struct VulkanImage {
-        VkImage Image;
-        VmaAllocation Allocation;
-        VmaAllocationInfo AllocationInfo;
+        VkImage Image = VK_NULL_HANDLE;
+        VmaAllocation Allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo AllocationInfo{};
     };
 
     struct VulkanCombinedTextureSampler {
