@@ -4,7 +4,7 @@
 #include <vector>
 #include <functional>
 
-#include "Math.h"
+#include "../Math.h"
 
 namespace FLOOF {
     struct MeshVertex {
