@@ -9,15 +9,15 @@ namespace FLOOF {
     VulkanRenderer::VulkanRenderer(GLFWwindow* window)
         : m_Window{ window } {
         s_Singleton = this;
-        InitInstance();
-        InitSurface();
-        InitDevice();
+        CreateInstance();
+        CreateSurface();
+        CreateDevice();
 
-        InitVulkanAllocator();
-        InitSwapChain();
-        InitImageViews();
-        InitDepthBuffer();
-        InitRenderPass();
+        CreateVulkanAllocator();
+        CreateSwapChain();
+        CreateImageViews();
+        CreateDepthBuffer();
+        CreateRenderPass();
         {	// Default light shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
@@ -34,7 +34,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
             params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
         {	// Lit color shader for terrain.
             RenderPipelineParams params;
@@ -47,7 +47,7 @@ namespace FLOOF {
             params.BindingDescription = ColorNormalVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorNormalVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
         {	// Line drawing shader
             RenderPipelineParams params;
@@ -60,7 +60,7 @@ namespace FLOOF {
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(ColorPushConstants);
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
         {	// Line drawing shader with depth
             RenderPipelineParams params;
@@ -73,7 +73,7 @@ namespace FLOOF {
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(ColorPushConstants);
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
         {	// Line strip drawing shader with depth
             RenderPipelineParams params;
@@ -86,7 +86,7 @@ namespace FLOOF {
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(ColorPushConstants);
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
         {	// LineStrip drawing shader
             RenderPipelineParams params;
@@ -99,7 +99,7 @@ namespace FLOOF {
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(ColorPushConstants);
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
         {	// Point drawing shader
             RenderPipelineParams params;
@@ -112,7 +112,7 @@ namespace FLOOF {
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(ColorPushConstants);
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
         {	// Debug shader for normals
             RenderPipelineParams params;
@@ -125,13 +125,13 @@ namespace FLOOF {
             params.BindingDescription = NormalVertex::GetBindingDescription();
             params.AttributeDescriptions = NormalVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            InitGraphicsPipeline(params);
+            CreateGraphicsPipeline(params);
         }
-        InitDescriptorPools();
-        InitFramebuffers();
-        InitCommandPool();
-        InitCommandBuffer();
-        InitSyncObjects();
+        CreateDescriptorPools();
+        CreateFramebuffers();
+        CreateCommandPool();
+        AllocateCommandBuffers();
+        CreateSyncObjects();
         InitGlfwCallbacks();
     }
 
@@ -434,14 +434,14 @@ namespace FLOOF {
         vmaDestroyBuffer(m_Allocator, buffer->Buffer, buffer->Allocation);
     }
 
-    void VulkanRenderer::InitSurface() {
+    void VulkanRenderer::CreateSurface() {
         VkResult result = glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface);
 
         ASSERT(result == VK_SUCCESS);
         LOG("Vulkan surface created.\n");
     }
 
-    void VulkanRenderer::InitInstance() {
+    void VulkanRenderer::CreateInstance() {
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = "VulkanApp";
@@ -514,13 +514,13 @@ namespace FLOOF {
         LOG("Vulkan instance created.\n");
     }
 
-    void VulkanRenderer::InitDevice() {
-        InitPhysicalDevice();
-        InitLogicalDevice();
+    void VulkanRenderer::CreateDevice() {
+        CreatePhysicalDevice();
+        CreateLogicalDevice();
         LOG("Physical and logical device created.\n");
     }
 
-    void VulkanRenderer::InitPhysicalDevice() {
+    void VulkanRenderer::CreatePhysicalDevice() {
         uint32_t deviceCount{};
         vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
         std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -544,7 +544,7 @@ namespace FLOOF {
         ValidatePhysicalDeviceSurfaceCapabilities();
     }
 
-    void VulkanRenderer::InitLogicalDevice() {
+    void VulkanRenderer::CreateLogicalDevice() {
         vkGetPhysicalDeviceFeatures(m_PhysicalDevice, &m_PhysicalDeviceFeatures);
         VkDeviceQueueCreateInfo dqCreateInfo{};
         dqCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -606,7 +606,7 @@ namespace FLOOF {
         vkGetDeviceQueue(m_LogicalDevice, m_QueueFamilyIndices.PresentIndex, 0, &m_PresentQueue);
     }
 
-    void VulkanRenderer::InitVulkanAllocator() {
+    void VulkanRenderer::CreateVulkanAllocator() {
         VmaVulkanFunctions vulkanFunctions = {};
         vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
         vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
@@ -622,7 +622,7 @@ namespace FLOOF {
         ASSERT(result == VK_SUCCESS);
     }
 
-    void VulkanRenderer::InitSwapChain() {
+    void VulkanRenderer::CreateSwapChain() {
         m_SwapChainImageFormat = GetSurfaceFormat(VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
         m_PresentMode = GetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
         m_SwapChainExtent = GetWindowExtent();
@@ -670,7 +670,7 @@ namespace FLOOF {
         LOG("Swapchain created.\n");
     }
 
-    void VulkanRenderer::InitImageViews() {
+    void VulkanRenderer::CreateImageViews() {
         m_SwapChainImageViews.resize(m_SwapChainImages.size());
         for (size_t i = 0; i < m_SwapChainImages.size(); i++) {
             auto createInfo = MakeImageViewCreateInfo(i);
@@ -680,7 +680,7 @@ namespace FLOOF {
         LOG("Image views created.\n");
     }
 
-    void VulkanRenderer::InitRenderPass() {
+    void VulkanRenderer::CreateRenderPass() {
         VkAttachmentDescription colorAttachments[2]{};
         colorAttachments[0].format = m_SwapChainImageFormat.format;
         colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -736,7 +736,7 @@ namespace FLOOF {
         LOG("Render pass created.\n");
     }
 
-    void VulkanRenderer::InitGraphicsPipeline(const RenderPipelineParams& params) {
+    void VulkanRenderer::CreateGraphicsPipeline(const RenderPipelineParams& params) {
         auto vertShader = MakeShaderModule(params.VertexPath.c_str());
         auto fragShader = MakeShaderModule(params.FragmentPath.c_str());
 
@@ -897,7 +897,7 @@ namespace FLOOF {
         LOG("Render pipeline created.\n");
     }
 
-    void VulkanRenderer::InitFramebuffers() {
+    void VulkanRenderer::CreateFramebuffers() {
         m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
         for (size_t i = 0; i < m_SwapChainImageViews.size(); i++) {
             VkImageView attachments[] = {
@@ -920,7 +920,7 @@ namespace FLOOF {
         LOG("Framebuffers created.\n");
     }
 
-    void VulkanRenderer::InitDepthBuffer() {
+    void VulkanRenderer::CreateDepthBuffer() {
         m_DepthFormat = FindDepthFormat();
         ASSERT(m_DepthFormat != VK_FORMAT_UNDEFINED);
 
@@ -959,7 +959,7 @@ namespace FLOOF {
         ASSERT(result == VK_SUCCESS);
     }
 
-    void VulkanRenderer::InitCommandPool() {
+    void VulkanRenderer::CreateCommandPool() {
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -970,7 +970,7 @@ namespace FLOOF {
         LOG("Command pool created.\n");
     }
 
-    void VulkanRenderer::InitCommandBuffer() {
+    void VulkanRenderer::AllocateCommandBuffers() {
         m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -983,7 +983,7 @@ namespace FLOOF {
         LOG("Command buffer created.\n");
     }
 
-    void VulkanRenderer::InitDescriptorPools() {
+    void VulkanRenderer::CreateDescriptorPools() {
         VkDescriptorPoolSize poolSize{};
         poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         poolSize.descriptorCount = 256;
@@ -1001,7 +1001,7 @@ namespace FLOOF {
 
     }
 
-    void VulkanRenderer::InitSyncObjects() {
+    void VulkanRenderer::CreateSyncObjects() {
         m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1085,10 +1085,10 @@ namespace FLOOF {
         CleanupSwapChain();
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface, &m_SwapChainSupport.capabilities);
-        InitSwapChain();
-        InitImageViews();
-        InitDepthBuffer();
-        InitFramebuffers();
+        CreateSwapChain();
+        CreateImageViews();
+        CreateDepthBuffer();
+        CreateFramebuffers();
     }
 
     void VulkanRenderer::WaitWhileMinimized() {
