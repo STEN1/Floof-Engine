@@ -66,16 +66,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
-
-#include_directories(Libs/bullet3/src)
-
+add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
 set(Bullet_Dir Libs/bullet3)
-include_directories(
-        ${Bullet_Dir}
-        ${Bullet_Dir}/src
-        ${Bullet_Dir}/Extras)
-#target_link_libraries(Floof BulletCollision BulletDynamics LinearMath)
-
 add_library(Bullet STATIC)
 target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
@@ -83,20 +75,6 @@ target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
         ${Bullet_Dir}/src/btLinearMathAll.cpp)
 target_link_libraries(Floof Bullet)
-
-#add_library(BulletDynamics STATIC)
-#add_library(BulletCollision STATIC)
-#add_library(LinearMath STATIC)
-
-#target_include_directories(BulletDynamics PUBLIC ${Bullet_Dir})
-#target_include_directories(BulletCollision PUBLIC ${Bullet_Dir})
-#target_include_directories(LinearMath PUBLIC ${Bullet_Dir})
-
-#target_sources(BulletDynamics PRIVATE ${Bullet_Dir}/btBulletDynamicsAll.cpp)
-#target_sources(BulletCollision PRIVATE ${Bullet_Dir}/btBulletCollisionAll.cpp)
-#target_sources(LinearMath PRIVATE ${Bullet_Dir}/btLinearMathAll.cpp)
-
-#target_link_libraries(Floof BulletDynamics BulletCollision LinearMath)
 
 
 add_subdirectory(Libs/entt)
