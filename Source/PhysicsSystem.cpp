@@ -16,12 +16,12 @@ namespace FLOOF {
 
         //creating invisible floor
         {
-            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(100.), btScalar(10.), btScalar(100.)));
+            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.), btScalar(10.), btScalar(200.)));
 
 
             btTransform groundTransform;
             groundTransform.setIdentity();
-            groundTransform.setOrigin(btVector3(0, -100, 0));
+            groundTransform.setOrigin(btVector3(0, -200, 0));
 
             btScalar mass(0.);
 
@@ -95,7 +95,7 @@ namespace FLOOF {
         }
         //delete mDynamicsWorld.get();
         //delete mSolver.get();
-       // delete mOverlappingPairCache.get();
+        //delete mOverlappingPairCache.get();
         //delete mDispatcher.get();
         //delete mCollisionConfiguration.get();
     }

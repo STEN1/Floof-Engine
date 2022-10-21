@@ -9,7 +9,7 @@ void FLOOF::PhysicsGM::OnCreate()
     int width = 5;
     float spacing = 4.f;
 
-    for (size_t y = 0; y < height; y++)
+    for (size_t y = 10; y < height+10; y++)
     {
         for (int x = 0; x < width; x++)
         {
@@ -19,6 +19,8 @@ void FLOOF::PhysicsGM::OnCreate()
             }
 
     }
+
+    SpawnBall(glm::vec3(0.f,-150.f,0.f), 75.f, 0.f, 0.9f,"Assets/LightBlue.png");
 
 }
 
