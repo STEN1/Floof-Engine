@@ -68,17 +68,20 @@ target_link_libraries(Floof glfw)
 
 #include_directories(Libs/bullet3/src)
 set(Bullet_Dir Libs/bullet3/src)
-add_library(Bullet STATIC)
-target_sources(Bullet
-        PRIVATE
-        ${Bullet_Dir}/btBulletCollisionAll.cpp
-        ${Bullet_Dir}/btBulletDynamicsAll.cpp
-        #${Bullet_Dir}/btLinearMathAll.cpp
-    )
-target_include_directories(Bullet
-        PUBLIC ${Bullet_Dir}
-        )
-target_link_libraries(Floof Bullet)
+
+add_library(BulletDynamics STATIC)
+add_library(BulletCollision STATIC)
+add_library(LinearMath STATIC)
+
+target_include_directories(BulletDynamics PUBLIC ${Bullet_Dir})
+target_include_directories(BulletCollision PUBLIC ${Bullet_Dir})
+target_include_directories(LinearMath PUBLIC ${Bullet_Dir}/..)
+
+target_sources(BulletDynamics PRIVATE ${Bullet_Dir}/btBulletDynamicsAll.cpp)
+target_sources(BulletCollision PRIVATE ${Bullet_Dir}/btBulletCollisionAll.cpp)
+target_sources(LinearMath PRIVATE ${Bullet_Dir}/btLinearMathAll.cpp)
+
+target_link_libraries(Floof BulletDynamics BulletCollision LinearMath)
 
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
