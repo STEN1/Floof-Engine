@@ -8,6 +8,7 @@
 #include <entt/entt.hpp>
 #include "Renderer/Mesh.h"
 #include "Renderer/Texture.h"
+#include "btBulletDynamicsCommon.h"
 
 namespace FLOOF {
     struct Relationship {
@@ -179,6 +180,14 @@ namespace FLOOF {
     struct TimeComponent {
         std::chrono::high_resolution_clock::time_point CreationTime;
         std::chrono::high_resolution_clock::time_point LastPoint;
+    };
+
+    struct CollisionComponent{
+        std::shared_ptr<btRigidBody> RigidBody;
+        std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
+        btTransform Transform;
+        std::shared_ptr<btDefaultMotionState> DefaultMotionState;
+
     };
 }
 

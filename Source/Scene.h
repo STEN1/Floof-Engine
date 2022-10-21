@@ -19,7 +19,9 @@ namespace FLOOF {
         /// Make sure no registry resource is being used on the gpu
         /// </summary>
         void Clear();
+
     private:
         entt::registry m_Scene;
+
     };
 }
