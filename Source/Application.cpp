@@ -210,15 +210,20 @@ namespace FLOOF {
         {
             auto& m_Registry = m_Scene.GetCulledScene();
             m_SceneRenderer->Render(m_Registry);
-        }    
-        m_Renderer->Submit();
+        }
+        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
+        m_Renderer->EndAndSubmitGraphics(
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer,
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].ImageAvailableSemaphore,
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].RenderFinishedSemaphore,
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].Fence);
         // Update and Render additional Platform Windows
         //ImGuiIO& io = ImGui::GetIO();
         //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         //    ImGui::UpdatePlatformWindows();
         //    ImGui::RenderPlatformWindowsDefault();
         //}
-        m_Renderer->Present();
+        m_Renderer->Present(*vulkanWindow);
     }
 
     void Application::SetRendererType(SceneRendererType type)

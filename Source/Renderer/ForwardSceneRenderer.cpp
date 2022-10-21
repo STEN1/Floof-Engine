@@ -11,7 +11,9 @@ namespace FLOOF {
     void ForwardSceneRenderer::Render(entt::registry& m_Registry) {
         auto m_Renderer = VulkanRenderer::Get();
         auto& app = Application::Get();
-        auto commandBuffer = m_Renderer->StartRecording();
+        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
+        m_Renderer->StartRecordingGraphics(*vulkanWindow);
+        auto commandBuffer = vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer;
 
         // Camera setup
         auto extent = m_Renderer->GetExtent();
@@ -40,7 +42,5 @@ namespace FLOOF {
             ImDrawData* drawData = ImGui::GetDrawData();
             ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
         }
-
-        m_Renderer->EndRecording();
     }
 }
