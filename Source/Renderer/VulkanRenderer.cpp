@@ -164,7 +164,7 @@ namespace FLOOF {
         vmaDestroyAllocator(m_Allocator);
         CleanupSwapChain();
 
-        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (int i = 0; i < VulkanGlobals::MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(m_LogicalDevice, m_ImageAvailableSemaphores[i], nullptr);
             vkDestroySemaphore(m_LogicalDevice, m_RenderFinishedSemaphores[i], nullptr);
             vkDestroyFence(m_LogicalDevice, m_InFlightFences[i], nullptr);
@@ -304,7 +304,7 @@ namespace FLOOF {
             result == VK_ERROR_OUT_OF_DATE_KHR ||
             result == VK_SUBOPTIMAL_KHR);
 
-        m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        m_CurrentFrame = (m_CurrentFrame + 1) % VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
     }
 
     ImGui_ImplVulkan_InitInfo VulkanRenderer::GetImguiInitInfo() {
@@ -317,8 +317,8 @@ namespace FLOOF {
         initInfo.Queue = m_GraphicsQueue;
         initInfo.DescriptorPool = m_TextureDescriptorPool;
         initInfo.Subpass = 0;
-        initInfo.MinImageCount = MAX_FRAMES_IN_FLIGHT;
-        initInfo.ImageCount = MAX_FRAMES_IN_FLIGHT;
+        initInfo.MinImageCount = VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
+        initInfo.ImageCount = VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
         initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         initInfo.Allocator = nullptr;
         initInfo.CheckVkResultFn = nullptr;
@@ -1012,7 +1012,7 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::AllocateCommandBuffers() {
-        m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        m_CommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.commandPool = m_CommandPool;
@@ -1043,9 +1043,9 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CreateSyncObjects() {
-        m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+        m_ImageAvailableSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_RenderFinishedSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_InFlightFences.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -1054,7 +1054,7 @@ namespace FLOOF {
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (int i = 0; i < VulkanGlobals::MAX_FRAMES_IN_FLIGHT; i++) {
             VkResult result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]);
             ASSERT(result == VK_SUCCESS);
             result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]);

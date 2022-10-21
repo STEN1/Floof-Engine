@@ -3,6 +3,7 @@
 #define VK_ENABLE_BETA_EXTENSIONS
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <array>
 
 #include "../Math.h"
 
@@ -19,6 +20,10 @@
 
 namespace FLOOF {
 
+    struct VulkanGlobals {
+        inline static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+    };
+
     struct MeshPushConstants {
         glm::mat4 MVP;
         glm::mat4 InvModelMat;
@@ -26,18 +31,6 @@ namespace FLOOF {
 
     struct ColorPushConstants {
         glm::mat4 MVP;
-    };
-
-    struct VulkanBuffer {
-        VkBuffer Buffer = VK_NULL_HANDLE;
-        VmaAllocation Allocation = VK_NULL_HANDLE;
-        VmaAllocationInfo AllocationInfo{};
-    };
-
-    struct VulkanImage {
-        VkImage Image = VK_NULL_HANDLE;
-        VmaAllocation Allocation = VK_NULL_HANDLE;
-        VmaAllocationInfo AllocationInfo{};
     };
 
     struct VulkanCombinedTextureSampler {
@@ -87,6 +80,36 @@ namespace FLOOF {
         std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
         uint32_t PushConstantSize;
         std::vector<VkDescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
+    };
+
+    struct VulkanImage {
+        VkImage Image = VK_NULL_HANDLE;
+        VmaAllocation Allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo AllocationInfo{};
+    };
+
+    struct VulkanBuffer {
+        VkBuffer Buffer = VK_NULL_HANDLE;
+        VmaAllocation Allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo AllocationInfo{};
+    };
+
+    struct VulkanFrame {
+        VkFence             Fence = VK_NULL_HANDLE;
+        VkImage             Backbuffer = VK_NULL_HANDLE;
+        VkImageView         BackBufferView = VK_NULL_HANDLE;
+        VkFramebuffer       Framebuffer = VK_NULL_HANDLE;
+    };
+
+    struct VulkanWindow {
+        VkExtent2D          Extent{};
+        VkSwapchainKHR      Swapchain = VK_NULL_HANDLE;
+        VkSurfaceFormatKHR  SurfaceFormat{};
+        VkPresentModeKHR    PresentMode{};
+        VkClearValue        ClearValue{};
+        uint32_t            FrameIndex{};
+        uint32_t            ImageCount{};
+        std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
     };
 
     class VulkanRenderer {
@@ -237,7 +260,7 @@ namespace FLOOF {
         std::vector<VkSemaphore> m_RenderFinishedSemaphores;
         std::vector<VkFence> m_InFlightFences;
 
-        const int MAX_FRAMES_IN_FLIGHT = 2;
+        
         uint32_t m_CurrentFrame = 0;
         uint32_t m_CurrentImageIndex = 0;
 
