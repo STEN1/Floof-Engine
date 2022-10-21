@@ -19,6 +19,13 @@ void FLOOF::PhysicsGM::OnCreate()
     }
 
     auto* collisionConfiguration = new btDefaultCollisionConfiguration();
+    auto* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+    auto* overlappingPairCache = new btDbvtBroadphase();
+    auto* solver = new btSequentialImpulseConstraintSolver;
+    auto* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
+
+    dynamicsWorld->setGravity(btVector3(0,-9.81,0));
+
 
 }
 
