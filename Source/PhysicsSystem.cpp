@@ -1,12 +1,9 @@
-//
-// Created by Adrian Drevland on 21/10/2022.
-//
 
 #include "PhysicsSystem.h"
 #include "Components.h"
 
 namespace FLOOF {
-    PhysicsSystem::PhysicsSystem(Scene* scene): mScene(scene) {
+    PhysicsSystem::PhysicsSystem(entt::registry& scene): mScene(scene) {
 
         mCollisionConfiguration = std::make_shared<btDefaultCollisionConfiguration>();
         mDispatcher = std::make_shared<btCollisionDispatcher>(mCollisionConfiguration.get());
@@ -16,6 +13,33 @@ namespace FLOOF {
                                                                    mSolver.get(), mCollisionConfiguration.get());
 
         mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+
+        //creating invisible floor
+        {
+            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(100.), btScalar(20.), btScalar(100.)));
+
+
+            btTransform groundTransform;
+            groundTransform.setIdentity();
+            groundTransform.setOrigin(btVector3(0, -80, 0));
+
+            btScalar mass(0.);
+
+            //rigidbody is dynamic if and only if mass is non zero, otherwise static
+            bool isDynamic = (mass != 0.f);
+
+            btVector3 localInertia(0, 0, 0);
+            if (isDynamic)
+                groundShape->calculateLocalInertia(mass, localInertia);
+
+            //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+            btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+            btRigidBody* body = new btRigidBody(rbInfo);
+
+            //add the body to the dynamics world
+            mDynamicsWorld->addRigidBody(body);
+        }
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -24,18 +48,12 @@ namespace FLOOF {
 
     void PhysicsSystem::OnUpdate(float deltaTime) {
 
-        if(!mScene){
-            std::cout << "SCENE NOT SET IN PHYSICSYSTEM";
-            return;
-        }
-
         mDynamicsWorld->stepSimulation(deltaTime, 10);
 
-        //print positions of all objects
-        for (int j = mDynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
-        {
-            btCollisionObject* obj = mDynamicsWorld->getCollisionObjectArray()[j];
-            btRigidBody* body = btRigidBody::upcast(obj);
+        auto view = mScene.view<RigidBodyComponent, TransformComponent>();
+        for(auto [entity, RigidBodyComponent, transform]: view.each()){
+
+            btRigidBody* body = RigidBodyComponent.RigidBody.get();
             btTransform trans;
             if (body && body->getMotionState())
             {
@@ -43,11 +61,22 @@ namespace FLOOF {
             }
             else
             {
-                trans = obj->getWorldTransform();
+                trans = body->getWorldTransform();
             }
-            printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+           transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getX());
+            //printf("world pos object %d = %f,%f,%f\n", float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
         }
 
 
     }
+
+    void PhysicsSystem::UpdateDynamicWorld() {
+        auto view = mScene.view<RigidBodyComponent>();
+        for(auto [entity, body]: view.each()){
+            mDynamicsWorld->addRigidBody(body.RigidBody.get());
+        }
+
+    }
+
+
 }

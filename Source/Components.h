@@ -182,7 +182,7 @@ namespace FLOOF {
         std::chrono::high_resolution_clock::time_point LastPoint;
     };
 
-    struct CollisionComponent{
+    struct RigidBodyComponent{
         std::shared_ptr<btRigidBody> RigidBody;
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;

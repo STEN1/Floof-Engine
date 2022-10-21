@@ -1,24 +1,22 @@
-//
-// Created by Adrian Drevland on 21/10/2022.
-//
-
 #ifndef FLOOF_PHYSICSSYSTEM_H
 #define FLOOF_PHYSICSSYSTEM_H
 
 #include "btBulletDynamicsCommon.h"
-#include "Scene.h"
+#include "entt/entt.hpp"
 
 namespace FLOOF {
     class PhysicsSystem {
     public:
-        PhysicsSystem(Scene& scene);
+        PhysicsSystem(entt::registry& scene);
 
         ~PhysicsSystem();
 
         void OnUpdate(float DeltaTime);
 
+        void UpdateDynamicWorld();
+
     private:
-        Scene* mScene;
+        entt::registry& mScene;
         std::shared_ptr<btDefaultCollisionConfiguration> mCollisionConfiguration{nullptr};
         std::shared_ptr<btCollisionDispatcher> mDispatcher{nullptr};
         std::shared_ptr<btBroadphaseInterface> mOverlappingPairCache{nullptr};

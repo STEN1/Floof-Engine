@@ -83,7 +83,6 @@ if(Boost_FOUND)
     target_link_libraries(Floof ${BoosT_LIBRARIES})
 endif()
 
-
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
 

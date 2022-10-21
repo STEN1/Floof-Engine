@@ -306,6 +306,7 @@ namespace FLOOF {
         {
             m_GameMode = new PhysicsGM(m_Scene);
             m_GameMode->OnCreate();
+            m_Scene.GetPhysicSystem()->UpdateDynamicWorld();
         }
         break;
         case GameModeType::Sponza:

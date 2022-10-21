@@ -41,7 +41,7 @@ const void FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, c
     auto& ball = m_Registry.emplace<BallComponent>(ballEntity);
     auto& time = m_Registry.emplace<TimeComponent>(ballEntity);
     auto& spline = m_Registry.emplace<BSplineComponent>(ballEntity);
-    auto& collision = m_Registry.emplace<CollisionComponent>(ballEntity);
+    auto& collision = m_Registry.emplace<RigidBodyComponent>(ballEntity);
 
     collision.CollisionShape = std::make_shared<btSphereShape>(radius);
     collision.Transform.setIdentity();

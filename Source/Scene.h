@@ -22,7 +22,7 @@ namespace FLOOF {
         void Clear();
 
         void OnUpdatePhysics(float deltaTime);
-
+        std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
     private:
         entt::registry m_Scene;
         std::shared_ptr<PhysicsSystem> m_PhysicSystem;

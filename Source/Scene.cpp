@@ -2,7 +2,7 @@
 
 namespace FLOOF {
     Scene::Scene() {
-        m_PhysicSystem = std::make_shared<PhysicsSystem>(&this);
+        m_PhysicSystem = std::make_shared<PhysicsSystem>(m_Scene);
     }
     entt::registry& Scene::GetCulledScene() {
         return m_Scene;
