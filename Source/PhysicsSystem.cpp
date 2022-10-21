@@ -80,6 +80,24 @@ namespace FLOOF {
 
     void PhysicsSystem::clear() {
 
+        auto view = mScene.view<RigidBodyComponent, TransformComponent>();
+        for(auto [entity, RigidBodyComponent, transform]: view.each()){
+            btRigidBody* body = RigidBodyComponent.RigidBody.get();
+            if (body && body->getMotionState())
+            {
+               delete body->getMotionState();
+            }
+            mDynamicsWorld->removeRigidBody(body);
+            delete body;
+            delete RigidBodyComponent.DefaultMotionState.get();
+            delete RigidBodyComponent.CollisionShape.get();
+            delete RigidBodyComponent.RigidBody.get();
+        }
+        //delete mDynamicsWorld.get();
+        //delete mSolver.get();
+       // delete mOverlappingPairCache.get();
+        //delete mDispatcher.get();
+        //delete mCollisionConfiguration.get();
     }
 
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {
@@ -88,4 +106,23 @@ namespace FLOOF {
     }
 
 
+    void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
+        //btIDebugDraw::drawLine(from,to,color);
+
+
+    }
+
+    void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &fromColor,const btVector3 &toColor) {
+        //btIDebugDraw::drawLine(from, to, fromColor, toColor);
+
+
+    }
+
+    PhysicsDebugDraw::PhysicsDebugDraw() {
+
+    }
+
+    PhysicsDebugDraw::~PhysicsDebugDraw() {
+
+    }
 }

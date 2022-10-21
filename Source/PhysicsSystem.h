@@ -30,5 +30,16 @@ namespace FLOOF {
 
     };
 
+    class  PhysicsDebugDraw: public btIDebugDraw{
+    public:
+        PhysicsDebugDraw();
+        ~PhysicsDebugDraw();
+
+        virtual void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) override;
+        virtual void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &fromColor, const btVector3 &toColor) override;
+
+    private:
+
+    };
 }
 #endif //FLOOF_PHYSICSSYSTEM_H
