@@ -18,7 +18,7 @@ void FLOOF::PhysicsGM::OnCreate()
         }
     }
 
-    //auto* collisionConfiguration = new btDefaultCollisionConfiguration();
+    auto* collisionConfiguration = new btDefaultCollisionConfiguration();
 
 }
 

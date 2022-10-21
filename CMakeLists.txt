@@ -83,7 +83,7 @@ target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
-        )#${Bullet_Dir}/src/btLinearMathAll.cpp)
+        ${Bullet_Dir}/src/btLinearMathAll.cpp)
 target_link_libraries(Floof Bullet)
 
 #add_library(BulletDynamics STATIC)
