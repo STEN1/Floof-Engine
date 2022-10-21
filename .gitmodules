@@ -17,3 +17,6 @@
 [submodule "Libs/python"]
 	path = Libs/python
 	url = https://github.com/boostorg/python
+[submodule "Libs/assimp"]
+	path = Libs/assimp
+	url = https://github.com/assimp/assimp
