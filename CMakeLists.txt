@@ -53,9 +53,7 @@ add_executable(Floof
     Source/GameMode/PhysicsGM.h 
     Source/GameMode/PhysicsGM.cpp 
     Source/GameMode/SponzaGM.h
-    Source/GameMode/SponzaGM.cpp
-        Libs/bullet3/build3/bullet.rc
-        )
+    Source/GameMode/SponzaGM.cpp)
 
 
 find_package(Vulkan REQUIRED)
