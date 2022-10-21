@@ -2,6 +2,7 @@
 #include "../Components.h"
 #include "../Application.h"
 
+#include "btBulletDynamicsCommon.h"
 
 void FLOOF::PhysicsGM::OnCreate()
 {
@@ -16,6 +17,16 @@ void FLOOF::PhysicsGM::OnCreate()
             SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, 0.f), 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
         }
     }
+
+    auto* collisionConfiguration = new btDefaultCollisionConfiguration();
+    auto* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+    auto* overlappingPairCache = new btDbvtBroadphase();
+    auto* solver = new btSequentialImpulseConstraintSolver;
+    auto* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
+
+    dynamicsWorld->setGravity(btVector3(0,-9.81,0));
+
+
 }
 
 void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)

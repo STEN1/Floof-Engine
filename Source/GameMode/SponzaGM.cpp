@@ -14,6 +14,7 @@ void FLOOF::SponzaGM::OnCreate()
             SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, 0.f), 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
         }
     }
+
 }
 
 void FLOOF::SponzaGM::OnUpdateEditor(float deltaTime)

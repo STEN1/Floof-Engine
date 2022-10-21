@@ -11,3 +11,6 @@
 [submodule "Libs/simdjson"]
 	path = Libs/simdjson
 	url = https://github.com/simdjson/simdjson
+[submodule "Libs/bullet3"]
+	path = Libs/bullet3
+	url = https://github.com/bulletphysics/bullet3

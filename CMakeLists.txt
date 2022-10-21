@@ -2,6 +2,8 @@
 project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
+
+
 add_executable(Floof 
     Source/Floof.cpp
     Source/Floof.h
@@ -64,6 +66,16 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
+add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
+set(Bullet_Dir Libs/bullet3)
+add_library(Bullet STATIC)
+target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
+target_sources(Bullet PRIVATE
+        ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
+        ${Bullet_Dir}/src/btBulletCollisionAll.cpp
+        ${Bullet_Dir}/src/btLinearMathAll.cpp)
+target_link_libraries(Floof Bullet)
+
 
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
