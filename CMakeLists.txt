@@ -51,7 +51,8 @@ add_executable(Floof
     Source/GameMode/PhysicsGM.h 
     Source/GameMode/PhysicsGM.cpp 
     Source/GameMode/SponzaGM.h
-    Source/GameMode/SponzaGM.cpp)
+    Source/GameMode/SponzaGM.cpp
+        )
 
 
 find_package(Vulkan REQUIRED)
@@ -64,6 +65,20 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
+
+#include_directories(Libs/bullet3/src)
+set(Bullet_Dir Libs/bullet3/src)
+add_library(Bullet STATIC)
+target_sources(Bullet
+        PRIVATE
+        ${Bullet_Dir}/btBulletCollisionAll.cpp
+        ${Bullet_Dir}/btBulletDynamicsAll.cpp
+        #${Bullet_Dir}/btLinearMathAll.cpp
+    )
+target_include_directories(Bullet
+        PUBLIC ${Bullet_Dir}
+        )
+target_link_libraries(Floof Bullet)
 
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)

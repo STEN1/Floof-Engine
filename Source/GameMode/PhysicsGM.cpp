@@ -2,6 +2,7 @@
 #include "../Components.h"
 #include "../Application.h"
 
+#include "btBulletDynamicsCommon.h"
 
 void FLOOF::PhysicsGM::OnCreate()
 {
@@ -16,6 +17,9 @@ void FLOOF::PhysicsGM::OnCreate()
             SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, 0.f), 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
         }
     }
+
+    //auto* collisionConfiguration = new btDefaultCollisionConfiguration();
+
 }
 
 void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
