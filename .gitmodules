@@ -14,6 +14,9 @@
 [submodule "Libs/bullet3"]
 	path = Libs/bullet3
 	url = https://github.com/bulletphysics/bullet3
+[submodule "Libs/python"]
+	path = Libs/python
+	url = https://github.com/boostorg/python
 [submodule "Libs/assimp"]
 	path = Libs/assimp
 	url = https://github.com/assimp/assimp
