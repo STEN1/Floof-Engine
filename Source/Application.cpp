@@ -27,9 +27,13 @@ namespace FLOOF {
         IMGUI_CHECKVERSION();
         m_ImguiContext = ImGui::CreateContext();
         ImGui::SetCurrentContext(m_ImguiContext);
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        //io.ConfigViewportsNoAutoMerge = true;
+        //io.ConfigViewportsNoTaskBarIcon = true;  // Enable Gamepad Controls
 
         ImGui::StyleColorsDark();
 
@@ -207,8 +211,14 @@ namespace FLOOF {
             auto& m_Registry = m_Scene.GetCulledScene();
             m_SceneRenderer->Render(m_Registry);
         }    
-
-        m_Renderer->SubmitAndPresent();
+        m_Renderer->Submit();
+        // Update and Render additional Platform Windows
+        //ImGuiIO& io = ImGui::GetIO();
+        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        //    ImGui::UpdatePlatformWindows();
+        //    ImGui::RenderPlatformWindowsDefault();
+        //}
+        m_Renderer->Present();
     }
 
     void Application::SetRendererType(SceneRendererType type)

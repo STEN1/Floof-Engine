@@ -130,7 +130,9 @@ namespace FLOOF {
         // End recording command buffer for graphics pipeline.
         void EndRecording();
         // Submit graphics pipeline and present result.
-        void SubmitAndPresent();
+
+        void Submit();
+        void Present();
 
         VkPipelineLayout BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key);
 
