@@ -41,7 +41,7 @@ add_executable(Floof
     Source/Renderer/TextureManager.cpp 
     Source/Renderer/Mesh.h 
     Source/Renderer/Texture.h 
-    Source/Renderer/Texture.cpp  
+      
     Source/Renderer/SceneRenderer.h 
     Source/Renderer/ForwardSceneRenderer.h 
     Source/Renderer/DeferredSceneRenderer.h 
@@ -53,7 +53,7 @@ add_executable(Floof
     Source/GameMode/PhysicsGM.h 
     Source/GameMode/PhysicsGM.cpp 
     Source/GameMode/SponzaGM.h
-    Source/GameMode/SponzaGM.cpp)
+    Source/GameMode/SponzaGM.cpp "Source/Renderer/Material.h")
 
 
 find_package(Vulkan REQUIRED)
@@ -66,6 +66,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
+
 add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
 set(Bullet_Dir Libs/bullet3)
 add_library(Bullet STATIC)
@@ -73,7 +74,7 @@ target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
-        ${Bullet_Dir}/src/btLinearMathAll.cpp)
+        ${Bullet_Dir}/src/btLinearMathAll.cpp "Source/Renderer/Material.h")
 target_link_libraries(Floof Bullet)
 
 
@@ -82,7 +83,7 @@ target_link_libraries(Floof EnTT)
 
 set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(Libs/assimp)
-target_link_libraries(${PROJECT_NAME} ${ASSIMP_LIBRARIES})
+target_link_libraries(Floof assimp)
 
 set(IMGUI_DIR Libs/imgui)
 add_library(IMGUI STATIC)
@@ -98,7 +99,7 @@ target_sources(IMGUI
     PRIVATE
     ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-)
+ "Source/Renderer/Material.h")
 
 target_include_directories(IMGUI
     PUBLIC ${IMGUI_DIR}

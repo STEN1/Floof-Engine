@@ -2,7 +2,9 @@
 #include <string>
 #include <vector>
 #include "Renderer/Vertex.h"
-
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include "Floof.h"
 
 class ObjLoader {
@@ -28,4 +30,28 @@ private:
     std::vector<float> m_vn;
     std::vector<F> m_f;
     std::vector<std::pair<F, int>> fIndexPair;
+};
+
+class AssimpLoader
+{
+public:
+    AssimpLoader() = delete;
+    AssimpLoader(const std::string& path);
+private:
+    struct AssimpMesh
+    {
+        std::vector<FLOOF::MeshVertex> data;
+    } mesh;
+
+    struct AssimpCollisionMesh
+    {
+        AssimpMesh data;
+    } collisionMesh;
+
+    struct AssimpStaticMesh
+    {
+        std::vector<AssimpMesh> data;
+    } staticMesh;
+
+    std::vector<int> indices;
 };

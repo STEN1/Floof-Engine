@@ -1,6 +1,7 @@
 #include "../Floof.h"
 #include "Vertex.h"
 #include "VulkanRenderer.h"
+#include "Material.h"
 
 namespace FLOOF {
     struct MeshData {
@@ -14,8 +15,9 @@ namespace FLOOF {
     class StaticMesh {
     public:
         StaticMesh() = default;
-        std::vector<MeshData> Data{};
-        std::string Path;
+        std::vector<MeshData> meshes{};
+        std::vector<Material> materials{};
+        std::string Path = "";
     };
 
     template<typename VertexType>
