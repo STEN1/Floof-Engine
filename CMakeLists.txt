@@ -2,6 +2,8 @@
 project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
+
+
 add_executable(Floof 
     Source/Floof.cpp
     Source/Floof.h
@@ -52,6 +54,7 @@ add_executable(Floof
     Source/GameMode/PhysicsGM.cpp 
     Source/GameMode/SponzaGM.h
     Source/GameMode/SponzaGM.cpp
+        Libs/bullet3/build3/bullet.rc
         )
 
 
@@ -67,21 +70,36 @@ add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
 
 #include_directories(Libs/bullet3/src)
-set(Bullet_Dir Libs/bullet3/src)
 
-add_library(BulletDynamics STATIC)
-add_library(BulletCollision STATIC)
-add_library(LinearMath STATIC)
+set(Bullet_Dir Libs/bullet3)
+include_directories(
+        ${Bullet_Dir}
+        ${Bullet_Dir}/src
+        ${Bullet_Dir}/Extras)
+#target_link_libraries(Floof BulletCollision BulletDynamics LinearMath)
 
-target_include_directories(BulletDynamics PUBLIC ${Bullet_Dir})
-target_include_directories(BulletCollision PUBLIC ${Bullet_Dir})
-target_include_directories(LinearMath PUBLIC ${Bullet_Dir}/..)
+add_library(Bullet STATIC)
+target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
+target_sources(Bullet PRIVATE
+        ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
+        ${Bullet_Dir}/src/btBulletCollisionAll.cpp
+        )#${Bullet_Dir}/src/btLinearMathAll.cpp)
+target_link_libraries(Floof Bullet)
 
-target_sources(BulletDynamics PRIVATE ${Bullet_Dir}/btBulletDynamicsAll.cpp)
-target_sources(BulletCollision PRIVATE ${Bullet_Dir}/btBulletCollisionAll.cpp)
-target_sources(LinearMath PRIVATE ${Bullet_Dir}/btLinearMathAll.cpp)
+#add_library(BulletDynamics STATIC)
+#add_library(BulletCollision STATIC)
+#add_library(LinearMath STATIC)
 
-target_link_libraries(Floof BulletDynamics BulletCollision LinearMath)
+#target_include_directories(BulletDynamics PUBLIC ${Bullet_Dir})
+#target_include_directories(BulletCollision PUBLIC ${Bullet_Dir})
+#target_include_directories(LinearMath PUBLIC ${Bullet_Dir})
+
+#target_sources(BulletDynamics PRIVATE ${Bullet_Dir}/btBulletDynamicsAll.cpp)
+#target_sources(BulletCollision PRIVATE ${Bullet_Dir}/btBulletCollisionAll.cpp)
+#target_sources(LinearMath PRIVATE ${Bullet_Dir}/btLinearMathAll.cpp)
+
+#target_link_libraries(Floof BulletDynamics BulletCollision LinearMath)
+
 
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
