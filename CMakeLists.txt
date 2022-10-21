@@ -80,6 +80,10 @@ target_link_libraries(Floof Bullet)
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
 
+set(BUILD_SHARED_LIBS OFF)
+add_subdirectory(Libs/assimp)
+target_link_libraries(${PROJECT_NAME} ${ASSIMP_LIBRARIES})
+
 set(IMGUI_DIR Libs/imgui)
 add_library(IMGUI STATIC)
 
