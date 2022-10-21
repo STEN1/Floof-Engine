@@ -7,6 +7,7 @@
 [submodule "Libs/imgui"]
 	path = Libs/imgui
 	url = https://github.com/ocornut/imgui
+	branch = docking
 [submodule "Libs/simdjson"]
 	path = Libs/simdjson
 	url = https://github.com/simdjson/simdjson
