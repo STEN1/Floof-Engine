@@ -201,7 +201,10 @@ namespace FLOOF {
 
     void Application::Update(double deltaTime) {
         UpdateCameraSystem(deltaTime);
-        UpdateImGui(deltaTime);  
+        UpdateImGui(deltaTime);
+
+        m_Scene.OnUpdatePhysics(deltaTime);
+
         if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
 
@@ -318,6 +321,7 @@ namespace FLOOF {
         {
             m_GameMode = new PhysicsGM(m_Scene);
             m_GameMode->OnCreate();
+            m_Scene.GetPhysicSystem()->UpdateDynamicWorld();
         }
         break;
         case GameModeType::Sponza:

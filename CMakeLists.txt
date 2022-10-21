@@ -53,7 +53,7 @@ add_executable(Floof
     Source/GameMode/PhysicsGM.h 
     Source/GameMode/PhysicsGM.cpp 
     Source/GameMode/SponzaGM.h
-    Source/GameMode/SponzaGM.cpp  )
+    Source/GameMode/SponzaGM.cpp Source/PhysicsSystem.cpp Source/PhysicsSystem.h)
 
 
 find_package(Vulkan REQUIRED)
@@ -76,6 +76,12 @@ target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btLinearMathAll.cpp)
 target_link_libraries(Floof Bullet)
 
+#boost.python
+find_package(Boost COMPONENTS python REQUIRED)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    target_link_libraries(Floof ${BoosT_LIBRARIES})
+endif()
 
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
