@@ -14,6 +14,8 @@ namespace FLOOF {
     public:
         // Get a finished render batch for scene renderer.
         entt::registry& GetCulledScene();
+
+        std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
     private:
         /// <summary>
         /// Clears entt registry, has no vulkan safety. 
@@ -22,7 +24,6 @@ namespace FLOOF {
         void Clear();
 
         void OnUpdatePhysics(float deltaTime);
-        std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
     private:
         entt::registry m_Scene;
         std::shared_ptr<PhysicsSystem> m_PhysicSystem;

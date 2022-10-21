@@ -10,6 +10,7 @@ namespace FLOOF {
     void Scene::Clear()
     {
         m_Scene.clear();
+        m_PhysicSystem->clear();
     }
 
     void Scene::OnUpdatePhysics(float deltaTime) {

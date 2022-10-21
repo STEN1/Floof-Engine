@@ -5,16 +5,18 @@
 
 void FLOOF::PhysicsGM::OnCreate()
 {
-    int height = 10;
-    int width = 10;
-    float spacing = 5.f;
+    int height = 5;
+    int width = 5;
+    float spacing = 4.f;
 
     for (size_t y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, 0.f), 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
-        }
+            for(int z = 0; z < width; z++){
+                SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f)), spacing/2.f, 200.f, 0.9f,"Assets/BallTexture.png");
+                }
+            }
 
     }
 
@@ -26,13 +28,16 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
     if (ImGui::Button("Spawn ball")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-        SpawnBall(camera->Position, 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
+       auto ball = SpawnBall(camera->Position, 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
+       auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ball);
+      if(m_Scene.GetPhysicSystem())
+          m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
     ImGui::End();
 
 }
 
-const void FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture)
+const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture)
 {
     auto& m_Registry = m_Scene.GetCulledScene();
 
@@ -59,9 +64,12 @@ const void FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, c
     m_Registry.emplace<MeshComponent>(ballEntity, "Assets/Ball.obj");
     m_Registry.emplace<TextureComponent>(ballEntity, texture);
 
-    transform.Position = location;
+    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
     transform.Scale = glm::vec3(ball.Radius);
 
     ball.CollisionSphere.radius = ball.Radius;
     ball.CollisionSphere.pos = transform.Position;
+
+    return ballEntity;
+
 }

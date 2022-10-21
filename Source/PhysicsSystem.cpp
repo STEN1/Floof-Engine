@@ -16,12 +16,12 @@ namespace FLOOF {
 
         //creating invisible floor
         {
-            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(100.), btScalar(20.), btScalar(100.)));
+            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(100.), btScalar(10.), btScalar(100.)));
 
 
             btTransform groundTransform;
             groundTransform.setIdentity();
-            groundTransform.setOrigin(btVector3(0, -80, 0));
+            groundTransform.setOrigin(btVector3(0, -100, 0));
 
             btScalar mass(0.);
 
@@ -63,7 +63,7 @@ namespace FLOOF {
             {
                 trans = body->getWorldTransform();
             }
-           transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getX());
+           transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getZ());
             //printf("world pos object %d = %f,%f,%f\n", float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
         }
 
@@ -75,6 +75,15 @@ namespace FLOOF {
         for(auto [entity, body]: view.each()){
             mDynamicsWorld->addRigidBody(body.RigidBody.get());
         }
+
+    }
+
+    void PhysicsSystem::clear() {
+
+    }
+
+    void PhysicsSystem::AddRigidBody(btRigidBody *body) {
+        mDynamicsWorld->addRigidBody(body);
 
     }
 

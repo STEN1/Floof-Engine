@@ -15,6 +15,10 @@ namespace FLOOF {
 
         void UpdateDynamicWorld();
 
+        void clear();
+
+        void AddRigidBody(btRigidBody* body);
+
     private:
         entt::registry& mScene;
         std::shared_ptr<btDefaultCollisionConfiguration> mCollisionConfiguration{nullptr};

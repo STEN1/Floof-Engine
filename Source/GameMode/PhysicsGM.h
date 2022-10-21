@@ -16,7 +16,7 @@ namespace FLOOF
 
 		void OnUpdateEditor(float deltaTime) override;
 
-		const void SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity = 0.5f, const std::string& texture = "Assets/LightBlue.png");
+		const entt::entity SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity = 0.5f, const std::string& texture = "Assets/LightBlue.png");
 
 
     private:
