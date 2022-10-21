@@ -77,7 +77,7 @@ target_sources(Bullet PRIVATE
 target_link_libraries(Floof Bullet)
 
 #boost.python
-find_package(Boost COMPONENTS python REQUIRED)
+find_package(Boost COMPONENTS python)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     target_link_libraries(Floof ${BoosT_LIBRARIES})
