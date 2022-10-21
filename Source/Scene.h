@@ -3,6 +3,7 @@
 #include "Floof.h"
 #include <entt/entt.hpp>
 // #include <physx.h> <3
+#include "PhysicsSystem.h"
 
 namespace FLOOF {
     class Scene {
@@ -20,8 +21,11 @@ namespace FLOOF {
         /// </summary>
         void Clear();
 
+        void OnUpdatePhysics(float deltaTime);
+
     private:
         entt::registry m_Scene;
+        std::shared_ptr<PhysicsSystem> m_PhysicSystem;
 
     };
 }

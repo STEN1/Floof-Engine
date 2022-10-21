@@ -197,7 +197,10 @@ namespace FLOOF {
 
     void Application::Update(double deltaTime) {
         UpdateCameraSystem(deltaTime);
-        UpdateImGui(deltaTime);  
+        UpdateImGui(deltaTime);
+
+        m_Scene.OnUpdatePhysics(deltaTime);
+
         if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
 

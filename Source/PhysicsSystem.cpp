@@ -6,7 +6,7 @@
 #include "Components.h"
 
 namespace FLOOF {
-    PhysicsSystem::PhysicsSystem() {
+    PhysicsSystem::PhysicsSystem(Scene* scene): mScene(scene) {
 
         mCollisionConfiguration = std::make_shared<btDefaultCollisionConfiguration>();
         mDispatcher = std::make_shared<btCollisionDispatcher>(mCollisionConfiguration.get());
@@ -28,33 +28,26 @@ namespace FLOOF {
             std::cout << "SCENE NOT SET IN PHYSICSYSTEM";
             return;
         }
-        auto view = mScene->GetCulledScene().view<BallComponent, CollisionComponent, TransformComponent>();
-        for(auto [entity, ball, collision, transform] : view.each()){
-            mDynamicsWorld->addRigidBody(collision.RigidBody.get());
-            mDynamicsWorld->stepSimulation(deltaTime, 10);
-            //print positions of all objects
-                btRigidBody *body = collision.RigidBody.get();
-                if (body && body->getMotionState()) {
-                    body->getMotionState()->getWorldTransform(collision.Transform);
 
-                } else {
-                    collision.Transform = collision.RigidBody->getWorldTransform();
-                }
+        mDynamicsWorld->stepSimulation(deltaTime, 10);
 
-                auto loc = collision.Transform.getOrigin();
-                //transform.Position = glm::vec3(loc.x(),loc.y(),loc.z());
-
+        //print positions of all objects
+        for (int j = mDynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
+        {
+            btCollisionObject* obj = mDynamicsWorld->getCollisionObjectArray()[j];
+            btRigidBody* body = btRigidBody::upcast(obj);
+            btTransform trans;
+            if (body && body->getMotionState())
+            {
+                body->getMotionState()->getWorldTransform(trans);
+            }
+            else
+            {
+                trans = obj->getWorldTransform();
+            }
+            printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
         }
 
-    }
-
-    void PhysicsSystem::SetScene(Scene &scene) {
-        mScene = &scene;
-
-        auto view = scene.GetCulledScene().view<BallComponent, CollisionComponent, TransformComponent>();
-        for(auto [entity, ball, collision, transform] : view.each()){
-            mDynamicsWorld->addRigidBody(collision.RigidBody.get());
-        }
 
     }
 }

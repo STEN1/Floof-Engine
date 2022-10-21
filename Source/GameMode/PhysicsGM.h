@@ -20,8 +20,6 @@ namespace FLOOF
 
 
     private:
-        PhysicsSystem m_PhysicSystem;
-
 
 
 	};

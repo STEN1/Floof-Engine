@@ -18,9 +18,6 @@ void FLOOF::PhysicsGM::OnCreate()
 
     }
 
-    m_PhysicSystem.SetScene(m_Scene);
-
-
 }
 
 void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
@@ -32,8 +29,6 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
         SpawnBall(camera->Position, 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
     }
     ImGui::End();
-
-   // m_PhysicSystem.OnUpdate(deltaTime);
 
 }
 

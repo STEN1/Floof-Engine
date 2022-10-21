@@ -11,11 +11,9 @@
 namespace FLOOF {
     class PhysicsSystem {
     public:
-        PhysicsSystem();
+        PhysicsSystem(Scene& scene);
 
         ~PhysicsSystem();
-
-        void SetScene(Scene& scene);
 
         void OnUpdate(float DeltaTime);
 
