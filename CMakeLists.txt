@@ -76,6 +76,13 @@ target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btLinearMathAll.cpp)
 target_link_libraries(Floof Bullet)
 
+#boost.python
+find_package(Boost COMPONENTS python REQUIRED)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    target_link_libraries(Floof ${BoosT_LIBRARIES})
+endif()
+
 
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)

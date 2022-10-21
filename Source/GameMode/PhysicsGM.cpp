@@ -1,7 +1,7 @@
 #include "PhysicsGM.h"
 #include "../Components.h"
 #include "../Application.h"
-
+#include "boost/python.hpp"
 #include "btBulletDynamicsCommon.h"
 
 void FLOOF::PhysicsGM::OnCreate()
@@ -25,6 +25,8 @@ void FLOOF::PhysicsGM::OnCreate()
     auto* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
 
     dynamicsWorld->setGravity(btVector3(0,-9.81,0));
+
+
 
 
 }
