@@ -6,7 +6,7 @@ namespace FLOOF {
     ModelManager::ModelManager() {
     }
 
-    ModelMesh ModelManager::LoadModelMesh(std::string& path) {
+    ModelMesh ModelManager::LoadModelMesh(const std::string& path) {
 
         if (m_MeshCache.find(path) != m_MeshCache.end())
             return m_MeshCache[path].Model;

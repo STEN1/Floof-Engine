@@ -1,20 +1,16 @@
 #include "SponzaGM.h"
 #include "../Components.h"
+#include "../Renderer/ModelManager.h"
 
 void FLOOF::SponzaGM::OnCreate()
 {
-    int height = 20;
-    int width = 20;
-    float spacing = 10.f;
+    auto& scene = m_Scene.GetCulledScene();
 
-    for (size_t y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, 0.f), 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
-        }
-    }
+    auto ent = scene.create();
+    auto& tm = scene.emplace<TransformComponent>(ent);
+    auto& sm = scene.emplace<StaticMeshComponent>(ent);
 
+    sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
 }
 
 void FLOOF::SponzaGM::OnUpdateEditor(float deltaTime)

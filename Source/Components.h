@@ -11,6 +11,9 @@
 #include "btBulletDynamicsCommon.h"
 
 namespace FLOOF {
+
+    using StaticMeshComponent = ModelMesh;
+
     struct Relationship {
         entt::entity Parent = entt::null;
         std::vector<entt::entity> Children;

@@ -73,7 +73,7 @@ namespace FLOOF {
         SetRendererType(SceneRendererType::Forward);
         
         /*GameMode*/
-        SetGameModeType(GameModeType::Physics);
+        SetGameModeType(GameModeType::Sponza);
     }
 
     Application::~Application() {

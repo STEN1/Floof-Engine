@@ -224,8 +224,11 @@ void AssimpLoader::LoadModel(const std::string& path)
     Assimp::Importer importer;
     const aiScene* scene;
 
+    std::cout << "Loading model from path: " << path << std::endl;
+
     if (!std::filesystem::exists(path))
     {
+        std::cout << "Failed to load model from path: " << path << std::endl;
         throw std::exception("Failed to find Assimp Model Path!");
     }
 
