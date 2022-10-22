@@ -205,32 +205,34 @@ namespace FLOOF {
         return imageIndex;
     }
 
-    void VulkanRenderer::StartRecordingGraphics(VulkanWindow& window) {
+    void VulkanRenderer::NewFrame(VulkanWindow& window) {
         window.ImageIndex = GetNextSwapchainImage(window);
+    }
 
-        vkResetCommandBuffer(window.Frames[window.FrameIndex].CommandBuffer, 0);
+    void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer frameBuffer, VkExtent2D extent) {
+        vkResetCommandBuffer(commandBuffer, 0);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0; // Optional
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
-        VkResult beginResult = vkBeginCommandBuffer(window.Frames[window.FrameIndex].CommandBuffer, &beginInfo);
+        VkResult beginResult = vkBeginCommandBuffer(commandBuffer, &beginInfo);
         ASSERT(beginResult == VK_SUCCESS);
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = m_RenderPass;
-        renderPassInfo.framebuffer = window.Frames[window.FrameIndex].Framebuffer;
+        renderPassInfo.renderPass = renderPass;
+        renderPassInfo.framebuffer = frameBuffer;
         renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = window.Extent;
+        renderPassInfo.renderArea.extent = extent;
         VkClearValue clearColor[2]{};
         clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
         clearColor[1].depthStencil = { 1.0f, 0 };
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColor;
 
-        vkCmdBeginRenderPass(window.Frames[window.FrameIndex].CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         /*VkViewport viewport{};
         viewport.x = 0.0f;
@@ -243,17 +245,17 @@ namespace FLOOF {
         VkViewport viewport{};
         viewport.x = 0.f;
         viewport.y = 0.f;
-        viewport.width = static_cast<float>(window.Extent.width);
-        viewport.height = static_cast<float>(window.Extent.height);
+        viewport.width = static_cast<float>(extent.width);
+        viewport.height = static_cast<float>(extent.height);
         viewport.minDepth = 0.f;
         viewport.maxDepth = 1.f;
 
-        vkCmdSetViewport(window.Frames[window.FrameIndex].CommandBuffer, 0, 1, &viewport);
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = window.Extent;
-        vkCmdSetScissor(window.Frames[window.FrameIndex].CommandBuffer, 0, 1, &scissor);
+        scissor.extent = extent;
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
     void VulkanRenderer::EndRecording(VkCommandBuffer commandBuffer) {
@@ -262,7 +264,7 @@ namespace FLOOF {
         ASSERT(endResult == VK_SUCCESS);
     }
 
-    void VulkanRenderer::EndAndSubmitGraphics(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence) {
+    void VulkanRenderer::EndRenderPass(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence) {
         EndRecording(commandBuffer);
 
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };

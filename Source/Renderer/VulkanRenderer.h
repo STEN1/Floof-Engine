@@ -129,11 +129,16 @@ namespace FLOOF {
         // Get singleton instance. TODO: Make this an actual singleton :) Currently owned by application class.
         static VulkanRenderer* Get() { return s_Singleton; }
 
-        // Start recording command buffer for graphics pipeline.
-        void StartRecordingGraphics(VulkanWindow& window);
+        // wait for fence and update swapchain image index.
+        void NewFrame(VulkanWindow& window);
+
+        // Start recording command buffer for renderpass.
+        void StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, 
+            VkFramebuffer frameBuffer, VkExtent2D extent);
         
         // Ends recording and submits to graphics queue.
-        void EndAndSubmitGraphics(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence = VK_NULL_HANDLE);
+        void EndRenderPass(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, 
+            VkSemaphore signalSemaphore, VkFence fence = VK_NULL_HANDLE);
 
         // Final present.
         void Present(VulkanWindow& window);

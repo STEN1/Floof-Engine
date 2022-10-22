@@ -218,7 +218,7 @@ namespace FLOOF {
             m_SceneRenderer->Render(m_Registry);
         }
         auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        m_Renderer->EndAndSubmitGraphics(
+        m_Renderer->EndRenderPass(
             vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer,
             vulkanWindow->Frames[vulkanWindow->FrameIndex].ImageAvailableSemaphore,
             vulkanWindow->Frames[vulkanWindow->FrameIndex].RenderFinishedSemaphore,

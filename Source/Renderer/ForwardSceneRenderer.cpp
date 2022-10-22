@@ -12,7 +12,13 @@ namespace FLOOF {
         auto m_Renderer = VulkanRenderer::Get();
         auto& app = Application::Get();
         auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        m_Renderer->StartRecordingGraphics(*vulkanWindow);
+        m_Renderer->NewFrame(*vulkanWindow);
+        m_Renderer->StartRenderPass(
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer,
+            m_Renderer->GetImguiRenderPass(),
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].Framebuffer,
+            vulkanWindow->Extent
+        );
         auto commandBuffer = vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer;
 
         // Camera setup
