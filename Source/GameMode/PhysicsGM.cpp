@@ -57,6 +57,7 @@ const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float r
     collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get());
     collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
+    collision.RigidBody->setFriction(0.5f);
 
     ball.Radius = radius;
     ball.Mass = mass;

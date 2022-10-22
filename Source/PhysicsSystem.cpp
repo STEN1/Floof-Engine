@@ -63,8 +63,9 @@ namespace FLOOF {
             {
                 trans = body->getWorldTransform();
             }
-           transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getZ());
-            //printf("world pos object %d = %f,%f,%f\n", float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+            transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getZ());
+            auto rot=trans.getRotation().getAxis();
+            transform.Rotation = glm::vec3(rot.getX(),rot.getY(),rot.getZ());
         }
 
 
