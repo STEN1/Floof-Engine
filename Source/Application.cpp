@@ -100,8 +100,6 @@ namespace FLOOF {
 
         SetRenderCamera(m_EditorCamera);
 
-        if (m_GameMode) m_GameMode->OnCreate();
-
         Timer timer;
         float titleBarUpdateTimer{};
         float titlebarUpdateRate = 0.1f;

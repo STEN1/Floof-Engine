@@ -5,12 +5,11 @@
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry& scene): mScene(scene) {
 
-        mCollisionConfiguration = std::make_shared<btDefaultCollisionConfiguration>();
-        mDispatcher = std::make_shared<btCollisionDispatcher>(mCollisionConfiguration.get());
-        mOverlappingPairCache = std::make_shared<btDbvtBroadphase>();
-        mSolver = std::make_shared<btSequentialImpulseConstraintSolver>();
-        mDynamicsWorld = std::make_shared<btDiscreteDynamicsWorld>(mDispatcher.get(), mOverlappingPairCache.get(),
-                                                                   mSolver.get(), mCollisionConfiguration.get());
+        mCollisionConfiguration = new btDefaultCollisionConfiguration();
+        mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
+        mOverlappingPairCache = new btDbvtBroadphase();
+        mSolver = new btSequentialImpulseConstraintSolver();
+        mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
 
         mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
 
@@ -34,8 +33,8 @@ namespace FLOOF {
             mDynamicsWorld->addRigidBody(body);
         }
         //create random object shapes
-        {
-#define NUM_SHAPES 10
+        if(false){
+        #define NUM_SHAPES 10
             std::vector<btCollisionShape*> m_collisionShapes;
             btCollisionShape* colShapes[NUM_SHAPES] = {
                     new btSphereShape(btScalar(5.0)),
@@ -102,10 +101,17 @@ namespace FLOOF {
     }
 
     PhysicsSystem::~PhysicsSystem() {
-
+        delete mDynamicsWorld;
+        delete mSolver;
+        delete mOverlappingPairCache;
+        delete mDispatcher;
+        delete mCollisionConfiguration;
     }
 
     void PhysicsSystem::OnUpdate(float deltaTime) {
+
+        if(!mDynamicsWorld)
+            return;
 
         mDynamicsWorld->stepSimulation(deltaTime, 10);
 
@@ -129,6 +135,7 @@ namespace FLOOF {
             transform.Rotation = glm::vec3(x,y,z);
         }
 
+
         mDynamicsWorld->debugDrawWorld();
 
     }
@@ -136,35 +143,37 @@ namespace FLOOF {
     void PhysicsSystem::UpdateDynamicWorld() {
         auto view = mScene.view<RigidBodyComponent>();
         for(auto [entity, body]: view.each()){
-            mDynamicsWorld->addRigidBody(body.RigidBody.get());
+            if(mDynamicsWorld){
+                mDynamicsWorld->addRigidBody(body.RigidBody.get());
+            }
         }
 
     }
 
     void PhysicsSystem::clear() {
 
-        auto view = mScene.view<RigidBodyComponent, TransformComponent>();
-        for(auto [entity, RigidBodyComponent, transform]: view.each()){
-            btRigidBody* body = RigidBodyComponent.RigidBody.get();
+        if(mDynamicsWorld)
+        for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+        {
+            btCollisionObject* obj = mDynamicsWorld->getCollisionObjectArray()[i];
+            btRigidBody* body = btRigidBody::upcast(obj);
             if (body && body->getMotionState())
             {
-               delete body->getMotionState();
+                delete body->getMotionState();
             }
-            mDynamicsWorld->removeRigidBody(body);
-            delete body;
-            delete RigidBodyComponent.DefaultMotionState.get();
-            delete RigidBodyComponent.CollisionShape.get();
-            delete RigidBodyComponent.RigidBody.get();
+            mDynamicsWorld->removeCollisionObject(obj);
         }
-        //delete mDynamicsWorld.get();
-        //delete mSolver.get();
-        //delete mOverlappingPairCache.get();
-        //delete mDispatcher.get();
-        //delete mCollisionConfiguration.get();
+
+        //delete mDynamicsWorld;
+        //delete mSolver;
+        //delete mOverlappingPairCache;
+        //delete mDispatcher;
+        //delete mCollisionConfiguration;
     }
 
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {
-        mDynamicsWorld->addRigidBody(body);
+        if(mDynamicsWorld)
+            mDynamicsWorld->addRigidBody(body);
 
     }
 

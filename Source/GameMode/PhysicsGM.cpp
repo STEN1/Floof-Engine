@@ -5,8 +5,8 @@
 
 void FLOOF::PhysicsGM::OnCreate()
 {
-    int height = 5;
-    int width = 5;
+    int height = 10;
+    int width = 10;
     float spacing = 4.f;
 
     for (size_t y = 10; y < height+10; y++)
