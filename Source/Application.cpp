@@ -67,6 +67,8 @@ namespace FLOOF {
         // Init Logger. Writes to specified log file.
         Utils::Logger::s_Logger = new Utils::Logger("Floof.log");
 
+        m_Scene = std::make_unique<Scene>();
+
         /*SceneRenderer*/
         SetRendererType(SceneRendererType::Forward);
         
@@ -135,7 +137,8 @@ namespace FLOOF {
         }
 
         m_Renderer->FinishAllFrames();
-        m_Scene.Clear();
+        m_Scene->ClearDebugSystem();
+        m_Scene->Clear();
 
         return 0;
     }
@@ -203,7 +206,7 @@ namespace FLOOF {
         UpdateCameraSystem(deltaTime);
         UpdateImGui(deltaTime);
 
-        m_Scene.OnUpdatePhysics(deltaTime);
+        m_Scene->OnUpdatePhysics(deltaTime);
 
         if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
@@ -211,7 +214,7 @@ namespace FLOOF {
     void Application::Draw() {
         if (m_SceneRenderer)
         {
-            auto& m_Registry = m_Scene.GetCulledScene();
+            auto& m_Registry = m_Scene->GetCulledScene();
             m_SceneRenderer->Render(m_Registry);
         }
         auto* vulkanWindow = m_Renderer->GetVulkanWindow();
@@ -319,14 +322,14 @@ namespace FLOOF {
         {
         case GameModeType::Physics:
         {
-            m_GameMode = new PhysicsGM(m_Scene);
+            m_GameMode = new PhysicsGM(*m_Scene.get());
             m_GameMode->OnCreate();
-            m_Scene.GetPhysicSystem()->UpdateDynamicWorld();
+            m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
         }
         break;
         case GameModeType::Sponza:
         {
-            m_GameMode = new SponzaGM(m_Scene);
+            m_GameMode = new SponzaGM(*m_Scene.get());
             m_GameMode->OnCreate();
         }
         break;
@@ -343,7 +346,7 @@ namespace FLOOF {
     {
         delete m_GameMode; m_GameMode = nullptr;
         m_Renderer->FinishAllFrames();
-        m_Scene.Clear();
+        m_Scene->Clear();
     }
 
     void Application::UpdateGameMode()
