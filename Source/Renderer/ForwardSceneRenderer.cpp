@@ -29,7 +29,7 @@ namespace FLOOF {
             MeshPushConstants constants;
             //constants.MVP = vp * transform.GetTransform();
             glm::mat4 modelMat = glm::translate(transform.Position);
-            modelMat = glm::scale(modelMat, transform.Scale);
+            modelMat = transform.GetTransform();
             constants.MVP = vp * modelMat;
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,

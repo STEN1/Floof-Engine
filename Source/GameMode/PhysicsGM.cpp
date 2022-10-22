@@ -107,9 +107,16 @@ const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float r
     collision.Transform.setOrigin(btVector3(location.x,location.y,location.z));
 
     collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get());
+
+    btVector3 localInertia(0, 0, 0);
+    collision.CollisionShape->calculateLocalInertia(mass, localInertia);
+
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get(),localInertia);
     collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
     collision.RigidBody->setFriction(0.5f);
+    collision.RigidBody->setRollingFriction(0.1f);
+    collision.RigidBody->setSpinningFriction(0.1f);
+
 
     ball.Radius = radius;
     ball.Mass = mass;
