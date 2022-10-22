@@ -228,12 +228,8 @@ void AssimpLoader::LoadModel(const std::string& path)
 
     if (!std::filesystem::exists(path))
     {
-<<<<<<< HEAD
         std::cout << "Failed to load model from path: " << path << std::endl;
-        throw std::exception("Failed to find Assimp Model Path!");
-=======
        // throw std::exception("Failed to find Assimp Model Path!");
->>>>>>> FLOOF-25-Physics
     }
 
     scene = importer.ReadFile(path, aiFlags);
