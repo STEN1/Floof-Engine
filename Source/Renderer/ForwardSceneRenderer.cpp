@@ -16,7 +16,7 @@ namespace FLOOF {
         m_Renderer->StartRenderPass(
             vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer,
             m_Renderer->GetImguiRenderPass(),
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].Framebuffer,
+            vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
             vulkanWindow->Extent
         );
         auto commandBuffer = vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer;
@@ -47,8 +47,8 @@ namespace FLOOF {
             }
         }
 
-        auto view = m_Registry.view<TransformComponent, StaticMeshComponent>();
-        for (auto [entity, transform, staticMesh] : view.each()) {
+        auto view = m_Registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
+        for (auto [entity, transform, staticMesh, texture] : view.each()) {
             MeshPushConstants constants;
             //constants.MVP = vp * transform.GetTransform();
             glm::mat4 modelMat = glm::translate(transform.Position);
@@ -57,7 +57,7 @@ namespace FLOOF {
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
-
+            texture.Bind(commandBuffer);
             for (auto& mesh : staticMesh.meshes)
             {
                 VkDeviceSize offset{ 0 };

@@ -98,9 +98,6 @@ namespace FLOOF {
         VkSemaphore         ImageAvailableSemaphore = VK_NULL_HANDLE;
         VkSemaphore         RenderFinishedSemaphore = VK_NULL_HANDLE;
         VkFence             Fence = VK_NULL_HANDLE;
-        VkImage             Backbuffer = VK_NULL_HANDLE;
-        VkImageView         BackBufferView = VK_NULL_HANDLE;
-        VkFramebuffer       Framebuffer = VK_NULL_HANDLE;
         VkCommandBuffer     CommandBuffer = VK_NULL_HANDLE;
     };
 
@@ -113,6 +110,9 @@ namespace FLOOF {
         uint32_t            FrameIndex{};
         uint32_t            ImageCount{};
         uint32_t            ImageIndex{};
+        std::vector<VkImage> SwapChainImages;
+        std::vector<VkImageView> SwapChainImageViews;
+        std::vector<VkFramebuffer> FrameBuffers;
         std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
     };
 

@@ -194,7 +194,7 @@ namespace FLOOF {
 
         uint32_t imageIndex;
         VkResult result = vkAcquireNextImageKHR(m_LogicalDevice, window.Swapchain, UINT64_MAX, window.Frames[window.FrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             RecreateSwapChain(window);
             return GetNextSwapchainImage(window);
         }
@@ -684,10 +684,10 @@ namespace FLOOF {
         window.Extent = GetWindowExtent();
         std::cout << "m_SwapChainExtent: x = " << window.Extent.width << " y = " << window.Extent.height << std::endl;
 
-        //uint32_t imageCount = m_SwapChainSupport.capabilities.minImageCount + 1;
-        //if (m_SwapChainSupport.capabilities.maxImageCount > 0 && imageCount > m_SwapChainSupport.capabilities.maxImageCount) {
-        //    imageCount = m_SwapChainSupport.capabilities.maxImageCount;
-        //}
+        window.ImageCount = m_SwapChainSupport.capabilities.minImageCount + 1;
+        if (m_SwapChainSupport.capabilities.maxImageCount > 0 && window.ImageCount > m_SwapChainSupport.capabilities.maxImageCount) {
+            window.ImageCount = m_SwapChainSupport.capabilities.maxImageCount;
+        }
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -720,19 +720,15 @@ namespace FLOOF {
         VkResult result = vkCreateSwapchainKHR(m_LogicalDevice, &createInfo, nullptr, &window.Swapchain);
         ASSERT(result == VK_SUCCESS);
 
-        uint32_t imageCount = 0;
-        std::vector<VkImage> images;
-        vkGetSwapchainImagesKHR(m_LogicalDevice, window.Swapchain, &imageCount, nullptr);
-        ASSERT(VulkanGlobals::MAX_FRAMES_IN_FLIGHT == imageCount);
-        images.resize(imageCount);
-        vkGetSwapchainImagesKHR(m_LogicalDevice, window.Swapchain, &imageCount, images.data());
+        vkGetSwapchainImagesKHR(m_LogicalDevice, window.Swapchain, &window.ImageCount, nullptr);
+        window.SwapChainImages.resize(window.ImageCount);
+        vkGetSwapchainImagesKHR(m_LogicalDevice, window.Swapchain, &window.ImageCount, window.SwapChainImages.data());
         LOG("Swapchain created.\n");
-        std::vector<VkImageView> imageViews;
-        imageViews.resize(imageCount);
-        for (size_t i = 0; i < imageCount; i++) {
+        window.SwapChainImageViews.resize(window.ImageCount);
+        for (size_t i = 0; i < window.ImageCount; i++) {
             VkImageViewCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            createInfo.image = images[i];
+            createInfo.image = window.SwapChainImages[i];
             createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
             createInfo.format = window.SurfaceFormat.format;
             createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -745,15 +741,10 @@ namespace FLOOF {
             createInfo.subresourceRange.baseArrayLayer = 0;
             createInfo.subresourceRange.layerCount = 1;
 
-            VkResult result = vkCreateImageView(m_LogicalDevice, &createInfo, nullptr, &imageViews[i]);
+            VkResult result = vkCreateImageView(m_LogicalDevice, &createInfo, nullptr, &window.SwapChainImageViews[i]);
             ASSERT(result == VK_SUCCESS);
         }
         LOG("Image views created.\n");
-
-        for (uint32_t i = 0; i < imageCount; i++) {
-            window.Frames[i].Backbuffer = images[i];
-            window.Frames[i].BackBufferView = imageViews[i];
-        }
     }
 
     void VulkanRenderer::CreateRenderPass(VulkanWindow& window) {
@@ -969,9 +960,10 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CreateFramebuffers(VulkanWindow& window) {
+        window.FrameBuffers.resize(window.ImageCount);
         for (size_t i = 0; i < window.Frames.size(); i++) {
             VkImageView attachments[] = {
-                window.Frames[i].BackBufferView,
+                window.SwapChainImageViews[i],
                 m_DepthBufferImageView
             };
 
@@ -984,7 +976,7 @@ namespace FLOOF {
             framebufferInfo.height = window.Extent.height;
             framebufferInfo.layers = 1;
 
-            VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &window.Frames[i].Framebuffer);
+            VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &window.FrameBuffers[i]);
             ASSERT(result == VK_SUCCESS);
         }
         LOG("Framebuffers created.\n");
@@ -1102,12 +1094,12 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CleanupSwapChain(VulkanWindow& window) {
-        for (size_t i = 0; i < window.Frames.size(); i++) {
-            vkDestroyFramebuffer(m_LogicalDevice, window.Frames[i].Framebuffer, nullptr);
+        for (size_t i = 0; i < window.ImageCount; i++) {
+            vkDestroyFramebuffer(m_LogicalDevice, window.FrameBuffers[i], nullptr);
         }
 
         for (size_t i = 0; i < window.Frames.size(); i++) {
-            vkDestroyImageView(m_LogicalDevice, window.Frames[i].BackBufferView, nullptr);
+            vkDestroyImageView(m_LogicalDevice, window.SwapChainImageViews[i], nullptr);
         }
 
         vkDestroySwapchainKHR(m_LogicalDevice, window.Swapchain, nullptr);
