@@ -4,6 +4,7 @@
 #include <sstream>
 #include <array>
 #include <vector>
+#include <filesystem>
 
 
 
@@ -139,4 +140,102 @@ int ObjLoader::GetIndexFromF(const F& f, const std::vector<ObjLoader::F>& farr) 
 
 bool ObjLoader::F::operator==(const F& l) const {
     return v == l.v && vt == l.vt && vn == l.vn;
+}
+
+
+AssimpLoader::AssimpLoader(const std::string& path)
+    :path(path)
+{
+    LoadModel(path);
+}
+
+bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
+{
+    AssimpLoader::AssimpMesh internalMesh;
+
+    for (auto i = 0; i < mesh->mNumVertices; i++)
+    {
+        FLOOF::MeshVertex vertex;
+
+        {	//Position and normals
+            for (auto j = 0; j < 3; j++)
+            {
+                vertex.Pos[j] = mesh->mVertices[i][j];
+            }
+
+            if (mesh->HasNormals())
+                for (auto j = 0; j < 3; j++)
+                    vertex.Normal[j] = mesh->mNormals[i][j];
+        }
+        {	//Texture coords
+            if (mesh->mTextureCoords[0])
+            {
+                for (auto j = 0; j < 2; j++)
+                {
+                    vertex.UV[j] = mesh->mTextureCoords[0][i][j];
+                }
+            }
+        }
+        {	//Tangents
+            if (mesh->HasTangentsAndBitangents())
+                for (auto j = 0; j < 3; j++)
+                {
+                    vertex.tangent[j] = mesh->mTangents[i][j];
+                    vertex.bitTangent[j] = mesh->mBitangents[i][j];
+                }
+        }
+        internalMesh.vertices.emplace_back(vertex);
+    }
+    {	//Indices
+        for (auto i = 0; i < mesh->mNumFaces; i++)
+        {
+            aiFace face = mesh->mFaces[i];
+            for (auto j = 0; j < face.mNumIndices; j++)
+                internalMesh.indices.push_back(face.mIndices[j]);
+        }
+    }
+    {	//Bonedata
+        if (mesh->HasBones())
+        {
+            std::cerr << "Static mesh has bones, use skeletal mesh manager if you need bones! current path: " << path << std::endl;
+        }
+    }
+
+    staticMesh.meshes.emplace_back(internalMesh);
+    return true;
+}
+
+void AssimpLoader::ProcessNode(aiNode* node, const aiScene* scene)
+{
+    for (auto i = 0; i < node->mNumMeshes; i++)
+    {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        if (!LoadMesh(mesh, scene))
+            std::cerr << "failed to load mesh: " << path << std::endl;
+    }
+    for (auto i = 0; i < node->mNumChildren; i++)
+    {
+        ProcessNode(node->mChildren[i], scene);
+    }
+};
+
+void AssimpLoader::LoadModel(const std::string& path)
+{
+    Assimp::Importer importer;
+    const aiScene* scene;
+
+    if (!std::filesystem::exists(path))
+    {
+        throw std::exception("Failed to find Assimp Model Path!");
+    }
+
+    scene = importer.ReadFile(path, aiFlags);
+
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+    {
+        std::cout << "Assimp failed to load " << importer.GetErrorString() << std::endl;
+        return;
+    }
+
+    ProcessNode(scene->mRootNode, scene);
 }

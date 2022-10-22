@@ -14,6 +14,6 @@ namespace FLOOF {
             ModelMesh Model;
             uint32_t RefCount = 0;
         };
-        std::unordered_map<std::string, ModelData> s_MeshCache;
+        std::unordered_map<std::string, ModelData> m_MeshCache;
     };
 }

@@ -38,20 +38,32 @@ public:
     AssimpLoader() = delete;
     AssimpLoader(const std::string& path);
 private:
+    unsigned int aiFlags = aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_GenUVCoords | aiProcess_FlipUVs;
+    std::string path = "";
+
     struct AssimpMesh
     {
-        std::vector<FLOOF::MeshVertex> data;
-    } mesh;
+        std::vector<FLOOF::MeshVertex> vertices;
+        std::vector<uint32_t> indices;
+    };
 
     struct AssimpCollisionMesh
     {
-        AssimpMesh data;
+        AssimpMesh mesh;
     } collisionMesh;
 
     struct AssimpStaticMesh
     {
-        std::vector<AssimpMesh> data;
+        std::vector<AssimpMesh> meshes;
     } staticMesh;
 
-    std::vector<int> indices;
+    void ProcessNode(aiNode* node, const aiScene* scene);
+    bool LoadMesh(aiMesh* mesh, const aiScene* scene);
+    void LoadModel(const std::string& path);
+
+public:
+    const AssimpStaticMesh& GetAssimpStaticMesh() const
+    {
+        return staticMesh;
+    }
 };
