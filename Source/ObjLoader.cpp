@@ -226,7 +226,7 @@ void AssimpLoader::LoadModel(const std::string& path)
 
     if (!std::filesystem::exists(path))
     {
-        throw std::exception("Failed to find Assimp Model Path!");
+       // throw std::exception("Failed to find Assimp Model Path!");
     }
 
     scene = importer.ReadFile(path, aiFlags);

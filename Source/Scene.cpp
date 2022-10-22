@@ -15,8 +15,13 @@ namespace FLOOF {
     }
     void Scene::Clear()
     {
-        m_Scene.clear();
+        m_PhysicSystem = nullptr;
+        m_PhysicSystem = std::make_shared<PhysicsSystem>(m_Scene);
+        m_PhysicSystem->GetWorld()->setDebugDrawer(m_PhysicsDebugDrawer);
+
         m_PhysicSystem->clear();
+
+        m_Scene.clear();
     }
 
     void Scene::ClearDebugSystem() {

@@ -20,15 +20,15 @@ namespace FLOOF {
 
         void AddRigidBody(btRigidBody* body);
 
-        std::shared_ptr<btDiscreteDynamicsWorld> GetWorld(){return mDynamicsWorld;}
+        btDiscreteDynamicsWorld* GetWorld(){return mDynamicsWorld;}
 
     private:
         entt::registry& mScene;
-        std::shared_ptr<btDefaultCollisionConfiguration> mCollisionConfiguration{nullptr};
-        std::shared_ptr<btCollisionDispatcher> mDispatcher{nullptr};
-        std::shared_ptr<btBroadphaseInterface> mOverlappingPairCache{nullptr};
-        std::shared_ptr<btSequentialImpulseConstraintSolver> mSolver{nullptr};
-        std::shared_ptr<btDiscreteDynamicsWorld> mDynamicsWorld{nullptr};
+        btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
+        btCollisionDispatcher* mDispatcher{nullptr};
+        btBroadphaseInterface* mOverlappingPairCache{nullptr};
+        btSequentialImpulseConstraintSolver* mSolver{nullptr};
+        btDiscreteDynamicsWorld* mDynamicsWorld{nullptr};
 
 
     };
@@ -43,7 +43,6 @@ namespace FLOOF {
 
         void ClearDebugLines();
 
-        //todo add debugDrawline
         virtual void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) override;
         virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override;
         virtual void reportErrorWarning(const char* warningString) override;
