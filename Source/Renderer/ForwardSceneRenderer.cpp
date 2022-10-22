@@ -20,17 +20,7 @@ namespace FLOOF {
         CameraComponent* camera = app.GetRenderCamera();
         glm::mat4 vp = camera->GetVP(glm::radians(70.f), extent.width / (float)extent.height, 0.01f, 2000.f);
         
-        // Draw debug lines
-        auto* physicDrawer = app.GetPhysicsSystemDrawer();
-        if (physicDrawer) {
-            auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::LineWithDepth);
-            auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
-            ColorPushConstants constants;
-            constants.MVP = vp;
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                0, sizeof(ColorPushConstants), &constants);
-            lineMesh->Draw(commandBuffer);
-        }
+
 
         // Draw models
         auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Basic);
@@ -48,7 +38,16 @@ namespace FLOOF {
             texture.Bind(commandBuffer);
             mesh.Draw(commandBuffer);
         }
-
+        // Draw debug lines
+        auto* physicDrawer = app.GetPhysicsSystemDrawer();
+        if (physicDrawer) {
+            auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
+            auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
+            ColorPushConstants constants;
+            constants.MVP = vp;
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,0, sizeof(ColorPushConstants), &constants);
+            lineMesh->Draw(commandBuffer);
+        }
         {	// Draw ImGui
             ImGui::Render();
             ImDrawData* drawData = ImGui::GetDrawData();

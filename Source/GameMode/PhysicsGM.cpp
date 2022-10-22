@@ -37,6 +37,58 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
     }
     ImGui::End();
 
+    static int debugMode{btIDebugDraw::DBG_NoDebug};
+    static const char* DebugTypeStrings[] =
+            {
+                    "DBG_NoDebug" ,
+                    "DBG_DrawWireframe",
+                    "DBG_DrawAabb",
+                    "DBG_DrawFeaturesText",
+                    "DBG_DrawContactPoints",
+                    "DBG_NoDeactivation",
+                    "DBG_NoHelpText",
+                    "DBG_DrawText",
+                    "DBG_ProfileTimings",
+                    "DBG_EnableSatComparison",
+                    "DBG_DisableBulletLCP",
+                    "DBG_EnableCCD",
+                    "DBG_DrawConstraints",
+                    "DBG_DrawConstraintLimits",
+                    "DBG_FastWireframe",
+                    "DBG_DrawNormals",
+                    "DBG_DrawFrames",
+            };
+    static const int DebugTypeEnum[] = {
+            0,
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            (1<<11),
+            (1<<12),
+            (1<<13),
+            (1<<14),
+            (1<<15)
+    };
+
+    ImGui::Begin("DebugDraw");
+    if (ImGui::Combo("DebugDrawMode",
+                     &debugMode,
+                     DebugTypeStrings,
+                     IM_ARRAYSIZE(DebugTypeStrings)))
+    {
+        m_Scene.GetPhysicsDebugDrawer()->setDebugMode(DebugTypeEnum[debugMode]);
+    }
+    ImGui::End();
+
+
 }
 
 const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture)

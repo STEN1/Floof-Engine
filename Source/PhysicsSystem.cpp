@@ -65,9 +65,12 @@ namespace FLOOF {
             }
             transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getZ());
             auto rot=trans.getRotation().getAxis();
-            transform.Rotation = glm::vec3(rot.getX(),rot.getY(),rot.getZ());
+            float x,y,z;
+            trans.getRotation().getEulerZYX(z,y,x);
+            transform.Rotation = glm::vec3(x,y,z);
         }
 
+        mDynamicsWorld->debugDrawWorld();
 
     }
 
@@ -131,10 +134,11 @@ namespace FLOOF {
     }
 
     void PhysicsDebugDraw::setDebugMode(int debugMode) {
+        mDebugMode = debugMode;
     }
 
     int PhysicsDebugDraw::getDebugMode() const {
-        return 0;
+        return mDebugMode;
     }
 
     PhysicsDebugDraw::PhysicsDebugDraw() {
