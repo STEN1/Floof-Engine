@@ -4,6 +4,11 @@ namespace FLOOF {
     Scene::Scene() {
         m_PhysicSystem = std::make_shared<PhysicsSystem>(m_Scene);
         m_PhysicsDebugDrawer = new PhysicsDebugDraw();
+
+        m_PhysicsDebugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);
+       auto world =  m_PhysicSystem->GetWorld();
+       world->setDebugDrawer(m_PhysicsDebugDrawer);
+
     }
     entt::registry& Scene::GetCulledScene() {
         return m_Scene;
@@ -19,7 +24,7 @@ namespace FLOOF {
         m_PhysicsDebugDrawer = nullptr;
     }
 
-    void Scene::OnUpdatePhysics(float deltaTime) {
+    void Scene::OnUpdate(float deltaTime) {
         m_PhysicSystem->OnUpdate(deltaTime);
     }
 }

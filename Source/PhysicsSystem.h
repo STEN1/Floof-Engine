@@ -20,6 +20,8 @@ namespace FLOOF {
 
         void AddRigidBody(btRigidBody* body);
 
+        std::shared_ptr<btDiscreteDynamicsWorld> GetWorld(){return mDynamicsWorld;}
+
     private:
         entt::registry& mScene;
         std::shared_ptr<btDefaultCollisionConfiguration> mCollisionConfiguration{nullptr};
@@ -52,6 +54,7 @@ namespace FLOOF {
     private:
         LineMeshComponent* m_LineMesh = nullptr;
         std::vector<ColorVertex> m_VertexData;
+        int mDebugMode{btIDebugDraw::DBG_NoDebug};
     };
 }
 #endif //FLOOF_PHYSICSSYSTEM_H
