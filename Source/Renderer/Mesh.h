@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Floof.h"
 #include "Vertex.h"
 #include "VulkanRenderer.h"

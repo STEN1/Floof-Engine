@@ -23,9 +23,10 @@ namespace FLOOF {
         void Clear();
         void ClearDebugSystem();
         void OnUpdatePhysics(float deltaTime);
+
     private:
         entt::registry m_Scene;
-        std::shared_ptr<PhysicsSystem> m_PhysicSystem;
+        std::shared_ptr<PhysicsSystem> m_PhysicSystem;       
         PhysicsDebugDraw* m_PhysicsDebugDrawer;
     };
 }

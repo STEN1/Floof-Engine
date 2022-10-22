@@ -7,8 +7,14 @@ namespace FLOOF {
     class ModelManager {
     public:
         ModelManager();
-        ModelMesh LoadModelMesh(std::string& path);
+        ModelMesh LoadModelMesh(const std::string& path);
         void ModelMeshDestroyed(std::string& path);
+
+        static ModelManager& Get()
+        {
+            static ModelManager mm; return mm;
+        }
+
     private:
         struct ModelData {
             ModelMesh Model;

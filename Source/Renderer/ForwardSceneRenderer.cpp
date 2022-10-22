@@ -34,8 +34,25 @@ namespace FLOOF {
 
         // Draw models
         auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Basic);
-        auto view = m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
-        for (auto [entity, transform, mesh, texture] : view.each()) {
+        {
+            auto view = m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
+            for (auto [entity, transform, mesh, texture] : view.each()) {
+                MeshPushConstants constants;
+                //constants.MVP = vp * transform.GetTransform();
+                glm::mat4 modelMat = glm::translate(transform.Position);
+                modelMat = glm::scale(modelMat, transform.Scale);
+                constants.MVP = vp * modelMat;
+                constants.InvModelMat = glm::inverse(modelMat);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                    0, sizeof(MeshPushConstants), &constants);
+
+                texture.Bind(commandBuffer);
+                mesh.Draw(commandBuffer);
+            }
+        }
+
+        auto view = m_Registry.view<TransformComponent, StaticMeshComponent>();
+        for (auto [entity, transform, staticMesh] : view.each()) {
             MeshPushConstants constants;
             //constants.MVP = vp * transform.GetTransform();
             glm::mat4 modelMat = glm::translate(transform.Position);
@@ -45,8 +62,19 @@ namespace FLOOF {
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
 
-            texture.Bind(commandBuffer);
-            mesh.Draw(commandBuffer);
+            for (auto& mesh : staticMesh.meshes)
+            {
+                VkDeviceSize offset{ 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
+                if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                    vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                    vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
+                        1, 0, 0, 0);
+                }
+                else {
+                    vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                }
+            }            
         }
 
         {	// Draw ImGui
