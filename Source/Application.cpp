@@ -100,8 +100,6 @@ namespace FLOOF {
 
         SetRenderCamera(m_EditorCamera);
 
-        if (m_GameMode) m_GameMode->OnCreate();
-
         Timer timer;
         float titleBarUpdateTimer{};
         float titlebarUpdateRate = 0.1f;
@@ -145,8 +143,8 @@ namespace FLOOF {
 
     void Application::UpdateImGui(float deltaTime)
     {
-        static int selectedRenderType = 0;
-        static int selectedGameType = 0;
+        static int selectedRenderType = static_cast<int>(m_SceneRendererType);
+        static int selectedGameType = static_cast<int>(m_GameModeType);
 
         ImGui::Begin("Application");
         if (ImGui::Combo("SceneRendererType", 
