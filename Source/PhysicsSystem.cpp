@@ -109,21 +109,52 @@ namespace FLOOF {
 
     void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
         //btIDebugDraw::drawLine(from,to,color);
+        ColorVertex vFrom;
+        vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
+        vFrom.Pos = glm::vec3(from.x(), from.y(), from.z());
 
+        ColorVertex vTo;
+        vTo.Color = glm::vec3(color.x(), color.y(), color.z());
+        vTo.Pos = glm::vec3(to.x(), to.y(), to.z());
 
+        m_VertexData.push_back(vFrom);
+        m_VertexData.push_back(vTo);
     }
 
-    void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &fromColor,const btVector3 &toColor) {
-        //btIDebugDraw::drawLine(from, to, fromColor, toColor);
+    void PhysicsDebugDraw::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {
+    }
 
+    void PhysicsDebugDraw::reportErrorWarning(const char* warningString) {
+    }
 
+    void PhysicsDebugDraw::draw3dText(const btVector3& location, const char* textString) {
+    }
+
+    void PhysicsDebugDraw::setDebugMode(int debugMode) {
+    }
+
+    int PhysicsDebugDraw::getDebugMode() const {
+        return 0;
     }
 
     PhysicsDebugDraw::PhysicsDebugDraw() {
-
+        m_VertexData.resize(1000000);
+        memset(m_VertexData.data(), 0, m_VertexData.size() * sizeof(ColorVertex));
+        m_LineMesh = new LineMeshComponent(m_VertexData);
+        m_VertexData.clear();
+        GetUpdatedLineMesh(); // Clears line buffer.
     }
 
     PhysicsDebugDraw::~PhysicsDebugDraw() {
-
+        if (m_LineMesh)
+            delete m_LineMesh;
+    }
+    LineMeshComponent* PhysicsDebugDraw::GetUpdatedLineMesh() {
+        m_LineMesh->UpdateBuffer(m_VertexData);
+        m_VertexData.clear();
+        return m_LineMesh;
+    }
+    void PhysicsDebugDraw::ClearDebugLines() {
+        m_VertexData.clear();
     }
 }
