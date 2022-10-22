@@ -50,10 +50,11 @@ namespace FLOOF {
         CreateDevice();
 
         CreateVulkanAllocator();
-        CreateSwapChain();
-        CreateImageViews();
-        CreateDepthBuffer();
-        CreateRenderPass();
+
+
+        CreateWindow(m_VulkanWindow);
+        
+        
         {	// Default light shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
@@ -151,10 +152,8 @@ namespace FLOOF {
             CreateGraphicsPipeline(params);
         }
         CreateDescriptorPools();
-        CreateFramebuffers();
         CreateCommandPool();
-        AllocateCommandBuffers();
-        CreateSyncObjects();
+        AllocateCommandBuffers(m_VulkanWindow);
         InitGlfwCallbacks();
     }
 
@@ -162,13 +161,10 @@ namespace FLOOF {
         vkDestroyImageView(m_LogicalDevice, m_DepthBufferImageView, nullptr);
         vmaDestroyImage(m_Allocator, m_DepthBuffer.Image, m_DepthBuffer.Allocation);
         vmaDestroyAllocator(m_Allocator);
-        CleanupSwapChain();
 
-        for (int i = 0; i < VulkanGlobals::MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(m_LogicalDevice, m_ImageAvailableSemaphores[i], nullptr);
-            vkDestroySemaphore(m_LogicalDevice, m_RenderFinishedSemaphores[i], nullptr);
-            vkDestroyFence(m_LogicalDevice, m_InFlightFences[i], nullptr);
-        }
+        DestroyWindow(m_VulkanWindow);
+
+
         vkDestroyDescriptorPool(m_LogicalDevice, m_TextureDescriptorPool, nullptr);
         vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
         for (auto& [key, val] : m_DescriptorSetLayouts) {
@@ -182,8 +178,9 @@ namespace FLOOF {
         }
         vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
 
-        vkDestroyDevice(m_LogicalDevice, nullptr);
+
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+        vkDestroyDevice(m_LogicalDevice, nullptr);
 
 #ifndef NDEBUG
         DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
@@ -192,48 +189,48 @@ namespace FLOOF {
         s_Singleton = nullptr;
     }
 
-    uint32_t VulkanRenderer::GetNextSwapchainImage() {
-        vkWaitForFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
+    uint32_t VulkanRenderer::GetNextSwapchainImage(VulkanWindow& window) {
+        vkWaitForFences(m_LogicalDevice, 1, &window.Frames[window.FrameIndex].Fence, VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = vkAcquireNextImageKHR(m_LogicalDevice, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(m_LogicalDevice, window.Swapchain, UINT64_MAX, window.Frames[window.FrameIndex].ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-            RecreateSwapChain();
-            return GetNextSwapchainImage();
+            RecreateSwapChain(window);
+            return GetNextSwapchainImage(window);
         }
         ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
 
-        vkResetFences(m_LogicalDevice, 1, &m_InFlightFences[m_CurrentFrame]);
+        vkResetFences(m_LogicalDevice, 1, &window.Frames[window.FrameIndex].Fence);
 
         return imageIndex;
     }
 
-    VkCommandBuffer VulkanRenderer::StartRecording() {
-        m_CurrentImageIndex = GetNextSwapchainImage();
+    void VulkanRenderer::StartRecordingGraphics(VulkanWindow& window) {
+        window.ImageIndex = GetNextSwapchainImage(window);
 
-        vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
+        vkResetCommandBuffer(window.Frames[window.FrameIndex].CommandBuffer, 0);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0; // Optional
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
-        VkResult beginResult = vkBeginCommandBuffer(m_CommandBuffers[m_CurrentFrame], &beginInfo);
+        VkResult beginResult = vkBeginCommandBuffer(window.Frames[window.FrameIndex].CommandBuffer, &beginInfo);
         ASSERT(beginResult == VK_SUCCESS);
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = m_RenderPass;
-        renderPassInfo.framebuffer = m_SwapChainFramebuffers[m_CurrentImageIndex];
+        renderPassInfo.framebuffer = window.Frames[window.FrameIndex].Framebuffer;
         renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = m_SwapChainExtent;
+        renderPassInfo.renderArea.extent = window.Extent;
         VkClearValue clearColor[2]{};
         clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
         clearColor[1].depthStencil = { 1.0f, 0 };
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColor;
 
-        vkCmdBeginRenderPass(m_CommandBuffers[m_CurrentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(window.Frames[window.FrameIndex].CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         /*VkViewport viewport{};
         viewport.x = 0.0f;
@@ -246,65 +243,63 @@ namespace FLOOF {
         VkViewport viewport{};
         viewport.x = 0.f;
         viewport.y = 0.f;
-        viewport.width = static_cast<float>(m_SwapChainExtent.width);
-        viewport.height = static_cast<float>(m_SwapChainExtent.height);
+        viewport.width = static_cast<float>(window.Extent.width);
+        viewport.height = static_cast<float>(window.Extent.height);
         viewport.minDepth = 0.f;
         viewport.maxDepth = 1.f;
 
-        vkCmdSetViewport(m_CommandBuffers[m_CurrentFrame], 0, 1, &viewport);
+        vkCmdSetViewport(window.Frames[window.FrameIndex].CommandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = m_SwapChainExtent;
-        vkCmdSetScissor(m_CommandBuffers[m_CurrentFrame], 0, 1, &scissor);
-
-        return m_CommandBuffers[m_CurrentFrame];
+        scissor.extent = window.Extent;
+        vkCmdSetScissor(window.Frames[window.FrameIndex].CommandBuffer, 0, 1, &scissor);
     }
 
-    void VulkanRenderer::EndRecording() {
-        vkCmdEndRenderPass(m_CommandBuffers[m_CurrentFrame]);
-        VkResult endResult = vkEndCommandBuffer(m_CommandBuffers[m_CurrentFrame]);
+    void VulkanRenderer::EndRecording(VkCommandBuffer commandBuffer) {
+        vkCmdEndRenderPass(commandBuffer);
+        VkResult endResult = vkEndCommandBuffer(commandBuffer);
         ASSERT(endResult == VK_SUCCESS);
     }
 
-    void VulkanRenderer::SubmitAndPresent() {
-        VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
-        VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
+    void VulkanRenderer::EndAndSubmitGraphics(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence) {
+        EndRecording(commandBuffer);
+
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitSemaphores = &waitSemaphore;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentFrame];
+        submitInfo.pCommandBuffers = &commandBuffer;
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
+        submitInfo.pSignalSemaphores = &signalSemaphore;
 
-        VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
+        VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, fence);
         ASSERT(result == VK_SUCCESS);
+    }
 
+    void VulkanRenderer::Present(VulkanWindow& window) {
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
-
-        VkSwapchainKHR swapChains[] = { m_SwapChain };
+        presentInfo.pWaitSemaphores = &window.Frames[window.FrameIndex].RenderFinishedSemaphore;
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &m_CurrentImageIndex;
+        presentInfo.pSwapchains = &window.Swapchain;
+        presentInfo.pImageIndices = &window.ImageIndex;
         presentInfo.pResults = nullptr; // Optional
 
-        result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+        VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-            RecreateSwapChain();
+            RecreateSwapChain(window);
         }
         ASSERT(result == VK_SUCCESS ||
             result == VK_ERROR_OUT_OF_DATE_KHR ||
             result == VK_SUBOPTIMAL_KHR);
 
-        m_CurrentFrame = (m_CurrentFrame + 1) % VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
+        window.FrameIndex = (window.FrameIndex + 1) % VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
     }
 
     ImGui_ImplVulkan_InitInfo VulkanRenderer::GetImguiInitInfo() {
@@ -663,23 +658,42 @@ namespace FLOOF {
         ASSERT(result == VK_SUCCESS);
     }
 
-    void VulkanRenderer::CreateSwapChain() {
-        m_SwapChainImageFormat = GetSurfaceFormat(VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
-        m_PresentMode = GetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
-        m_SwapChainExtent = GetWindowExtent();
-        std::cout << "m_SwapChainExtent: x = " << m_SwapChainExtent.width << " y = " << m_SwapChainExtent.height << std::endl;
+    void VulkanRenderer::CreateWindow(VulkanWindow& window) {
+        CreateSwapChain(window);
+        CreateDepthBuffer(m_VulkanWindow.Extent);
+        CreateRenderPass(m_VulkanWindow);
+        CreateFramebuffers(window);
+        CreateSyncObjects(window);
+    }
 
-        uint32_t imageCount = m_SwapChainSupport.capabilities.minImageCount + 1;
-        if (m_SwapChainSupport.capabilities.maxImageCount > 0 && imageCount > m_SwapChainSupport.capabilities.maxImageCount) {
-            imageCount = m_SwapChainSupport.capabilities.maxImageCount;
+    void VulkanRenderer::DestroyWindow(VulkanWindow& window) {
+        CleanupSwapChain(window);
+        for (int i = 0; i < window.Frames.size(); i++) {
+            vkDestroySemaphore(m_LogicalDevice, window.Frames[i].ImageAvailableSemaphore, nullptr);
+            vkDestroySemaphore(m_LogicalDevice, window.Frames[i].RenderFinishedSemaphore, nullptr);
+            vkDestroyFence(m_LogicalDevice, window.Frames[i].Fence, nullptr);
         }
+
+    }
+
+    void VulkanRenderer::CreateSwapChain(VulkanWindow& window) {
+        window.SurfaceFormat = GetSurfaceFormat(VK_FORMAT_B8G8R8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR);
+        window.PresentMode = GetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
+        window.Extent = GetWindowExtent();
+        std::cout << "m_SwapChainExtent: x = " << window.Extent.width << " y = " << window.Extent.height << std::endl;
+
+        //uint32_t imageCount = m_SwapChainSupport.capabilities.minImageCount + 1;
+        //if (m_SwapChainSupport.capabilities.maxImageCount > 0 && imageCount > m_SwapChainSupport.capabilities.maxImageCount) {
+        //    imageCount = m_SwapChainSupport.capabilities.maxImageCount;
+        //}
+
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         createInfo.surface = m_Surface;
-        createInfo.minImageCount = imageCount;
-        createInfo.imageFormat = m_SwapChainImageFormat.format;
-        createInfo.imageColorSpace = m_SwapChainImageFormat.colorSpace;
-        createInfo.imageExtent = m_SwapChainExtent;
+        createInfo.minImageCount = VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
+        createInfo.imageFormat = window.SurfaceFormat.format;
+        createInfo.imageColorSpace = window.SurfaceFormat.colorSpace;
+        createInfo.imageExtent = window.Extent;
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
@@ -696,34 +710,53 @@ namespace FLOOF {
         }
 
         createInfo.preTransform = m_SwapChainSupport.capabilities.currentTransform;
-        createInfo.presentMode = m_PresentMode;
+        createInfo.presentMode = window.PresentMode;
         createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        VkResult result = vkCreateSwapchainKHR(m_LogicalDevice, &createInfo, nullptr, &m_SwapChain);
+        VkResult result = vkCreateSwapchainKHR(m_LogicalDevice, &createInfo, nullptr, &window.Swapchain);
         ASSERT(result == VK_SUCCESS);
 
-        imageCount = 0;
-        vkGetSwapchainImagesKHR(m_LogicalDevice, m_SwapChain, &imageCount, nullptr);
-        m_SwapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(m_LogicalDevice, m_SwapChain, &imageCount, m_SwapChainImages.data());
+        uint32_t imageCount = 0;
+        std::vector<VkImage> images;
+        vkGetSwapchainImagesKHR(m_LogicalDevice, window.Swapchain, &imageCount, nullptr);
+        ASSERT(VulkanGlobals::MAX_FRAMES_IN_FLIGHT == imageCount);
+        images.resize(imageCount);
+        vkGetSwapchainImagesKHR(m_LogicalDevice, window.Swapchain, &imageCount, images.data());
         LOG("Swapchain created.\n");
-    }
+        std::vector<VkImageView> imageViews;
+        imageViews.resize(imageCount);
+        for (size_t i = 0; i < imageCount; i++) {
+            VkImageViewCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            createInfo.image = images[i];
+            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            createInfo.format = window.SurfaceFormat.format;
+            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            createInfo.subresourceRange.baseMipLevel = 0;
+            createInfo.subresourceRange.levelCount = 1;
+            createInfo.subresourceRange.baseArrayLayer = 0;
+            createInfo.subresourceRange.layerCount = 1;
 
-    void VulkanRenderer::CreateImageViews() {
-        m_SwapChainImageViews.resize(m_SwapChainImages.size());
-        for (size_t i = 0; i < m_SwapChainImages.size(); i++) {
-            auto createInfo = MakeImageViewCreateInfo(i);
-            VkResult result = vkCreateImageView(m_LogicalDevice, &createInfo, nullptr, &m_SwapChainImageViews[i]);
+            VkResult result = vkCreateImageView(m_LogicalDevice, &createInfo, nullptr, &imageViews[i]);
             ASSERT(result == VK_SUCCESS);
         }
         LOG("Image views created.\n");
+
+        for (uint32_t i = 0; i < imageCount; i++) {
+            window.Frames[i].Backbuffer = images[i];
+            window.Frames[i].BackBufferView = imageViews[i];
+        }
     }
 
-    void VulkanRenderer::CreateRenderPass() {
+    void VulkanRenderer::CreateRenderPass(VulkanWindow& window) {
         VkAttachmentDescription colorAttachments[2]{};
-        colorAttachments[0].format = m_SwapChainImageFormat.format;
+        colorAttachments[0].format = window.SurfaceFormat.format;
         colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -837,12 +870,7 @@ namespace FLOOF {
 
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampling.sampleShadingEnable = VK_FALSE;
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        multisampling.minSampleShading = 1.0f; // Optional
-        multisampling.pSampleMask = nullptr; // Optional
-        multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-        multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -938,11 +966,10 @@ namespace FLOOF {
         LOG("Render pipeline created.\n");
     }
 
-    void VulkanRenderer::CreateFramebuffers() {
-        m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
-        for (size_t i = 0; i < m_SwapChainImageViews.size(); i++) {
+    void VulkanRenderer::CreateFramebuffers(VulkanWindow& window) {
+        for (size_t i = 0; i < window.Frames.size(); i++) {
             VkImageView attachments[] = {
-                m_SwapChainImageViews[i],
+                window.Frames[i].BackBufferView,
                 m_DepthBufferImageView
             };
 
@@ -951,24 +978,24 @@ namespace FLOOF {
             framebufferInfo.renderPass = m_RenderPass;
             framebufferInfo.attachmentCount = 2;
             framebufferInfo.pAttachments = attachments;
-            framebufferInfo.width = m_SwapChainExtent.width;
-            framebufferInfo.height = m_SwapChainExtent.height;
+            framebufferInfo.width = window.Extent.width;
+            framebufferInfo.height = window.Extent.height;
             framebufferInfo.layers = 1;
 
-            VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]);
+            VkResult result = vkCreateFramebuffer(m_LogicalDevice, &framebufferInfo, nullptr, &window.Frames[i].Framebuffer);
             ASSERT(result == VK_SUCCESS);
         }
         LOG("Framebuffers created.\n");
     }
 
-    void VulkanRenderer::CreateDepthBuffer() {
+    void VulkanRenderer::CreateDepthBuffer(VkExtent2D extent) {
         m_DepthFormat = FindDepthFormat();
         ASSERT(m_DepthFormat != VK_FORMAT_UNDEFINED);
 
         VkImageCreateInfo depthImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         depthImageInfo.imageType = VK_IMAGE_TYPE_2D;
-        depthImageInfo.extent.width = m_SwapChainExtent.width;
-        depthImageInfo.extent.height = m_SwapChainExtent.height;
+        depthImageInfo.extent.width = extent.width;
+        depthImageInfo.extent.height = extent.height;
         depthImageInfo.extent.depth = 1;
         depthImageInfo.mipLevels = 1;
         depthImageInfo.arrayLayers = 1;
@@ -1011,17 +1038,18 @@ namespace FLOOF {
         LOG("Command pool created.\n");
     }
 
-    void VulkanRenderer::AllocateCommandBuffers() {
-        m_CommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = m_CommandPool;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
+    void VulkanRenderer::AllocateCommandBuffers(VulkanWindow& window) {
+        for (auto& frame : window.Frames) {
+            VkCommandBufferAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocInfo.commandPool = m_CommandPool;
+            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocInfo.commandBufferCount = 1;
 
-        VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, m_CommandBuffers.data());
-        ASSERT(result == VK_SUCCESS);
-        LOG("Command buffer created.\n");
+            VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.CommandBuffer);
+            ASSERT(result == VK_SUCCESS);
+        }
+        LOG("Command buffers created.\n");
     }
 
     void VulkanRenderer::CreateDescriptorPools() {
@@ -1042,11 +1070,7 @@ namespace FLOOF {
 
     }
 
-    void VulkanRenderer::CreateSyncObjects() {
-        m_ImageAvailableSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_RenderFinishedSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_InFlightFences.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-
+    void VulkanRenderer::CreateSyncObjects(VulkanWindow& window) {
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -1054,12 +1078,12 @@ namespace FLOOF {
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (int i = 0; i < VulkanGlobals::MAX_FRAMES_IN_FLIGHT; i++) {
-            VkResult result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]);
+        for (int i = 0; i < window.Frames.size(); i++) {
+            VkResult result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].ImageAvailableSemaphore);
             ASSERT(result == VK_SUCCESS);
-            result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]);
+            result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].RenderFinishedSemaphore);
             ASSERT(result == VK_SUCCESS);
-            result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &m_InFlightFences[i]);
+            result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &window.Frames[i].Fence);
             ASSERT(result == VK_SUCCESS);
         }
 
@@ -1070,21 +1094,21 @@ namespace FLOOF {
         glfwSetWindowUserPointer(m_Window, (void*)this);
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             VulkanRenderer* renderer = (VulkanRenderer*)glfwGetWindowUserPointer(window);
-            renderer->RecreateSwapChain();
+            renderer->RecreateSwapChain(*renderer->GetVulkanWindow());
             LOG("Resize callback\n");
             });
     }
 
-    void VulkanRenderer::CleanupSwapChain() {
-        for (size_t i = 0; i < m_SwapChainFramebuffers.size(); i++) {
-            vkDestroyFramebuffer(m_LogicalDevice, m_SwapChainFramebuffers[i], nullptr);
+    void VulkanRenderer::CleanupSwapChain(VulkanWindow& window) {
+        for (size_t i = 0; i < window.Frames.size(); i++) {
+            vkDestroyFramebuffer(m_LogicalDevice, window.Frames[i].Framebuffer, nullptr);
         }
 
-        for (size_t i = 0; i < m_SwapChainImageViews.size(); i++) {
-            vkDestroyImageView(m_LogicalDevice, m_SwapChainImageViews[i], nullptr);
+        for (size_t i = 0; i < window.Frames.size(); i++) {
+            vkDestroyImageView(m_LogicalDevice, window.Frames[i].BackBufferView, nullptr);
         }
 
-        vkDestroySwapchainKHR(m_LogicalDevice, m_SwapChain, nullptr);
+        vkDestroySwapchainKHR(m_LogicalDevice, window.Swapchain, nullptr);
     }
 
     VkCommandBuffer VulkanRenderer::AllocateBeginOneTimeCommandBuffer() {
@@ -1115,7 +1139,7 @@ namespace FLOOF {
         vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
     }
 
-    void VulkanRenderer::RecreateSwapChain() {
+    void VulkanRenderer::RecreateSwapChain(VulkanWindow& window) {
         WaitWhileMinimized();
 
         vkDeviceWaitIdle(m_LogicalDevice);
@@ -1123,13 +1147,12 @@ namespace FLOOF {
         vkDestroyImageView(m_LogicalDevice, m_DepthBufferImageView, nullptr);
         vmaDestroyImage(m_Allocator, m_DepthBuffer.Image, m_DepthBuffer.Allocation);
 
-        CleanupSwapChain();
+        CleanupSwapChain(window);
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface, &m_SwapChainSupport.capabilities);
-        CreateSwapChain();
-        CreateImageViews();
-        CreateDepthBuffer();
-        CreateFramebuffers();
+        CreateSwapChain(window);
+        CreateDepthBuffer(window.Extent);
+        CreateFramebuffers(window);
     }
 
     void VulkanRenderer::WaitWhileMinimized() {
@@ -1159,24 +1182,6 @@ namespace FLOOF {
         ASSERT(result == VK_SUCCESS);
 
         return shaderModule;
-    }
-
-    VkImageViewCreateInfo VulkanRenderer::MakeImageViewCreateInfo(int SwapChainImageIndex) {
-        VkImageViewCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = m_SwapChainImages[SwapChainImageIndex];
-        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        createInfo.format = m_SwapChainImageFormat.format;
-        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
-        createInfo.subresourceRange.baseArrayLayer = 0;
-        createInfo.subresourceRange.layerCount = 1;
-        return createInfo;
     }
 
     void VulkanRenderer::ValidatePhysicalDeviceExtentions() {

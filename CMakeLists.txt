@@ -40,8 +40,7 @@ add_executable(Floof
     Source/Renderer/ModelManager.cpp 
     Source/Renderer/TextureManager.cpp 
     Source/Renderer/Mesh.h 
-    Source/Renderer/Texture.h 
-      
+    Source/Renderer/Texture.h
     Source/Renderer/SceneRenderer.h 
     Source/Renderer/ForwardSceneRenderer.h 
     Source/Renderer/DeferredSceneRenderer.h 
@@ -53,7 +52,11 @@ add_executable(Floof
     Source/GameMode/PhysicsGM.h 
     Source/GameMode/PhysicsGM.cpp 
     Source/GameMode/SponzaGM.h
-    Source/GameMode/SponzaGM.cpp "Source/Renderer/Material.h")
+    Source/GameMode/SponzaGM.cpp
+    Source/PhysicsSystem.cpp
+    Source/PhysicsSystem.h
+    Source/GameMode/SponzaGM.cpp
+    Source/Renderer/Material.h)
 
 
 find_package(Vulkan REQUIRED)
@@ -77,6 +80,12 @@ target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btLinearMathAll.cpp "Source/Renderer/Material.h")
 target_link_libraries(Floof Bullet)
 
+#boost.python
+find_package(Boost COMPONENTS python)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    target_link_libraries(Floof ${BoosT_LIBRARIES})
+endif()
 
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)

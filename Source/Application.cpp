@@ -27,9 +27,13 @@ namespace FLOOF {
         IMGUI_CHECKVERSION();
         m_ImguiContext = ImGui::CreateContext();
         ImGui::SetCurrentContext(m_ImguiContext);
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        //io.ConfigViewportsNoAutoMerge = true;
+        //io.ConfigViewportsNoTaskBarIcon = true;  // Enable Gamepad Controls
 
         ImGui::StyleColorsDark();
 
@@ -62,6 +66,8 @@ namespace FLOOF {
         Input::Init(m_Window);
         // Init Logger. Writes to specified log file.
         Utils::Logger::s_Logger = new Utils::Logger("Floof.log");
+
+        m_Scene = std::make_unique<Scene>();
 
         /*SceneRenderer*/
         SetRendererType(SceneRendererType::Forward);
@@ -131,7 +137,8 @@ namespace FLOOF {
         }
 
         m_Renderer->FinishAllFrames();
-        m_Scene.Clear();
+        m_Scene->ClearDebugSystem();
+        m_Scene->Clear();
 
         return 0;
     }
@@ -197,18 +204,32 @@ namespace FLOOF {
 
     void Application::Update(double deltaTime) {
         UpdateCameraSystem(deltaTime);
-        UpdateImGui(deltaTime);  
+        UpdateImGui(deltaTime);
+
+        m_Scene->OnUpdatePhysics(deltaTime);
+
         if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
 
     void Application::Draw() {
         if (m_SceneRenderer)
         {
-            auto& m_Registry = m_Scene.GetCulledScene();
+            auto& m_Registry = m_Scene->GetCulledScene();
             m_SceneRenderer->Render(m_Registry);
-        }    
-
-        m_Renderer->SubmitAndPresent();
+        }
+        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
+        m_Renderer->EndAndSubmitGraphics(
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer,
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].ImageAvailableSemaphore,
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].RenderFinishedSemaphore,
+            vulkanWindow->Frames[vulkanWindow->FrameIndex].Fence);
+        // Update and Render additional Platform Windows
+        //ImGuiIO& io = ImGui::GetIO();
+        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        //    ImGui::UpdatePlatformWindows();
+        //    ImGui::RenderPlatformWindowsDefault();
+        //}
+        m_Renderer->Present(*vulkanWindow);
     }
 
     void Application::SetRendererType(SceneRendererType type)
@@ -301,13 +322,14 @@ namespace FLOOF {
         {
         case GameModeType::Physics:
         {
-            m_GameMode = new PhysicsGM(m_Scene);
+            m_GameMode = new PhysicsGM(*m_Scene.get());
             m_GameMode->OnCreate();
+            m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
         }
         break;
         case GameModeType::Sponza:
         {
-            m_GameMode = new SponzaGM(m_Scene);
+            m_GameMode = new SponzaGM(*m_Scene.get());
             m_GameMode->OnCreate();
         }
         break;
@@ -324,7 +346,7 @@ namespace FLOOF {
     {
         delete m_GameMode; m_GameMode = nullptr;
         m_Renderer->FinishAllFrames();
-        m_Scene.Clear();
+        m_Scene->Clear();
     }
 
     void Application::UpdateGameMode()

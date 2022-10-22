@@ -51,6 +51,8 @@ namespace FLOOF {
         VulkanRenderer* m_Renderer;
 
     public:
+        PhysicsDebugDraw* GetPhysicsSystemDrawer() { return m_Scene->GetPhysicsDebugDrawer(); }
+
         /*GameMode Methods*/
         void SetGameModeType(GameModeType type);
         GameModeType GetGameModeType() const;
@@ -118,6 +120,6 @@ namespace FLOOF {
         /// <summary>
         /// Currently being cleared on game mode change
         /// </summary>
-        Scene m_Scene;
+        std::unique_ptr<Scene> m_Scene;
     };
 }
