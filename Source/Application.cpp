@@ -11,6 +11,8 @@
 #include "Octree.h"
 #include "Simulate.h"
 
+#include "Renderer/ModelManager.h"
+
 #include "Renderer/ForwardSceneRenderer.h"
 #include "Renderer/DeferredSceneRenderer.h"
 
@@ -82,6 +84,7 @@ namespace FLOOF {
         ImGui::DestroyContext(m_ImguiContext);
 
         MeshComponent::ClearMeshDataCache();
+        ModelManager::Get().DestroyAll();
         TextureComponent::ClearTextureDataCache();
 
         DestroyGameMode();

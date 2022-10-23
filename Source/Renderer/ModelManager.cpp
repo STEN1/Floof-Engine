@@ -27,6 +27,7 @@ namespace FLOOF {
             meshData.IndexCount = mesh.indices.size();
             modelData.Model.meshes.emplace_back(meshData);
         }
+        modelData.Model.Path = path;
 
         m_MeshCache[path] = modelData;
 
@@ -34,5 +35,17 @@ namespace FLOOF {
     }
 
     void ModelManager::ModelMeshDestroyed(std::string& path) {
+    }
+
+    void ModelManager::DestroyAll() {
+        auto* renderer = VulkanRenderer::Get();
+        for (auto& [path, data] : m_MeshCache) {
+            // TODO: Models also have material data. Need to handle that here?
+
+            for (auto& mesh : data.Model.meshes) {
+                vmaDestroyBuffer(renderer->m_Allocator, mesh.IndexBuffer.Buffer, mesh.IndexBuffer.Allocation);
+                vmaDestroyBuffer(renderer->m_Allocator, mesh.VertexBuffer.Buffer, mesh.VertexBuffer.Allocation);
+            }
+        }
     }
 }
