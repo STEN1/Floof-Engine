@@ -121,7 +121,8 @@ namespace FLOOF {
         friend class MeshComponent;
         friend class LineMeshComponent;
         friend class PointCloudComponent;
-
+        friend class ModelManager;
+        friend class TextureManager;
     public:
         VulkanRenderer(GLFWwindow* window);
         ~VulkanRenderer();
