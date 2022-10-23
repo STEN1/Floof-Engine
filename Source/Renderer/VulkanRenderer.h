@@ -96,9 +96,11 @@ namespace FLOOF {
 
     struct VulkanFrame {
         VkSemaphore         ImageAvailableSemaphore = VK_NULL_HANDLE;
+        VkSemaphore         MainPassEndSemaphore = VK_NULL_HANDLE;
         VkSemaphore         RenderFinishedSemaphore = VK_NULL_HANDLE;
         VkFence             Fence = VK_NULL_HANDLE;
-        VkCommandBuffer     CommandBuffer = VK_NULL_HANDLE;
+        VkCommandBuffer     MainCommandBuffer = VK_NULL_HANDLE;
+        VkCommandBuffer     ImGuiCommandBuffer = VK_NULL_HANDLE;
     };
 
     struct VulkanWindow {
@@ -114,6 +116,7 @@ namespace FLOOF {
         std::vector<VkImageView> SwapChainImageViews;
         std::vector<VkFramebuffer> FrameBuffers;
         std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
+        std::vector<VkSubmitInfo> SubmitInfos;
     };
 
     class VulkanRenderer {
@@ -138,8 +141,8 @@ namespace FLOOF {
             VkFramebuffer frameBuffer, VkExtent2D extent);
         
         // Ends recording and submits to graphics queue.
-        void EndRenderPass(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, 
-            VkSemaphore signalSemaphore, VkFence fence = VK_NULL_HANDLE);
+        void EndRenderPass(VkCommandBuffer* commandBuffer, VkSemaphore* waitSemaphore, 
+            VkSemaphore* signalSemaphore, VkPipelineStageFlags* waitStages);
 
         // Final present.
         void Present(VulkanWindow& window);
@@ -151,8 +154,12 @@ namespace FLOOF {
 
         // ImGui init info getter
         ImGui_ImplVulkan_InitInfo GetImguiInitInfo();
+
         // Gets the renderpass that imgui belongs to. Should be the last.
         VkRenderPass GetImguiRenderPass();
+
+        // Gets the main renderpass to render 3D.
+        VkRenderPass GetMainRenderPass();
 
         // Wait for all frames to finish so that nothing is in use.
         void FinishAllFrames();
@@ -160,26 +167,30 @@ namespace FLOOF {
         // Create vertex buffer from vector of vertex type. (Vertex.h)
         template<typename VertexType>
         VulkanBuffer CreateVertexBuffer(const std::vector<VertexType>& vertices);
+
         // Create index buffer
         VulkanBuffer CreateIndexBuffer(const std::vector<uint32_t>& indices);
+
         // Destroy any vulkan buffer
         void DestroyVulkanBuffer(VulkanBuffer* buffer);
 
         // Allocates a combined texture-sampler descriptor set.
         VkDescriptorSet AllocateTextureDescriptorSet();
+
         // Frees a combined texture-sampler descriptor set.
         void FreeTextureDescriptorSet(VkDescriptorSet desctriptorSet);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer AllocateBeginOneTimeCommandBuffer();
+
         // End one time command buffer.
         void EndSubmitFreeCommandBuffer(VkCommandBuffer);
+
         VulkanWindow* GetVulkanWindow() { return &m_VulkanWindow; }
+
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
         GLFWwindow* m_Window;
-
-        void EndRecording(VkCommandBuffer commandBuffer);
 
         void CreateSurface();
         void CreateInstance();
@@ -203,6 +214,7 @@ namespace FLOOF {
         void CreateSyncObjects(VulkanWindow& window);
 
         void CreateRenderPass(VulkanWindow& window);
+        void CreateImGuiRenderPass(VulkanWindow& window);
         void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
         void CreateCommandPool();
@@ -257,6 +269,7 @@ namespace FLOOF {
         VkSurfaceKHR m_Surface;
 
         VkRenderPass m_RenderPass;
+        VkRenderPass m_ImGuiRenderPass;
         std::unordered_map<RenderPipelineKeys, VkPipelineLayout> m_PipelineLayouts;
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
         VkCommandPool m_CommandPool;

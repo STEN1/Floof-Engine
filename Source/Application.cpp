@@ -33,7 +33,7 @@ namespace FLOOF {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
         //io.ConfigViewportsNoAutoMerge = true;
         //io.ConfigViewportsNoTaskBarIcon = true;  // Enable Gamepad Controls
 
@@ -219,17 +219,45 @@ namespace FLOOF {
             m_SceneRenderer->Render(m_Registry);
         }
         auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        m_Renderer->EndRenderPass(
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer,
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].ImageAvailableSemaphore,
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].RenderFinishedSemaphore,
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].Fence);
-        // Update and Render additional Platform Windows
-        //ImGuiIO& io = ImGui::GetIO();
-        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        //    ImGui::UpdatePlatformWindows();
-        //    ImGui::RenderPlatformWindowsDefault();
-        //}
+        auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
+
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+        {   // End main renderpass
+            m_Renderer->EndRenderPass(
+                &currentFrameData.MainCommandBuffer,
+                &currentFrameData.ImageAvailableSemaphore,
+                &currentFrameData.MainPassEndSemaphore,
+                waitStages);
+        }
+
+        {	// Start ImGui renderpass anad draw ImGui
+            ImGui::Render();
+            ImDrawData* drawData = ImGui::GetDrawData();
+            m_Renderer->StartRenderPass(
+                currentFrameData.ImGuiCommandBuffer,
+                m_Renderer->GetImguiRenderPass(),
+                vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
+                vulkanWindow->Extent);
+
+            ImGui_ImplVulkan_RenderDrawData(drawData, currentFrameData.ImGuiCommandBuffer);
+
+            //Update and Render additional Platform Windows
+            ImGuiIO& io = ImGui::GetIO();
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+            }
+        }
+
+        {   // End ImGui renderpass
+            m_Renderer->EndRenderPass(&currentFrameData.ImGuiCommandBuffer,
+                &currentFrameData.MainPassEndSemaphore,
+                &currentFrameData.RenderFinishedSemaphore,
+                waitStages);
+        }
+
+        // Waits for render finished semaphore then presents
         m_Renderer->Present(*vulkanWindow);
     }
 

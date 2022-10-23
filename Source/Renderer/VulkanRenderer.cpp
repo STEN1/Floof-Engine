@@ -51,7 +51,6 @@ namespace FLOOF {
 
         CreateVulkanAllocator();
 
-
         CreateWindow(m_VulkanWindow);
         
         
@@ -207,6 +206,7 @@ namespace FLOOF {
 
     void VulkanRenderer::NewFrame(VulkanWindow& window) {
         window.ImageIndex = GetNextSwapchainImage(window);
+        window.SubmitInfos.clear();
     }
 
     void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer frameBuffer, VkExtent2D extent) {
@@ -230,17 +230,11 @@ namespace FLOOF {
         clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
         clearColor[1].depthStencil = { 1.0f, 0 };
         renderPassInfo.clearValueCount = 2;
+        if (renderPass == m_ImGuiRenderPass)
+            renderPassInfo.clearValueCount = 0;
         renderPassInfo.pClearValues = clearColor;
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        /*VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = static_cast<float>(m_SwapChainExtent.height);
-        viewport.width = static_cast<float>(m_SwapChainExtent.width);
-        viewport.height = -static_cast<float>(m_SwapChainExtent.height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;*/
 
         VkViewport viewport{};
         viewport.x = 0.f;
@@ -258,32 +252,29 @@ namespace FLOOF {
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
-    void VulkanRenderer::EndRecording(VkCommandBuffer commandBuffer) {
-        vkCmdEndRenderPass(commandBuffer);
-        VkResult endResult = vkEndCommandBuffer(commandBuffer);
+    void VulkanRenderer::EndRenderPass(VkCommandBuffer* commandBuffer, VkSemaphore* waitSemaphore, VkSemaphore* signalSemaphore, VkPipelineStageFlags* waitStages) {
+        vkCmdEndRenderPass(*commandBuffer);
+        VkResult endResult = vkEndCommandBuffer(*commandBuffer);
         ASSERT(endResult == VK_SUCCESS);
-    }
-
-    void VulkanRenderer::EndRenderPass(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence) {
-        EndRecording(commandBuffer);
-
-        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &waitSemaphore;
+        submitInfo.pWaitSemaphores = waitSemaphore;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
+        submitInfo.pCommandBuffers = commandBuffer;
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &signalSemaphore;
+        submitInfo.pSignalSemaphores = signalSemaphore;
 
-        VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, fence);
-        ASSERT(result == VK_SUCCESS);
+        m_VulkanWindow.SubmitInfos.push_back(submitInfo);
     }
 
     void VulkanRenderer::Present(VulkanWindow& window) {
+        VkResult result = vkQueueSubmit(m_GraphicsQueue, window.SubmitInfos.size(), window.SubmitInfos.data(),
+            window.Frames[window.FrameIndex].Fence);
+        ASSERT(result == VK_SUCCESS);
+
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
@@ -293,7 +284,7 @@ namespace FLOOF {
         presentInfo.pImageIndices = &window.ImageIndex;
         presentInfo.pResults = nullptr; // Optional
 
-        VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+        result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             RecreateSwapChain(window);
         }
@@ -314,8 +305,8 @@ namespace FLOOF {
         initInfo.Queue = m_GraphicsQueue;
         initInfo.DescriptorPool = m_TextureDescriptorPool;
         initInfo.Subpass = 0;
-        initInfo.MinImageCount = VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
-        initInfo.ImageCount = VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
+        initInfo.MinImageCount = m_VulkanWindow.ImageCount;
+        initInfo.ImageCount = m_VulkanWindow.ImageCount;
         initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         initInfo.Allocator = nullptr;
         initInfo.CheckVkResultFn = nullptr;
@@ -324,6 +315,10 @@ namespace FLOOF {
     }
 
     VkRenderPass VulkanRenderer::GetImguiRenderPass() {
+        return m_ImGuiRenderPass;
+    }
+
+    VkRenderPass VulkanRenderer::GetMainRenderPass() {
         return m_RenderPass;
     }
 
@@ -662,8 +657,9 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateWindow(VulkanWindow& window) {
         CreateSwapChain(window);
-        CreateDepthBuffer(m_VulkanWindow.Extent);
-        CreateRenderPass(m_VulkanWindow);
+        CreateDepthBuffer(window.Extent);
+        CreateRenderPass(window);
+        CreateImGuiRenderPass(window);
         CreateFramebuffers(window);
         CreateSyncObjects(window);
     }
@@ -692,7 +688,7 @@ namespace FLOOF {
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         createInfo.surface = m_Surface;
-        createInfo.minImageCount = VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
+        createInfo.minImageCount = window.ImageCount;
         createInfo.imageFormat = window.SurfaceFormat.format;
         createInfo.imageColorSpace = window.SurfaceFormat.colorSpace;
         createInfo.imageExtent = window.Extent;
@@ -713,7 +709,8 @@ namespace FLOOF {
 
         createInfo.preTransform = m_SwapChainSupport.capabilities.currentTransform;
         createInfo.presentMode = window.PresentMode;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        // TODO: Change this?
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
@@ -757,6 +754,7 @@ namespace FLOOF {
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        //colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         colorAttachments[1].format = m_DepthFormat;
         colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -799,6 +797,63 @@ namespace FLOOF {
         renderPassInfo.pDependencies = &dependency;
 
         VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
+        ASSERT(result == VK_SUCCESS);
+        LOG("Render pass created.\n");
+    }
+
+    void VulkanRenderer::CreateImGuiRenderPass(VulkanWindow& window) {
+
+        VkAttachmentDescription colorAttachments[2]{};
+        colorAttachments[0].format = window.SurfaceFormat.format;
+        colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        colorAttachments[1].format = m_DepthFormat;
+        colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference colorAttachmentRef{};
+        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference depthStencilAttachmentRef{};
+        depthStencilAttachmentRef.attachment = 1;
+        depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &colorAttachmentRef;
+        subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
+
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        VkRenderPassCreateInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = 2;
+        renderPassInfo.pAttachments = colorAttachments;
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = 1;
+        renderPassInfo.pDependencies = &dependency;
+
+        VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_ImGuiRenderPass);
         ASSERT(result == VK_SUCCESS);
         LOG("Render pass created.\n");
     }
@@ -961,7 +1016,7 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateFramebuffers(VulkanWindow& window) {
         window.FrameBuffers.resize(window.ImageCount);
-        for (size_t i = 0; i < window.Frames.size(); i++) {
+        for (size_t i = 0; i < window.FrameBuffers.size(); i++) {
             VkImageView attachments[] = {
                 window.SwapChainImageViews[i],
                 m_DepthBufferImageView
@@ -1040,7 +1095,9 @@ namespace FLOOF {
             allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             allocInfo.commandBufferCount = 1;
 
-            VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.CommandBuffer);
+            VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.MainCommandBuffer);
+            ASSERT(result == VK_SUCCESS);
+            result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.ImGuiCommandBuffer);
             ASSERT(result == VK_SUCCESS);
         }
         LOG("Command buffers created.\n");
@@ -1076,6 +1133,8 @@ namespace FLOOF {
             VkResult result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].ImageAvailableSemaphore);
             ASSERT(result == VK_SUCCESS);
             result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].RenderFinishedSemaphore);
+            ASSERT(result == VK_SUCCESS);
+            result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].MainPassEndSemaphore);
             ASSERT(result == VK_SUCCESS);
             result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &window.Frames[i].Fence);
             ASSERT(result == VK_SUCCESS);
