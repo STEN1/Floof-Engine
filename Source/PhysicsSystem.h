@@ -5,6 +5,7 @@
 #include "entt/entt.hpp"
 #include "Renderer/Vertex.h"
 #include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
+#include "BulletSoftBody/btSoftRigidCollisionAlgorithm.h"
 
 namespace FLOOF {
     class PhysicsSystem {
@@ -26,16 +27,20 @@ namespace FLOOF {
 
         btDiscreteDynamicsWorld* GetWorld(){return mDynamicsWorld;}
 
-        btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return mSoftBodyWorldInfo;}
+        btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return &mSoftBodyWorldInfo;}
     private:
         entt::registry& mScene;
         btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
         btCollisionDispatcher* mDispatcher{nullptr};
         btBroadphaseInterface* mOverlappingPairCache{nullptr};
-        btSequentialImpulseConstraintSolver* mSolver{nullptr};
+        //btSequentialImpulseConstraintSolver* mSolver{nullptr};
+        btConstraintSolver* mSolver{nullptr};
         btSoftRigidDynamicsWorld* mSoftDynamicsWorld{nullptr};
-        btSoftBodyWorldInfo* mSoftBodyWorldInfo{nullptr};
         btDiscreteDynamicsWorld* mDynamicsWorld{nullptr};
+        btSoftBodyWorldInfo mSoftBodyWorldInfo;
+
+        btCollisionAlgorithmCreateFunc* mBoxBoxCF{nullptr};
+        btAlignedObjectArray<btSoftRigidCollisionAlgorithm*> mSoftRigidCollisionAlgorithms;
     };
 
     struct LineMeshComponent;

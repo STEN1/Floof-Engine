@@ -12,7 +12,6 @@ namespace FLOOF {
         //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
         mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
         mSoftDynamicsWorld = (btSoftRigidDynamicsWorld*)mDynamicsWorld;
-        mSoftBodyWorldInfo = new btSoftBodyWorldInfo();
 
         mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
 
@@ -24,7 +23,6 @@ namespace FLOOF {
         delete mOverlappingPairCache;
         delete mDispatcher;
         delete mCollisionConfiguration;
-        delete mSoftBodyWorldInfo;
     }
 
     void PhysicsSystem::OnUpdate(float deltaTime) {
