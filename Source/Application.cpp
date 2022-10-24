@@ -146,6 +146,49 @@ namespace FLOOF {
 
     void Application::UpdateImGui(float deltaTime)
     {
+        // ImGui viewports
+        static bool dockSpaceOpen = true;
+        static bool showDemoWindow = false;
+
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+        window_flags |= ImGuiWindowFlags_MenuBar;
+        window_flags |= ImGuiWindowFlags_NoTitleBar;
+        window_flags |= ImGuiWindowFlags_NoResize;
+        window_flags |= ImGuiWindowFlags_NoCollapse;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+        window_flags |= ImGuiWindowFlags_NoNavFocus;
+        window_flags |= ImGuiWindowFlags_NoBackground;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+        ImGui::Begin("Dock space", &dockSpaceOpen, window_flags);
+
+        ImGui::PopStyleVar(3);
+
+        auto dockSpaceID = ImGui::GetID("Dock space ID");
+        ImGui::DockSpace(dockSpaceID, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
+
+        if (ImGui::BeginMenuBar()) {
+            if (ImGui::BeginMenu("Options")) {
+                if (ImGui::MenuItem("Show/Hide ImGui demo")) {
+                    showDemoWindow = !showDemoWindow;
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenuBar();
+        }
+
+        if (showDemoWindow)
+            ImGui::ShowDemoWindow(&showDemoWindow);
+
         static int selectedRenderType = static_cast<int>(m_SceneRendererType);
         static int selectedGameType = static_cast<int>(m_GameModeType);
 
@@ -219,6 +262,9 @@ namespace FLOOF {
 
         VkSemaphore waitSemaphore = currentFrameData.MainPassEndSemaphore;
         VkSemaphore signalSemaphore = currentFrameData.RenderFinishedSemaphore;
+
+        
+
         if (m_SceneRenderer) {
             auto& m_Registry = m_Scene->GetCulledScene();
             m_SceneRenderer->Render(m_Registry);
@@ -227,6 +273,8 @@ namespace FLOOF {
             signalSemaphore = currentFrameData.RenderFinishedSemaphore;
         }
 
+        // Ends Dockspace window
+        ImGui::End();
 
         // Start ImGui renderpass and draw ImGui
         m_Renderer->StartRenderPass(
@@ -239,6 +287,12 @@ namespace FLOOF {
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(drawData, currentFrameData.ImGuiCommandBuffer);
+
+        //// Update and Render additional Platform Windows
+        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        //    ImGui::UpdatePlatformWindows();
+        //    ImGui::RenderPlatformWindowsDefault();
+        //}
 
         // End ImGui renderpass
         VulkanSubmitInfo submitInfo{};
