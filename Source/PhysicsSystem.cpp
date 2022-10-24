@@ -9,18 +9,99 @@ namespace FLOOF {
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
         mOverlappingPairCache = new btDbvtBroadphase();
         mSolver = new btSequentialImpulseConstraintSolver();
+        //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
         mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
+        mSoftDynamicsWorld = (btSoftRigidDynamicsWorld*)mDynamicsWorld;
+        mSoftBodyWorldInfo = new btSoftBodyWorldInfo();
 
         mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
 
-        //creating invisible floor
-        //todo find out why ground is not made
+    }
+
+    PhysicsSystem::~PhysicsSystem() {
+        delete mDynamicsWorld;
+        delete mSolver;
+        delete mOverlappingPairCache;
+        delete mDispatcher;
+        delete mCollisionConfiguration;
+        delete mSoftBodyWorldInfo;
+    }
+
+    void PhysicsSystem::OnUpdate(float deltaTime) {
+
+        if(!mDynamicsWorld)
+            return;
+
+        mDynamicsWorld->stepSimulation(deltaTime, 10);
+
+        auto view = mScene.view<RigidBodyComponent, TransformComponent>();
+        for(auto [entity, RigidBodyComponent, transform]: view.each()){
+
+            btRigidBody* body = RigidBodyComponent.RigidBody.get();
+            btTransform trans;
+            if (body && body->getMotionState())
+            {
+                body->getMotionState()->getWorldTransform(trans);
+            }
+            else
+            {
+                trans = body->getWorldTransform();
+            }
+            transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getZ());
+            auto rot=trans.getRotation();
+            float x,y,z;
+            trans.getRotation().getEulerZYX(z,y,x);
+            transform.Rotation = glm::vec3(x,y,z);
+        }
+
+
+        mDynamicsWorld->debugDrawWorld();
+
+    }
+
+    void PhysicsSystem::UpdateDynamicWorld() {
+        auto view = mScene.view<RigidBodyComponent>();
+        for(auto [entity, body]: view.each()){
+            AddRigidBody(body.RigidBody.get());
+        }
+
+    }
+
+    void PhysicsSystem::clear() {
+
+        if(mDynamicsWorld)
+        for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
         {
-            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.), btScalar(10.), btScalar(200.)));
+            btCollisionObject* obj = mDynamicsWorld->getCollisionObjectArray()[i];
+            btRigidBody* body = btRigidBody::upcast(obj);
+            if (body && body->getMotionState())
+            {
+                delete body->getMotionState();
+            }
+            mDynamicsWorld->removeCollisionObject(obj);
+        }
+
+        //delete mDynamicsWorld;
+        //delete mSolver;
+        //delete mOverlappingPairCache;
+        //delete mDispatcher;
+        //delete mCollisionConfiguration;
+    }
+
+    void PhysicsSystem::AddRigidBody(btRigidBody *body) {
+        if(mDynamicsWorld)
+            mDynamicsWorld->addRigidBody(body);
+
+    }
+
+    void PhysicsSystem::AddDebugFloor() {
+        //creating invisible floor
+        {
+            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(400.), btScalar(10.), btScalar(400.)));
 
             btTransform groundTransform;
             groundTransform.setIdentity();
-            groundTransform.setOrigin(btVector3(0, -200, 0));
+            groundTransform.setOrigin(btVector3(0, -150, 0));
 
             btScalar mass(0.);
 
@@ -29,11 +110,14 @@ namespace FLOOF {
             btRigidBody* body = new btRigidBody(rbInfo);
             body->setFriction(0.5f);
             //add the body to the dynamics world
-            mDynamicsWorld->addRigidBody(body);
+            AddRigidBody(body);
         }
-        //create random object shapes
-        if(false){
-        #define NUM_SHAPES 10
+
+    }
+
+    void PhysicsSystem::AddDebugShapes() {
+            //create random object shapes
+            #define NUM_SHAPES 10
             std::vector<btCollisionShape*> m_collisionShapes;
             btCollisionShape* colShapes[NUM_SHAPES] = {
                     new btSphereShape(btScalar(5.0)),
@@ -91,89 +175,11 @@ namespace FLOOF {
                             body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(),
                                                          btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 
-                            mDynamicsWorld->addRigidBody(body);
+                            AddRigidBody(body);
                         }
                     }
                 }
             }
-        }
-    }
-
-    PhysicsSystem::~PhysicsSystem() {
-        delete mDynamicsWorld;
-        delete mSolver;
-        delete mOverlappingPairCache;
-        delete mDispatcher;
-        delete mCollisionConfiguration;
-    }
-
-    void PhysicsSystem::OnUpdate(float deltaTime) {
-
-        if(!mDynamicsWorld)
-            return;
-
-        mDynamicsWorld->stepSimulation(deltaTime, 10);
-
-        auto view = mScene.view<RigidBodyComponent, TransformComponent>();
-        for(auto [entity, RigidBodyComponent, transform]: view.each()){
-
-            btRigidBody* body = RigidBodyComponent.RigidBody.get();
-            btTransform trans;
-            if (body && body->getMotionState())
-            {
-                body->getMotionState()->getWorldTransform(trans);
-            }
-            else
-            {
-                trans = body->getWorldTransform();
-            }
-            transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getZ());
-            auto rot=trans.getRotation();
-            float x,y,z;
-            trans.getRotation().getEulerZYX(z,y,x);
-            transform.Rotation = glm::vec3(x,y,z);
-        }
-
-
-        mDynamicsWorld->debugDrawWorld();
-
-    }
-
-    void PhysicsSystem::UpdateDynamicWorld() {
-        auto view = mScene.view<RigidBodyComponent>();
-        for(auto [entity, body]: view.each()){
-            if(mDynamicsWorld){
-                mDynamicsWorld->addRigidBody(body.RigidBody.get());
-            }
-        }
-
-    }
-
-    void PhysicsSystem::clear() {
-
-        if(mDynamicsWorld)
-        for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-        {
-            btCollisionObject* obj = mDynamicsWorld->getCollisionObjectArray()[i];
-            btRigidBody* body = btRigidBody::upcast(obj);
-            if (body && body->getMotionState())
-            {
-                delete body->getMotionState();
-            }
-            mDynamicsWorld->removeCollisionObject(obj);
-        }
-
-        //delete mDynamicsWorld;
-        //delete mSolver;
-        //delete mOverlappingPairCache;
-        //delete mDispatcher;
-        //delete mCollisionConfiguration;
-    }
-
-    void PhysicsSystem::AddRigidBody(btRigidBody *body) {
-        if(mDynamicsWorld)
-            mDynamicsWorld->addRigidBody(body);
-
     }
 
 
@@ -192,6 +198,17 @@ namespace FLOOF {
     }
 
     void PhysicsDebugDraw::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {
+        ColorVertex vFrom;
+        vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
+        vFrom.Pos = glm::vec3(PointOnB.x(), PointOnB.y(), PointOnB.z());
+
+        ColorVertex vTo;
+        vTo.Color = glm::vec3(color.x(), color.y(), color.z());
+        glm::vec3 endLine = glm::vec3(vFrom.Pos + (glm::vec3(normalOnB.x(),normalOnB.y(),normalOnB.z())*distance));
+        vTo.Pos = glm::vec3(endLine);
+
+        m_VertexData.push_back(vFrom);
+        m_VertexData.push_back(vTo);
     }
 
     void PhysicsDebugDraw::reportErrorWarning(const char* warningString) {

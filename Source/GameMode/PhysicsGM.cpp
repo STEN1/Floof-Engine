@@ -2,19 +2,21 @@
 #include "../Components.h"
 #include "../Application.h"
 #include "btBulletDynamicsCommon.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "../ObjLoader.h"
 
 void FLOOF::PhysicsGM::OnCreate()
 {
-    int height = 10;
-    int width = 10;
-    float spacing = 4.f;
+    int height = 5;
+    int width = 5;
+    float spacing = 5.f;
 
     for (size_t y = 10; y < height+10; y++)
     {
         for (int x = 0; x < width; x++)
         {
             for(int z = 0; z < width; z++){
-                SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f)), spacing/2.f, 200.f, 0.9f,"Assets/BallTexture.png");
+                SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f)), spacing/2.5f, 200.f, 0.9f,"Assets/BallTexture.png");
                 }
             }
 
@@ -22,6 +24,7 @@ void FLOOF::PhysicsGM::OnCreate()
 
     SpawnBall(glm::vec3(0.f,-150.f,0.f), 75.f, 0.f, 0.9f,"Assets/LightBlue.png");
 
+    m_Scene.GetPhysicSystem()->AddDebugFloor();
 }
 
 void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
@@ -134,4 +137,27 @@ const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float r
 
     return ballEntity;
 
+}
+
+const entt::entity FLOOF::PhysicsGM::SpawnSoftBall(glm::vec3 location, const float radius, const float mass, const std::string &texture) {
+
+    auto& m_Registry = m_Scene.GetCulledScene();
+
+    const auto ballEntity = m_Registry.create();
+    auto& transform = m_Registry.emplace<TransformComponent>(ballEntity);
+    auto& textureComponent = m_Registry.emplace<TextureComponent>(ballEntity, texture);
+    auto& mesh = m_Registry.emplace<MeshComponent>(ballEntity, "Assets/Ball.obj");
+    auto& collision = m_Registry.emplace<SoftBodyComponent>(ballEntity);
+
+    //auto obj = ObjLoader("Assets/Ball.obj");
+    //auto data = obj.GetIndexedData();
+
+    collision.CollisionShape = std::make_shared<btSphereShape>(radius);
+
+    //btSoftBodyHelpers::CreateFromTriMesh(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(), data.second.size(),data.second,mesh.Data.IndexCount);
+
+    //transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
+    transform.Scale = glm::vec3(radius);
+
+    return ballEntity;
 }
