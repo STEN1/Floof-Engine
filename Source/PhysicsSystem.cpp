@@ -14,9 +14,9 @@ namespace FLOOF {
         mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
 
         //creating invisible floor
+        //todo find out why ground is not made
         {
             btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.), btScalar(10.), btScalar(200.)));
-
 
             btTransform groundTransform;
             groundTransform.setIdentity();
@@ -24,7 +24,6 @@ namespace FLOOF {
 
             btScalar mass(0.);
 
-            //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
             btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
             btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape);
             btRigidBody* body = new btRigidBody(rbInfo);
