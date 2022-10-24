@@ -13,11 +13,7 @@ namespace FLOOF {
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void* pUserData) {
 
-        // Message is important enough to show
-        if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-            std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-            int breakMeDaddy = 80085;
-        }
+        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
         return VK_FALSE;
     }
@@ -157,8 +153,12 @@ namespace FLOOF {
     }
 
     VulkanRenderer::~VulkanRenderer() {
-        vkDestroyImageView(m_LogicalDevice, m_DepthBufferImageView, nullptr);
-        vmaDestroyImage(m_Allocator, m_DepthBuffer.Image, m_DepthBuffer.Allocation);
+        for (auto& imageView : m_VulkanWindow.DepthBufferImageViews) {
+            vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
+        }
+        for (auto& depthBuffer : m_VulkanWindow.DepthBuffers) {
+            vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
+        }
         vmaDestroyAllocator(m_Allocator);
 
         DestroyWindow(m_VulkanWindow);
@@ -176,6 +176,7 @@ namespace FLOOF {
             vkDestroyPipelineLayout(m_LogicalDevice, val, nullptr);
         }
         vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
+        vkDestroyRenderPass(m_LogicalDevice, m_ImGuiRenderPass, nullptr);
 
 
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
@@ -252,28 +253,27 @@ namespace FLOOF {
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
-    void VulkanRenderer::EndRenderPass(VkCommandBuffer* commandBuffer, VkSemaphore* waitSemaphore, VkSemaphore* signalSemaphore, VkPipelineStageFlags* waitStages) {
-        vkCmdEndRenderPass(*commandBuffer);
-        VkResult endResult = vkEndCommandBuffer(*commandBuffer);
+    void VulkanRenderer::EndRenderPass(const VulkanSubmitInfo& submitInfo) {
+        vkCmdEndRenderPass(submitInfo.CommandBuffer);
+        VkResult endResult = vkEndCommandBuffer(submitInfo.CommandBuffer);
         ASSERT(endResult == VK_SUCCESS);
 
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphore;
-        submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = commandBuffer;
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphore;
+        VkSubmitInfo vksubmitInfo{};
+        vksubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        vksubmitInfo.waitSemaphoreCount = 1;
+        vksubmitInfo.pWaitSemaphores = &submitInfo.WaitSemaphore;
+        vksubmitInfo.pWaitDstStageMask = &submitInfo.WaitStages;
+        vksubmitInfo.commandBufferCount = 1;
+        vksubmitInfo.pCommandBuffers = &submitInfo.CommandBuffer;
+        vksubmitInfo.signalSemaphoreCount = 1;
+        vksubmitInfo.pSignalSemaphores = &submitInfo.SignalSemaphore;
 
+        VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &vksubmitInfo, submitInfo.Fence);
+        ASSERT(result == VK_SUCCESS);
         m_VulkanWindow.SubmitInfos.push_back(submitInfo);
     }
 
     void VulkanRenderer::Present(VulkanWindow& window) {
-        VkResult result = vkQueueSubmit(m_GraphicsQueue, window.SubmitInfos.size(), window.SubmitInfos.data(),
-            window.Frames[window.FrameIndex].Fence);
-        ASSERT(result == VK_SUCCESS);
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -284,7 +284,7 @@ namespace FLOOF {
         presentInfo.pImageIndices = &window.ImageIndex;
         presentInfo.pResults = nullptr; // Optional
 
-        result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+        VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             RecreateSwapChain(window);
         }
@@ -326,9 +326,9 @@ namespace FLOOF {
         vkDeviceWaitIdle(m_LogicalDevice);
     }
 
-    VkPipelineLayout VulkanRenderer::BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key) {
-        vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipelines[Key]);
-        return GetPipelineLayout(Key);
+    VkPipelineLayout VulkanRenderer::BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys key) {
+        vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipelines[key]);
+        return GetPipelineLayout(key);
     }
 
     VulkanBuffer VulkanRenderer::CreateIndexBuffer(const std::vector<uint32_t>& indices) {
@@ -537,7 +537,7 @@ namespace FLOOF {
     void VulkanRenderer::CreateDebugUtilsMessenger() {
         VkDebugUtilsMessengerCreateInfoEXT createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         createInfo.pfnUserCallback = debugCallback;
         createInfo.pUserData = nullptr; // Optional
@@ -657,7 +657,7 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateWindow(VulkanWindow& window) {
         CreateSwapChain(window);
-        CreateDepthBuffer(window.Extent);
+        CreateDepthBuffers(window.Extent);
         CreateRenderPass(window);
         CreateImGuiRenderPass(window);
         CreateFramebuffers(window);
@@ -668,6 +668,7 @@ namespace FLOOF {
         CleanupSwapChain(window);
         for (int i = 0; i < window.Frames.size(); i++) {
             vkDestroySemaphore(m_LogicalDevice, window.Frames[i].ImageAvailableSemaphore, nullptr);
+            vkDestroySemaphore(m_LogicalDevice, window.Frames[i].MainPassEndSemaphore, nullptr);
             vkDestroySemaphore(m_LogicalDevice, window.Frames[i].RenderFinishedSemaphore, nullptr);
             vkDestroyFence(m_LogicalDevice, window.Frames[i].Fence, nullptr);
         }
@@ -710,7 +711,7 @@ namespace FLOOF {
         createInfo.preTransform = m_SwapChainSupport.capabilities.currentTransform;
         createInfo.presentMode = window.PresentMode;
         // TODO: Change this?
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
@@ -753,10 +754,9 @@ namespace FLOOF {
         colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        //colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        colorAttachments[1].format = m_DepthFormat;
+        colorAttachments[1].format = window.DepthFormat;
         colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -810,16 +810,16 @@ namespace FLOOF {
         colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-        colorAttachments[1].format = m_DepthFormat;
+        colorAttachments[1].format = window.DepthFormat;
         colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference colorAttachmentRef{};
@@ -1019,7 +1019,7 @@ namespace FLOOF {
         for (size_t i = 0; i < window.FrameBuffers.size(); i++) {
             VkImageView attachments[] = {
                 window.SwapChainImageViews[i],
-                m_DepthBufferImageView
+                m_VulkanWindow.DepthBufferImageViews[i],
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
@@ -1037,9 +1037,9 @@ namespace FLOOF {
         LOG("Framebuffers created.\n");
     }
 
-    void VulkanRenderer::CreateDepthBuffer(VkExtent2D extent) {
-        m_DepthFormat = FindDepthFormat();
-        ASSERT(m_DepthFormat != VK_FORMAT_UNDEFINED);
+    void VulkanRenderer::CreateDepthBuffers(VkExtent2D extent) {
+        m_VulkanWindow.DepthFormat = FindDepthFormat();
+        ASSERT(m_VulkanWindow.DepthFormat != VK_FORMAT_UNDEFINED);
 
         VkImageCreateInfo depthImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         depthImageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -1048,7 +1048,7 @@ namespace FLOOF {
         depthImageInfo.extent.depth = 1;
         depthImageInfo.mipLevels = 1;
         depthImageInfo.arrayLayers = 1;
-        depthImageInfo.format = m_DepthFormat;
+        depthImageInfo.format = m_VulkanWindow.DepthFormat;
         depthImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         depthImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         depthImageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
@@ -1059,21 +1059,29 @@ namespace FLOOF {
         VmaAllocationCreateInfo depthImageAllocCreateInfo = {};
         depthImageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 
-        vmaCreateImage(m_Allocator, &depthImageInfo, &depthImageAllocCreateInfo,
-            &m_DepthBuffer.Image, &m_DepthBuffer.Allocation, &m_DepthBuffer.AllocationInfo);
-
         VkImageViewCreateInfo depthImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-        depthImageViewInfo.image = m_DepthBuffer.Image;
         depthImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        depthImageViewInfo.format = m_DepthFormat;
+        depthImageViewInfo.format = m_VulkanWindow.DepthFormat;
         depthImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         depthImageViewInfo.subresourceRange.baseMipLevel = 0;
         depthImageViewInfo.subresourceRange.levelCount = 1;
         depthImageViewInfo.subresourceRange.baseArrayLayer = 0;
         depthImageViewInfo.subresourceRange.layerCount = 1;
 
-        auto result = vkCreateImageView(m_LogicalDevice, &depthImageViewInfo, nullptr, &m_DepthBufferImageView);
-        ASSERT(result == VK_SUCCESS);
+        m_VulkanWindow.DepthBuffers.resize(m_VulkanWindow.ImageCount);
+        m_VulkanWindow.DepthBufferImageViews.resize(m_VulkanWindow.ImageCount);
+        for (uint32_t i = 0; i < m_VulkanWindow.ImageCount; i++) {
+            vmaCreateImage(m_Allocator, &depthImageInfo, &depthImageAllocCreateInfo,
+                &m_VulkanWindow.DepthBuffers[i].Image,
+                &m_VulkanWindow.DepthBuffers[i].Allocation,
+                &m_VulkanWindow.DepthBuffers[i].AllocationInfo);
+
+            depthImageViewInfo.image = m_VulkanWindow.DepthBuffers[i].Image;
+
+            auto result = vkCreateImageView(m_LogicalDevice, &depthImageViewInfo, nullptr,
+                &m_VulkanWindow.DepthBufferImageViews[i]);
+            ASSERT(result == VK_SUCCESS);
+        }
     }
 
     void VulkanRenderer::CreateCommandPool() {
@@ -1153,11 +1161,11 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CleanupSwapChain(VulkanWindow& window) {
-        for (size_t i = 0; i < window.ImageCount; i++) {
+        for (size_t i = 0; i < window.FrameBuffers.size(); i++) {
             vkDestroyFramebuffer(m_LogicalDevice, window.FrameBuffers[i], nullptr);
         }
 
-        for (size_t i = 0; i < window.Frames.size(); i++) {
+        for (size_t i = 0; i < window.SwapChainImageViews.size(); i++) {
             vkDestroyImageView(m_LogicalDevice, window.SwapChainImageViews[i], nullptr);
         }
 
@@ -1197,14 +1205,18 @@ namespace FLOOF {
 
         vkDeviceWaitIdle(m_LogicalDevice);
 
-        vkDestroyImageView(m_LogicalDevice, m_DepthBufferImageView, nullptr);
-        vmaDestroyImage(m_Allocator, m_DepthBuffer.Image, m_DepthBuffer.Allocation);
+        for (auto& imageView : window.DepthBufferImageViews) {
+            vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
+        }
+        for (auto& depthBuffer : window.DepthBuffers) {
+            vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
+        }
 
         CleanupSwapChain(window);
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface, &m_SwapChainSupport.capabilities);
         CreateSwapChain(window);
-        CreateDepthBuffer(window.Extent);
+        CreateDepthBuffers(window.Extent);
         CreateFramebuffers(window);
     }
 

@@ -8,12 +8,22 @@ namespace FLOOF {
     void DeferredSceneRenderer::Render(entt::registry& scene) {
         auto m_Renderer = VulkanRenderer::Get();
         auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        m_Renderer->NewFrame(*vulkanWindow);
+        auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
+        
         m_Renderer->StartRenderPass(
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].MainCommandBuffer,
+            currentFrameData.MainCommandBuffer,
             m_Renderer->GetMainRenderPass(),
             vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
-            vulkanWindow->Extent
-        );
+            vulkanWindow->Extent);
+
+        // TODO: Deferred rendering goes here bruh.
+
+        // End main renderpass
+        VulkanSubmitInfo submitInfo{};
+        submitInfo.CommandBuffer = currentFrameData.MainCommandBuffer;
+        submitInfo.WaitSemaphore = currentFrameData.ImageAvailableSemaphore;
+        submitInfo.SignalSemaphore = currentFrameData.MainPassEndSemaphore;
+        submitInfo.WaitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        m_Renderer->EndRenderPass(submitInfo);
     }
 }

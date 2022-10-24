@@ -12,9 +12,10 @@ namespace FLOOF {
         auto m_Renderer = VulkanRenderer::Get();
         auto& app = Application::Get();
         auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        m_Renderer->NewFrame(*vulkanWindow);
+        auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
+
         m_Renderer->StartRenderPass(
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].MainCommandBuffer,
+            currentFrameData.MainCommandBuffer,
             m_Renderer->GetMainRenderPass(),
             vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
             vulkanWindow->Extent
@@ -24,19 +25,15 @@ namespace FLOOF {
         // Camera setup
         auto extent = m_Renderer->GetExtent();
         CameraComponent* camera = app.GetRenderCamera();
-        glm::mat4 vp = camera->GetVP(glm::radians(70.f), extent.width / (float)extent.height, 0.01f, 2000.f);
+        glm::mat4 vp = camera->GetVP(glm::radians(70.f), extent.width / (float)extent.height, 0.01f, 5000.f);
         
-
-
         // Draw models
         auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Basic);
         {
             auto view = m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
             for (auto [entity, transform, mesh, texture] : view.each()) {
                 MeshPushConstants constants;
-                //constants.MVP = vp * transform.GetTransform();
-                glm::mat4 modelMat = glm::translate(transform.Position);
-                modelMat = glm::scale(modelMat, transform.Scale);
+                glm::mat4 modelMat = transform.GetTransform();
                 constants.MVP = vp * modelMat;
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
@@ -50,9 +47,7 @@ namespace FLOOF {
         auto view = m_Registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
         for (auto [entity, transform, staticMesh, texture] : view.each()) {
             MeshPushConstants constants;
-            //constants.MVP = vp * transform.GetTransform();
-            glm::mat4 modelMat = glm::translate(transform.Position);
-            modelMat = transform.GetTransform();
+            glm::mat4 modelMat = transform.GetTransform();
             constants.MVP = vp * modelMat;
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
@@ -82,5 +77,13 @@ namespace FLOOF {
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,0, sizeof(ColorPushConstants), &constants);
             lineMesh->Draw(commandBuffer);
         }
+
+        // End main renderpass
+        VulkanSubmitInfo submitInfo{};
+        submitInfo.CommandBuffer = commandBuffer;
+        submitInfo.WaitSemaphore = currentFrameData.ImageAvailableSemaphore;
+        submitInfo.SignalSemaphore = currentFrameData.MainPassEndSemaphore;
+        submitInfo.WaitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        m_Renderer->EndRenderPass(submitInfo);
     }
 }

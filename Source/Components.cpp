@@ -19,9 +19,11 @@ namespace FLOOF {
         // Load texture
         int xWidth, yHeight, channels;
         stbi_set_flip_vertically_on_load(true);
-        auto* data = stbi_load(path.c_str(), &xWidth, &yHeight, &channels, 0);
+        auto* data = stbi_load(path.c_str(), &xWidth, &yHeight, &channels, 4);
         uint32_t size = xWidth * yHeight * channels;
         ASSERT(channels == 4);
+
+        VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
         // staging buffer
         VkBufferCreateInfo stagingCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -51,7 +53,7 @@ namespace FLOOF {
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 1;
-        imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+        imageInfo.format = format;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -75,7 +77,7 @@ namespace FLOOF {
         VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         textureImageViewInfo.image = Data.CombinedTextureSampler.Image;
         textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        textureImageViewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+        textureImageViewInfo.format = format;
         textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         textureImageViewInfo.subresourceRange.baseMipLevel = 0;
         textureImageViewInfo.subresourceRange.levelCount = 1;

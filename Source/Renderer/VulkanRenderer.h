@@ -94,6 +94,14 @@ namespace FLOOF {
         VmaAllocationInfo AllocationInfo{};
     };
 
+    struct VulkanSubmitInfo {
+        VkCommandBuffer       CommandBuffer = VK_NULL_HANDLE;
+        VkSemaphore           WaitSemaphore = VK_NULL_HANDLE;
+        VkSemaphore           SignalSemaphore = VK_NULL_HANDLE;
+        VkFence               Fence = VK_NULL_HANDLE;
+        VkPipelineStageFlags  WaitStages{};
+    };
+
     struct VulkanFrame {
         VkSemaphore         ImageAvailableSemaphore = VK_NULL_HANDLE;
         VkSemaphore         MainPassEndSemaphore = VK_NULL_HANDLE;
@@ -104,19 +112,22 @@ namespace FLOOF {
     };
 
     struct VulkanWindow {
-        VkExtent2D          Extent{};
-        VkSwapchainKHR      Swapchain = VK_NULL_HANDLE;
-        VkSurfaceFormatKHR  SurfaceFormat{};
-        VkPresentModeKHR    PresentMode{};
-        VkClearValue        ClearValue{};
-        uint32_t            FrameIndex{};
-        uint32_t            ImageCount{};
-        uint32_t            ImageIndex{};
-        std::vector<VkImage> SwapChainImages;
-        std::vector<VkImageView> SwapChainImageViews;
-        std::vector<VkFramebuffer> FrameBuffers;
+        VkExtent2D                      Extent{};
+        VkSwapchainKHR                  Swapchain = VK_NULL_HANDLE;
+        VkSurfaceFormatKHR              SurfaceFormat{};
+        VkPresentModeKHR                PresentMode{};
+        VkClearValue                    ClearValue{};
+        uint32_t                        FrameIndex{};
+        uint32_t                        ImageCount{};
+        uint32_t                        ImageIndex{};
+        std::vector<VkImage>            SwapChainImages;
+        std::vector<VkImageView>        SwapChainImageViews;
+        std::vector<VkFramebuffer>      FrameBuffers;
+        VkFormat                        DepthFormat{};
+        std::vector<VulkanImage>        DepthBuffers;
+        std::vector<VkImageView>        DepthBufferImageViews;
         std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
-        std::vector<VkSubmitInfo> SubmitInfos;
+        std::vector<VulkanSubmitInfo>   SubmitInfos;
     };
 
     class VulkanRenderer {
@@ -141,8 +152,7 @@ namespace FLOOF {
             VkFramebuffer frameBuffer, VkExtent2D extent);
         
         // Ends recording and submits to graphics queue.
-        void EndRenderPass(VkCommandBuffer* commandBuffer, VkSemaphore* waitSemaphore, 
-            VkSemaphore* signalSemaphore, VkPipelineStageFlags* waitStages);
+        void EndRenderPass(const VulkanSubmitInfo& submitInfo);
 
         // Final present.
         void Present(VulkanWindow& window);
@@ -188,6 +198,10 @@ namespace FLOOF {
 
         VulkanWindow* GetVulkanWindow() { return &m_VulkanWindow; }
 
+        VkPipelineLayout GetPipelineLayout(RenderPipelineKeys key) { return m_PipelineLayouts[key]; }
+
+        VkPipeline GetPipeline(RenderPipelineKeys key) { return m_GraphicsPipelines[key]; }
+
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
         GLFWwindow* m_Window;
@@ -209,7 +223,7 @@ namespace FLOOF {
         void DestroyWindow(VulkanWindow& window);
 
         void CreateSwapChain(VulkanWindow& window);
-        void CreateDepthBuffer(VkExtent2D extent);
+        void CreateDepthBuffers(VkExtent2D extent);
         void CreateFramebuffers(VulkanWindow& window);
         void CreateSyncObjects(VulkanWindow& window);
 
@@ -234,7 +248,7 @@ namespace FLOOF {
         void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, uint32_t sizeX, uint32_t sizeY);
 
         uint32_t GetNextSwapchainImage(VulkanWindow& window);
-        VkPipelineLayout GetPipelineLayout(RenderPipelineKeys key) { return m_PipelineLayouts[key]; }
+        
         void WaitWhileMinimized();
         VkShaderModule MakeShaderModule(const char* path);
 
@@ -250,10 +264,6 @@ namespace FLOOF {
         VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates,
             VkImageTiling tiling,
             VkFormatFeatureFlags features);
-
-        VkFormat m_DepthFormat;
-        VulkanImage m_DepthBuffer;
-        VkImageView m_DepthBufferImageView;
 
         VkInstance m_Instance;
         VkPhysicalDevice m_PhysicalDevice;
