@@ -213,23 +213,43 @@ namespace FLOOF {
     }
 
     void Application::Draw() {
-        if (m_SceneRenderer)
-        {
+        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
+        m_Renderer->NewFrame(*vulkanWindow);
+        auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
+
+        VkSemaphore waitSemaphore = currentFrameData.MainPassEndSemaphore;
+        VkSemaphore signalSemaphore = currentFrameData.RenderFinishedSemaphore;
+        if (m_SceneRenderer) {
             auto& m_Registry = m_Scene->GetCulledScene();
             m_SceneRenderer->Render(m_Registry);
+        } else {
+            waitSemaphore = currentFrameData.ImageAvailableSemaphore;
+            signalSemaphore = currentFrameData.RenderFinishedSemaphore;
         }
-        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        m_Renderer->EndRenderPass(
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].CommandBuffer,
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].ImageAvailableSemaphore,
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].RenderFinishedSemaphore,
-            vulkanWindow->Frames[vulkanWindow->FrameIndex].Fence);
-        // Update and Render additional Platform Windows
-        //ImGuiIO& io = ImGui::GetIO();
-        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        //    ImGui::UpdatePlatformWindows();
-        //    ImGui::RenderPlatformWindowsDefault();
-        //}
+
+
+        // Start ImGui renderpass and draw ImGui
+        m_Renderer->StartRenderPass(
+            currentFrameData.ImGuiCommandBuffer,
+            m_Renderer->GetImguiRenderPass(),
+            vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
+            vulkanWindow->Extent);
+
+        // Render ImGui
+        ImGui::Render();
+        ImDrawData* drawData = ImGui::GetDrawData();
+        ImGui_ImplVulkan_RenderDrawData(drawData, currentFrameData.ImGuiCommandBuffer);
+
+        // End ImGui renderpass
+        VulkanSubmitInfo submitInfo{};
+        submitInfo.CommandBuffer = currentFrameData.ImGuiCommandBuffer;
+        submitInfo.WaitSemaphore = waitSemaphore;
+        submitInfo.SignalSemaphore = signalSemaphore;
+        submitInfo.WaitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        submitInfo.Fence = currentFrameData.Fence;
+        m_Renderer->EndRenderPass(submitInfo);
+
+        // Waits for render finished semaphore then presents
         m_Renderer->Present(*vulkanWindow);
     }
 

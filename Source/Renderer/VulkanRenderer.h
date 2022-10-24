@@ -94,26 +94,40 @@ namespace FLOOF {
         VmaAllocationInfo AllocationInfo{};
     };
 
+    struct VulkanSubmitInfo {
+        VkCommandBuffer       CommandBuffer = VK_NULL_HANDLE;
+        VkSemaphore           WaitSemaphore = VK_NULL_HANDLE;
+        VkSemaphore           SignalSemaphore = VK_NULL_HANDLE;
+        VkFence               Fence = VK_NULL_HANDLE;
+        VkPipelineStageFlags  WaitStages{};
+    };
+
     struct VulkanFrame {
         VkSemaphore         ImageAvailableSemaphore = VK_NULL_HANDLE;
+        VkSemaphore         MainPassEndSemaphore = VK_NULL_HANDLE;
         VkSemaphore         RenderFinishedSemaphore = VK_NULL_HANDLE;
         VkFence             Fence = VK_NULL_HANDLE;
-        VkCommandBuffer     CommandBuffer = VK_NULL_HANDLE;
+        VkCommandBuffer     MainCommandBuffer = VK_NULL_HANDLE;
+        VkCommandBuffer     ImGuiCommandBuffer = VK_NULL_HANDLE;
     };
 
     struct VulkanWindow {
-        VkExtent2D          Extent{};
-        VkSwapchainKHR      Swapchain = VK_NULL_HANDLE;
-        VkSurfaceFormatKHR  SurfaceFormat{};
-        VkPresentModeKHR    PresentMode{};
-        VkClearValue        ClearValue{};
-        uint32_t            FrameIndex{};
-        uint32_t            ImageCount{};
-        uint32_t            ImageIndex{};
-        std::vector<VkImage> SwapChainImages;
-        std::vector<VkImageView> SwapChainImageViews;
-        std::vector<VkFramebuffer> FrameBuffers;
+        VkExtent2D                      Extent{};
+        VkSwapchainKHR                  Swapchain = VK_NULL_HANDLE;
+        VkSurfaceFormatKHR              SurfaceFormat{};
+        VkPresentModeKHR                PresentMode{};
+        VkClearValue                    ClearValue{};
+        uint32_t                        FrameIndex{};
+        uint32_t                        ImageCount{};
+        uint32_t                        ImageIndex{};
+        std::vector<VkImage>            SwapChainImages;
+        std::vector<VkImageView>        SwapChainImageViews;
+        std::vector<VkFramebuffer>      FrameBuffers;
+        VkFormat                        DepthFormat{};
+        std::vector<VulkanImage>        DepthBuffers;
+        std::vector<VkImageView>        DepthBufferImageViews;
         std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
+        std::vector<VulkanSubmitInfo>   SubmitInfos;
     };
 
     class VulkanRenderer {
@@ -138,8 +152,7 @@ namespace FLOOF {
             VkFramebuffer frameBuffer, VkExtent2D extent);
         
         // Ends recording and submits to graphics queue.
-        void EndRenderPass(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, 
-            VkSemaphore signalSemaphore, VkFence fence = VK_NULL_HANDLE);
+        void EndRenderPass(const VulkanSubmitInfo& submitInfo);
 
         // Final present.
         void Present(VulkanWindow& window);
@@ -151,8 +164,12 @@ namespace FLOOF {
 
         // ImGui init info getter
         ImGui_ImplVulkan_InitInfo GetImguiInitInfo();
+
         // Gets the renderpass that imgui belongs to. Should be the last.
         VkRenderPass GetImguiRenderPass();
+
+        // Gets the main renderpass to render 3D.
+        VkRenderPass GetMainRenderPass();
 
         // Wait for all frames to finish so that nothing is in use.
         void FinishAllFrames();
@@ -160,26 +177,34 @@ namespace FLOOF {
         // Create vertex buffer from vector of vertex type. (Vertex.h)
         template<typename VertexType>
         VulkanBuffer CreateVertexBuffer(const std::vector<VertexType>& vertices);
+
         // Create index buffer
         VulkanBuffer CreateIndexBuffer(const std::vector<uint32_t>& indices);
+
         // Destroy any vulkan buffer
         void DestroyVulkanBuffer(VulkanBuffer* buffer);
 
         // Allocates a combined texture-sampler descriptor set.
         VkDescriptorSet AllocateTextureDescriptorSet();
+
         // Frees a combined texture-sampler descriptor set.
         void FreeTextureDescriptorSet(VkDescriptorSet desctriptorSet);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer AllocateBeginOneTimeCommandBuffer();
+
         // End one time command buffer.
         void EndSubmitFreeCommandBuffer(VkCommandBuffer);
+
         VulkanWindow* GetVulkanWindow() { return &m_VulkanWindow; }
+
+        VkPipelineLayout GetPipelineLayout(RenderPipelineKeys key) { return m_PipelineLayouts[key]; }
+
+        VkPipeline GetPipeline(RenderPipelineKeys key) { return m_GraphicsPipelines[key]; }
+
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
         GLFWwindow* m_Window;
-
-        void EndRecording(VkCommandBuffer commandBuffer);
 
         void CreateSurface();
         void CreateInstance();
@@ -198,11 +223,12 @@ namespace FLOOF {
         void DestroyWindow(VulkanWindow& window);
 
         void CreateSwapChain(VulkanWindow& window);
-        void CreateDepthBuffer(VkExtent2D extent);
+        void CreateDepthBuffers(VkExtent2D extent);
         void CreateFramebuffers(VulkanWindow& window);
         void CreateSyncObjects(VulkanWindow& window);
 
         void CreateRenderPass(VulkanWindow& window);
+        void CreateImGuiRenderPass(VulkanWindow& window);
         void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
         void CreateCommandPool();
@@ -222,7 +248,7 @@ namespace FLOOF {
         void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, uint32_t sizeX, uint32_t sizeY);
 
         uint32_t GetNextSwapchainImage(VulkanWindow& window);
-        VkPipelineLayout GetPipelineLayout(RenderPipelineKeys key) { return m_PipelineLayouts[key]; }
+        
         void WaitWhileMinimized();
         VkShaderModule MakeShaderModule(const char* path);
 
@@ -239,10 +265,6 @@ namespace FLOOF {
             VkImageTiling tiling,
             VkFormatFeatureFlags features);
 
-        VkFormat m_DepthFormat;
-        VulkanImage m_DepthBuffer;
-        VkImageView m_DepthBufferImageView;
-
         VkInstance m_Instance;
         VkPhysicalDevice m_PhysicalDevice;
         VkDevice m_LogicalDevice;
@@ -257,6 +279,7 @@ namespace FLOOF {
         VkSurfaceKHR m_Surface;
 
         VkRenderPass m_RenderPass;
+        VkRenderPass m_ImGuiRenderPass;
         std::unordered_map<RenderPipelineKeys, VkPipelineLayout> m_PipelineLayouts;
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
         VkCommandPool m_CommandPool;
