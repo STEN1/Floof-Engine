@@ -146,6 +146,42 @@ namespace FLOOF {
         return 0;
     }
 
+    static void MakeTreeNode(entt::registry& registry, entt::entity entity, const char* tag, Relationship& rel) {
+        static entt::entity selectedEntity = entt::null;
+        static ImGuiTreeNodeFlags base_flags =
+            ImGuiTreeNodeFlags_OpenOnArrow |
+            ImGuiTreeNodeFlags_OpenOnDoubleClick |
+            ImGuiTreeNodeFlags_SpanAvailWidth;
+
+        ImGuiTreeNodeFlags node_flags = base_flags;
+
+        if (entity == selectedEntity)
+            node_flags |= ImGuiTreeNodeFlags_Selected;
+
+        if (rel.Children.empty()) {
+            // Parent without children are just nodes.
+            // using tree node since it allows for selection
+            node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+            ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+                selectedEntity = entity;
+
+        } else {
+            // is parent to children and has to make a tree
+            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+                selectedEntity = entity;
+            if (node_open) {
+                for (auto& childEntity : rel.Children) {
+                    auto& childTag = registry.get<TagComponent>(childEntity);
+                    auto& childRel = registry.get<Relationship>(childEntity);
+                    MakeTreeNode(registry, childEntity, childTag.Tag.c_str(), childRel);
+                }
+                ImGui::TreePop();
+            }
+        }
+    }
+
     void Application::UpdateImGui(float deltaTime)
     {
         // ImGui viewports
@@ -186,7 +222,6 @@ namespace FLOOF {
                 }
                 ImGui::EndMenu();
             }
-
             ImGui::EndMenuBar();
         }
 
@@ -222,8 +257,23 @@ namespace FLOOF {
         {
             SetGameModeType(static_cast<GameModeType>(selectedGameType));
         }
-
         ImGui::End();
+
+        // Draw scene graph
+        if (m_Scene) {
+            ImGui::Begin("Scene");
+            auto& registry = m_Scene->GetRegistry();
+            auto view = registry.view<TransformComponent, TagComponent, Relationship>();
+            for (auto [entity, transform, tag, rel] : view.each()) {
+                // only care about entitys without parent.
+                // deal with child entitys later.
+                if (rel.Parent != entt::null)
+                    continue;
+
+                MakeTreeNode(registry, entity, tag.Tag.c_str(), rel);
+            }
+            ImGui::End();
+        }
     }
 
     void Application::UpdateCameraSystem(float deltaTime)
@@ -413,10 +463,38 @@ namespace FLOOF {
     void Application::MakeSponsaScene() {
         m_Scene = std::make_unique<Scene>();
 
-        auto ent = m_Scene->CreateEntity();
-        auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
-        m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
+        {
+            auto ent = m_Scene->CreateEntity("Sponza");
+            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
+            m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
+            sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
+        }
 
-        sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
+        {
+            auto rootEntity = m_Scene->CreateEntity("RootBall1");
+            m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
+
+            auto leafEntity1 = m_Scene->CreateEntity("LeafBall1", rootEntity);
+            m_Scene->AddComponent<MeshComponent>(leafEntity1, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(leafEntity1, "Assets/BallTexture.png");
+
+            auto leafEntity2 = m_Scene->CreateEntity("LeafBall1", rootEntity);
+            m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
+        }
+        {
+            auto rootEntity = m_Scene->CreateEntity("RootBall2");
+            m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
+
+            auto leafEntity1 = m_Scene->CreateEntity("LeafBall1", rootEntity);
+            m_Scene->AddComponent<MeshComponent>(leafEntity1, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(leafEntity1, "Assets/BallTexture.png");
+
+            auto leafEntity2 = m_Scene->CreateEntity("LeafBall1", rootEntity);
+            m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
+        }
     }
 }

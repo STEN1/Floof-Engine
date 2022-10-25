@@ -14,15 +14,33 @@ namespace FLOOF {
     Scene::~Scene() {
     }
 
-    entt::entity Scene::CreateEntity() {
+    entt::entity Scene::CreateEntity(const std::string& tag, entt::entity parent) {
         entt::entity entity = m_Scene.create();
-        m_Scene.emplace<TransformComponent>(entity);
-        m_Scene.emplace<Relationship>(entity);
-        m_Scene.emplace<TagComponent>(entity);
+
+        auto& transform = m_Scene.emplace<TransformComponent>(entity);
+        auto& rel = m_Scene.emplace<Relationship>(entity);
+        auto& tagComponent = m_Scene.emplace<TagComponent>(entity);
+
+        tagComponent.Tag = tag;
+
+        if (parent != entt::null) {
+            rel.Parent = parent;
+
+            auto& parentRel = m_Scene.get<Relationship>(parent);
+            auto& parentTransform = m_Scene.get<TransformComponent>(parent);
+
+            transform.Parent = &parentTransform;
+            parentRel.Children.push_back(entity);
+        }
+
         return entity;
     }
 
     entt::registry& Scene::GetCulledScene() {
+        return m_Scene;
+    }
+
+    entt::registry& Scene::GetRegistry() {
         return m_Scene;
     }
 
