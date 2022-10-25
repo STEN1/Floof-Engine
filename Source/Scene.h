@@ -10,22 +10,21 @@ namespace FLOOF {
         friend class Application;
     public:
         Scene();
+        ~Scene();
         // Get a finished render batch for scene renderer.
         entt::registry& GetCulledScene();
 
         std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
-        PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer; }
+        PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
     private:
         /// <summary>
         /// Clears entt registry, has no vulkan safety. 
         /// Make sure no registry resource is being used on the gpu
         /// </summary>
-        void Clear();
-        void ClearDebugSystem();
         void OnUpdate(float deltaTime);
     private:
         entt::registry m_Scene;
         std::shared_ptr<PhysicsSystem> m_PhysicSystem;       
-        PhysicsDebugDraw* m_PhysicsDebugDrawer;
+        std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
     };
 }

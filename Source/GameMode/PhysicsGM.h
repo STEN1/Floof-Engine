@@ -9,9 +9,10 @@ namespace FLOOF
 	class PhysicsGM : public GameMode
 	{
 		friend class Application;
-
+	public:
 		PhysicsGM(Scene& scene) : GameMode(scene) {};
 
+    private:
 		void OnCreate() override;
 
 		void OnUpdateEditor(float deltaTime) override;
@@ -21,7 +22,6 @@ namespace FLOOF
         const entt::entity SpawnSoftBall(glm::vec3 location, const float radius, const float mass, const std::string& texture ="Assets/LightBlue.png");
 
         const entt::entity SpawnCube(glm::vec3 Location, glm::vec3 Extents, const float mass, const std::string& texture = "Assets/LightBlue.png");
-    private:
 
 
 	};

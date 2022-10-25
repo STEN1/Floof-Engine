@@ -58,6 +58,9 @@ namespace FLOOF {
     public:
         PhysicsDebugDraw* GetPhysicsSystemDrawer() { return m_Scene->GetPhysicsDebugDrawer(); }
 
+        void MakePhysicsScene();
+        void MakeSponsaScene();
+
         /*GameMode Methods*/
         void SetGameModeType(GameModeType type);
         GameModeType GetGameModeType() const;
@@ -69,51 +72,19 @@ namespace FLOOF {
         void SetDrawMode(RenderPipelineKeys drawMode) { m_DrawMode = drawMode; }
         RenderPipelineKeys GetDrawMode() { return m_DrawMode; }
 
-        /// <summary>
-        /// Temp, currently editor camera is set as render camera.
-        /// Rendercamera can be changed at any stage 
-        /// (i.e playerController->GetCamera() -> SetRenderCamera)
-        /// </summary>
+        /**
+         * @brief Temp, currently editor camera is set as render camera. 
+         * @brief Rendercamera can be changed at any stage. (i.e playerController->GetCamera() -> SetRenderCamera).
+         * @param cam 
+        */
         void SetRenderCamera(CameraComponent& cam);
 
-        /// <summary>
-        /// SceneRenderer uses this function to get the render camera
-        /// </summary>
+        // SceneRenderer uses this function to get the render camera
         CameraComponent* GetRenderCamera();
-    private: 
-        /// <summary>
-        /// Creates a new scene renderer based on current SceneRenderType
-        /// </summary>
-        void CreateSceneRenderer();
 
-        /// <summary>
-        /// Deletes current scene renderer
-        /// </summary>
-        void DestroySceneRenderer();
-
-        /// <summary>
-        /// Deletes and Creates a new SceneRenderer based on SceneRendererType
-        /// </summary>
-        void UpdateSceneRenderer();
-
-        /// <summary>
-        /// Creates a new game mode based on current GameModeType
-        /// </summary>
-        void CreateGameMode();
-
-        /// <summary>
-        /// Deletes current game mode
-        /// Clears scene too(for now)
-        /// </summary>
-        void DestroyGameMode();
-
-        /// <summary>
-        /// Deletes and Creates a new game mode based on GameModeType
-        /// </summary>
-        void UpdateGameMode();
-
+    private:
         /*SceneRenderer Objects*/     
-        class SceneRenderer* m_SceneRenderer{nullptr};
+        std::unique_ptr<SceneRenderer> m_SceneRenderer;
         SceneRendererType m_SceneRendererType{ SceneRendererType::Forward };
 
         /*SceneCamera, temp*/
@@ -122,13 +93,10 @@ namespace FLOOF {
         CameraComponent* m_RenderCamera{nullptr};
 
         /*GameMode, temp*/
-        GameMode* m_GameMode{ nullptr };
+        std::unique_ptr<GameMode> m_GameMode;
         GameModeType m_GameModeType{ GameModeType::Physics };
         RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
-        
-        /// <summary>
-        /// Currently being cleared on game mode change
-        /// </summary>
+
         std::unique_ptr<Scene> m_Scene;
     };
 }

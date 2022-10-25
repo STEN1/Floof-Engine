@@ -87,8 +87,9 @@ namespace FLOOF {
         ModelManager::Get().DestroyAll();
         TextureComponent::ClearTextureDataCache();
 
-        DestroyGameMode();
-        DestroySceneRenderer();
+        m_GameMode = nullptr;
+        m_SceneRenderer = nullptr;
+
         delete m_Renderer;
         delete Utils::Logger::s_Logger;
 
@@ -138,8 +139,7 @@ namespace FLOOF {
         }
 
         m_Renderer->FinishAllFrames();
-        m_Scene->ClearDebugSystem();
-        m_Scene->Clear();
+        m_Scene = nullptr;
 
         return 0;
     }
@@ -324,7 +324,59 @@ namespace FLOOF {
         if (type == m_SceneRendererType && m_SceneRenderer) return;
 
         m_SceneRendererType = type;
-        UpdateSceneRenderer();
+
+        switch (m_SceneRendererType) {
+            case SceneRendererType::Forward:
+            {
+                m_SceneRenderer = std::make_unique<ForwardSceneRenderer>();
+                break;
+            }
+            case SceneRendererType::Deferred:
+            {
+                m_SceneRenderer = std::make_unique<DeferredSceneRenderer>();
+                break;
+            }
+            default:
+            {
+                LOG("SceneRendererType is invalid\n");
+                break;
+            }
+        }
+    }
+
+    void Application::SetGameModeType(GameModeType type) {
+        if (type == m_GameModeType && m_GameMode) return;
+
+        m_GameModeType = type;
+
+        // Scenes are currently tied to gamemode.
+        // TODO: Make them loadable in any game mode.
+
+        switch (m_GameModeType) {
+            case GameModeType::Physics:
+            {
+                MakePhysicsScene();
+                m_GameMode = std::make_unique<PhysicsGM>(*m_Scene.get());
+                break;
+            }
+            case GameModeType::Sponza:
+            {
+                MakeSponsaScene();
+                m_GameMode = std::make_unique<SponzaGM>(*m_Scene.get());
+                break;
+            }
+            default:
+            {
+                LOG("GameModeType is invalid\n");
+                break;
+            }
+        }
+
+        if (m_GameMode)
+            m_GameMode->OnCreate();
+        // Sets up the bullet physics world based on whats in scene.
+        if (m_Scene)
+            m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
     }
 
     SceneRendererType Application::GetRendererType() const
@@ -342,104 +394,26 @@ namespace FLOOF {
         return m_RenderCamera;
     }
 
-    void Application::SetGameModeType(GameModeType type)
-    {
-        if (type == m_GameModeType && m_GameMode) return;
-    
-        m_GameModeType = type;
-
-        UpdateGameMode();
-    }
-
-    GameModeType Application::GetGameModeType() const
-    {
+    GameModeType Application::GetGameModeType() const {
         return m_GameModeType;
     }
 
-    void Application::CreateSceneRenderer()
-    {
-        if (m_SceneRenderer)
-        {
-            Utils::Logger::s_Logger->log(Utils::Logger::ERROR, "SceneRenderer exists! Delete previous instance to create a new one\n");
-            return;
-        }
+    void Application::MakePhysicsScene() {
+        m_Scene = std::make_unique<Scene>();
+        auto& scene = m_Scene->GetCulledScene();
 
-        switch (m_SceneRendererType)
-        {
-        case SceneRendererType::Forward:
-        {
-            m_SceneRenderer = new ForwardSceneRenderer;
-        }
-        break;
-        case SceneRendererType::Deferred:
-        {
-            m_SceneRenderer = new DeferredSceneRenderer;
-        }
-        break;
-        default:
-        {
-            m_SceneRenderer = nullptr;
-            LOG("SceneRendererType is invalid\n");
-        }
-        break;
-        }
+        // TODO: make physics scene.
     }
 
-    void Application::DestroySceneRenderer()
-    {
-        m_Renderer->FinishAllFrames();
-        delete m_SceneRenderer; m_SceneRenderer = nullptr;
-    }
+    void Application::MakeSponsaScene() {
+        m_Scene = std::make_unique<Scene>();
+        auto& scene = m_Scene->GetCulledScene();
 
-    void Application::UpdateSceneRenderer()
-    {
-        DestroySceneRenderer();
-        CreateSceneRenderer();
-    }
+        auto ent = scene.create();
+        auto& tm = scene.emplace<TransformComponent>(ent);
+        auto& sm = scene.emplace<StaticMeshComponent>(ent);
+        scene.emplace<TextureComponent>(ent, "Assets/BallTexture.png");
 
-    void Application::CreateGameMode()
-    {
-        if (m_GameMode)
-        {
-            Utils::Logger::s_Logger->log(Utils::Logger::ERROR, "GameMode exists! Delete previous instance to create a new one\n"); 
-            return; 
-        }
-            
-        switch (m_GameModeType)
-        {
-        case GameModeType::Physics:
-        {
-            m_GameMode = new PhysicsGM(*m_Scene.get());
-            m_GameMode->OnCreate();
-            m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
-        }
-        break;
-        case GameModeType::Sponza:
-        {
-            m_GameMode = new SponzaGM(*m_Scene.get());
-            m_GameMode->OnCreate();
-        }
-        break;
-        default:
-        {
-            m_GameMode = nullptr;
-            LOG("GameModeType is invalid\n");
-        }
-        break;
-        }
+        sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
     }
-
-    void Application::DestroyGameMode()
-    {
-        delete m_GameMode; m_GameMode = nullptr;
-        m_Renderer->FinishAllFrames();
-        m_Scene->Clear();
-    }
-
-    void Application::UpdateGameMode()
-    {
-        DestroyGameMode();
-        CreateGameMode();
-    }
-
 }

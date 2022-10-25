@@ -21,10 +21,10 @@ namespace FLOOF
 	class GameMode
 	{
 		friend class Application;
-		
-	protected:
+	public:
 		GameMode(FLOOF::Scene& scene) :m_Scene(scene) {};
 		~GameMode() {};
+	protected:
 
 		Scene& m_Scene;
 

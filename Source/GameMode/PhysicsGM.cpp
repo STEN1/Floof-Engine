@@ -19,7 +19,7 @@ void FLOOF::PhysicsGM::OnCreate()
                 SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing+(height*spacing), z * spacing - (float(width) * spacing * 0.5f)), spacing/2.5f, 200.f, 0.9f,"Assets/BallTexture.png");
                 SpawnCube(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f)),glm::vec3(spacing/2.5f), 100.f,"Assets/BallTexture.png");
             }
-            }
+        }
 
     }
 
