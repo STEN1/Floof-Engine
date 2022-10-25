@@ -168,7 +168,7 @@ namespace FLOOF {
 
         } else {
             // is parent to children and has to make a tree
-            bool node_open = ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
+            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
                 selectedEntity = entity;
             if (node_open) {
@@ -471,7 +471,20 @@ namespace FLOOF {
         }
 
         {
-            auto rootEntity = m_Scene->CreateEntity("RootBall");
+            auto rootEntity = m_Scene->CreateEntity("RootBall1");
+            m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
+
+            auto leafEntity1 = m_Scene->CreateEntity("LeafBall1", rootEntity);
+            m_Scene->AddComponent<MeshComponent>(leafEntity1, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(leafEntity1, "Assets/BallTexture.png");
+
+            auto leafEntity2 = m_Scene->CreateEntity("LeafBall1", rootEntity);
+            m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
+        }
+        {
+            auto rootEntity = m_Scene->CreateEntity("RootBall2");
             m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
 
