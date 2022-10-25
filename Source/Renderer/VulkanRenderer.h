@@ -49,8 +49,8 @@ namespace FLOOF {
     };
 
     enum class RenderPipelineKeys : uint32_t {
-        None = 0,
         Basic,
+        Wireframe,
         Line,
         LineStrip,
         Lit,

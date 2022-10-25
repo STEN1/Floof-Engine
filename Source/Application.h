@@ -17,6 +17,11 @@
 #include "Components.h"
 
 namespace FLOOF {
+    static const char* ApplicationDrawModes[] = {
+        "Lit",
+        "Wireframe",
+    };
+
     class Application {
         Application();
         ~Application();
@@ -60,6 +65,9 @@ namespace FLOOF {
         /*SceneRenderer Methods*/
         void SetRendererType(SceneRendererType type);
         SceneRendererType GetRendererType() const;
+
+        void SetDrawMode(RenderPipelineKeys drawMode) { m_DrawMode = drawMode; }
+        RenderPipelineKeys GetDrawMode() { return m_DrawMode; }
 
         /// <summary>
         /// Temp, currently editor camera is set as render camera.
@@ -116,6 +124,7 @@ namespace FLOOF {
         /*GameMode, temp*/
         GameMode* m_GameMode{ nullptr };
         GameModeType m_GameModeType{ GameModeType::Physics };
+        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
         
         /// <summary>
         /// Currently being cleared on game mode change

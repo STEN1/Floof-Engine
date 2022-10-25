@@ -21,6 +21,7 @@ namespace FLOOF {
             vulkanWindow->Extent
         );
         auto commandBuffer = vulkanWindow->Frames[vulkanWindow->FrameIndex].MainCommandBuffer;
+        auto drawMode = app.GetDrawMode();
 
         // Camera setup
         auto extent = m_Renderer->GetExtent();
@@ -28,7 +29,7 @@ namespace FLOOF {
         glm::mat4 vp = camera->GetVP(glm::radians(70.f), extent.width / (float)extent.height, 0.01f, 5000.f);
         
         // Draw models
-        auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Basic);
+        auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, drawMode);
         {
             auto view = m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
             for (auto [entity, transform, mesh, texture] : view.each()) {

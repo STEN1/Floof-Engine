@@ -191,6 +191,7 @@ namespace FLOOF {
 
         static int selectedRenderType = static_cast<int>(m_SceneRendererType);
         static int selectedGameType = static_cast<int>(m_GameModeType);
+        static int selectedDrawMode = static_cast<int>(m_DrawMode);
 
         ImGui::Begin("Application");
         if (ImGui::Combo("SceneRendererType", 
@@ -200,6 +201,16 @@ namespace FLOOF {
         {
             SetRendererType(static_cast<SceneRendererType>(selectedRenderType));
         }
+        if (ImGui::Combo("DrawMode", 
+            &selectedDrawMode, 
+            ApplicationDrawModes, 
+            IM_ARRAYSIZE(ApplicationDrawModes))) 
+        {
+            SetDrawMode(static_cast<RenderPipelineKeys>(selectedDrawMode));
+        }
+        ImGui::NewLine();
+        ImGui::Separator();
+        ImGui::NewLine();
         if (ImGui::Combo("GameMode",
             &selectedGameType,
             GameModeTypeStrings,
@@ -207,6 +218,7 @@ namespace FLOOF {
         {
             SetGameModeType(static_cast<GameModeType>(selectedGameType));
         }
+
         ImGui::End();
     }
 
@@ -262,8 +274,6 @@ namespace FLOOF {
 
         VkSemaphore waitSemaphore = currentFrameData.MainPassEndSemaphore;
         VkSemaphore signalSemaphore = currentFrameData.RenderFinishedSemaphore;
-
-        
 
         if (m_SceneRenderer) {
             auto& m_Registry = m_Scene->GetCulledScene();
