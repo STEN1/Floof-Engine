@@ -8,8 +8,11 @@ namespace FLOOF {
 
     ModelMesh ModelManager::LoadModelMesh(const std::string& path) {
 
-        if (m_MeshCache.find(path) != m_MeshCache.end())
-            return m_MeshCache[path].Model;
+        auto it = m_MeshCache.find(path);
+        if (it != m_MeshCache.end()) {
+            it->second.RefCount++;
+            return it->second.Model;
+        }
 
         ModelData modelData;
         AssimpLoader loader(path);
@@ -29,7 +32,8 @@ namespace FLOOF {
         }
         modelData.Model.Path = path;
 
-        m_MeshCache[path] = modelData;
+        auto& data = m_MeshCache[path] = modelData;
+        data.RefCount++;
 
         return modelData.Model;
     }

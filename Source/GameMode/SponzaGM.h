@@ -8,8 +8,10 @@ namespace FLOOF
 	{
 		friend class Application;
 
+	public:
 		SponzaGM(Scene& scene) : GameMode(scene) {};
 
+	private:
 		void OnCreate() override;
 
 		void OnUpdateEditor(float deltaTime) override;
