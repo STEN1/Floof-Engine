@@ -70,6 +70,9 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
 
+set(BUILD_SHARED_LIBS OFF)
+set(BULLET_VERSION 3)
+set(BULLET_PHYSICS_SOURCE_DIR ../../)
 add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
 set(Bullet_Dir Libs/bullet3)
 add_library(Bullet STATIC)
@@ -79,6 +82,11 @@ target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
         ${Bullet_Dir}/src/btLinearMathAll.cpp)
 target_link_libraries(Floof Bullet)
+
+#Add each submodule manually
+add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
+target_link_libraries(Floof BulletSoftBody)
+
 
 #boost.python
 find_package(Boost COMPONENTS python)

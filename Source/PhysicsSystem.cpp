@@ -1,30 +1,36 @@
 
 #include "PhysicsSystem.h"
 #include "Components.h"
-
+#include "BulletSoftBody/btDefaultSoftBodySolver.h"
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry& scene): mScene(scene) {
 
-        mCollisionConfiguration = new btDefaultCollisionConfiguration();
         //mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
+
+        mCollisionConfiguration = new btDefaultCollisionConfiguration();
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
+        //mSoftBodyWorldInfo.m_dispatcher = mDispatcher;
+
         //mBroadPhase = new btDbvtBroadphase();
 
         const int maxProxies = 32766; // defined in documentation
-        btVector3 worldAabbMin(-1000, -1000, -1000);
-        btVector3 worldAabbMax(1000, 1000, 1000);
-
+        const int AabbSize = 1000;
+        btVector3 worldAabbMin(-AabbSize, -AabbSize, -AabbSize);
+        btVector3 worldAabbMax(AabbSize, AabbSize, AabbSize);
         mBroadPhase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
+
+        mSoftBodyWorldInfo.m_broadphase = mBroadPhase;
 
         mSolver = new btSequentialImpulseConstraintSolver();
 
-        //mSoftBodyWorldInfo.m_broadphase = mOverlappingPairCache;
-        //mSoftBodyWorldInfo.m_dispatcher = mDispatcher;
+
+        btSoftBodySolver* softBodySolver = new btDefaultSoftBodySolver();
 
         //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
+        //mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration);
         mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration);
 
-        btSoftBodySolver* softBodySolver{nullptr};
+
         //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher,mOverlappingPairCache,mSolver,mCollisionConfiguration,softBodySolver);
 
 
