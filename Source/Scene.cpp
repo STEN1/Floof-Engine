@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "Components.h"
 
 namespace FLOOF {
     Scene::Scene() {
@@ -11,6 +12,14 @@ namespace FLOOF {
 
     }
     Scene::~Scene() {
+    }
+
+    entt::entity Scene::CreateEntity() {
+        entt::entity entity = m_Scene.create();
+        m_Scene.emplace<TransformComponent>(entity);
+        m_Scene.emplace<Relationship>(entity);
+        m_Scene.emplace<TagComponent>(entity);
+        return entity;
     }
 
     entt::registry& Scene::GetCulledScene() {

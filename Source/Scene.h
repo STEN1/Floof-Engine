@@ -14,6 +14,21 @@ namespace FLOOF {
         // Get a finished render batch for scene renderer.
         entt::registry& GetCulledScene();
 
+        /**
+         * @brief Creates entity with Transform, tag, and relationship components.
+         * @return The created entity.
+        */
+        entt::entity CreateEntity();
+
+        /**
+         * @brief Adds component to the given entity with constructor args.
+         * @return Reference to the added component.
+        */
+        template<typename Type, typename... Args>
+        Type& AddComponent(entt::entity entity, Args &&...args) {
+            return m_Scene.emplace<Type>(entity, std::forward<Args>(args)...);
+        }
+
         std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
     private:

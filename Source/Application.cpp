@@ -402,19 +402,16 @@ namespace FLOOF {
 
     void Application::MakePhysicsScene() {
         m_Scene = std::make_unique<Scene>();
-        auto& scene = m_Scene->GetCulledScene();
 
         // TODO: make physics scene.
     }
 
     void Application::MakeSponsaScene() {
         m_Scene = std::make_unique<Scene>();
-        auto& scene = m_Scene->GetCulledScene();
 
-        auto ent = scene.create();
-        auto& tm = scene.emplace<TransformComponent>(ent);
-        auto& sm = scene.emplace<StaticMeshComponent>(ent);
-        scene.emplace<TextureComponent>(ent, "Assets/BallTexture.png");
+        auto ent = m_Scene->CreateEntity();
+        auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
+        m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
 
         sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
     }
