@@ -9,6 +9,7 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/Texture.h"
 #include "btBulletDynamicsCommon.h"
+#include "BulletSoftBody/btSoftBody.h"
 
 namespace FLOOF {
 
@@ -186,11 +187,17 @@ namespace FLOOF {
     };
 
     struct RigidBodyComponent{
-        std::shared_ptr<btRigidBody> RigidBody;
+        std::shared_ptr<btRigidBody> RigidBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
-        std::shared_ptr<btDefaultMotionState> DefaultMotionState;
+        std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
 
+    };
+    struct SoftBodyComponent{
+        std::shared_ptr<btSoftBody> SoftBody{nullptr};
+        btSoftBodyWorldInfo WorldInfo;
+        std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
+        std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
 }
 
