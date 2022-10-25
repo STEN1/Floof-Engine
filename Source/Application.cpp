@@ -146,7 +146,7 @@ namespace FLOOF {
         return 0;
     }
 
-    static void MakeTreeNode(entt::registry& registry, entt::entity entity, const char* tag, Relationship& rel) {
+    void Application::MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel) {
         static entt::entity selectedEntity = entt::null;
         static ImGuiTreeNodeFlags base_flags =
             ImGuiTreeNodeFlags_OpenOnArrow |
@@ -173,9 +173,9 @@ namespace FLOOF {
                 selectedEntity = entity;
             if (node_open) {
                 for (auto& childEntity : rel.Children) {
-                    auto& childTag = registry.get<TagComponent>(childEntity);
-                    auto& childRel = registry.get<Relationship>(childEntity);
-                    MakeTreeNode(registry, childEntity, childTag.Tag.c_str(), childRel);
+                    auto& childTag = m_Scene->GetComponent<TagComponent>(childEntity);
+                    auto& childRel = m_Scene->GetComponent<Relationship>(childEntity);
+                    MakeTreeNode(childEntity, childTag.Tag.c_str(), childRel);
                 }
                 ImGui::TreePop();
             }
@@ -262,15 +262,14 @@ namespace FLOOF {
         // Draw scene graph
         if (m_Scene) {
             ImGui::Begin("Scene");
-            auto& registry = m_Scene->GetRegistry();
-            auto view = registry.view<TransformComponent, TagComponent, Relationship>();
+            auto view = m_Scene->GetRegistry().view<TransformComponent, TagComponent, Relationship>();
             for (auto [entity, transform, tag, rel] : view.each()) {
                 // only care about entitys without parent.
                 // deal with child entitys later.
                 if (rel.Parent != entt::null)
                     continue;
 
-                MakeTreeNode(registry, entity, tag.Tag.c_str(), rel);
+                MakeTreeNode(entity, tag.Tag.c_str(), rel);
             }
             ImGui::End();
         }

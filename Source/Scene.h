@@ -33,6 +33,11 @@ namespace FLOOF {
             return m_Scene.emplace<Type>(entity, std::forward<Args>(args)...);
         }
 
+        template<typename Type>
+        Type& GetComponent(entt::entity entity) {
+            return m_Scene.get<Type>(entity);
+        }
+
         std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
     private:
