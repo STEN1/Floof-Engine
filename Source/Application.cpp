@@ -351,8 +351,12 @@ namespace FLOOF {
 
         m_GameModeType = type;
 
-        // Scenes are currently tied to gamemode.
-        // TODO: Make them loadable in any game mode.
+        // TODO: Game mode should probably be chosen by the scene based
+        // on data from a stored scene in JSON format. 
+        // Then this function should be "LoadScene(string scenePath)".
+        // That way we can load scene from a file browser of some kind.
+        // 
+        // Eventually the scene gamemode is just a path to a python script.
 
         switch (m_GameModeType) {
             case GameModeType::Physics:
