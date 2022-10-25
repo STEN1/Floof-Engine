@@ -1,10 +1,7 @@
 ﻿#include "Application.h"
 
 int main() {
-    // Need to be explicit here so the application is destroyed
-    // before static destruction of static managers.
-    FLOOF::Application* app = new FLOOF::Application();
-    int result = app->Run();
-    delete app;
+    auto& app = FLOOF::Application::Get();
+    int result = app.Run();
     return result;
 }

@@ -23,12 +23,13 @@ namespace FLOOF {
     };
 
     class Application {
-        inline static Application* s_App = nullptr;
-    public:
         Application();
-        ~Application();
+    public:
         int Run();
-        static Application& Get() { return *s_App; }
+        static Application& Get() { 
+            static Application app;
+            return app; 
+        }
     private:
         /**
          * @brief Updates GUI for application
@@ -43,6 +44,8 @@ namespace FLOOF {
         void Update(double deltaTime);
 
         void Draw();
+
+        void CleanApplication();
         
         GLFWwindow* m_Window;
         ImGuiContext* m_ImguiContext;

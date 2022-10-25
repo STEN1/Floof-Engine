@@ -21,7 +21,6 @@
 
 namespace FLOOF {
     Application::Application() : m_EditorCamera(glm::vec3(0.f, 30.f, -30.f)) {
-        s_App = this;
         // Init glfw and create window
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -79,7 +78,13 @@ namespace FLOOF {
         SetGameModeType(GameModeType::Physics);
     }
 
-    Application::~Application() {
+    void Application::CleanApplication() {
+        m_Renderer->FinishAllFrames();
+
+        m_Scene = nullptr;
+        m_GameMode = nullptr;
+        m_SceneRenderer = nullptr;
+
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext(m_ImguiContext);
@@ -88,15 +93,12 @@ namespace FLOOF {
         ModelManager::Get().DestroyAll();
         TextureComponent::ClearTextureDataCache();
 
-        m_GameMode = nullptr;
-        m_SceneRenderer = nullptr;
 
         delete m_Renderer;
         delete Utils::Logger::s_Logger;
 
         glfwDestroyWindow(m_Window);
         glfwTerminate();
-        s_App = nullptr;
     }
 
     int Application::Run() {
@@ -139,10 +141,7 @@ namespace FLOOF {
             Update(deltaTime);
             Draw();
         }
-
-        m_Renderer->FinishAllFrames();
-        m_Scene = nullptr;
-
+        CleanApplication();
         return 0;
     }
 
