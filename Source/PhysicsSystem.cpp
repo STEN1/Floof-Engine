@@ -6,21 +6,40 @@ namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry& scene): mScene(scene) {
 
         mCollisionConfiguration = new btDefaultCollisionConfiguration();
+        //mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
-        mOverlappingPairCache = new btDbvtBroadphase();
+        //mBroadPhase = new btDbvtBroadphase();
+
+        const int maxProxies = 32766; // defined in documentation
+        btVector3 worldAabbMin(-1000, -1000, -1000);
+        btVector3 worldAabbMax(1000, 1000, 1000);
+
+        mBroadPhase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
+
         mSolver = new btSequentialImpulseConstraintSolver();
+
+        //mSoftBodyWorldInfo.m_broadphase = mOverlappingPairCache;
+        //mSoftBodyWorldInfo.m_dispatcher = mDispatcher;
+
         //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
-        mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
-        mSoftDynamicsWorld = (btSoftRigidDynamicsWorld*)mDynamicsWorld;
+        mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration);
+
+        btSoftBodySolver* softBodySolver{nullptr};
+        //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher,mOverlappingPairCache,mSolver,mCollisionConfiguration,softBodySolver);
+
+
 
         mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+        //mSoftDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+        //mSoftBodyWorldInfo.m_gravity = mDynamicsWorld->getGravity();
+        //mSoftBodyWorldInfo.m_sparsesdf.Initialize();
 
     }
 
     PhysicsSystem::~PhysicsSystem() {
         delete mDynamicsWorld;
         delete mSolver;
-        delete mOverlappingPairCache;
+        delete mBroadPhase;
         delete mDispatcher;
         delete mCollisionConfiguration;
     }
@@ -78,12 +97,6 @@ namespace FLOOF {
             }
             mDynamicsWorld->removeCollisionObject(obj);
         }
-
-        //delete mDynamicsWorld;
-        //delete mSolver;
-        //delete mOverlappingPairCache;
-        //delete mDispatcher;
-        //delete mCollisionConfiguration;
     }
 
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {

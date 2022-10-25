@@ -6,6 +6,7 @@
 #include "Renderer/Vertex.h"
 #include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 #include "BulletSoftBody/btSoftRigidCollisionAlgorithm.h"
+#include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 
 namespace FLOOF {
     class PhysicsSystem {
@@ -31,8 +32,9 @@ namespace FLOOF {
     private:
         entt::registry& mScene;
         btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
+        //btSoftBodyRigidBodyCollisionConfiguration* mCollisionConfiguration{nullptr}; // crashing
         btCollisionDispatcher* mDispatcher{nullptr};
-        btBroadphaseInterface* mOverlappingPairCache{nullptr};
+        btBroadphaseInterface* mBroadPhase{nullptr};
         btSequentialImpulseConstraintSolver* mSolver{nullptr};
         //btConstraintSolver* mSolver{nullptr};
         btSoftRigidDynamicsWorld* mSoftDynamicsWorld{nullptr};

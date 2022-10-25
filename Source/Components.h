@@ -195,7 +195,6 @@ namespace FLOOF {
     };
     struct SoftBodyComponent{
         std::shared_ptr<btSoftBody> SoftBody{nullptr};
-        btSoftBodyWorldInfo WorldInfo;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
