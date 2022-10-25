@@ -14,11 +14,15 @@ namespace FLOOF {
         // Get a finished render batch for scene renderer.
         entt::registry& GetCulledScene();
 
+        // Get ref to scene registry.
+        entt::registry& GetRegistry();
+
         /**
          * @brief Creates entity with Transform, tag, and relationship components.
+         * @param tag: Entity name tag.
          * @return The created entity.
         */
-        entt::entity CreateEntity();
+        entt::entity CreateEntity(const std::string& tag = "Entity", entt::entity parent = entt::null);
 
         /**
          * @brief Adds component to the given entity with constructor args.
