@@ -168,6 +168,8 @@ namespace FLOOF {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
+        // No ImGui begin commands should come before this one.
+        // The dock space needs to be created before everyting else to work.
         ImGui::Begin("Dock space", &dockSpaceOpen, window_flags);
 
         ImGui::PopStyleVar(3);
