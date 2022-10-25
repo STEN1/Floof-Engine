@@ -30,7 +30,7 @@ namespace FLOOF {
         if(!mDynamicsWorld)
             return;
 
-        mDynamicsWorld->stepSimulation(deltaTime, 10);
+        mDynamicsWorld->stepSimulation(deltaTime);
 
         auto view = mScene.view<RigidBodyComponent, TransformComponent>();
         for(auto [entity, RigidBodyComponent, transform]: view.each()){

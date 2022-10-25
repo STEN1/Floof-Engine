@@ -16,7 +16,7 @@ void FLOOF::PhysicsGM::OnCreate()
         for (int x = 0; x < width; x++)
         {
             for(int z = 0; z < width; z++){
-                //SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f)), spacing/2.5f, 200.f, 0.9f,"Assets/BallTexture.png");
+                SpawnBall(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing+(height*spacing), z * spacing - (float(width) * spacing * 0.5f)), spacing/2.5f, 200.f, 0.9f,"Assets/BallTexture.png");
                 SpawnCube(glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f)),glm::vec3(spacing/2.5f), 100.f,"Assets/BallTexture.png");
             }
             }
@@ -121,13 +121,14 @@ const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float r
     collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
 
     btVector3 localInertia(0, 0, 0);
-    collision.CollisionShape->calculateLocalInertia(mass, localInertia);
+    if(mass != 0.f)
+        collision.CollisionShape->calculateLocalInertia(mass, localInertia);
 
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get(),localInertia);
     collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
     collision.RigidBody->setFriction(0.5f);
-    //collision.RigidBody->setRollingFriction(0.1f);
-    //collision.RigidBody->setSpinningFriction(0.1f);
+    collision.RigidBody->setRollingFriction(0.1f);
+    collision.RigidBody->setSpinningFriction(0.1f);
 
 
     ball.Radius = radius;
@@ -192,11 +193,15 @@ const entt::entity FLOOF::PhysicsGM::SpawnCube(glm::vec3 location, glm::vec3 ext
 
     collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
 
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get());
+    btVector3 localInertia(0, 0, 0);
+    if(mass != 0.f)
+        collision.CollisionShape->calculateLocalInertia(mass, localInertia);
+
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get(),localInertia);
     collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
     collision.RigidBody->setFriction(0.6f);
-    //collision.RigidBody->setRollingFriction(0.1f);
-    //collision.RigidBody->setSpinningFriction(0.1f);
+    collision.RigidBody->setRollingFriction(0.1f);
+    collision.RigidBody->setSpinningFriction(0.1f);
 
 
     transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());

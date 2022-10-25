@@ -33,8 +33,8 @@ namespace FLOOF {
         btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
         btCollisionDispatcher* mDispatcher{nullptr};
         btBroadphaseInterface* mOverlappingPairCache{nullptr};
-        //btSequentialImpulseConstraintSolver* mSolver{nullptr};
-        btConstraintSolver* mSolver{nullptr};
+        btSequentialImpulseConstraintSolver* mSolver{nullptr};
+        //btConstraintSolver* mSolver{nullptr};
         btSoftRigidDynamicsWorld* mSoftDynamicsWorld{nullptr};
         btDiscreteDynamicsWorld* mDynamicsWorld{nullptr};
         btSoftBodyWorldInfo mSoftBodyWorldInfo;
