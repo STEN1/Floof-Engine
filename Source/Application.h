@@ -23,28 +23,21 @@ namespace FLOOF {
     };
 
     class Application {
+        inline static Application* s_App = nullptr;
+    public:
         Application();
         ~Application();
-        
-    public:
         int Run();
-
-        static Application& Get()
-        {
-            static Application app;
-            return app;
-        };
+        static Application& Get() { return *s_App; }
     private:
-        /// <summary>
-        /// Updates GUI for application
-        /// </summary>
-        /// <param name="deltaTime"></param>
+        /**
+         * @brief Updates GUI for application
+        */
         void UpdateImGui(float deltaTime);
-
-        /// <summary>
-        /// Updates all cameras
-        /// </summary>
-        /// <param name="deltaTime"></param>
+        
+        /**
+         * @brief Updates all cameras
+        */
         void UpdateCameraSystem(float deltaTime);
 
         void Update(double deltaTime);
@@ -61,11 +54,9 @@ namespace FLOOF {
         void MakePhysicsScene();
         void MakeSponsaScene();
 
-        /*GameMode Methods*/
         void SetGameModeType(GameModeType type);
         GameModeType GetGameModeType() const;
 
-        /*SceneRenderer Methods*/
         void SetRendererType(SceneRendererType type);
         SceneRendererType GetRendererType() const;
 
@@ -79,7 +70,10 @@ namespace FLOOF {
         */
         void SetRenderCamera(CameraComponent& cam);
 
-        // SceneRenderer uses this function to get the render camera
+        /**
+         * @brief SceneRenderer uses this function to get the render camera
+         * @return Non owning camera pointer
+        */
         CameraComponent* GetRenderCamera();
 
     private:

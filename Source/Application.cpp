@@ -21,6 +21,7 @@
 
 namespace FLOOF {
     Application::Application() : m_EditorCamera(glm::vec3(0.f, 30.f, -30.f)) {
+        s_App = this;
         // Init glfw and create window
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -95,6 +96,7 @@ namespace FLOOF {
 
         glfwDestroyWindow(m_Window);
         glfwTerminate();
+        s_App = nullptr;
     }
 
     int Application::Run() {

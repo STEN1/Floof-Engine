@@ -4,14 +4,6 @@
 
 void FLOOF::SponzaGM::OnCreate()
 {
-    auto& scene = m_Scene.GetCulledScene();
-
-    auto ent = scene.create();
-    auto& tm = scene.emplace<TransformComponent>(ent);
-    auto& sm = scene.emplace<StaticMeshComponent>(ent);
-    scene.emplace<TextureComponent>(ent, "Assets/BallTexture.png");
-
-    sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
 }
 
 void FLOOF::SponzaGM::OnUpdateEditor(float deltaTime)
