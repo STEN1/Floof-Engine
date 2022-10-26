@@ -5,13 +5,10 @@
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry& scene): mScene(scene) {
 
-        //mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
+        mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-        mCollisionConfiguration = new btDefaultCollisionConfiguration();
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
-        //mSoftBodyWorldInfo.m_dispatcher = mDispatcher;
-
-        //mBroadPhase = new btDbvtBroadphase();
+        mSoftBodyWorldInfo.m_dispatcher = mDispatcher;
 
         const int maxProxies = 32766; // defined in documentation
         const int AabbSize = 1000;
@@ -23,22 +20,14 @@ namespace FLOOF {
 
         mSolver = new btSequentialImpulseConstraintSolver();
 
-
-        btSoftBodySolver* softBodySolver = new btDefaultSoftBodySolver();
-
-        //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mOverlappingPairCache, mSolver, mCollisionConfiguration);
-        //mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration);
-        mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration);
-
-
-        //mSoftDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher,mOverlappingPairCache,mSolver,mCollisionConfiguration,softBodySolver);
+        mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration);
 
 
 
         mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
-        //mSoftDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
-        //mSoftBodyWorldInfo.m_gravity = mDynamicsWorld->getGravity();
-        //mSoftBodyWorldInfo.m_sparsesdf.Initialize();
+
+        mSoftBodyWorldInfo.m_gravity = mDynamicsWorld->getGravity();
+        mSoftBodyWorldInfo.m_sparsesdf.Initialize();
 
     }
 

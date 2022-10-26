@@ -458,6 +458,74 @@ namespace FLOOF {
         m_Scene = std::make_unique<Scene>();
 
         // TODO: make physics scene.
+
+
+        {
+            auto texture = "Assets/LightBlue.png";
+            auto location = glm::vec3(0.f, -150.f, 0.f);
+            auto extents = glm::vec3(200.f, 10.f, 200.f);
+            auto mass = 0.f;
+
+            auto entity = m_Scene->CreateEntity("Ground Cube");
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity);
+            m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
+            m_Scene->AddComponent<TextureComponent>(entity, texture);
+
+            collision.Transform.setIdentity();
+            collision.Transform.setOrigin(btVector3(location.x, location.y, location.z));
+
+            collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
+
+            collision.CollisionShape = std::make_shared<btBoxShape>(btVector3(extents.x, extents.y, extents.z));
+
+            btVector3 localInertia(0, 0, 0);
+            if (mass != 0.f)
+                collision.CollisionShape->calculateLocalInertia(mass, localInertia);
+
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(),
+                                                            collision.CollisionShape.get(), localInertia);
+            collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
+            collision.RigidBody->setFriction(0.6f);
+            collision.RigidBody->setRollingFriction(0.1f);
+            collision.RigidBody->setSpinningFriction(0.1f);
+
+            auto& registry = m_Scene->GetRegistry();
+            auto& transform = registry.get<TransformComponent>(entity);
+            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
+                                           collision.Transform.getOrigin().getY(),
+                                           collision.Transform.getOrigin().getZ());
+            transform.Scale = extents;
+
+        }
+        {
+            auto entity = m_Scene->CreateEntity("Ground Ball");
+            m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity);
+            auto& registry = m_Scene->GetRegistry();
+
+            auto& transform = registry.get<TransformComponent>(entity);
+            transform.Position = glm::vec3(0.f,-150.f,0.f);
+            transform.Scale = glm::vec3(75.f);
+
+            //rigid body
+            auto location = transform.Position;
+            float mass = 0.f;
+            collision.CollisionShape = std::make_shared<btSphereShape>(transform.Scale.x);
+            collision.Transform.setIdentity();
+            collision.Transform.setOrigin(btVector3(location.x,location.y,location.z));
+
+            collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
+
+            btVector3 localInertia(0, 0, 0);
+
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get(),localInertia);
+            collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
+            collision.RigidBody->setFriction(0.5f);
+            collision.RigidBody->setRollingFriction(0.1f);
+            collision.RigidBody->setSpinningFriction(0.1f);
+
+        }
     }
 
     void Application::MakeSponsaScene() {
