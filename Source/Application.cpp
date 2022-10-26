@@ -328,8 +328,7 @@ namespace FLOOF {
         VkSemaphore signalSemaphore = currentFrameData.RenderFinishedSemaphore;
 
         if (m_SceneRenderer) {
-            auto& m_Registry = m_Scene->GetCulledScene();
-            m_SceneRenderer->Render(m_Registry);
+            m_SceneRenderer->Render(m_Scene->GetCulledScene());
         } else {
             waitSemaphore = currentFrameData.ImageAvailableSemaphore;
             signalSemaphore = currentFrameData.RenderFinishedSemaphore;
@@ -344,6 +343,24 @@ namespace FLOOF {
             m_Renderer->GetImguiRenderPass(),
             vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
             vulkanWindow->Extent);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
+        ImGui::Begin("Scene renderer");
+        ImGui::PopStyleVar();
+        auto view = m_Scene->GetRegistry().view<TextureComponent>();
+        for (auto [entity, texture] : view.each()) {
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            ImVec2 canvasOffset = ImGui::GetWindowPos();
+            ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
+            ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
+            canvas_p0.x += canvasOffset.x;
+            canvas_p0.y += canvasOffset.y;
+            canvas_p1.x += canvasOffset.x;
+            canvas_p1.y += canvasOffset.y;
+            draw_list->AddImage(texture.Data.DesctriptorSet, canvas_p0, canvas_p1, ImVec2(1, 1), ImVec2(0, 0));
+            break;
+        }
+        ImGui::End();
 
         // Render ImGui
         ImGui::Render();
