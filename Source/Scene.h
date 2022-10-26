@@ -50,5 +50,7 @@ namespace FLOOF {
         entt::registry m_Scene;
         std::shared_ptr<PhysicsSystem> m_PhysicSystem;       
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
+
+        entt::entity m_SelectedEntity = entt::null;
     };
 }

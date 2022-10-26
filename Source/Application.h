@@ -96,7 +96,7 @@ namespace FLOOF {
 
         std::unique_ptr<Scene> m_Scene;
 
-        /*ImGui Utility functions*/
+        /*ImGui and editor utility*/
         void MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel);
     };
 }

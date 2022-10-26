@@ -146,7 +146,6 @@ namespace FLOOF {
     }
 
     void Application::MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel) {
-        static entt::entity selectedEntity = entt::null;
         static ImGuiTreeNodeFlags base_flags =
             ImGuiTreeNodeFlags_OpenOnArrow |
             ImGuiTreeNodeFlags_OpenOnDoubleClick |
@@ -154,7 +153,7 @@ namespace FLOOF {
 
         ImGuiTreeNodeFlags node_flags = base_flags;
 
-        if (entity == selectedEntity)
+        if (entity == m_Scene->m_SelectedEntity)
             node_flags |= ImGuiTreeNodeFlags_Selected;
 
         if (rel.Children.empty()) {
@@ -163,13 +162,13 @@ namespace FLOOF {
             node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
             ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
-                selectedEntity = entity;
+                m_Scene->m_SelectedEntity = entity;
 
         } else {
             // is parent to children and has to make a tree
             bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
-                selectedEntity = entity;
+                m_Scene->m_SelectedEntity = entity;
             if (node_open) {
                 for (auto& childEntity : rel.Children) {
                     auto& childTag = m_Scene->GetComponent<TagComponent>(childEntity);
