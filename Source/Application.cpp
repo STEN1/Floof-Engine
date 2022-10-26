@@ -257,9 +257,11 @@ namespace FLOOF {
         }
         ImGui::End();
 
-        // Draw scene graph
+        // Draw scene graph and component view
         if (m_Scene) {
+            //ImGui::PushStyleVar()
             ImGui::Begin("Scene");
+            ImGui::BeginChild("Scene graph", ImVec2(0.f, ImGui::GetWindowHeight() / 2.f));
             auto view = m_Scene->GetRegistry().view<TransformComponent, TagComponent, Relationship>();
             for (auto [entity, transform, tag, rel] : view.each()) {
                 // only care about entitys without parent.
@@ -269,6 +271,12 @@ namespace FLOOF {
 
                 MakeTreeNode(entity, tag.Tag.c_str(), rel);
             }
+            ImGui::EndChild();
+            ImGui::Separator();
+            // Start component view
+            ImGui::BeginChild("Components");
+            ImGui::Text("Components");
+            ImGui::EndChild();
             ImGui::End();
         }
     }
