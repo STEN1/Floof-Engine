@@ -26,4 +26,8 @@ namespace FLOOF {
         submitInfo.WaitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         m_Renderer->EndRenderPass(submitInfo);
     }
+
+    VkDescriptorSet DeferredSceneRenderer::RenderToTexture(entt::registry& scene, glm::vec2 extent) {
+        return VK_NULL_HANDLE;
+    }
 }

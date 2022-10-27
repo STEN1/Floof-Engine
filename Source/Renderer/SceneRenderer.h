@@ -3,6 +3,7 @@
 #include "../Floof.h"
 #include "VulkanRenderer.h"
 #include <entt/entt.hpp>
+#include "../Math.h"
 
 namespace FLOOF {
   
@@ -21,5 +22,6 @@ namespace FLOOF {
         SceneRenderer() = default;
         virtual ~SceneRenderer() = default;
         virtual void Render(entt::registry& scene) = 0;
+        virtual VkDescriptorSet RenderToTexture(entt::registry& scene, glm::vec2 extent) = 0;
     };
 }

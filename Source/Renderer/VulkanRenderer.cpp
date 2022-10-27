@@ -52,7 +52,7 @@ namespace FLOOF {
         
         {	// Default light shader
             RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/Basic.frag.spv";
             params.VertexPath = "Shaders/Basic.vert.spv";
             params.Key = RenderPipelineKeys::Basic;
@@ -70,7 +70,7 @@ namespace FLOOF {
         }
         {	// Wireframe
             RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/Basic.frag.spv";
             params.VertexPath = "Shaders/Basic.vert.spv";
             params.Key = RenderPipelineKeys::Wireframe;
@@ -88,7 +88,7 @@ namespace FLOOF {
         }
         {	// Lit color shader for terrain.
             RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/LitColor.frag.spv";
             params.VertexPath = "Shaders/LitColor.vert.spv";
             params.Key = RenderPipelineKeys::LitColor;
@@ -114,7 +114,7 @@ namespace FLOOF {
         }
         {	// Line drawing shader with depth
             RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/Color.frag.spv";
             params.VertexPath = "Shaders/Color.vert.spv";
             params.Key = RenderPipelineKeys::LineWithDepth;
@@ -127,7 +127,7 @@ namespace FLOOF {
         }
         {	// Line strip drawing shader with depth
             RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/Color.frag.spv";
             params.VertexPath = "Shaders/Color.vert.spv";
             params.Key = RenderPipelineKeys::LineStripWithDepth;
@@ -153,7 +153,7 @@ namespace FLOOF {
         }
         {	// Point drawing shader
             RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/Color.frag.spv";
             params.VertexPath = "Shaders/Color.vert.spv";
             params.Key = RenderPipelineKeys::Point;
@@ -171,12 +171,12 @@ namespace FLOOF {
     }
 
     VulkanRenderer::~VulkanRenderer() {
-        for (auto& imageView : m_VulkanWindow.DepthBufferImageViews) {
-            vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
-        }
-        for (auto& depthBuffer : m_VulkanWindow.DepthBuffers) {
-            vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
-        }
+        //for (auto& imageView : m_VulkanWindow.DepthBufferImageViews) {
+        //    vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
+        //}
+        //for (auto& depthBuffer : m_VulkanWindow.DepthBuffers) {
+        //    vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
+        //}
         vmaDestroyAllocator(m_Allocator);
 
         DestroyWindow(m_VulkanWindow);
@@ -675,7 +675,7 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateWindow(VulkanWindow& window) {
         CreateSwapChain(window);
-        CreateDepthBuffers(window.Extent);
+        //CreateDepthBuffers(window.Extent);
         CreateRenderPass(window);
         CreateImGuiRenderPass(window);
         CreateFramebuffers(window);
@@ -764,7 +764,7 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CreateRenderPass(VulkanWindow& window) {
-        VkAttachmentDescription colorAttachments[2]{};
+        VkAttachmentDescription colorAttachments[1]{};
         colorAttachments[0].format = window.SurfaceFormat.format;
         colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -774,40 +774,40 @@ namespace FLOOF {
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        colorAttachments[1].format = window.DepthFormat;
-        colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        //colorAttachments[1].format = window.DepthFormat;
+        //colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+        //colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        //colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        //colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        //colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        //colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        //colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentReference depthStencilAttachmentRef{};
-        depthStencilAttachmentRef.attachment = 1;
-        depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        //VkAttachmentReference depthStencilAttachmentRef{};
+        //depthStencilAttachmentRef.attachment = 1;
+        //depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
-        subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
+        //subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
         VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 2;
+        renderPassInfo.attachmentCount = 1;
         renderPassInfo.pAttachments = colorAttachments;
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
@@ -821,7 +821,7 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateImGuiRenderPass(VulkanWindow& window) {
 
-        VkAttachmentDescription colorAttachments[2]{};
+        VkAttachmentDescription colorAttachments[1]{};
         colorAttachments[0].format = window.SurfaceFormat.format;
         colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -831,40 +831,40 @@ namespace FLOOF {
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-        colorAttachments[1].format = window.DepthFormat;
-        colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        //colorAttachments[1].format = window.DepthFormat;
+        //colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+        //colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        //colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        //colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        //colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        //colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        //colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentReference depthStencilAttachmentRef{};
-        depthStencilAttachmentRef.attachment = 1;
-        depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        //VkAttachmentReference depthStencilAttachmentRef{};
+        //depthStencilAttachmentRef.attachment = 1;
+        //depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
-        subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
+        //subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
         VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 2;
+        renderPassInfo.attachmentCount = 1;
         renderPassInfo.pAttachments = colorAttachments;
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
@@ -995,16 +995,16 @@ namespace FLOOF {
         ASSERT(plResult == VK_SUCCESS);
 
         VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-        if (params.Flags & RenderPipelineFlags::DepthPass) {
-            depthStencilStateInfo.depthTestEnable = VK_TRUE;
-            depthStencilStateInfo.depthWriteEnable = VK_TRUE;
-        } else {
-            depthStencilStateInfo.depthTestEnable = VK_FALSE;
-            depthStencilStateInfo.depthWriteEnable = VK_FALSE;
-        }
-        depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
-        depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
-        depthStencilStateInfo.stencilTestEnable = VK_FALSE;
+        //if (params.Flags & RenderPipelineFlags::DepthPass) {
+        //    depthStencilStateInfo.depthTestEnable = VK_TRUE;
+        //    depthStencilStateInfo.depthWriteEnable = VK_TRUE;
+        //} else {
+        //    depthStencilStateInfo.depthTestEnable = VK_FALSE;
+        //    depthStencilStateInfo.depthWriteEnable = VK_FALSE;
+        //}
+        //depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+        //depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
+        //depthStencilStateInfo.stencilTestEnable = VK_FALSE;
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1037,13 +1037,13 @@ namespace FLOOF {
         for (size_t i = 0; i < window.FrameBuffers.size(); i++) {
             VkImageView attachments[] = {
                 window.SwapChainImageViews[i],
-                m_VulkanWindow.DepthBufferImageViews[i],
+                //m_VulkanWindow.DepthBufferImageViews[i],
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferInfo.renderPass = m_RenderPass;
-            framebufferInfo.attachmentCount = 2;
+            framebufferInfo.attachmentCount = 1;
             framebufferInfo.pAttachments = attachments;
             framebufferInfo.width = window.Extent.width;
             framebufferInfo.height = window.Extent.height;
@@ -1055,7 +1055,7 @@ namespace FLOOF {
         LOG("Framebuffers created.\n");
     }
 
-    void VulkanRenderer::CreateDepthBuffers(VkExtent2D extent) {
+    /*void VulkanRenderer::CreateDepthBuffers(VkExtent2D extent) {
         m_VulkanWindow.DepthFormat = FindDepthFormat();
         ASSERT(m_VulkanWindow.DepthFormat != VK_FORMAT_UNDEFINED);
 
@@ -1100,7 +1100,7 @@ namespace FLOOF {
                 &m_VulkanWindow.DepthBufferImageViews[i]);
             ASSERT(result == VK_SUCCESS);
         }
-    }
+    }*/
 
     void VulkanRenderer::CreateCommandPool() {
         VkCommandPoolCreateInfo poolInfo{};
@@ -1223,18 +1223,18 @@ namespace FLOOF {
 
         vkDeviceWaitIdle(m_LogicalDevice);
 
-        for (auto& imageView : window.DepthBufferImageViews) {
-            vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
-        }
-        for (auto& depthBuffer : window.DepthBuffers) {
-            vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
-        }
+        //for (auto& imageView : window.DepthBufferImageViews) {
+        //    vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
+        //}
+        //for (auto& depthBuffer : window.DepthBuffers) {
+        //    vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
+        //}
 
         CleanupSwapChain(window);
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface, &m_SwapChainSupport.capabilities);
         CreateSwapChain(window);
-        CreateDepthBuffers(window.Extent);
+        //CreateDepthBuffers(window.Extent);
         CreateFramebuffers(window);
     }
 

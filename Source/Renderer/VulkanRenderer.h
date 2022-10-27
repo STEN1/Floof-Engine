@@ -123,9 +123,9 @@ namespace FLOOF {
         std::vector<VkImage>            SwapChainImages;
         std::vector<VkImageView>        SwapChainImageViews;
         std::vector<VkFramebuffer>      FrameBuffers;
-        VkFormat                        DepthFormat{};
-        std::vector<VulkanImage>        DepthBuffers;
-        std::vector<VkImageView>        DepthBufferImageViews;
+        //VkFormat                        DepthFormat{};
+        //std::vector<VulkanImage>        DepthBuffers;
+        //std::vector<VkImageView>        DepthBufferImageViews;
         std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
         std::vector<VulkanSubmitInfo>   SubmitInfos;
     };
@@ -137,6 +137,8 @@ namespace FLOOF {
         friend class PointCloudComponent;
         friend class ModelManager;
         friend class TextureManager;
+        friend class ForwardSceneRenderer;
+        friend class DeferredSceneRenderer;
     public:
         VulkanRenderer(GLFWwindow* window);
         ~VulkanRenderer();
@@ -223,7 +225,7 @@ namespace FLOOF {
         void DestroyWindow(VulkanWindow& window);
 
         void CreateSwapChain(VulkanWindow& window);
-        void CreateDepthBuffers(VkExtent2D extent);
+        //void CreateDepthBuffers(VkExtent2D extent);
         void CreateFramebuffers(VulkanWindow& window);
         void CreateSyncObjects(VulkanWindow& window);
 

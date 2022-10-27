@@ -8,5 +8,6 @@ namespace FLOOF {
         DeferredSceneRenderer();
         ~DeferredSceneRenderer();
         void Render(entt::registry& scene) override;
+        VkDescriptorSet RenderToTexture(entt::registry& scene, glm::vec2 extent) override;
     };
 }

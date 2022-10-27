@@ -33,7 +33,7 @@ namespace FLOOF {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
         //io.ConfigViewportsNoAutoMerge = true;
         //io.ConfigViewportsNoTaskBarIcon = true;  // Enable Gamepad Controls
 
@@ -334,12 +334,36 @@ namespace FLOOF {
         VkSemaphore waitSemaphore = currentFrameData.MainPassEndSemaphore;
         VkSemaphore signalSemaphore = currentFrameData.RenderFinishedSemaphore;
 
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
+        ImGui::Begin("Scene renderer");
+        ImGui::PopStyleVar();
+
+        ImVec2 canvasOffset = ImGui::GetWindowPos();
+        ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
+        ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
+        canvas_p0.x += canvasOffset.x;
+        canvas_p0.y += canvasOffset.y;
+        canvas_p1.x += canvasOffset.x;
+        canvas_p1.y += canvasOffset.y;
+
+        glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
+
+        VkDescriptorSet sceneTexture = VK_NULL_HANDLE;
+
         if (m_SceneRenderer) {
-            m_SceneRenderer->Render(m_Scene->GetCulledScene());
+            //m_SceneRenderer->Render(m_Scene->GetCulledScene());
+            m_SceneRenderer->RenderToTexture(m_Scene->GetCulledScene(), sceneCanvasExtent);
         } else {
             waitSemaphore = currentFrameData.ImageAvailableSemaphore;
             signalSemaphore = currentFrameData.RenderFinishedSemaphore;
         }
+
+        if (sceneTexture != VK_NULL_HANDLE) {
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            draw_list->AddImage(sceneTexture, canvas_p0, canvas_p1, ImVec2(1, 1), ImVec2(0, 0));
+        }
+
+        ImGui::End();
 
         // Ends Dockspace window
         ImGui::End();
@@ -351,34 +375,18 @@ namespace FLOOF {
             vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
             vulkanWindow->Extent);
 
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-        ImGui::Begin("Scene renderer");
-        ImGui::PopStyleVar();
-        auto view = m_Scene->GetRegistry().view<TextureComponent>();
-        for (auto [entity, texture] : view.each()) {
-            ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            ImVec2 canvasOffset = ImGui::GetWindowPos();
-            ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
-            ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
-            canvas_p0.x += canvasOffset.x;
-            canvas_p0.y += canvasOffset.y;
-            canvas_p1.x += canvasOffset.x;
-            canvas_p1.y += canvasOffset.y;
-            draw_list->AddImage(texture.Data.DesctriptorSet, canvas_p0, canvas_p1, ImVec2(1, 1), ImVec2(0, 0));
-            break;
-        }
-        ImGui::End();
 
         // Render ImGui
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(drawData, currentFrameData.ImGuiCommandBuffer);
 
-        //// Update and Render additional Platform Windows
-        //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        //    ImGui::UpdatePlatformWindows();
-        //    ImGui::RenderPlatformWindowsDefault();
-        //}
+        auto& io = ImGui::GetIO();
+        // Update and Render additional Platform Windows
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
 
         // End ImGui renderpass
         VulkanSubmitInfo submitInfo{};
