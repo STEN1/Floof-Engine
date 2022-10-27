@@ -8,7 +8,7 @@
 void FLOOF::PhysicsGM::OnCreate()
 {
     //scene is created in application
-    SpawnSoftBall(glm::vec3(0.f,100.f,0.f),40.f,100.f, "Assets/BallTexture.png");
+    SpawnSoftBall(glm::vec3(0.f,100.f,0.f),40.f,1000.f, "Assets/BallTexture.png");
 
 }
 
@@ -34,7 +34,7 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
     if (ImGui::Button("Spawn Soft Cube")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-        auto cube = SpawnSoftBall(camera->Position, 10.f,100.f, "Assets/BallTexture.png");
+        auto cube = SpawnSoftBall(camera->Position, 10.f,700.f, "Assets/BallTexture.png");
         auto& body = m_Scene.GetCulledScene().get<SoftBodyComponent>(cube);
         if(m_Scene.GetPhysicSystem())
             m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
@@ -98,7 +98,6 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
 const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture)
 {
 
-
     const auto ballEntity = m_Scene.CreateEntity("Simulated Ball");
     auto& collision = m_Scene.AddComponent<RigidBodyComponent>(ballEntity,location,radius,mass);
     m_Scene.AddComponent<MeshComponent>(ballEntity, "Assets/Ball.obj");
@@ -131,7 +130,12 @@ const entt::entity FLOOF::PhysicsGM::SpawnSoftBall(glm::vec3 location, const flo
                            p + h * btVector3(-1, +1, +1),
                            p + h * btVector3(+1, +1, +1)};
     btSoftBody* psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(), c, 8);
-    psb->generateBendingConstraints(1);
+    psb->generateBendingConstraints(2);
+    psb->generateClusters(10);
+    psb->m_cfg.collisions = btSoftBody::fCollision::CL_RS; // soft rigid collision
+    psb->m_cfg.collisions += btSoftBody::fCollision::CL_SS; // soft soft collision
+    psb->setTotalMass(mass);
+
     collision.SoftBody = psb;
     //m_Scene.GetPhysicSystem()->GetWorld()->addSoftBody(psb);
 
