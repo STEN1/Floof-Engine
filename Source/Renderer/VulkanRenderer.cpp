@@ -972,7 +972,7 @@ namespace FLOOF {
         if (params.DescriptorSetLayoutBindings.size() != 0) {
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
             descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
             descriptorSetLayoutCreateInfo.bindingCount = params.DescriptorSetLayoutBindings.size();
             descriptorSetLayoutCreateInfo.pBindings = params.DescriptorSetLayoutBindings.data();
 
