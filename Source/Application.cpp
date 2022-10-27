@@ -539,7 +539,7 @@ namespace FLOOF {
                         //spawn cubes
                         location = glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f));
 
-                        auto cube = m_Scene->CreateEntity("Simulated Cube" + std::to_string(x+y+z));
+                        auto cube = m_Scene->CreateEntity("Simulated Cube " + std::to_string(x+y+z));
                         m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass);
                         m_Scene->AddComponent<MeshComponent>(cube, "Assets/IdentityCube.obj");
                         m_Scene->AddComponent<TextureComponent>(cube, "Assets/BallTexture.png");

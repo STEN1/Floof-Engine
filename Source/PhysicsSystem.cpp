@@ -2,6 +2,9 @@
 #include "PhysicsSystem.h"
 #include "Components.h"
 #include "BulletSoftBody/btDefaultSoftBodySolver.h"
+
+#define GravitationalConstant -9.81
+
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry& scene): mScene(scene) {
 
@@ -24,10 +27,15 @@ namespace FLOOF {
 
 
 
-        mDynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+        mDynamicsWorld->setGravity(btVector3(0, GravitationalConstant, 0));
 
         mSoftBodyWorldInfo.m_gravity = mDynamicsWorld->getGravity();
         mSoftBodyWorldInfo.m_sparsesdf.Initialize();
+        mSoftBodyWorldInfo.air_density = (btScalar)1.2;
+        mSoftBodyWorldInfo.water_density = 0;
+        mSoftBodyWorldInfo.water_offset = 0;
+        mSoftBodyWorldInfo.water_normal = btVector3(0, 0, 0);
+        mSoftBodyWorldInfo.m_gravity.setValue(0,GravitationalConstant , 0);
 
     }
 
@@ -46,37 +54,63 @@ namespace FLOOF {
 
         mDynamicsWorld->stepSimulation(deltaTime);
 
-        auto view = mScene.view<RigidBodyComponent, TransformComponent>();
-        for(auto [entity, RigidBodyComponent, transform]: view.each()){
+        //rigid body
+        {
+            auto view = mScene.view<RigidBodyComponent, TransformComponent>();
+            for (auto [entity, RigidBodyComponent, transform]: view.each()) {
 
-            btRigidBody* body = RigidBodyComponent.RigidBody.get();
-            btTransform trans;
-            if (body && body->getMotionState())
-            {
-                body->getMotionState()->getWorldTransform(trans);
+                btRigidBody *body = RigidBodyComponent.RigidBody.get();
+                btTransform trans;
+                if (body && body->getMotionState()) {
+                    body->getMotionState()->getWorldTransform(trans);
+                } else {
+                    trans = body->getWorldTransform();
+                }
+                transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                               trans.getOrigin().getZ());
+                float x, y, z;
+                trans.getRotation().getEulerZYX(z, y, x);
+                transform.Rotation = glm::vec3(x, y, z);
             }
-            else
-            {
-                trans = body->getWorldTransform();
-            }
-            transform.Position = glm::vec3(trans.getOrigin().getX(),trans.getOrigin().getY(),trans.getOrigin().getZ());
-            auto rot=trans.getRotation();
-            float x,y,z;
-            trans.getRotation().getEulerZYX(z,y,x);
-            transform.Rotation = glm::vec3(x,y,z);
         }
+        //soft body
+        {
+            auto view = mScene.view<SoftBodyComponent, TransformComponent>();
+            for (auto [entity, SoftBodyComponent, transform]: view.each()) {
 
+                btSoftBody *body = SoftBodyComponent.SoftBody;
+                btTransform trans;
+
+                if(!body)
+                    continue;
+
+                trans = body->getRigidTransform();
+
+                transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                               trans.getOrigin().getZ());
+                float x, y, z;
+                trans.getRotation().getEulerZYX(z, y, x);
+                transform.Rotation = glm::vec3(x, y, z);
+            }
+        }
 
         mDynamicsWorld->debugDrawWorld();
 
     }
 
     void PhysicsSystem::UpdateDynamicWorld() {
-        auto view = mScene.view<RigidBodyComponent>();
-        for(auto [entity, body]: view.each()){
-            AddRigidBody(body.RigidBody.get());
+        {
+            auto view = mScene.view<RigidBodyComponent>();
+            for (auto [entity, body]: view.each()) {
+                AddRigidBody(body.RigidBody.get());
+            }
         }
-
+        {
+            auto view = mScene.view<SoftBodyComponent>();
+            for (auto [entity, body]: view.each()) {
+                AddSoftBody(body.SoftBody);
+            }
+        }
     }
 
     void PhysicsSystem::clear() {
@@ -97,7 +131,6 @@ namespace FLOOF {
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {
         if(mDynamicsWorld)
             mDynamicsWorld->addRigidBody(body);
-
     }
 
     void PhysicsSystem::AddDebugFloor() {
@@ -186,6 +219,11 @@ namespace FLOOF {
                     }
                 }
             }
+    }
+
+    void PhysicsSystem::AddSoftBody(btSoftBody *body) {
+        if(mDynamicsWorld)
+            mDynamicsWorld->addSoftBody(body);
     }
 
 

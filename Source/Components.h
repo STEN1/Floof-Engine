@@ -198,7 +198,7 @@ namespace FLOOF {
         void InitializeBasicPhysics(const float mass);
     };
     struct SoftBodyComponent{
-        std::shared_ptr<btSoftBody> SoftBody{nullptr};
+        btSoftBody* SoftBody{nullptr};
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };

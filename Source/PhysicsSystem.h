@@ -22,11 +22,12 @@ namespace FLOOF {
         void clear();
 
         void AddRigidBody(btRigidBody* body);
+        void AddSoftBody(btSoftBody* body);
 
         void AddDebugFloor();
         void AddDebugShapes();
 
-        btDiscreteDynamicsWorld* GetWorld(){return mDynamicsWorld;}
+        btSoftRigidDynamicsWorld* GetWorld(){return mDynamicsWorld;}
 
         btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return &mSoftBodyWorldInfo;}
     private:
@@ -35,7 +36,7 @@ namespace FLOOF {
         btCollisionDispatcher* mDispatcher{nullptr};
         btBroadphaseInterface* mBroadPhase{nullptr};
         btSequentialImpulseConstraintSolver* mSolver{nullptr};
-        btDiscreteDynamicsWorld* mDynamicsWorld{nullptr};
+        btSoftRigidDynamicsWorld* mDynamicsWorld{nullptr};
         btSoftBodyWorldInfo mSoftBodyWorldInfo;
 
         btCollisionAlgorithmCreateFunc* mBoxBoxCF{nullptr};
