@@ -86,7 +86,7 @@ namespace FLOOF {
         vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &Data.CombinedTextureSampler.ImageView);
 
         // sampler
-        VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        /*VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
         samplerInfo.magFilter = VK_FILTER_LINEAR;
         samplerInfo.minFilter = VK_FILTER_LINEAR;
         samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -101,7 +101,19 @@ namespace FLOOF {
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         samplerInfo.mipLodBias = 0.f;
         samplerInfo.minLod = 0.f;
-        samplerInfo.maxLod = FLT_MAX;
+        samplerInfo.maxLod = FLT_MAX;*/
+
+        VkSamplerCreateInfo samplerInfo = {};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.minLod = -1000;
+        samplerInfo.maxLod = 1000;
+        samplerInfo.maxAnisotropy = 1.0f;
         vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &Data.CombinedTextureSampler.Sampler);
 
         // Get descriptor set and point it to data.
