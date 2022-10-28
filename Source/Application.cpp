@@ -221,7 +221,7 @@ namespace FLOOF {
         ImGui::PopStyleVar(3);
 
         auto dockSpaceID = ImGui::GetID("Dock space ID");
-        ImGui::DockSpace(dockSpaceID, ImVec2(0, 0), ImGuiDockNodeFlags_None);
+        ImGui::DockSpace(dockSpaceID, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
 
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("Options")) {

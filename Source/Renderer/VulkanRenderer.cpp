@@ -254,7 +254,7 @@ namespace FLOOF {
         clearColor[1].depthStencil = { 1.0f, 0 };
         renderPassInfo.clearValueCount = 2;
         if (renderPass == m_ImGuiRenderPass)
-            renderPassInfo.clearValueCount = 0;
+            renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = clearColor;
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -827,7 +827,7 @@ namespace FLOOF {
         VkAttachmentDescription colorAttachments[1]{};
         colorAttachments[0].format = window.SurfaceFormat.format;
         colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
