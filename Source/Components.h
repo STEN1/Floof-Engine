@@ -187,14 +187,18 @@ namespace FLOOF {
     };
 
     struct RigidBodyComponent{
+        RigidBodyComponent(glm::vec3 location, glm::vec3 extents, const float mass);
+        RigidBodyComponent(glm::vec3 location, const float radius, const float mass);
         std::shared_ptr<btRigidBody> RigidBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
 
+    private:
+        void InitializeBasicPhysics(const float mass);
     };
     struct SoftBodyComponent{
-        std::shared_ptr<btSoftBody> SoftBody{nullptr};
+        btSoftBody* SoftBody{nullptr};
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };

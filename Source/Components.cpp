@@ -472,4 +472,34 @@ namespace FLOOF {
 
         return ControllPoints.size() > (D + 1);
     }
+
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, const float radius, const float mass) {
+        CollisionShape = std::make_shared<btSphereShape>(radius);
+        Transform.setIdentity();
+        Transform.setOrigin(btVector3(location.x,location.y,location.z));
+
+        InitializeBasicPhysics(mass);
+    }
+
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 extents, const float mass) {
+        CollisionShape = std::make_shared<btBoxShape>(btVector3(extents.x,extents.y,extents.z));
+        Transform.setIdentity();
+        Transform.setOrigin(btVector3(location.x,location.y,location.z));
+
+        InitializeBasicPhysics(mass);
+    }
+
+    void RigidBodyComponent::InitializeBasicPhysics(const float mass) {
+        DefaultMotionState = std::make_shared<btDefaultMotionState>(Transform);
+
+        btVector3 localInertia(0, 0, 0);
+        if(mass != 0.f)
+            CollisionShape->calculateLocalInertia(mass, localInertia);
+
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, DefaultMotionState.get(), CollisionShape.get(),localInertia);
+        RigidBody = std::make_shared<btRigidBody>(rbInfo);
+        RigidBody->setFriction(0.5f);
+        RigidBody->setRollingFriction(0.1f);
+        RigidBody->setSpinningFriction(0.1f);
+    }
 }

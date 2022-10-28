@@ -19,6 +19,12 @@
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
 
+// Temp OpenAL includes
+//#include <AL/al.h>
+//#include "alc.h"
+//#define DR_WAV_IMPLEMENTATION
+//#include <dr_libs/dr_wav.h>
+
 namespace FLOOF {
     Application::Application() : m_EditorCamera(glm::vec3(0.f, 30.f, -30.f)) {
         // Init glfw and create window
@@ -489,7 +495,6 @@ namespace FLOOF {
 
         // TODO: make physics scene.
 
-
         {
             auto texture = "Assets/LightBlue.png";
             auto location = glm::vec3(0.f, -150.f, 0.f);
@@ -497,30 +502,11 @@ namespace FLOOF {
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
-            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass);
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
             m_Scene->AddComponent<TextureComponent>(entity, texture);
 
-            collision.Transform.setIdentity();
-            collision.Transform.setOrigin(btVector3(location.x, location.y, location.z));
-
-            collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
-
-            collision.CollisionShape = std::make_shared<btBoxShape>(btVector3(extents.x, extents.y, extents.z));
-
-            btVector3 localInertia(0, 0, 0);
-            if (mass != 0.f)
-                collision.CollisionShape->calculateLocalInertia(mass, localInertia);
-
-            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(),
-                                                            collision.CollisionShape.get(), localInertia);
-            collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
-            collision.RigidBody->setFriction(0.6f);
-            collision.RigidBody->setRollingFriction(0.1f);
-            collision.RigidBody->setSpinningFriction(0.1f);
-
-            auto& registry = m_Scene->GetRegistry();
-            auto& transform = registry.get<TransformComponent>(entity);
+            auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
                                            collision.Transform.getOrigin().getY(),
                                            collision.Transform.getOrigin().getZ());
@@ -531,30 +517,53 @@ namespace FLOOF {
             auto entity = m_Scene->CreateEntity("Ground Ball");
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
-            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity);
-            auto& registry = m_Scene->GetRegistry();
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),75.f,0.f);
 
-            auto& transform = registry.get<TransformComponent>(entity);
+            auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(0.f,-150.f,0.f);
             transform.Scale = glm::vec3(75.f);
 
-            //rigid body
-            auto location = transform.Position;
-            float mass = 0.f;
-            collision.CollisionShape = std::make_shared<btSphereShape>(transform.Scale.x);
-            collision.Transform.setIdentity();
-            collision.Transform.setOrigin(btVector3(location.x,location.y,location.z));
+        }
+        {
+            int height = 5;
+            int width = 5;
+            float spacing = 5.f;
 
-            collision.DefaultMotionState = std::make_shared<btDefaultMotionState>(collision.Transform);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    for(int z = 0; z < width; z++){
 
-            btVector3 localInertia(0, 0, 0);
+                        //spawning balls
+                        glm::vec3 location =glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing+(height*spacing), z * spacing - (float(width) * spacing * 0.5f));
+                        const float radius = spacing/2.5f;
+                        const glm::vec3 extents = glm::vec3(radius);
+                        const float mass = radius*100.f;
 
-            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, collision.DefaultMotionState.get(), collision.CollisionShape.get(),localInertia);
-            collision.RigidBody = std::make_shared<btRigidBody>(rbInfo);
-            collision.RigidBody->setFriction(0.5f);
-            collision.RigidBody->setRollingFriction(0.1f);
-            collision.RigidBody->setSpinningFriction(0.1f);
+                        auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
+                        m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
+                        m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
+                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,radius,mass);
 
+                        auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
+                        transform.Position = location;
+                        transform.Scale = extents;
+
+                        //spawn cubes
+                        location = glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f));
+
+                        auto cube = m_Scene->CreateEntity("Simulated Cube " + std::to_string(x+y+z));
+                        m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass);
+                        m_Scene->AddComponent<MeshComponent>(cube, "Assets/IdentityCube.obj");
+                        m_Scene->AddComponent<TextureComponent>(cube, "Assets/BallTexture.png");
+
+                        auto & cubeTransform = m_Scene->GetComponent<TransformComponent>(cube);
+                        cubeTransform.Position = location;
+                        cubeTransform.Scale = extents;
+                    }
+                }
+            }
         }
     }
 
