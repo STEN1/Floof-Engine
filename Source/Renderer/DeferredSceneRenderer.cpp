@@ -12,7 +12,7 @@ namespace FLOOF {
         
         m_Renderer->StartRenderPass(
             currentFrameData.MainCommandBuffer,
-            m_Renderer->GetMainRenderPass(),
+            m_Renderer->GetImguiRenderPass(),
             vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
             vulkanWindow->Extent);
 

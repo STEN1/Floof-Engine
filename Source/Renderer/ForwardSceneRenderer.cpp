@@ -8,6 +8,7 @@ namespace FLOOF {
     ForwardSceneRenderer::ForwardSceneRenderer() {
         CreateTextureRenderer();
     }
+
     ForwardSceneRenderer::~ForwardSceneRenderer() {
         DestroyTextureRenderer();
     }
@@ -20,7 +21,7 @@ namespace FLOOF {
 
         m_Renderer->StartRenderPass(
             currentFrameData.MainCommandBuffer,
-            m_Renderer->GetMainRenderPass(),
+            m_Renderer->GetImguiRenderPass(),
             vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
             vulkanWindow->Extent
         );
@@ -290,7 +291,7 @@ namespace FLOOF {
         colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         colorAttachments[1].format = m_DepthFormat;
         colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -315,13 +316,32 @@ namespace FLOOF {
         subpass.pColorAttachments = &colorAttachmentRef;
         subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
-        VkSubpassDependency dependency{};
+        /*VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass = 0;
         dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependency.srcAccessMask = 0;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;*/
+
+        // Use subpass dependencies for layout transitions
+        std::array<VkSubpassDependency, 2> dependencies;
+
+        dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[0].dstSubpass = 0;
+        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        dependencies[1].srcSubpass = 0;
+        dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -329,8 +349,8 @@ namespace FLOOF {
         renderPassInfo.pAttachments = colorAttachments;
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
+        renderPassInfo.dependencyCount = dependencies.size();
+        renderPassInfo.pDependencies = dependencies.data();
 
         VkResult result = vkCreateRenderPass(renderer->m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
         ASSERT(result == VK_SUCCESS);
@@ -406,6 +426,84 @@ namespace FLOOF {
         }
         LOG("Forward renderer: Framebuffers created.\n");
     }
+
+    void ForwardSceneRenderer::CreateFrameTextures() {
+        auto* renderer = VulkanRenderer::Get();
+        auto* window = renderer->GetVulkanWindow();
+
+        VkFormat format = window->SurfaceFormat.format;
+
+        uint32_t xWidth = m_Extent.x;
+        uint32_t yHeight = m_Extent.y;
+
+        for (auto& fbTexture : m_TextureFrameBuffers) {
+            // Image
+            VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+            imageInfo.imageType = VK_IMAGE_TYPE_2D;
+            imageInfo.extent.width = xWidth;
+            imageInfo.extent.height = yHeight;
+            imageInfo.extent.depth = 1;
+            imageInfo.mipLevels = 1;
+            imageInfo.arrayLayers = 1;
+            imageInfo.format = format;
+            imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+            imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+            imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+            imageInfo.flags = 0;
+
+            VmaAllocationCreateInfo imageAllocCreateInfo = {};
+            imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+
+            vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &fbTexture.Texture.Image,
+                &fbTexture.Texture.Allocation, &fbTexture.Texture.AllocationInfo);
+
+            // create image view
+            VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+            textureImageViewInfo.image = fbTexture.Texture.Image;
+            textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            textureImageViewInfo.format = format;
+            textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            textureImageViewInfo.subresourceRange.baseMipLevel = 0;
+            textureImageViewInfo.subresourceRange.levelCount = 1;
+            textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
+            textureImageViewInfo.subresourceRange.layerCount = 1;
+            vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
+
+            VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+            samplerInfo.magFilter = VK_FILTER_LINEAR;
+            samplerInfo.minFilter = VK_FILTER_LINEAR;
+            samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            samplerInfo.addressModeV = samplerInfo.addressModeU;
+            samplerInfo.addressModeW = samplerInfo.addressModeU;
+            samplerInfo.mipLodBias = 0.0f;
+            samplerInfo.maxAnisotropy = 1.0f;
+            samplerInfo.minLod = 0.0f;
+            samplerInfo.maxLod = 1.0f;
+            samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+            vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &fbTexture.Texture.Sampler);
+
+            // Get descriptor set and point it to data.
+            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet();
+
+            VkDescriptorImageInfo descriptorImageInfo{};
+            descriptorImageInfo.sampler = fbTexture.Texture.Sampler;
+            descriptorImageInfo.imageView = fbTexture.Texture.ImageView;
+            descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+            VkWriteDescriptorSet writeDescriptorSet{};
+            writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescriptorSet.dstSet = fbTexture.Descriptor;
+            writeDescriptorSet.dstBinding = 0;
+            writeDescriptorSet.descriptorCount = 1;
+            writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            writeDescriptorSet.pImageInfo = &descriptorImageInfo;
+
+            vkUpdateDescriptorSets(renderer->m_LogicalDevice, 1, &writeDescriptorSet, 0, nullptr);
+        }
+    } 
 
     void ForwardSceneRenderer::CreateRenderPipeline(const RenderPipelineParams& params) {
         auto* renderer = VulkanRenderer::Get();
@@ -616,80 +714,4 @@ namespace FLOOF {
         m_DepthBuffer.Image = VK_NULL_HANDLE;
     }
 
-    void ForwardSceneRenderer::CreateFrameTextures() {
-        auto* renderer = VulkanRenderer::Get();
-        auto* window = renderer->GetVulkanWindow();
-
-        VkFormat format = window->SurfaceFormat.format;
-
-        uint32_t xWidth = m_Extent.x;
-        uint32_t yHeight = m_Extent.y;
-
-        for (auto& fbTexture : m_TextureFrameBuffers) {
-            // Image
-            VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-            imageInfo.imageType = VK_IMAGE_TYPE_2D;
-            imageInfo.extent.width = xWidth;
-            imageInfo.extent.height = yHeight;
-            imageInfo.extent.depth = 1;
-            imageInfo.mipLevels = 1;
-            imageInfo.arrayLayers = 1;
-            imageInfo.format = format;
-            imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-            imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-            imageInfo.flags = 0;
-
-            VmaAllocationCreateInfo imageAllocCreateInfo = {};
-            imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-
-            vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &fbTexture.Texture.Image,
-                &fbTexture.Texture.Allocation, &fbTexture.Texture.AllocationInfo);
-
-            // create image view
-            VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-            textureImageViewInfo.image = fbTexture.Texture.Image;
-            textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            textureImageViewInfo.format = format;
-            textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            textureImageViewInfo.subresourceRange.baseMipLevel = 0;
-            textureImageViewInfo.subresourceRange.levelCount = 1;
-            textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
-            textureImageViewInfo.subresourceRange.layerCount = 1;
-            vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
-
-            VkSamplerCreateInfo samplerInfo = {};
-            samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-            samplerInfo.magFilter = VK_FILTER_LINEAR;
-            samplerInfo.minFilter = VK_FILTER_LINEAR;
-            samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-            samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-            samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-            samplerInfo.minLod = -1000;
-            samplerInfo.maxLod = 1000;
-            samplerInfo.maxAnisotropy = 1.0f;
-            vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &fbTexture.Texture.Sampler);
-
-            // Get descriptor set and point it to data.
-            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet();
-
-            VkDescriptorImageInfo descriptorImageInfo{};
-            descriptorImageInfo.sampler = fbTexture.Texture.Sampler;
-            descriptorImageInfo.imageView = fbTexture.Texture.ImageView;
-            descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-            VkWriteDescriptorSet writeDescriptorSet{};
-            writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            writeDescriptorSet.dstSet = fbTexture.Descriptor;
-            writeDescriptorSet.dstBinding = 0;
-            writeDescriptorSet.descriptorCount = 1;
-            writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            writeDescriptorSet.pImageInfo = &descriptorImageInfo;
-
-            vkUpdateDescriptorSets(renderer->m_LogicalDevice, 1, &writeDescriptorSet, 0, nullptr);
-        }
-    } 
 }

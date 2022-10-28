@@ -171,7 +171,7 @@ namespace FLOOF {
         VkRenderPass GetImguiRenderPass();
 
         // Gets the main renderpass to render 3D.
-        VkRenderPass GetMainRenderPass();
+        //VkRenderPass GetMainRenderPass();
 
         // Wait for all frames to finish so that nothing is in use.
         void FinishAllFrames();
@@ -229,7 +229,7 @@ namespace FLOOF {
         void CreateFramebuffers(VulkanWindow& window);
         void CreateSyncObjects(VulkanWindow& window);
 
-        void CreateRenderPass(VulkanWindow& window);
+        //void CreateRenderPass(VulkanWindow& window);
         void CreateImGuiRenderPass(VulkanWindow& window);
         void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
@@ -280,7 +280,7 @@ namespace FLOOF {
 
         VkSurfaceKHR m_Surface;
 
-        VkRenderPass m_RenderPass;
+        //VkRenderPass m_RenderPass;
         VkRenderPass m_ImGuiRenderPass;
         std::unordered_map<RenderPipelineKeys, VkPipelineLayout> m_PipelineLayouts;
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;

@@ -193,7 +193,7 @@ namespace FLOOF {
         for (auto& [key, val] : m_PipelineLayouts) {
             vkDestroyPipelineLayout(m_LogicalDevice, val, nullptr);
         }
-        vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
+        //vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
         vkDestroyRenderPass(m_LogicalDevice, m_ImGuiRenderPass, nullptr);
 
 
@@ -288,7 +288,6 @@ namespace FLOOF {
 
         VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &vksubmitInfo, submitInfo.Fence);
         ASSERT(result == VK_SUCCESS);
-        m_VulkanWindow.SubmitInfos.push_back(submitInfo);
     }
 
     void VulkanRenderer::Present(VulkanWindow& window) {
@@ -336,9 +335,9 @@ namespace FLOOF {
         return m_ImGuiRenderPass;
     }
 
-    VkRenderPass VulkanRenderer::GetMainRenderPass() {
-        return m_RenderPass;
-    }
+    //VkRenderPass VulkanRenderer::GetMainRenderPass() {
+    //    return m_RenderPass;
+    //}
 
     void VulkanRenderer::FinishAllFrames() {
         vkDeviceWaitIdle(m_LogicalDevice);
@@ -676,7 +675,7 @@ namespace FLOOF {
     void VulkanRenderer::CreateWindow(VulkanWindow& window) {
         CreateSwapChain(window);
         //CreateDepthBuffers(window.Extent);
-        CreateRenderPass(window);
+        //CreateRenderPass(window);
         CreateImGuiRenderPass(window);
         CreateFramebuffers(window);
         CreateSyncObjects(window);
@@ -763,72 +762,72 @@ namespace FLOOF {
         LOG("Image views created.\n");
     }
 
-    void VulkanRenderer::CreateRenderPass(VulkanWindow& window) {
-        VkAttachmentDescription colorAttachments[1]{};
-        colorAttachments[0].format = window.SurfaceFormat.format;
-        colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    //void VulkanRenderer::CreateRenderPass(VulkanWindow& window) {
+    //    VkAttachmentDescription colorAttachments[1]{};
+    //    colorAttachments[0].format = window.SurfaceFormat.format;
+    //    colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+    //    colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    //    colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    //    colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    //    colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    //    colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    //    colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        //colorAttachments[1].format = window.DepthFormat;
-        //colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-        //colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        //colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        //colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        //colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        //colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        //colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    //    //colorAttachments[1].format = window.DepthFormat;
+    //    //colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+    //    //colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    //    //colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    //    //colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    //    //colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    //    //colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    //    //colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentReference colorAttachmentRef{};
-        colorAttachmentRef.attachment = 0;
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    //    VkAttachmentReference colorAttachmentRef{};
+    //    colorAttachmentRef.attachment = 0;
+    //    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        //VkAttachmentReference depthStencilAttachmentRef{};
-        //depthStencilAttachmentRef.attachment = 1;
-        //depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    //    //VkAttachmentReference depthStencilAttachmentRef{};
+    //    //depthStencilAttachmentRef.attachment = 1;
+    //    //depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentRef;
-        //subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
+    //    VkSubpassDescription subpass{};
+    //    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    //    subpass.colorAttachmentCount = 1;
+    //    subpass.pColorAttachments = &colorAttachmentRef;
+    //    //subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    //    VkSubpassDependency dependency{};
+    //    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    //    dependency.dstSubpass = 0;
+    //    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    //    dependency.srcAccessMask = 0;
+    //    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    //    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-        VkRenderPassCreateInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 1;
-        renderPassInfo.pAttachments = colorAttachments;
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
+    //    VkRenderPassCreateInfo renderPassInfo{};
+    //    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    //    renderPassInfo.attachmentCount = 1;
+    //    renderPassInfo.pAttachments = colorAttachments;
+    //    renderPassInfo.subpassCount = 1;
+    //    renderPassInfo.pSubpasses = &subpass;
+    //    renderPassInfo.dependencyCount = 1;
+    //    renderPassInfo.pDependencies = &dependency;
 
-        VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
-        ASSERT(result == VK_SUCCESS);
-        LOG("Render pass created.\n");
-    }
+    //    VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
+    //    ASSERT(result == VK_SUCCESS);
+    //    LOG("Render pass created.\n");
+    //}
 
     void VulkanRenderer::CreateImGuiRenderPass(VulkanWindow& window) {
 
         VkAttachmentDescription colorAttachments[1]{};
         colorAttachments[0].format = window.SurfaceFormat.format;
         colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         //colorAttachments[1].format = window.DepthFormat;
@@ -854,13 +853,31 @@ namespace FLOOF {
         subpass.pColorAttachments = &colorAttachmentRef;
         //subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        std::array<VkSubpassDependency, 1> dependencies{};
+
+        dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[0].dstSubpass = 0;
+        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[0].srcAccessMask = 0;
+        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        //dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        //dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+        //dependencies[0].dstSubpass = 0;
+        //dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        //dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        //dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        //dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        //dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        //dependencies[1].srcSubpass = 0;
+        //dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+        //dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        //dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        //dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        //dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        //dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -868,8 +885,8 @@ namespace FLOOF {
         renderPassInfo.pAttachments = colorAttachments;
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
+        renderPassInfo.dependencyCount = dependencies.size();
+        renderPassInfo.pDependencies = dependencies.data();
 
         VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_ImGuiRenderPass);
         ASSERT(result == VK_SUCCESS);
@@ -1019,7 +1036,7 @@ namespace FLOOF {
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_PipelineLayouts[params.Key];
-        pipelineInfo.renderPass = m_RenderPass;
+        pipelineInfo.renderPass = m_ImGuiRenderPass;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
@@ -1042,7 +1059,7 @@ namespace FLOOF {
 
             VkFramebufferCreateInfo framebufferInfo{};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = m_RenderPass;
+            framebufferInfo.renderPass = m_ImGuiRenderPass;
             framebufferInfo.attachmentCount = 1;
             framebufferInfo.pAttachments = attachments;
             framebufferInfo.width = window.Extent.width;
