@@ -2,6 +2,7 @@
 #include "PhysicsSystem.h"
 #include "Components.h"
 #include "BulletSoftBody/btDefaultSoftBodySolver.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
 
 #define GravitationalConstant -9.81
 
@@ -85,10 +86,11 @@ namespace FLOOF {
                 if(!body)
                     continue;
 
+                //draw soft body with debugger
+                btSoftBodyHelpers::Draw(body,mDynamicsWorld->getDebugDrawer(),mDynamicsWorld->getDrawFlags());
                 trans = body->getRigidTransform();
 
-                transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                                               trans.getOrigin().getZ());
+                transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),trans.getOrigin().getZ());
                 float x, y, z;
                 trans.getRotation().getEulerZYX(z, y, x);
                 transform.Rotation = glm::vec3(x, y, z);
