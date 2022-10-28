@@ -95,6 +95,9 @@ if(Boost_FOUND)
     target_link_libraries(Floof ${BoosT_LIBRARIES})
 endif()
 
+add_subdirectory(Libs/openal-soft)
+target_link_libraries(Floof OpenAL)
+
 add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
 

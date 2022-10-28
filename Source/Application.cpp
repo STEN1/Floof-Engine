@@ -19,6 +19,12 @@
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
 
+// Temp OpenAL includes
+//#include <AL/al.h>
+//#include "alc.h"
+//#define DR_WAV_IMPLEMENTATION
+//#include <dr_libs/dr_wav.h>
+
 namespace FLOOF {
     Application::Application() : m_EditorCamera(glm::vec3(0.f, 30.f, -30.f)) {
         // Init glfw and create window
