@@ -22,15 +22,16 @@ namespace FLOOF {
         mSoftBodyWorldInfo.m_broadphase = mBroadPhase;
 
         mSolver = new btSequentialImpulseConstraintSolver();
+        auto* softbodySolver = new  btDefaultSoftBodySolver();
 
-        mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration);
-
-
+        mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration,softbodySolver);
 
         mDynamicsWorld->setGravity(btVector3(0, GravitationalConstant, 0));
 
+
         mSoftBodyWorldInfo.m_gravity = mDynamicsWorld->getGravity();
         mSoftBodyWorldInfo.m_sparsesdf.Initialize();
+        mDynamicsWorld->getDispatchInfo().m_enableSPU = true;
         mSoftBodyWorldInfo.air_density = (btScalar)1.2;
         mSoftBodyWorldInfo.water_density = 0;
         mSoftBodyWorldInfo.water_offset = 0;

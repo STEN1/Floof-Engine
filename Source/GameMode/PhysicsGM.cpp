@@ -7,8 +7,6 @@
 
 void FLOOF::PhysicsGM::OnCreate()
 {
-    //scene is created in application
-    SpawnSoftBall(glm::vec3(0.f,100.f,0.f),40.f,1000.f, "Assets/BallTexture.png");
 
 }
 
@@ -31,10 +29,10 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
         if(m_Scene.GetPhysicSystem())
             m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
-    if (ImGui::Button("Spawn Soft Cube")) {
+    if (ImGui::Button("Spawn Soft Ball")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-        auto cube = SpawnSoftBall(camera->Position, 10.f,700.f, "Assets/BallTexture.png");
+        auto cube = SpawnSoftBall(camera->Position, 10.f,800.f, "Assets/BallTexture.png");
         auto& body = m_Scene.GetCulledScene().get<SoftBodyComponent>(cube);
         if(m_Scene.GetPhysicSystem())
             m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
@@ -114,10 +112,11 @@ const entt::entity FLOOF::PhysicsGM::SpawnSoftBall(glm::vec3 location, const flo
     
     const auto entity = m_Scene.CreateEntity("Softbody");
     auto& textureComponent = m_Scene.AddComponent<TextureComponent>(entity, texture);
-    auto& mesh =  m_Scene.AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
+    auto& mesh =  m_Scene.AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
     auto& collision =  m_Scene.AddComponent<SoftBodyComponent>(entity);
     auto& transform = m_Scene.GetComponent<TransformComponent>(entity);
 
+    /*
     const btVector3 p(location.x,location.y,location.z);
     const btVector3 s(radius,radius,radius);
     const btVector3 h = s * 0.5;
@@ -129,15 +128,28 @@ const entt::entity FLOOF::PhysicsGM::SpawnSoftBall(glm::vec3 location, const flo
                            p + h * btVector3(+1, -1, +1),
                            p + h * btVector3(-1, +1, +1),
                            p + h * btVector3(+1, +1, +1)};
-    btSoftBody* psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(), c, 8);
-    psb->generateBendingConstraints(2);
-    psb->generateClusters(10);
-    psb->m_cfg.collisions = btSoftBody::fCollision::CL_RS; // soft rigid collision
-    psb->m_cfg.collisions += btSoftBody::fCollision::CL_SS; // soft soft collision
-    psb->setTotalMass(mass);
+    */
+    //btSoftBody* psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(), c, 8);
+    btSoftBody* psb = btSoftBodyHelpers::CreateEllipsoid(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(),btVector3(location.x,location.y,location.z),btVector3(radius,radius,radius),50);
+    psb->m_cfg.kVC = 0.5; //Konservation coefficient
+    psb->m_materials[0]->m_kLST = 0.5; // linear stiffness
 
+    //soft rigid collision and soft soft collision
+    psb->generateBendingConstraints(radius/10.f, psb->m_materials[0]);
+    psb->m_cfg.piterations = 2;
+    psb->m_cfg.kDF = 1;
+    psb->m_cfg.kSSHR_CL = 1;
+    psb->m_cfg.kSS_SPLT_CL = 0;
+    psb->m_cfg.kSKHR_CL = 0.1f;
+    psb->m_cfg.kSK_SPLT_CL = 1;
+    psb->m_cfg.collisions = btSoftBody::fCollision::CL_SS +
+                            btSoftBody::fCollision::CL_RS;
+    psb->randomizeConstraints();
+    psb->generateClusters(16);
+    psb->setPose(true, false);
+
+    psb->setTotalMass(mass, true);
     collision.SoftBody = psb;
-    //m_Scene.GetPhysicSystem()->GetWorld()->addSoftBody(psb);
 
     //collision.CollisionShape = std::make_shared<btSphereShape>(radius);
 
@@ -146,7 +158,7 @@ const entt::entity FLOOF::PhysicsGM::SpawnSoftBall(glm::vec3 location, const flo
     //transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
 
     transform.Position = location;
-    transform.Scale = glm::vec3(radius/2.f);
+    transform.Scale = glm::vec3(radius);
 
     return entity;
 }
