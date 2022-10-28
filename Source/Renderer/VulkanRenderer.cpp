@@ -1424,13 +1424,18 @@ namespace FLOOF {
         return VK_FORMAT_UNDEFINED;
     }
 
-    VkDescriptorSet VulkanRenderer::AllocateTextureDescriptorSet() {
+    VkDescriptorSet VulkanRenderer::AllocateTextureDescriptorSet(VkDescriptorSetLayout descriptorSetLayout) {
         VkDescriptorSet textureDescriptorSet{};
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = m_TextureDescriptorPool;
         allocInfo.descriptorSetCount = 1;
-        allocInfo.pSetLayouts = &m_DescriptorSetLayouts[RenderPipelineKeys::Basic]; // should probably be gotten from pipeline abstraction.
+        
+        if (descriptorSetLayout == VK_NULL_HANDLE)
+            allocInfo.pSetLayouts = &m_DescriptorSetLayouts[RenderPipelineKeys::Basic]; // should probably be gotten from pipeline abstraction.
+        else
+            allocInfo.pSetLayouts = &descriptorSetLayout;
+
         VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &textureDescriptorSet);
         ASSERT(result == VK_SUCCESS);
         return textureDescriptorSet;

@@ -187,7 +187,7 @@ namespace FLOOF {
         void DestroyVulkanBuffer(VulkanBuffer* buffer);
 
         // Allocates a combined texture-sampler descriptor set.
-        VkDescriptorSet AllocateTextureDescriptorSet();
+        VkDescriptorSet AllocateTextureDescriptorSet(VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE);
 
         // Frees a combined texture-sampler descriptor set.
         void FreeTextureDescriptorSet(VkDescriptorSet desctriptorSet);
