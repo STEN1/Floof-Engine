@@ -103,24 +103,26 @@ namespace FLOOF {
         //samplerInfo.minLod = 0.f;
         //samplerInfo.maxLod = FLT_MAX;
 
-        VkSamplerCreateInfo samplerInfo = {};
-        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter = VK_FILTER_LINEAR;
-        samplerInfo.minFilter = VK_FILTER_LINEAR;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.minLod = -1000;
-        samplerInfo.maxLod = 1000;
-        samplerInfo.maxAnisotropy = 1.0f;
-        vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &Data.CombinedTextureSampler.Sampler);
+        //VkSamplerCreateInfo samplerInfo = {};
+        //samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        //samplerInfo.magFilter = VK_FILTER_LINEAR;
+        //samplerInfo.minFilter = VK_FILTER_LINEAR;
+        //samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        //samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        //samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        //samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        //samplerInfo.minLod = -1000;
+        //samplerInfo.maxLod = 1000;
+        //samplerInfo.maxAnisotropy = 1.0f;
+        //vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &Data.CombinedTextureSampler.Sampler);
+
+        VkSampler sampler = renderer->GetSampler();
 
         // Get descriptor set and point it to data.
         Data.DesctriptorSet = renderer->AllocateTextureDescriptorSet();
 
         VkDescriptorImageInfo descriptorImageInfo{};
-        descriptorImageInfo.sampler = Data.CombinedTextureSampler.Sampler;
+        descriptorImageInfo.sampler = sampler;
         descriptorImageInfo.imageView = Data.CombinedTextureSampler.ImageView;
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
@@ -154,7 +156,7 @@ namespace FLOOF {
             renderer->FreeTextureDescriptorSet(data.DesctriptorSet);
             vkDestroyImageView(renderer->m_LogicalDevice, data.CombinedTextureSampler.ImageView, nullptr);
             vmaDestroyImage(renderer->m_Allocator, data.CombinedTextureSampler.Image, data.CombinedTextureSampler.Allocation);
-            vkDestroySampler(renderer->m_LogicalDevice, data.CombinedTextureSampler.Sampler, nullptr);
+            //vkDestroySampler(renderer->m_LogicalDevice, data.CombinedTextureSampler.Sampler, nullptr);
         }
     }
 

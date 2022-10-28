@@ -46,6 +46,8 @@ namespace FLOOF {
         ImGui::StyleColorsDark();
 
         // Init Renderer and Imgui
+        ImGui::GetDrawData();
+        ImGui::GetDrawListSharedData();
         ImGui_ImplGlfw_InitForVulkan(m_Window, true);
         m_Renderer = new VulkanRenderer(m_Window);
         auto ImguiInitInfo = m_Renderer->GetImguiInitInfo();
@@ -55,6 +57,8 @@ namespace FLOOF {
         ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
         m_Renderer->EndSubmitFreeCommandBuffer(commandBuffer);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+        auto* imguiBackend = io.BackendRendererUserData;
 
         // Upload icons for windows and taskbar
         GLFWimage images[3]{};

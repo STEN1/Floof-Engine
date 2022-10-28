@@ -44,12 +44,17 @@ namespace FLOOF {
 #endif
         CreateSurface();
         CreateDevice();
-
         CreateVulkanAllocator();
-
         CreateWindow(m_VulkanWindow);
-        
-        
+        CreateDescriptorPools();
+        CreateCommandPool();
+        CreateFontSampler();
+
+        AllocateCommandBuffers(m_VulkanWindow);
+
+        InitGlfwCallbacks();
+
+
         {	// Default light shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
@@ -66,6 +71,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
             params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &m_Sampler;
             CreateGraphicsPipeline(params);
         }
         {	// Wireframe
@@ -84,6 +90,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
             params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &m_Sampler;
             CreateGraphicsPipeline(params);
         }
         {	// Lit color shader for terrain.
@@ -164,10 +171,6 @@ namespace FLOOF {
             params.PushConstantSize = sizeof(ColorPushConstants);
             CreateGraphicsPipeline(params);
         }
-        CreateDescriptorPools();
-        CreateCommandPool();
-        AllocateCommandBuffers(m_VulkanWindow);
-        InitGlfwCallbacks();
     }
 
     VulkanRenderer::~VulkanRenderer() {
@@ -196,6 +199,7 @@ namespace FLOOF {
         //vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
         vkDestroyRenderPass(m_LogicalDevice, m_ImGuiRenderPass, nullptr);
 
+        DestroyFontSampler();
 
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
         vkDestroyDevice(m_LogicalDevice, nullptr);
@@ -1162,6 +1166,26 @@ namespace FLOOF {
         VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_TextureDescriptorPool);
         ASSERT(result == VK_SUCCESS);
 
+    }
+
+    void VulkanRenderer::CreateFontSampler() {
+        VkSamplerCreateInfo info = {};
+        info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        info.magFilter = VK_FILTER_LINEAR;
+        info.minFilter = VK_FILTER_LINEAR;
+        info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        info.minLod = -1000;
+        info.maxLod = 1000;
+        info.maxAnisotropy = 1.0f;
+        VkResult err = vkCreateSampler(m_LogicalDevice, &info, nullptr, &m_Sampler);
+        ASSERT(err == VK_SUCCESS);
+    }
+
+    void VulkanRenderer::DestroyFontSampler() {
+        vkDestroySampler(m_LogicalDevice, m_Sampler, nullptr);
     }
 
     void VulkanRenderer::CreateSyncObjects(VulkanWindow& window) {
