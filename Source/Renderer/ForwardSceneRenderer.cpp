@@ -187,6 +187,8 @@ namespace FLOOF {
     void ForwardSceneRenderer::CreateTextureRenderer() {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         CreateRenderPass();
+        auto* renderer = VulkanRenderer::Get();
+        VkSampler sampler = renderer->GetSampler();
         {	// Default light shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
@@ -203,6 +205,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
             params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &sampler;
             CreateRenderPipeline(params);
         }
         {	// Wireframe
@@ -221,6 +224,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
             params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &sampler;
             CreateRenderPipeline(params);
         }
         {	// Line drawing shader
@@ -471,25 +475,27 @@ namespace FLOOF {
             textureImageViewInfo.subresourceRange.layerCount = 1;
             vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
 
-            VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-            samplerInfo.magFilter = VK_FILTER_LINEAR;
-            samplerInfo.minFilter = VK_FILTER_LINEAR;
-            samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-            samplerInfo.addressModeV = samplerInfo.addressModeU;
-            samplerInfo.addressModeW = samplerInfo.addressModeU;
-            samplerInfo.mipLodBias = 0.0f;
-            samplerInfo.maxAnisotropy = 1.0f;
-            samplerInfo.minLod = 0.0f;
-            samplerInfo.maxLod = 1.0f;
-            samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-            vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &fbTexture.Texture.Sampler);
+            //VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+            //samplerInfo.magFilter = VK_FILTER_LINEAR;
+            //samplerInfo.minFilter = VK_FILTER_LINEAR;
+            //samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            //samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            //samplerInfo.addressModeV = samplerInfo.addressModeU;
+            //samplerInfo.addressModeW = samplerInfo.addressModeU;
+            //samplerInfo.mipLodBias = 0.0f;
+            //samplerInfo.maxAnisotropy = 1.0f;
+            //samplerInfo.minLod = 0.0f;
+            //samplerInfo.maxLod = 1.0f;
+            //samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+            //vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &fbTexture.Texture.Sampler);
 
             // Get descriptor set and point it to data.
             fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet();
 
+            VkSampler sampler = renderer->GetSampler();
+
             VkDescriptorImageInfo descriptorImageInfo{};
-            descriptorImageInfo.sampler = fbTexture.Texture.Sampler;
+            descriptorImageInfo.sampler = sampler;
             descriptorImageInfo.imageView = fbTexture.Texture.ImageView;
             descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
@@ -687,13 +693,13 @@ namespace FLOOF {
             vkDestroyFramebuffer(renderer->m_LogicalDevice, textureFrameBuffer.FrameBuffer, nullptr);
             vkDestroyImageView(renderer->m_LogicalDevice, textureFrameBuffer.Texture.ImageView, nullptr);
             vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.Texture.Image, textureFrameBuffer.Texture.Allocation);
-            vkDestroySampler(renderer->m_LogicalDevice, textureFrameBuffer.Texture.Sampler, nullptr);
+            //vkDestroySampler(renderer->m_LogicalDevice, textureFrameBuffer.Texture.Sampler, nullptr);
             renderer->FreeTextureDescriptorSet(textureFrameBuffer.Descriptor);
 
             textureFrameBuffer.FrameBuffer = VK_NULL_HANDLE;
             textureFrameBuffer.Texture.ImageView = VK_NULL_HANDLE;
             textureFrameBuffer.Texture.Image = VK_NULL_HANDLE;
-            textureFrameBuffer.Texture.Sampler = VK_NULL_HANDLE;
+            //textureFrameBuffer.Texture.Sampler = VK_NULL_HANDLE;
             textureFrameBuffer.Descriptor = VK_NULL_HANDLE;
         }
     }

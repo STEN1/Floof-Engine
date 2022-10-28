@@ -36,7 +36,7 @@ namespace FLOOF {
     struct VulkanCombinedTextureSampler {
         VkImage Image = VK_NULL_HANDLE;
         VkImageView ImageView = VK_NULL_HANDLE;
-        VkSampler Sampler = VK_NULL_HANDLE;
+        //VkSampler Sampler = VK_NULL_HANDLE;
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
     };
@@ -204,6 +204,8 @@ namespace FLOOF {
 
         VkPipeline GetPipeline(RenderPipelineKeys key) { return m_GraphicsPipelines[key]; }
 
+        VkSampler GetSampler() { return m_Sampler; }
+
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
         GLFWwindow* m_Window;
@@ -238,6 +240,8 @@ namespace FLOOF {
 
         void CreateDescriptorPools();
 
+        void CreateFontSampler();
+        void DestroyFontSampler();
 
         void InitGlfwCallbacks();
 
@@ -287,6 +291,8 @@ namespace FLOOF {
         VkCommandPool m_CommandPool;
 
         VkDescriptorPool m_TextureDescriptorPool;
+
+        VkSampler m_Sampler;
 
         const std::vector<const char*> m_RequiredDeviceExtentions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
