@@ -32,7 +32,8 @@ namespace FLOOF {
         btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return &mSoftBodyWorldInfo;}
     private:
         entt::registry& mScene;
-        btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
+        //btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
+        btSoftBodyRigidBodyCollisionConfiguration* mCollisionConfiguration{nullptr};
         btCollisionDispatcher* mDispatcher{nullptr};
         btBroadphaseInterface* mBroadPhase{nullptr};
         btSequentialImpulseConstraintSolver* mSolver{nullptr};
