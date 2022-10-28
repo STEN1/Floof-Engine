@@ -687,11 +687,13 @@ namespace FLOOF {
             vkDestroyFramebuffer(renderer->m_LogicalDevice, textureFrameBuffer.FrameBuffer, nullptr);
             vkDestroyImageView(renderer->m_LogicalDevice, textureFrameBuffer.Texture.ImageView, nullptr);
             vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.Texture.Image, textureFrameBuffer.Texture.Allocation);
+            vkDestroySampler(renderer->m_LogicalDevice, textureFrameBuffer.Texture.Sampler, nullptr);
             renderer->FreeTextureDescriptorSet(textureFrameBuffer.Descriptor);
 
             textureFrameBuffer.FrameBuffer = VK_NULL_HANDLE;
             textureFrameBuffer.Texture.ImageView = VK_NULL_HANDLE;
             textureFrameBuffer.Texture.Image = VK_NULL_HANDLE;
+            textureFrameBuffer.Texture.Sampler = VK_NULL_HANDLE;
             textureFrameBuffer.Descriptor = VK_NULL_HANDLE;
         }
     }
