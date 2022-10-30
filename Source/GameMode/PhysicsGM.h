@@ -23,6 +23,8 @@ namespace FLOOF
 
         const entt::entity SpawnCube(glm::vec3 Location, glm::vec3 Extents, const float mass, const std::string& texture = "Assets/LightBlue.png");
 
+        const entt::entity SpawnStatue(glm::vec3 Location, glm::vec3 Scale, const float mass);
+
 
 	};
 }

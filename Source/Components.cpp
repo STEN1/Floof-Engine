@@ -6,6 +6,7 @@
 #include "LoggerMacros.h"
 #include "Utils.h"
 #include "Physics.h"
+#include "Renderer/ModelManager.h"
 
 namespace FLOOF {
     TextureComponent::TextureComponent(const std::string& path) {
@@ -355,7 +356,7 @@ namespace FLOOF {
 
         int extent = 1;
         if (shape->shape == CollisionShape::Shape::Sphere)
-            extent += (int)reinterpret_cast<Sphere*>(shape)->radius;
+            extent += (int)reinterpret_cast<class Sphere*>(shape)->radius;
 
         int xMin = xPos - extent;
         int xMax = xPos + extent;
@@ -475,22 +476,6 @@ namespace FLOOF {
         return ControllPoints.size() > (D + 1);
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, const float radius, const float mass) {
-        CollisionShape = std::make_shared<btSphereShape>(radius);
-        Transform.setIdentity();
-        Transform.setOrigin(btVector3(location.x,location.y,location.z));
-
-        InitializeBasicPhysics(mass);
-    }
-
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 extents, const float mass) {
-        CollisionShape = std::make_shared<btBoxShape>(btVector3(extents.x,extents.y,extents.z));
-        Transform.setIdentity();
-        Transform.setOrigin(btVector3(location.x,location.y,location.z));
-
-        InitializeBasicPhysics(mass);
-    }
-
     void RigidBodyComponent::InitializeBasicPhysics(const float mass) {
         DefaultMotionState = std::make_shared<btDefaultMotionState>(Transform);
 
@@ -503,5 +488,39 @@ namespace FLOOF {
         RigidBody->setFriction(0.5f);
         RigidBody->setRollingFriction(0.1f);
         RigidBody->setSpinningFriction(0.1f);
+    }
+
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
+                                           CollisionPrimitive shape) {
+
+        switch (shape){
+            case CollisionPrimitive::Box:
+                CollisionShape = std::make_shared<btBoxShape>(btVector3(scale.x,scale.y,scale.z));
+                break;
+
+            case CollisionPrimitive::Sphere:
+                CollisionShape = std::make_shared<btSphereShape>(scale.x);
+                break;
+
+            case CollisionPrimitive::Capsule:
+                CollisionShape = std::make_shared<btCapsuleShape>(scale.x,scale.y);
+                break;
+
+            case CollisionPrimitive::Cylinder:
+                CollisionShape = std::make_shared<btCylinderShape>(btVector3(scale.x,scale.y,scale.z));
+                break;
+
+            case CollisionPrimitive::Cone:
+                CollisionShape = std::make_shared<btConeShape>(scale.x,scale.y);
+                break;
+            case CollisionPrimitive::ConvexHull :
+
+                break;
+
+        }
+        Transform.setIdentity();
+        Transform.setOrigin(btVector3(location.x,location.y,location.z));
+        InitializeBasicPhysics(mass);
+
     }
 }

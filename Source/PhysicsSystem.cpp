@@ -68,11 +68,13 @@ namespace FLOOF {
                 } else {
                     trans = body->getWorldTransform();
                 }
-                transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                                               trans.getOrigin().getZ());
+
                 float x, y, z;
                 trans.getRotation().getEulerZYX(z, y, x);
                 transform.Rotation = glm::vec3(x, y, z);
+
+                transform.Position =  (RigidBodyComponent.CollisonVolumeOffset*transform.Rotation) + glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                                                                          trans.getOrigin().getZ());
             }
         }
         //soft body
@@ -134,94 +136,6 @@ namespace FLOOF {
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {
         if(mDynamicsWorld)
             mDynamicsWorld->addRigidBody(body);
-    }
-
-    void PhysicsSystem::AddDebugFloor() {
-        //creating invisible floor
-        {
-            btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(400.), btScalar(10.), btScalar(400.)));
-
-            btTransform groundTransform;
-            groundTransform.setIdentity();
-            groundTransform.setOrigin(btVector3(0, -150, 0));
-
-            btScalar mass(0.);
-
-            btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape);
-            btRigidBody* body = new btRigidBody(rbInfo);
-            body->setFriction(0.5f);
-            //add the body to the dynamics world
-            AddRigidBody(body);
-        }
-
-    }
-
-    void PhysicsSystem::AddDebugShapes() {
-            //create random object shapes
-            #define NUM_SHAPES 10
-            std::vector<btCollisionShape*> m_collisionShapes;
-            btCollisionShape* colShapes[NUM_SHAPES] = {
-                    new btSphereShape(btScalar(5.0)),
-                    new btCapsuleShape(2.5, 2.5),
-                    new btCapsuleShapeX(2.5, 5.0),
-                    new btCapsuleShapeZ(2.5, 5),
-                    new btConeShape(2.5, 5),
-                    new btConeShapeX(2.5, 5.0),
-                    new btConeShapeZ(2.5, 5.0),
-                    new btCylinderShape(btVector3(2.5, 5.0, 2.5)),
-                    new btCylinderShapeX(btVector3(5.0, 2.5, 2.5)),
-                    new btCylinderShapeZ(btVector3(2.5, 2.5, 5.0)),
-            };
-            for (int i = 0; i < NUM_SHAPES; i++)
-                m_collisionShapes.push_back(colShapes[i]);
-
-            /// Create Dynamic Objects
-            btTransform startTransform;
-            startTransform.setIdentity();
-
-            btScalar mass(1.f);
-
-            //rigidbody is dynamic if and only if mass is non zero, otherwise static
-
-            float start_x = 0 - 5 / 2;
-            float start_y = 0;
-            float start_z = 0 - 5 / 2;
-
-            {
-                int shapeIndex = 0;
-                for (int k = 0; k < 5; k++) {
-                    for (int i = 0; i < 5; i++) {
-                        for (int j = 0; j < 5; j++) {
-                            startTransform.setOrigin( btVector3(
-                                    btScalar(2.0 * i + start_x),
-                                    btScalar(2.0 * j + start_z),
-                                    btScalar(20 + 2.0 * k + start_y)));
-
-                            shapeIndex++;
-                            btCollisionShape *colShape = colShapes[shapeIndex % NUM_SHAPES];
-                            bool isDynamic = (mass != 0.f);
-                            btVector3 localInertia(0, 0, 0);
-
-                            if (isDynamic)
-                                colShape->calculateLocalInertia(mass, localInertia);
-
-                            //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-                            btDefaultMotionState *myMotionState = new btDefaultMotionState(startTransform);
-                            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape,
-                                                                            localInertia);
-                            btRigidBody *body = new btRigidBody(rbInfo);
-                            body->setFriction(1.f);
-                            body->setRollingFriction(.1);
-                            body->setSpinningFriction(0.1);
-                            body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(),
-                                                         btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-
-                            AddRigidBody(body);
-                        }
-                    }
-                }
-            }
     }
 
     void PhysicsSystem::AddSoftBody(btSoftBody *body) {
