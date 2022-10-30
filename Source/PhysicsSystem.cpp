@@ -73,8 +73,7 @@ namespace FLOOF {
                 trans.getRotation().getEulerZYX(z, y, x);
                 transform.Rotation = glm::vec3(x, y, z);
 
-                transform.Position =  (RigidBodyComponent.CollisonVolumeOffset*transform.Rotation) + glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                                                                                          trans.getOrigin().getZ());
+                transform.Position =  glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),trans.getOrigin().getZ());
             }
         }
         //soft body

@@ -514,6 +514,10 @@ namespace FLOOF {
                 CollisionShape = std::make_shared<btConeShape>(scale.x,scale.y);
                 break;
             case CollisionPrimitive::ConvexHull :
+                auto vertices = ModelManager::Get().LoadbtModel("Assets/statue/source/statue1.fbx",scale);
+                std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
+                hullShape->optimizeConvexHull();
+                CollisionShape = hullShape;
 
                 break;
 

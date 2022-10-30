@@ -518,7 +518,7 @@ namespace FLOOF {
         {
             auto texture = "Assets/LightBlue.png";
             auto location = glm::vec3(0.f, -150.f, 0.f);
-            auto extents = glm::vec3(200.f, 10.f, 200.f);
+            auto extents = glm::vec3(400.f, 10.f, 400.f);
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");

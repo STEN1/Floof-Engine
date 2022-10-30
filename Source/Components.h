@@ -200,7 +200,6 @@ namespace FLOOF {
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
-        glm::vec3 CollisonVolumeOffset{0.f};
 
     private:
         void InitializeBasicPhysics(const float mass);
