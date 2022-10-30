@@ -36,7 +36,7 @@ namespace FLOOF {
     struct VulkanCombinedTextureSampler {
         VkImage Image = VK_NULL_HANDLE;
         VkImageView ImageView = VK_NULL_HANDLE;
-        //VkSampler Sampler = VK_NULL_HANDLE;
+        VkSampler Sampler = VK_NULL_HANDLE;
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
     };
@@ -123,9 +123,6 @@ namespace FLOOF {
         std::vector<VkImage>            SwapChainImages;
         std::vector<VkImageView>        SwapChainImageViews;
         std::vector<VkFramebuffer>      FrameBuffers;
-        //VkFormat                        DepthFormat{};
-        //std::vector<VulkanImage>        DepthBuffers;
-        //std::vector<VkImageView>        DepthBufferImageViews;
         std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
         std::vector<VulkanSubmitInfo>   SubmitInfos;
     };
@@ -147,17 +144,18 @@ namespace FLOOF {
         static VulkanRenderer* Get() { return s_Singleton; }
 
         // wait for fence and update swapchain image index.
-        void NewFrame(VulkanWindow& window);
+        void NewFrame();
 
         // Start recording command buffer for renderpass.
-        void StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, 
-            VkFramebuffer frameBuffer, VkExtent2D extent);
+        void StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPassBeginInfo* renderPassInfo);
         
         // Ends recording and submits to graphics queue.
-        void EndRenderPass(const VulkanSubmitInfo& submitInfo);
+        void EndRenderPass(VkCommandBuffer commandBuffer);
+
+        void QueueSubmitGraphics(uint32_t submitCount, VkSubmitInfo* submitInfos, VkFence fence = VK_NULL_HANDLE);
 
         // Final present.
-        void Present(VulkanWindow& window);
+        void Present();
 
         VkPipelineLayout BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key);
 
@@ -227,11 +225,9 @@ namespace FLOOF {
         void DestroyWindow(VulkanWindow& window);
 
         void CreateSwapChain(VulkanWindow& window);
-        //void CreateDepthBuffers(VkExtent2D extent);
         void CreateFramebuffers(VulkanWindow& window);
         void CreateSyncObjects(VulkanWindow& window);
 
-        //void CreateRenderPass(VulkanWindow& window);
         void CreateImGuiRenderPass(VulkanWindow& window);
         void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
@@ -281,13 +277,14 @@ namespace FLOOF {
 
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
+        VkQueue m_ComputeQueue;
 
         VkSurfaceKHR m_Surface;
 
-        //VkRenderPass m_RenderPass;
         VkRenderPass m_ImGuiRenderPass;
         std::unordered_map<RenderPipelineKeys, VkPipelineLayout> m_PipelineLayouts;
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
+
         VkCommandPool m_CommandPool;
 
         VkDescriptorPool m_TextureDescriptorPool;

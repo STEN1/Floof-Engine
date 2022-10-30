@@ -13,86 +13,6 @@ namespace FLOOF {
         DestroyTextureRenderer();
     }
 
-    void ForwardSceneRenderer::Render(entt::registry& registry) {
-        auto m_Renderer = VulkanRenderer::Get();
-        auto& app = Application::Get();
-        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
-
-        m_Renderer->StartRenderPass(
-            currentFrameData.MainCommandBuffer,
-            m_Renderer->GetImguiRenderPass(),
-            vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
-            vulkanWindow->Extent
-        );
-        auto commandBuffer = vulkanWindow->Frames[vulkanWindow->FrameIndex].MainCommandBuffer;
-        auto drawMode = app.GetDrawMode();
-
-        // Camera setup
-        auto extent = m_Renderer->GetExtent();
-        CameraComponent* camera = app.GetRenderCamera();
-        glm::mat4 vp = camera->GetVP(glm::radians(70.f), extent.width / (float)extent.height, 1.f, 1000000.f);
-        
-        // Draw models
-        auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, drawMode);
-        {
-            auto view = registry.view<TransformComponent, MeshComponent, TextureComponent>();
-            for (auto [entity, transform, mesh, texture] : view.each()) {
-                MeshPushConstants constants;
-                glm::mat4 modelMat = transform.GetTransform();
-                constants.MVP = vp * modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
-
-                texture.Bind(commandBuffer);
-                mesh.Draw(commandBuffer);
-            }
-        }
-
-        auto view = registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
-        for (auto [entity, transform, staticMesh, texture] : view.each()) {
-            MeshPushConstants constants;
-            glm::mat4 modelMat = transform.GetTransform();
-            constants.MVP = vp * modelMat;
-            constants.InvModelMat = glm::inverse(modelMat);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                0, sizeof(MeshPushConstants), &constants);
-            texture.Bind(commandBuffer);
-            for (auto& mesh : staticMesh.meshes)
-            {
-                VkDeviceSize offset{ 0 };
-                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
-                if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
-                    vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-                    vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
-                        1, 0, 0, 0);
-                }
-                else {
-                    vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
-                }
-            }            
-        }
-        // Draw debug lines
-        auto* physicDrawer = app.GetPhysicsSystemDrawer();
-        if (physicDrawer) {
-            auto pipelineLayout = m_Renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
-            auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
-            ColorPushConstants constants;
-            constants.MVP = vp;
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,0, sizeof(ColorPushConstants), &constants);
-            lineMesh->Draw(commandBuffer);
-        }
-
-        // End main renderpass
-        VulkanSubmitInfo submitInfo{};
-        submitInfo.CommandBuffer = commandBuffer;
-        submitInfo.WaitSemaphore = currentFrameData.ImageAvailableSemaphore;
-        submitInfo.SignalSemaphore = currentFrameData.MainPassEndSemaphore;
-        submitInfo.WaitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        m_Renderer->EndRenderPass(submitInfo);
-    }
-
     VkDescriptorSet ForwardSceneRenderer::RenderToTexture(entt::registry& registry, glm::vec2 extent) {
         if (extent == glm::vec2(0.f))
             return VK_NULL_HANDLE;
@@ -112,12 +32,20 @@ namespace FLOOF {
         vkExtent.width = m_Extent.x;
         vkExtent.height = m_Extent.y;
 
-        renderer->StartRenderPass(
-            commandBuffer,
-            m_RenderPass,
-            m_TextureFrameBuffers[frameIndex].FrameBuffer,
-            vkExtent
-        );
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = m_RenderPass;
+        renderPassInfo.framebuffer = m_TextureFrameBuffers[frameIndex].FrameBuffer;
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = vkExtent;
+        VkClearValue clearColor[2]{};
+        clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+        clearColor[1].depthStencil = { 1.0f, 0 };
+        renderPassInfo.clearValueCount = 2;
+        renderPassInfo.pClearValues = clearColor;
+
+        renderer->StartRenderPass(commandBuffer, & renderPassInfo);
+
         auto drawMode = app.GetDrawMode();
 
         // Camera setup
@@ -174,12 +102,21 @@ namespace FLOOF {
         }
 
         // End main renderpass
-        VulkanSubmitInfo submitInfo{};
-        submitInfo.CommandBuffer = commandBuffer;
-        submitInfo.WaitSemaphore = waitSemaphore;
-        submitInfo.SignalSemaphore = signalSemaphore;
-        submitInfo.WaitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        renderer->EndRenderPass(submitInfo);
+        renderer->EndRenderPass(commandBuffer);
+
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &waitSemaphore;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &signalSemaphore;
+
+        renderer->QueueSubmitGraphics(1, &submitInfo);
 
         return m_TextureFrameBuffers[frameIndex].Descriptor;
     }
@@ -408,7 +345,7 @@ namespace FLOOF {
     void ForwardSceneRenderer::CreateFrameBuffers() {
         auto* renderer = VulkanRenderer::Get();
 
-        CreateFrameTextures();
+        CreateFrameBufferTextures();
 
         for (auto& textureFrameBuffer : m_TextureFrameBuffers) {
             VkImageView attachments[] = {
@@ -431,7 +368,7 @@ namespace FLOOF {
         LOG("Forward renderer: Framebuffers created.\n");
     }
 
-    void ForwardSceneRenderer::CreateFrameTextures() {
+    void ForwardSceneRenderer::CreateFrameBufferTextures() {
         auto* renderer = VulkanRenderer::Get();
         auto* window = renderer->GetVulkanWindow();
 
@@ -670,9 +607,6 @@ namespace FLOOF {
         LOG("Render pipeline created.\n");
     }
 
-    void ForwardSceneRenderer::CreatePipelineLayout() {
-    }
-
     void ForwardSceneRenderer::CreateCommandPool() {
     }
 
@@ -722,5 +656,4 @@ namespace FLOOF {
         vmaDestroyImage(renderer->m_Allocator, m_DepthBuffer.Image, m_DepthBuffer.Allocation);
         m_DepthBuffer.Image = VK_NULL_HANDLE;
     }
-
 }

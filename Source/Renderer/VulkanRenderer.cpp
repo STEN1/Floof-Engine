@@ -227,12 +227,12 @@ namespace FLOOF {
         return imageIndex;
     }
 
-    void VulkanRenderer::NewFrame(VulkanWindow& window) {
-        window.ImageIndex = GetNextSwapchainImage(window);
-        window.SubmitInfos.clear();
+    void VulkanRenderer::NewFrame() {
+        m_VulkanWindow.ImageIndex = GetNextSwapchainImage(m_VulkanWindow);
+        m_VulkanWindow.SubmitInfos.clear();
     }
 
-    void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer frameBuffer, VkExtent2D extent) {
+    void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPassBeginInfo* renderPassInfo) {
         vkResetCommandBuffer(commandBuffer, 0);
 
         VkCommandBufferBeginInfo beginInfo{};
@@ -243,27 +243,13 @@ namespace FLOOF {
         VkResult beginResult = vkBeginCommandBuffer(commandBuffer, &beginInfo);
         ASSERT(beginResult == VK_SUCCESS);
 
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderPass;
-        renderPassInfo.framebuffer = frameBuffer;
-        renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = extent;
-        VkClearValue clearColor[2]{};
-        clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-        clearColor[1].depthStencil = { 1.0f, 0 };
-        renderPassInfo.clearValueCount = 2;
-        if (renderPass == m_ImGuiRenderPass)
-            renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = clearColor;
-
-        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         VkViewport viewport{};
         viewport.x = 0.f;
         viewport.y = 0.f;
-        viewport.width = static_cast<float>(extent.width);
-        viewport.height = static_cast<float>(extent.height);
+        viewport.width = static_cast<float>(renderPassInfo->renderArea.extent.width);
+        viewport.height = static_cast<float>(renderPassInfo->renderArea.extent.height);
         viewport.minDepth = 0.f;
         viewport.maxDepth = 1.f;
 
@@ -271,49 +257,40 @@ namespace FLOOF {
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = extent;
+        scissor.extent = renderPassInfo->renderArea.extent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
-    void VulkanRenderer::EndRenderPass(const VulkanSubmitInfo& submitInfo) {
-        vkCmdEndRenderPass(submitInfo.CommandBuffer);
-        VkResult endResult = vkEndCommandBuffer(submitInfo.CommandBuffer);
+    void VulkanRenderer::EndRenderPass(VkCommandBuffer commandBuffer) {
+        vkCmdEndRenderPass(commandBuffer);
+        VkResult endResult = vkEndCommandBuffer(commandBuffer);
         ASSERT(endResult == VK_SUCCESS);
+    }
 
-        VkSubmitInfo vksubmitInfo{};
-        vksubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        vksubmitInfo.waitSemaphoreCount = 1;
-        vksubmitInfo.pWaitSemaphores = &submitInfo.WaitSemaphore;
-        vksubmitInfo.pWaitDstStageMask = &submitInfo.WaitStages;
-        vksubmitInfo.commandBufferCount = 1;
-        vksubmitInfo.pCommandBuffers = &submitInfo.CommandBuffer;
-        vksubmitInfo.signalSemaphoreCount = 1;
-        vksubmitInfo.pSignalSemaphores = &submitInfo.SignalSemaphore;
-
-        VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &vksubmitInfo, submitInfo.Fence);
+    void VulkanRenderer::QueueSubmitGraphics(uint32_t submitCount, VkSubmitInfo* submitInfos, VkFence fence) {
+        VkResult result = vkQueueSubmit(m_GraphicsQueue, submitCount, submitInfos, fence);
         ASSERT(result == VK_SUCCESS);
     }
 
-    void VulkanRenderer::Present(VulkanWindow& window) {
-
+    void VulkanRenderer::Present() {
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &window.Frames[window.FrameIndex].RenderFinishedSemaphore;
+        presentInfo.pWaitSemaphores = &m_VulkanWindow.Frames[m_VulkanWindow.FrameIndex].RenderFinishedSemaphore;
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &window.Swapchain;
-        presentInfo.pImageIndices = &window.ImageIndex;
+        presentInfo.pSwapchains = &m_VulkanWindow.Swapchain;
+        presentInfo.pImageIndices = &m_VulkanWindow.ImageIndex;
         presentInfo.pResults = nullptr; // Optional
 
         VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-            RecreateSwapChain(window);
+            RecreateSwapChain(m_VulkanWindow);
         }
         ASSERT(result == VK_SUCCESS ||
             result == VK_ERROR_OUT_OF_DATE_KHR ||
             result == VK_SUBOPTIMAL_KHR);
 
-        window.FrameIndex = (window.FrameIndex + 1) % VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
+        m_VulkanWindow.FrameIndex = (m_VulkanWindow.FrameIndex + 1) % VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
     }
 
     ImGui_ImplVulkan_InitInfo VulkanRenderer::GetImguiInitInfo() {
@@ -658,6 +635,8 @@ namespace FLOOF {
         vkGetDeviceQueue(m_LogicalDevice, m_QueueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
         ASSERT(m_QueueFamilyIndices.PresentIndex != -1);
         vkGetDeviceQueue(m_LogicalDevice, m_QueueFamilyIndices.PresentIndex, 0, &m_PresentQueue);
+        ASSERT(m_QueueFamilyIndices.Compute != -1);
+        vkGetDeviceQueue(m_LogicalDevice, m_QueueFamilyIndices.Compute, 0, &m_ComputeQueue);
     }
 
     void VulkanRenderer::CreateVulkanAllocator() {

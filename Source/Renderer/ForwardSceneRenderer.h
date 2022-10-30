@@ -8,7 +8,6 @@ namespace FLOOF {
     public:
         ForwardSceneRenderer();
         ~ForwardSceneRenderer();
-        void Render(entt::registry& registry) override;
         VkDescriptorSet RenderToTexture(entt::registry& registry, glm::vec2 extent) override;
 
     private:
@@ -21,17 +20,15 @@ namespace FLOOF {
 
         void CreateRenderPass();
         void CreateDepthBuffer();
-        void CreateFrameTextures();
+        void CreateFrameBufferTextures();
         void CreateFrameBuffers();
         void CreateRenderPipeline(const RenderPipelineParams& params);
-        void CreatePipelineLayout();
         void CreateCommandPool();
         void AllocateCommandBuffers();
         void CreateSyncObjects();
 
         void DestroyRenderPass();
         void DestoryDepthBuffer();
-        void DestroyFrameTextures();
         void DestoryFrameBuffers();
         void DestoryRenderPipeline();
         void DestoryCommandPool();

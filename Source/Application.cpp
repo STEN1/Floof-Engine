@@ -338,7 +338,7 @@ namespace FLOOF {
 
     void Application::Draw() {
         auto* vulkanWindow = m_Renderer->GetVulkanWindow();
-        m_Renderer->NewFrame(*vulkanWindow);
+        m_Renderer->NewFrame();
         auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
 
         VkSemaphore waitSemaphore = currentFrameData.MainPassEndSemaphore;
@@ -379,12 +379,18 @@ namespace FLOOF {
         ImGui::End();
 
         // Start ImGui renderpass and draw ImGui
-        m_Renderer->StartRenderPass(
-            currentFrameData.ImGuiCommandBuffer,
-            m_Renderer->GetImguiRenderPass(),
-            vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex],
-            vulkanWindow->Extent);
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = m_Renderer->GetImguiRenderPass();
+        renderPassInfo.framebuffer = vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex];
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = vulkanWindow->Extent;
+        VkClearValue clearColor[1]{};
+        clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = clearColor;
 
+        m_Renderer->StartRenderPass(currentFrameData.ImGuiCommandBuffer, &renderPassInfo);
 
         // Render ImGui
         ImGui::Render();
@@ -399,16 +405,24 @@ namespace FLOOF {
         }
 
         // End ImGui renderpass
-        VulkanSubmitInfo submitInfo{};
-        submitInfo.CommandBuffer = currentFrameData.ImGuiCommandBuffer;
-        submitInfo.WaitSemaphore = waitSemaphore;
-        submitInfo.SignalSemaphore = signalSemaphore;
-        submitInfo.WaitStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        submitInfo.Fence = currentFrameData.Fence;
-        m_Renderer->EndRenderPass(submitInfo);
+        m_Renderer->EndRenderPass(currentFrameData.ImGuiCommandBuffer);
+
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &waitSemaphore;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &currentFrameData.ImGuiCommandBuffer;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &signalSemaphore;
+
+        m_Renderer->QueueSubmitGraphics(1, &submitInfo, currentFrameData.Fence);
 
         // Waits for render finished semaphore then presents
-        m_Renderer->Present(*vulkanWindow);
+        m_Renderer->Present();
     }
 
     void Application::SetRendererType(SceneRendererType type)
