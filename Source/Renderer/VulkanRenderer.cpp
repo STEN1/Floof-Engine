@@ -272,6 +272,11 @@ namespace FLOOF {
         ASSERT(result == VK_SUCCESS);
     }
 
+    void VulkanRenderer::QueueSubmitCompute(uint32_t submitCount, VkSubmitInfo* submitInfos, VkFence fence) {
+        VkResult result = vkQueueSubmit(m_ComputeQueue, submitCount, submitInfos, fence);
+        ASSERT(result == VK_SUCCESS);
+    }
+
     void VulkanRenderer::Present() {
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -577,14 +582,22 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateLogicalDevice() {
         vkGetPhysicalDeviceFeatures(m_PhysicalDevice, &m_PhysicalDeviceFeatures);
+
+        float queuePrio = 1.f;
+
         VkDeviceQueueCreateInfo dqCreateInfo{};
         dqCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         dqCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.Graphics;
         dqCreateInfo.queueCount = 1;
-        float queuePrio = 1.f;
         dqCreateInfo.pQueuePriorities = &queuePrio;
 
-        std::vector<VkDeviceQueueCreateInfo> dqcreateInfos = { dqCreateInfo };
+        VkDeviceQueueCreateInfo computeQueueCreateInfo{};
+        computeQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        computeQueueCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.Compute;
+        computeQueueCreateInfo.queueCount = 1;
+        computeQueueCreateInfo.pQueuePriorities = &queuePrio;
+
+        std::vector<VkDeviceQueueCreateInfo> dqcreateInfos = { dqCreateInfo, computeQueueCreateInfo };
 
         if (m_QueueFamilyIndices.Graphics != m_QueueFamilyIndices.PresentIndex) {
             std::cout << "Graphics and present index are not the same. Creating from different queue families.\n";

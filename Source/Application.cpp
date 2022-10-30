@@ -361,7 +361,6 @@ namespace FLOOF {
         VkDescriptorSet sceneTexture = VK_NULL_HANDLE;
 
         if (m_SceneRenderer) {
-            //m_SceneRenderer->Render(m_Scene->GetCulledScene());
             sceneTexture = m_SceneRenderer->RenderToTexture(m_Scene->GetCulledScene(), sceneCanvasExtent);
         } else {
             waitSemaphore = currentFrameData.ImageAvailableSemaphore;
@@ -371,6 +370,9 @@ namespace FLOOF {
         if (sceneTexture != VK_NULL_HANDLE) {
             ImDrawList* draw_list = ImGui::GetWindowDrawList();
             draw_list->AddImage(sceneTexture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
+        } else {
+            waitSemaphore = currentFrameData.ImageAvailableSemaphore;
+            signalSemaphore = currentFrameData.RenderFinishedSemaphore;
         }
 
         ImGui::End();

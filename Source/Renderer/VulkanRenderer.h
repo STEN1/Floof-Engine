@@ -154,6 +154,8 @@ namespace FLOOF {
 
         void QueueSubmitGraphics(uint32_t submitCount, VkSubmitInfo* submitInfos, VkFence fence = VK_NULL_HANDLE);
 
+        void QueueSubmitCompute(uint32_t submitCount, VkSubmitInfo* submitInfos, VkFence fence = VK_NULL_HANDLE);
+
         // Final present.
         void Present();
 
