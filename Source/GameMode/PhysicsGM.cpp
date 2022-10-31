@@ -199,7 +199,7 @@ FLOOF::PhysicsGM::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const floa
     auto& transform = m_Scene.GetComponent<TransformComponent>(entity);
 
     transform.Position = Location;
-    transform.Scale = Scale;  // mesh is giga
+    transform.Scale = Scale;
 
     return entity;
 }
