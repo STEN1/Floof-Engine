@@ -152,15 +152,13 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
     ${CMAKE_CURRENT_SOURCE_DIR}/Assets
     ${CMAKE_CURRENT_BINARY_DIR}/Assets
     )
-#imgui default
-add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND
-        ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_BINARY_DIR}/imgui.ini
-        ${CMAKE_CURRENT_SOURCE_DIR}/ImguiDefault/imgui.ini
-        )
-#imgui default
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
-        ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_SOURCE_DIR}/ImguiDefault/imgui.ini
-        ${CMAKE_CURRENT_BINARY_DIR}/imgui.ini
-        )
+
+#check for imgui file if not set default
+if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")
+else()
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/ImguiDefault/imgui.ini
+            ${CMAKE_CURRENT_BINARY_DIR}/imgui.ini
+            )
+endif()

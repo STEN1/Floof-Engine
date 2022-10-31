@@ -103,4 +103,5 @@ Testing/Temporary/
 
 imgui.ini
 Logs/
+ImguiDefault/
 *.las
