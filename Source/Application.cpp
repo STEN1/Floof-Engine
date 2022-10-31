@@ -10,7 +10,7 @@
 #include "LasLoader.h"
 #include "Octree.h"
 #include "Simulate.h"
-
+#include "SoundManager.h"
 #include "Renderer/ModelManager.h"
 
 #include "Renderer/ForwardSceneRenderer.h"
@@ -338,7 +338,7 @@ namespace FLOOF {
     }
 
     void Application::Draw() {
-        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
+    	auto* vulkanWindow = m_Renderer->GetVulkanWindow();
         m_Renderer->NewFrame();
         auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
 
