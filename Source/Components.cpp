@@ -16,10 +16,12 @@ namespace FLOOF {
             return;
         }
 
+        Data.Path = path;
+
         auto renderer = VulkanRenderer::Get();
         // Load texture
         int xWidth, yHeight, channels;
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(false);
         auto* data = stbi_load(path.c_str(), &xWidth, &yHeight, &channels, 4);
         uint32_t size = xWidth * yHeight * channels;
         ASSERT(channels == 4);
@@ -171,6 +173,7 @@ namespace FLOOF {
             Data.IndexBuffer = renderer->CreateIndexBuffer(indexData);
             Data.VertexCount = vertexData.size();
             Data.IndexCount = indexData.size();
+            Data.Path = path;
             s_MeshDataCache[path] = Data;
         } else {
             Data = it->second;
