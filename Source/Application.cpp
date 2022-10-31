@@ -287,6 +287,31 @@ namespace FLOOF {
             // Start component view
             ImGui::BeginChild("Components");
             ImGui::Text("Components");
+            if (m_Scene && m_Scene->m_SelectedEntity != entt::null) {
+                if (auto* transform = m_Scene->GetRegistry().try_get<TransformComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Transform component");
+                    ImGui::DragFloat3("Position", &transform->Position[0]);
+                    ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
+                    ImGui::DragFloat3("Scale", &transform->Scale[0]);
+                }
+                if (auto* meshComponent = m_Scene->GetRegistry().try_get<MeshComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Mesh component");
+                    ImGui::Text(meshComponent->Data.Path.c_str());
+                }
+                if (auto* staticMeshComponent = m_Scene->GetRegistry().try_get<StaticMeshComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Static mesh component");
+                    ImGui::Text(staticMeshComponent->Path.c_str());
+                }
+                if (auto* texture = m_Scene->GetRegistry().try_get<TextureComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Texture component");
+                    ImGui::Text(texture->Data.Path.c_str());
+                    ImGui::Image(texture->Data.DesctriptorSet, ImVec2(50, 50));
+                }
+            }
             ImGui::EndChild();
             ImGui::End();
         }
@@ -601,7 +626,7 @@ namespace FLOOF {
             auto ent = m_Scene->CreateEntity("Sponza");
             auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
             m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
-            sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
+            sm = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
         }
 
         {

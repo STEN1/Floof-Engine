@@ -66,6 +66,7 @@ namespace FLOOF {
             VulkanBuffer IndexBuffer{};
             uint32_t VertexCount{};
             uint32_t IndexCount{};
+            std::string Path{};
         };
 
         MeshData Data{};
@@ -107,6 +108,7 @@ namespace FLOOF {
         struct TextureData {
             VulkanCombinedTextureSampler CombinedTextureSampler{};
             VkDescriptorSet DesctriptorSet{};
+            std::string Path{};
         };
 
         TextureData Data{};
