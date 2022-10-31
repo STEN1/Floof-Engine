@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include "../PhysicsSystem.h"
+#include "../Components.h"
 
 namespace FLOOF
 {
@@ -17,13 +18,9 @@ namespace FLOOF
 
 		void OnUpdateEditor(float deltaTime) override;
 
-		const entt::entity SpawnBall(glm::vec3 location, const float radius, const float mass, const std::string& texture = "Assets/LightBlue.png");
-
-        const entt::entity SpawnCube(glm::vec3 Location, glm::vec3 Extents, const float mass, const std::string& texture = "Assets/LightBlue.png");
-
         const entt::entity SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath);
 
-        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath);
+        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, CollisionPrimitive shape = CollisionPrimitive::ConvexHull);
 
 	};
 }
