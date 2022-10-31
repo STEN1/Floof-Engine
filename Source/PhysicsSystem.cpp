@@ -61,6 +61,7 @@ namespace FLOOF {
             auto view = mScene.view<RigidBodyComponent, TransformComponent>();
             for (auto [entity, RigidBodyComponent, transform]: view.each()) {
 
+
                 btRigidBody *body = RigidBodyComponent.RigidBody.get();
                 btTransform trans;
                 if (body && body->getMotionState()) {

@@ -71,8 +71,11 @@ namespace FLOOF {
         {
             btModelData meshData;
             for(auto& vert : mesh.vertices){
-                 auto pos = vert.Pos * scale;
+                auto pos = vert.Pos * scale;
                 meshData.btVertices.emplace_back(btVector3(pos.x,pos.y,pos.z));
+            }
+            for(auto& ind : mesh.indices){
+                meshData.btIndices.emplace_back(ind);
             }
             meshData.VertCount = mesh.vertices.size();
             m_btMeshCache[pathwithScale] = meshData;

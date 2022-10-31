@@ -514,17 +514,52 @@ namespace FLOOF {
                 CollisionShape = std::make_shared<btConeShape>(scale.x,scale.y);
                 break;
             case CollisionPrimitive::ConvexHull :
-                auto vertices = ModelManager::Get().LoadbtModel("Assets/statue/source/statue1.fbx",scale);
+                assert("Pls give a convex shape location in constructor");
+                auto vertices = ModelManager::Get().LoadbtModel("Assets/LowPolySphere.fbx",scale);
                 std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
                 hullShape->optimizeConvexHull();
                 CollisionShape = hullShape;
-
                 break;
 
         }
         Transform.setIdentity();
         Transform.setOrigin(btVector3(location.x,location.y,location.z));
         InitializeBasicPhysics(mass);
+
+    }
+
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape) {
+
+        auto vertices = ModelManager::Get().LoadbtModel(convexShape,scale);
+        std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
+        hullShape->optimizeConvexHull();
+        CollisionShape = hullShape;
+
+        Transform.setIdentity();
+        Transform.setOrigin(btVector3(location.x,location.y,location.z));
+        InitializeBasicPhysics(mass);
+
+    }
+
+    SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body) {
+
+        SoftBody = body;
+        SoftBody->m_cfg.kVC = conservation; //Konservation coefficient
+        SoftBody->m_materials[0]->m_kLST = stiffness; // linear stiffness
+
+        //soft rigid collision and soft soft collision
+        SoftBody->m_cfg.piterations = 2;
+        SoftBody->m_cfg.kDF = 1;
+        SoftBody->m_cfg.kSSHR_CL = 1;
+        SoftBody->m_cfg.kSS_SPLT_CL = 0;
+        SoftBody->m_cfg.kSKHR_CL = 0.1f;
+        SoftBody->m_cfg.kSK_SPLT_CL = 1;
+        SoftBody->m_cfg.collisions = btSoftBody::fCollision::CL_SS + btSoftBody::fCollision::CL_RS;
+        SoftBody->randomizeConstraints();
+        SoftBody->generateClusters(16);
+        SoftBody->setPose(true, false);
+
+        SoftBody->setTotalMass(mass, true);
 
     }
 }
