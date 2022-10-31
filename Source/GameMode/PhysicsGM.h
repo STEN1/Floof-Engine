@@ -17,12 +17,13 @@ namespace FLOOF
 
 		void OnUpdateEditor(float deltaTime) override;
 
-		const entt::entity SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity = 0.5f, const std::string& texture = "Assets/LightBlue.png");
-
-        const entt::entity SpawnSoftBall(glm::vec3 location, const float radius, const float mass, const std::string& texture ="Assets/LightBlue.png");
+		const entt::entity SpawnBall(glm::vec3 location, const float radius, const float mass, const std::string& texture = "Assets/LightBlue.png");
 
         const entt::entity SpawnCube(glm::vec3 Location, glm::vec3 Extents, const float mass, const std::string& texture = "Assets/LightBlue.png");
 
+        const entt::entity SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath);
+
+        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath);
 
 	};
 }

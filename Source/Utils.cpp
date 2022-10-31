@@ -274,6 +274,14 @@ namespace FLOOF {
             };
             return vertexData;
         }
+
+        glm::vec3 btToglm(const btVector3 b) {
+            return glm::vec3(b.x(),b.y(),b.z());
+        }
+
+        btVector3 glmTobt(const glm::vec3 b) {
+            return btVector3(b.x,b.y,b.z);
+        }
     }
 }
 

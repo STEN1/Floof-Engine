@@ -2,7 +2,7 @@
 #include "Physics.h"
 #include <vector>
 #include <string>
-
+#include "btBulletDynamicsCommon.h"
 
 namespace FLOOF {
     namespace Utils {
@@ -13,5 +13,8 @@ namespace FLOOF {
         bool IsPointInsideTriangle(const glm::vec3& position, const Triangle& triangle);
         std::vector<ColorVertex> LineVertexDataFromObj(const std::string& path);
         std::vector<ColorVertex> MakeBox(glm::vec3 extents, glm::vec3 color);
+
+        glm::vec3 btToglm(const btVector3);
+        btVector3 glmTobt(const glm::vec3);
     }
 }

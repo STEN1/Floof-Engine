@@ -188,9 +188,17 @@ namespace FLOOF {
         std::chrono::high_resolution_clock::time_point LastPoint;
     };
 
+    enum CollisionPrimitive{
+        ConvexHull = 0,
+        Box = 1,
+        Sphere,
+        Capsule,
+        Cylinder,
+        Cone,
+    };
     struct RigidBodyComponent{
-        RigidBodyComponent(glm::vec3 location, glm::vec3 extents, const float mass);
-        RigidBodyComponent(glm::vec3 location, const float radius, const float mass);
+        RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass, CollisionPrimitive shape);
+        RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape);
         std::shared_ptr<btRigidBody> RigidBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
@@ -200,8 +208,8 @@ namespace FLOOF {
         void InitializeBasicPhysics(const float mass);
     };
     struct SoftBodyComponent{
+        SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body);
         btSoftBody* SoftBody{nullptr};
-        std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
 }

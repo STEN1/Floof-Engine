@@ -144,7 +144,7 @@ namespace FLOOF {
         return (xDist < xMinDist&& yDist < yMinDist&& zDist < zMinDist);
     }
 
-    bool CollisionShape::Intersect(AABB* box, Sphere* sphere) {
+    bool CollisionShape::Intersect(AABB* box, class Sphere* sphere) {
         glm::vec3 boxPoint;
         boxPoint.x = std::clamp<float>(sphere->pos.x, box->pos.x - box->extent.x, box->pos.x + box->extent.x);
         boxPoint.y = std::clamp<float>(sphere->pos.y, box->pos.y - box->extent.y, box->pos.y + box->extent.y);
@@ -153,7 +153,7 @@ namespace FLOOF {
         return (dist < sphere->radius);
     }
 
-    bool CollisionShape::Intersect(Sphere* a, Sphere* b) {
+    bool CollisionShape::Intersect( class Sphere* a, class Sphere* b) {
         float minDist = a->radius + b->radius;
         float dist = glm::distance(a->pos, b->pos);
         return (dist < minDist);
@@ -167,7 +167,7 @@ namespace FLOOF {
         return DistanceFromPointToPlane(aabb->pos, plane->pos, plane->normal) < -r;
     }
 
-    bool CollisionShape::Intersect(Sphere* sphere, Plane* plane) {
+    bool CollisionShape::Intersect(class Sphere* sphere, Plane* plane) {
         auto distance = DistanceFromPointToPlane(sphere->pos, plane->pos, plane->normal);
         return distance < -sphere->radius; // Ericson p.161
     }
@@ -181,7 +181,7 @@ namespace FLOOF {
         return false;
     }
 
-    bool CollisionShape::Intersect(Sphere* sphere, OBB* obb) {
+    bool CollisionShape::Intersect(class Sphere* sphere, OBB* obb) {
         // TODO:
         return false;
     }
@@ -213,7 +213,7 @@ namespace FLOOF {
         return false;
     }
 
-    bool CollisionShape::Intersect(Sphere* sphere, Triangle* triangle) {
+    bool CollisionShape::Intersect(class Sphere* sphere, Triangle* triangle) {
         // Find point P on triangle ABC closest to sphere center
         glm::vec3 p = ClosestPointToPointOnTriangle(sphere->pos, *triangle);
 
@@ -244,7 +244,7 @@ namespace FLOOF {
         case Shape::AABB:
             return CollisionShape::Intersect(this, reinterpret_cast<AABB*>(shape));
         case Shape::Sphere:
-            return CollisionShape::Intersect(this, reinterpret_cast<Sphere*>(shape));
+            return CollisionShape::Intersect(this, reinterpret_cast<class Sphere*>(shape));
         case Shape::Plane:
             return CollisionShape::Intersect(this, reinterpret_cast<Plane*>(shape));
         case Shape::Triangle:
@@ -292,7 +292,7 @@ namespace FLOOF {
         case Shape::AABB:
             return CollisionShape::Intersect(reinterpret_cast<AABB*>(shape), this);
         case Shape::Sphere:
-            return CollisionShape::Intersect(reinterpret_cast<Sphere*>(shape), this);
+            return CollisionShape::Intersect(reinterpret_cast<class Sphere*>(shape), this);
         case Shape::Triangle:
             return CollisionShape::Intersect(this, reinterpret_cast<Triangle*>(shape));
         case Shape::Plane:
@@ -368,7 +368,7 @@ namespace FLOOF {
         case Shape::AABB:
             return CollisionShape::Intersect(reinterpret_cast<AABB*>(shape), this);
         case Shape::Sphere:
-            return CollisionShape::Intersect(reinterpret_cast<Sphere*>(shape), this);
+            return CollisionShape::Intersect(reinterpret_cast<class Sphere*>(shape), this);
         case Shape::Plane:
             return CollisionShape::Intersect(reinterpret_cast<Plane*>(shape), this);
         case Shape::Triangle:
