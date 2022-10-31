@@ -511,10 +511,10 @@ namespace FLOOF {
                 break;
 
             case CollisionPrimitive::Cone:
-                CollisionShape = std::make_shared<btConeShape>(scale.x,scale.y);
+                CollisionShape = std::make_shared<btConeShape>(scale.x,scale.y*2.f);
                 break;
             case CollisionPrimitive::ConvexHull :
-                assert("Pls give a convex shape location in constructor");
+                assert("Pls give a convex shape file in constructor");
                 auto vertices = ModelManager::Get().LoadbtModel("Assets/LowPolySphere.fbx",scale);
                 std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
                 hullShape->optimizeConvexHull();
