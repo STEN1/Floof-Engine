@@ -17,7 +17,7 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
     if (ImGui::Button("Ball")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-       auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/IdentityCube.obj", CollisionPrimitive::Sphere);
+       auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/Ball.obj", CollisionPrimitive::Sphere);
        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
       if(m_Scene.GetPhysicSystem())
           m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -25,7 +25,7 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
     if (ImGui::Button("Cube")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-        auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f),100.f, "Assets/Ball.obj", CollisionPrimitive::Box);
+        auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f),100.f, "Assets/IdentityCube.obj", CollisionPrimitive::Box);
         auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
         if(m_Scene.GetPhysicSystem())
             m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
