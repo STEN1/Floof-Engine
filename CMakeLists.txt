@@ -56,7 +56,7 @@ add_executable(Floof
     Source/PhysicsSystem.cpp
     Source/PhysicsSystem.h
     Source/GameMode/SponzaGM.cpp
-    Source/Renderer/Material.h)
+    Source/Renderer/Material.h "Source/GameMode/AudioTestGM.h" "Source/GameMode/AudioTestGM.cpp")
 
 
 find_package(Vulkan REQUIRED)
