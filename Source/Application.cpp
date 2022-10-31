@@ -18,6 +18,7 @@
 
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
+#include "GameMode/AudioTestGM.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -477,6 +478,12 @@ namespace FLOOF {
                 m_GameMode = std::make_unique<SponzaGM>(*m_Scene.get());
                 break;
             }
+            case GameModeType::Audio:
+            {
+                MakeAudioTestScene();
+                m_GameMode = std::make_unique<AudioTestGM>(*m_Scene.get());
+                break;
+            }
             default:
             {
                 LOG("GameModeType is invalid\n");
@@ -623,5 +630,10 @@ namespace FLOOF {
             m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
         }
+    }
+    void Application::MakeAudioTestScene() {
+        m_Scene = std::make_unique<Scene>();
+
+
     }
 }
