@@ -313,6 +313,7 @@ namespace FLOOF {
         initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         initInfo.Allocator = nullptr;
         initInfo.CheckVkResultFn = nullptr;
+        initInfo.FontSampler = m_Sampler;
 
         return initInfo;
     }

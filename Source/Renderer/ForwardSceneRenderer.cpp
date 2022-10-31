@@ -427,8 +427,7 @@ namespace FLOOF {
             //vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &fbTexture.Texture.Sampler);
 
             // Get descriptor set and point it to data.
-            ImGui_Data* bd = (ImGui_Data*)ImGui::GetIO().BackendRendererUserData;
-            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet(bd->DescriptorSetLayout);
+            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet();
 
             VkSampler sampler = renderer->GetSampler();
 
