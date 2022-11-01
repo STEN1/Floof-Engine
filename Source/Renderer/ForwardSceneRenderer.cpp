@@ -13,7 +13,7 @@ namespace FLOOF {
         DestroyTextureRenderer();
     }
 
-    VkDescriptorSet ForwardSceneRenderer::RenderToTexture(entt::registry& registry, glm::vec2 extent) {
+    VkDescriptorSet ForwardSceneRenderer::RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent) {
         if (extent == glm::vec2(0.f))
             return VK_NULL_HANDLE;
         if (extent != m_Extent)
@@ -47,6 +47,8 @@ namespace FLOOF {
         renderer->StartRenderPass(commandBuffer, & renderPassInfo);
 
         auto drawMode = app.GetDrawMode();
+        if (drawMode != RenderPipelineKeys::Wireframe)
+            drawMode = RenderPipelineKeys::ForwardLit;
 
         // Camera setup
         CameraComponent* camera = app.GetRenderCamera();
@@ -55,7 +57,7 @@ namespace FLOOF {
         // Draw models
         auto pipelineLayout = BindRenderPipeline(commandBuffer, drawMode);
         {
-            auto view = registry.view<TransformComponent, MeshComponent, TextureComponent>();
+            auto view = scene->m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
             for (auto [entity, transform, mesh, texture] : view.each()) {
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
@@ -69,7 +71,7 @@ namespace FLOOF {
             }
         }
 
-        auto view = registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
+        auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
         for (auto [entity, transform, staticMesh, texture] : view.each()) {
             MeshPushConstants constants;
             glm::mat4 modelMat = transform.GetTransform();
@@ -101,6 +103,22 @@ namespace FLOOF {
             lineMesh->Draw(commandBuffer);
         }
 
+        // Draw wireframe for selected object
+        if (auto* meshComponent = scene->m_Registry.try_get<MeshComponent>(scene->m_SelectedEntity)) {
+            auto& transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
+
+            auto pipelineLayout = BindRenderPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
+
+            MeshPushConstants constants;
+            glm::mat4 modelMat = transform.GetTransform();
+            constants.MVP = vp * modelMat;
+            constants.InvModelMat = glm::inverse(modelMat);
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                0, sizeof(MeshPushConstants), &constants);
+
+            meshComponent->Draw(commandBuffer);
+        }
+
         // End main renderpass
         renderer->EndRenderPass(commandBuffer);
 
@@ -129,9 +147,9 @@ namespace FLOOF {
         {	// Default light shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/Basic.frag.spv";
-            params.VertexPath = "Shaders/Basic.vert.spv";
-            params.Key = RenderPipelineKeys::Basic;
+            params.FragmentPath = "Shaders/ForwardLit.frag.spv";
+            params.VertexPath = "Shaders/ForwardLit.vert.spv";
+            params.Key = RenderPipelineKeys::ForwardLit;
             params.PolygonMode = VK_POLYGON_MODE_FILL;
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             params.BindingDescription = MeshVertex::GetBindingDescription();
@@ -148,20 +166,14 @@ namespace FLOOF {
         {	// Wireframe
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend;
-            params.FragmentPath = "Shaders/Basic.frag.spv";
-            params.VertexPath = "Shaders/Basic.vert.spv";
+            params.FragmentPath = "Shaders/Wireframe.frag.spv";
+            params.VertexPath = "Shaders/Wireframe.vert.spv";
             params.Key = RenderPipelineKeys::Wireframe;
             params.PolygonMode = VK_POLYGON_MODE_LINE;
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0].binding = 0;
-            params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
-            params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &sampler;
             CreateRenderPipeline(params);
         }
         {	// Line drawing shader

@@ -387,7 +387,7 @@ namespace FLOOF {
         VkDescriptorSet sceneTexture = VK_NULL_HANDLE;
 
         if (m_SceneRenderer) {
-            sceneTexture = m_SceneRenderer->RenderToTexture(m_Scene->GetCulledScene(), sceneCanvasExtent);
+            sceneTexture = m_SceneRenderer->RenderToTexture(m_Scene, sceneCanvasExtent);
         } else {
             waitSemaphore = currentFrameData.ImageAvailableSemaphore;
             signalSemaphore = currentFrameData.RenderFinishedSemaphore;

@@ -23,6 +23,7 @@ namespace FLOOF {
     };
 
     class Application {
+        friend class ForwardSceneRenderer;
         Application();
     public:
         int Run();
@@ -95,7 +96,7 @@ namespace FLOOF {
         GameModeType m_GameModeType{ GameModeType::Physics };
         RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
 
-        std::unique_ptr<Scene> m_Scene;
+        std::shared_ptr<Scene> m_Scene;
 
         /*ImGui and editor utility*/
         void MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel);
