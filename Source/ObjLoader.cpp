@@ -180,8 +180,8 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
             if (mesh->HasTangentsAndBitangents())
                 for (auto j = 0; j < 3; j++)
                 {
-                    vertex.tangent[j] = mesh->mTangents[i][j];
-                    vertex.bitTangent[j] = mesh->mBitangents[i][j];
+                    vertex.Tangent[j] = mesh->mTangents[i][j];
+                    vertex.BitTangent[j] = mesh->mBitangents[i][j];
                 }
         }
         internalMesh.vertices.emplace_back(vertex);
