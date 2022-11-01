@@ -56,7 +56,10 @@ add_executable(Floof
     Source/PhysicsSystem.cpp
     Source/PhysicsSystem.h
     Source/GameMode/SponzaGM.cpp
-    Source/Renderer/Material.h "Source/GameMode/AudioTestGM.h" "Source/GameMode/AudioTestGM.cpp")
+    Source/Renderer/Material.h
+    Source/GameMode/AudioTestGM.h
+    Source/GameMode/AudioTestGM.cpp
+    )
 
 
 find_package(Vulkan REQUIRED)
@@ -119,7 +122,7 @@ target_sources(IMGUI
     PRIVATE
     ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
- "Source/Renderer/Material.h")
+    )
 
 target_include_directories(IMGUI
     PUBLIC ${IMGUI_DIR}
