@@ -52,4 +52,35 @@ namespace FLOOF {
             }
         }
     }
+
+    ModelManager::btModelData ModelManager::LoadbtModel(const std::string &path,const glm::vec3 scale) {
+
+        auto pathwithScale = path + std::to_string(scale.x) + std::to_string(scale.y)+ std::to_string(scale.z) ;
+        auto it = m_btMeshCache.find(pathwithScale);
+        if (it != m_btMeshCache.end()) {
+            std::cout << "Getting btModel data from cache" << std::endl;
+            return it->second;
+        }
+
+        AssimpLoader loader(path);
+
+        // Loader returns staticMesh, eventually it will return collision mesh too
+        const auto& assimpStaticMesh = loader.GetAssimpStaticMesh();
+
+        for (const auto& mesh : assimpStaticMesh.meshes)
+        {
+            btModelData meshData;
+            for(auto& vert : mesh.vertices){
+                auto pos = vert.Pos * scale;
+                meshData.btVertices.emplace_back(btVector3(pos.x,pos.y,pos.z));
+            }
+            for(auto& ind : mesh.indices){
+                meshData.btIndices.emplace_back(ind);
+            }
+            meshData.VertCount = mesh.vertices.size();
+            m_btMeshCache[pathwithScale] = meshData;
+           return meshData;
+        }
+
+    }
 }

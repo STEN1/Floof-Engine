@@ -4,6 +4,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "../ObjLoader.h"
+#include "../Renderer/ModelManager.h"
 
 void FLOOF::PhysicsGM::OnCreate()
 {
@@ -12,28 +13,96 @@ void FLOOF::PhysicsGM::OnCreate()
 
 void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
 {
-    ImGui::Begin("Physics");
-    if (ImGui::Button("Spawn ball")) {
+    ImGui::Begin("Spawn Rigid Bodies");
+    if (ImGui::Button("Ball")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-       auto ball = SpawnBall(camera->Position, 2.f, 200.f, 0.9f, "Assets/BallTexture.png");
-       auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ball);
+       auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/Ball.obj", CollisionPrimitive::Sphere);
+       auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
       if(m_Scene.GetPhysicSystem())
           m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
-    if (ImGui::Button("Spawn Cube")) {
+    if (ImGui::Button("Cube")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-        auto cube = SpawnCube(camera->Position, glm::vec3(2.f),100.f, "Assets/BallTexture.png");
-        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(cube);
+        auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f),100.f, "Assets/IdentityCube.obj", CollisionPrimitive::Box);
+        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
         if(m_Scene.GetPhysicSystem())
             m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
-    if (ImGui::Button("Spawn Soft Ball")) {
+    if (ImGui::Button("Cone")) {
         auto& reg = m_Scene.GetCulledScene();
         auto* camera = Application::Get().GetRenderCamera();
-        auto cube = SpawnSoftBall(camera->Position, 10.f,800.f, "Assets/BallTexture.png");
-        auto& body = m_Scene.GetCulledScene().get<SoftBodyComponent>(cube);
+        auto ent= SpawnRigidMesh(camera->Position, glm::vec3(2.f),200.f,"Assets/LowPolyCone.fbx",CollisionPrimitive::Cone);
+        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
+    }
+    if (ImGui::Button("Cylinder")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent= SpawnRigidMesh(camera->Position, glm::vec3(2.0f),200.f,"Assets/LowPolyCylinder.fbx", CollisionPrimitive::Cylinder);
+        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
+    }
+    if (ImGui::Button("Convex Torus")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent= SpawnRigidMesh(camera->Position, glm::vec3(2.f),200.f,"Assets/LowPolyTorus.fbx");
+        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
+    }
+
+    if (ImGui::Button("Convex Statue")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent= SpawnRigidMesh(camera->Position, glm::vec3(1/100.f),400.f,"Assets/statue/source/statue1.fbx");
+        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
+    }
+    if (ImGui::Button("Bigger Statue")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent= SpawnRigidMesh(camera->Position, glm::vec3(1/50.f),600.f,"Assets/statue/source/statue1.fbx");
+        auto& body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
+    }
+    ImGui::End();
+
+    ImGui::Begin("Spawn Soft Bodies");
+    if (ImGui::Button("Soft Ball")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f),800.f,"Assets/LowPolySphere.fbx");
+        auto& body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
+    }
+    if (ImGui::Button("Soft Cylinder")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f),800.f,"Assets/LowPolyCylinder.fbx");
+        auto& body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
+    }
+    if (ImGui::Button("Soft Torus")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f),800.f,"Assets/LowPolyTorus.fbx");
+        auto& body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
+        if(m_Scene.GetPhysicSystem())
+            m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
+    }
+    if (ImGui::Button("Soft Dense Ball")) {
+        auto& reg = m_Scene.GetCulledScene();
+        auto* camera = Application::Get().GetRenderCamera();
+        auto ent = SpawnSoftMesh(camera->Position, glm::vec3(10.f),1000.f, "Assets/Ball.obj");
+        auto& body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
         if(m_Scene.GetPhysicSystem())
             m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
     }
@@ -93,86 +162,45 @@ void FLOOF::PhysicsGM::OnUpdateEditor(float deltaTime)
 
 }
 
-const entt::entity FLOOF::PhysicsGM::SpawnBall(glm::vec3 location, const float radius, const float mass, const float elasticity, const std::string& texture)
-{
+const entt::entity FLOOF::PhysicsGM::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath) {
 
-    const auto ballEntity = m_Scene.CreateEntity("Simulated Ball");
-    auto& collision = m_Scene.AddComponent<RigidBodyComponent>(ballEntity,location,radius,mass);
-    m_Scene.AddComponent<MeshComponent>(ballEntity, "Assets/Ball.obj");
-    m_Scene.AddComponent<TextureComponent>(ballEntity, texture);
-    auto& transform = m_Scene.GetComponent<TransformComponent>(ballEntity);
-
-    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
-    transform.Scale = glm::vec3(radius);
-
-    return ballEntity;
-}
-
-const entt::entity FLOOF::PhysicsGM::SpawnSoftBall(glm::vec3 location, const float radius, const float mass, const std::string &texture) {
-    
     const auto entity = m_Scene.CreateEntity("Softbody");
-    auto& textureComponent = m_Scene.AddComponent<TextureComponent>(entity, texture);
-    auto& mesh =  m_Scene.AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
-    auto& collision =  m_Scene.AddComponent<SoftBodyComponent>(entity);
+    auto& sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
+    m_Scene.AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
+    sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
+
     auto& transform = m_Scene.GetComponent<TransformComponent>(entity);
 
-    /*
-    const btVector3 p(location.x,location.y,location.z);
-    const btVector3 s(radius,radius,radius);
-    const btVector3 h = s * 0.5;
-    const btVector3 c[] = {p + h * btVector3(-1, -1, -1),
-                           p + h * btVector3(+1, -1, -1),
-                           p + h * btVector3(-1, +1, -1),
-                           p + h * btVector3(+1, +1, -1),
-                           p + h * btVector3(-1, -1, +1),
-                           p + h * btVector3(+1, -1, +1),
-                           p + h * btVector3(-1, +1, +1),
-                           p + h * btVector3(+1, +1, +1)};
-    */
-    //btSoftBody* psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(), c, 8);
-    btSoftBody* psb = btSoftBodyHelpers::CreateEllipsoid(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(),btVector3(location.x,location.y,location.z),btVector3(radius,radius,radius),50);
-    psb->m_cfg.kVC = 0.5; //Konservation coefficient
-    psb->m_materials[0]->m_kLST = 0.5; // linear stiffness
+    //create softbody
+    auto btvert = ModelManager::Get().LoadbtModel(FilePath,Scale);
+    btSoftBody* psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.btVertices[0] ,btvert.VertCount, true);
+    psb->translate(btVector3(Location.x,Location.y,Location.z));
+    auto& collision =  m_Scene.AddComponent<SoftBodyComponent>(entity,0.7,0.7,mass,psb);
 
-    //soft rigid collision and soft soft collision
-    psb->generateBendingConstraints(radius/10.f, psb->m_materials[0]);
-    psb->m_cfg.piterations = 2;
-    psb->m_cfg.kDF = 1;
-    psb->m_cfg.kSSHR_CL = 1;
-    psb->m_cfg.kSS_SPLT_CL = 0;
-    psb->m_cfg.kSKHR_CL = 0.1f;
-    psb->m_cfg.kSK_SPLT_CL = 1;
-    psb->m_cfg.collisions = btSoftBody::fCollision::CL_SS +
-                            btSoftBody::fCollision::CL_RS;
-    psb->randomizeConstraints();
-    psb->generateClusters(16);
-    psb->setPose(true, false);
-
-    psb->setTotalMass(mass, true);
-    collision.SoftBody = psb;
-
-    //collision.CollisionShape = std::make_shared<btSphereShape>(radius);
-
-    //btSoftBodyHelpers::CreateFromTriMesh(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(), data.second.size(),data.second,mesh.Data.IndexCount);
-
-    //transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
-
-    transform.Position = location;
-    transform.Scale = glm::vec3(radius);
+    transform.Position = Location;
+    transform.Scale = Scale;
 
     return entity;
 }
 
-const entt::entity FLOOF::PhysicsGM::SpawnCube(glm::vec3 location, glm::vec3 extents, const float mass, const std::string &texture) {
+const entt::entity
+FLOOF::PhysicsGM::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath,CollisionPrimitive shape) {
+    const auto entity = m_Scene.CreateEntity("Rigid Mesh");
 
-    const auto CubeEntity = m_Scene.CreateEntity("Simulated Cube");
-    auto& collision = m_Scene.AddComponent<RigidBodyComponent>(CubeEntity,location,extents,mass);
-    m_Scene.AddComponent<MeshComponent>(CubeEntity, "Assets/IdentityCube.obj");
-    m_Scene.AddComponent<TextureComponent>(CubeEntity, texture);
-     auto& transform = m_Scene.GetComponent<TransformComponent>(CubeEntity);
+    if(shape == CollisionPrimitive::ConvexHull)
+        auto& collision = m_Scene.AddComponent<RigidBodyComponent>(entity,Location,Scale,mass,FilePath);
+    else
+        auto& collision = m_Scene.AddComponent<RigidBodyComponent>(entity,Location,Scale,mass,shape);
 
-    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
-    transform.Scale = extents;
+    auto& sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
+    m_Scene.AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
+    sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
 
-    return CubeEntity;
+    auto& transform = m_Scene.GetComponent<TransformComponent>(entity);
+
+    transform.Position = Location;
+    transform.Scale = Scale;
+
+    return entity;
 }
+

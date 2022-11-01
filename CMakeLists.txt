@@ -56,8 +56,7 @@ add_executable(Floof
     Source/PhysicsSystem.cpp
     Source/PhysicsSystem.h
     Source/GameMode/SponzaGM.cpp
-    Source/Renderer/Material.h
-    )
+    Source/Renderer/Material.h "Source/GameMode/AudioTestGM.h" "Source/GameMode/AudioTestGM.cpp")
 
 
 find_package(Vulkan REQUIRED)
@@ -141,6 +140,10 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Normal.vert -o ${CMAKE_C
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Normal.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Normal.frag.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/LitColor.frag.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND 
     ${CMAKE_COMMAND} -E copy_directory
@@ -153,3 +156,13 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
     ${CMAKE_CURRENT_SOURCE_DIR}/Assets
     ${CMAKE_CURRENT_BINARY_DIR}/Assets
     )
+
+#check for imgui file if not set default
+if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")
+else()
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/ImguiDefault/imgui.ini
+            ${CMAKE_CURRENT_BINARY_DIR}/imgui.ini
+            )
+endif()

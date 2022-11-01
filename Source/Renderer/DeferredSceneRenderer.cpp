@@ -1,4 +1,5 @@
 #include "DeferredSceneRenderer.h"
+#include "../Scene.h"
 
 namespace FLOOF {
     DeferredSceneRenderer::DeferredSceneRenderer() {
@@ -6,7 +7,7 @@ namespace FLOOF {
     DeferredSceneRenderer::~DeferredSceneRenderer() {
     }
 
-    VkDescriptorSet DeferredSceneRenderer::RenderToTexture(entt::registry& scene, glm::vec2 extent) {
+    VkDescriptorSet DeferredSceneRenderer::RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent) {
 
         return VK_NULL_HANDLE;
     }

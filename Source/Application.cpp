@@ -18,6 +18,7 @@
 
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
+#include "GameMode/AudioTestGM.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -286,6 +287,31 @@ namespace FLOOF {
             // Start component view
             ImGui::BeginChild("Components");
             ImGui::Text("Components");
+            if (m_Scene && m_Scene->m_SelectedEntity != entt::null) {
+                if (auto* transform = m_Scene->GetRegistry().try_get<TransformComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Transform component");
+                    ImGui::DragFloat3("Position", &transform->Position[0]);
+                    ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
+                    ImGui::DragFloat3("Scale", &transform->Scale[0]);
+                }
+                if (auto* meshComponent = m_Scene->GetRegistry().try_get<MeshComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Mesh component");
+                    ImGui::Text(meshComponent->Data.Path.c_str());
+                }
+                if (auto* staticMeshComponent = m_Scene->GetRegistry().try_get<StaticMeshComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Static mesh component");
+                    ImGui::Text(staticMeshComponent->Path.c_str());
+                }
+                if (auto* texture = m_Scene->GetRegistry().try_get<TextureComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Texture component");
+                    ImGui::Text(texture->Data.Path.c_str());
+                    ImGui::Image(texture->Data.DesctriptorSet, ImVec2(50, 50));
+                }
+            }
             ImGui::EndChild();
             ImGui::End();
         }
@@ -361,7 +387,7 @@ namespace FLOOF {
         VkDescriptorSet sceneTexture = VK_NULL_HANDLE;
 
         if (m_SceneRenderer) {
-            sceneTexture = m_SceneRenderer->RenderToTexture(m_Scene->GetCulledScene(), sceneCanvasExtent);
+            sceneTexture = m_SceneRenderer->RenderToTexture(m_Scene, sceneCanvasExtent);
         } else {
             waitSemaphore = currentFrameData.ImageAvailableSemaphore;
             signalSemaphore = currentFrameData.RenderFinishedSemaphore;
@@ -477,6 +503,12 @@ namespace FLOOF {
                 m_GameMode = std::make_unique<SponzaGM>(*m_Scene.get());
                 break;
             }
+            case GameModeType::Audio:
+            {
+                MakeAudioTestScene();
+                m_GameMode = std::make_unique<AudioTestGM>(*m_Scene.get());
+                break;
+            }
             default:
             {
                 LOG("GameModeType is invalid\n");
@@ -518,11 +550,11 @@ namespace FLOOF {
         {
             auto texture = "Assets/LightBlue.png";
             auto location = glm::vec3(0.f, -150.f, 0.f);
-            auto extents = glm::vec3(200.f, 10.f, 200.f);
+            auto extents = glm::vec3(400.f, 10.f, 400.f);
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
-            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass,CollisionPrimitive::Box);
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
             m_Scene->AddComponent<TextureComponent>(entity, texture);
 
@@ -537,7 +569,7 @@ namespace FLOOF {
             auto entity = m_Scene->CreateEntity("Ground Ball");
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
-            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),75.f,0.f);
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),glm::vec3(75.f),0.f,CollisionPrimitive::Sphere);
 
             auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(0.f,-150.f,0.f);
@@ -564,7 +596,7 @@ namespace FLOOF {
                         auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
                         m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
                         m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
-                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,radius,mass);
+                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,glm::vec3(radius),mass,CollisionPrimitive::Sphere);
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
                         transform.Position = location;
@@ -574,7 +606,7 @@ namespace FLOOF {
                         location = glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f));
 
                         auto cube = m_Scene->CreateEntity("Simulated Cube " + std::to_string(x+y+z));
-                        m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass);
+                        m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass,CollisionPrimitive::Box);
                         m_Scene->AddComponent<MeshComponent>(cube, "Assets/IdentityCube.obj");
                         m_Scene->AddComponent<TextureComponent>(cube, "Assets/BallTexture.png");
 
@@ -594,7 +626,7 @@ namespace FLOOF {
             auto ent = m_Scene->CreateEntity("Sponza");
             auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
             m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
-            sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj").meshes;
+            sm = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
         }
 
         {
@@ -623,5 +655,10 @@ namespace FLOOF {
             m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
         }
+    }
+    void Application::MakeAudioTestScene() {
+        m_Scene = std::make_unique<Scene>();
+
+
     }
 }

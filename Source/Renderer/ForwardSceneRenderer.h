@@ -8,7 +8,7 @@ namespace FLOOF {
     public:
         ForwardSceneRenderer();
         ~ForwardSceneRenderer();
-        VkDescriptorSet RenderToTexture(entt::registry& registry, glm::vec2 extent) override;
+        VkDescriptorSet RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent) override;
 
     private:
         void CreateTextureRenderer();

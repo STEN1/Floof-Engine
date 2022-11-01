@@ -59,6 +59,7 @@ namespace FLOOF {
         LineWithDepth,
         LineStripWithDepth,
         LitColor,
+        ForwardLit,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {
