@@ -7,6 +7,6 @@ namespace FLOOF {
     public:
         DeferredSceneRenderer();
         ~DeferredSceneRenderer();
-        VkDescriptorSet RenderToTexture(entt::registry& scene, glm::vec2 extent) override;
+        VkDescriptorSet RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent) override;
     };
 }

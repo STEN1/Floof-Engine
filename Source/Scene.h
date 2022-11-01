@@ -8,6 +8,7 @@
 namespace FLOOF {
     class Scene {
         friend class Application;
+        friend class ForwardSceneRenderer;
     public:
         Scene();
         ~Scene();
@@ -30,12 +31,12 @@ namespace FLOOF {
         */
         template<typename Type, typename... Args>
         Type& AddComponent(entt::entity entity, Args &&...args) {
-            return m_Scene.emplace<Type>(entity, std::forward<Args>(args)...);
+            return m_Registry.emplace<Type>(entity, std::forward<Args>(args)...);
         }
 
         template<typename Type>
         Type& GetComponent(entt::entity entity) {
-            return m_Scene.get<Type>(entity);
+            return m_Registry.get<Type>(entity);
         }
 
         std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
@@ -47,7 +48,7 @@ namespace FLOOF {
         /// </summary>
         void OnUpdate(float deltaTime);
     private:
-        entt::registry m_Scene;
+        entt::registry m_Registry;
         std::shared_ptr<PhysicsSystem> m_PhysicSystem;       
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
