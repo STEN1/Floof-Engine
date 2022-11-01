@@ -44,7 +44,7 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColor;
 
-        renderer->StartRenderPass(commandBuffer, & renderPassInfo);
+        renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         auto drawMode = app.GetDrawMode();
 
@@ -604,7 +604,7 @@ namespace FLOOF {
 
         vkDestroyShaderModule(renderer->m_LogicalDevice, vertShader, nullptr);
         vkDestroyShaderModule(renderer->m_LogicalDevice, fragShader, nullptr);
-        LOG("Render pipeline created.\n");
+        LOG("Forward renderer: Render pipeline created.\n");
     }
 
     void ForwardSceneRenderer::CreateCommandPool() {
