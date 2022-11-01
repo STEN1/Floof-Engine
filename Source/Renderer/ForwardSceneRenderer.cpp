@@ -44,7 +44,7 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColor;
 
-        renderer->StartRenderPass(commandBuffer, & renderPassInfo);
+        renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         auto drawMode = app.GetDrawMode();
         if (drawMode != RenderPipelineKeys::Wireframe)
