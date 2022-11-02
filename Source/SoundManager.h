@@ -87,6 +87,11 @@ namespace FLOOF {
 	};
 
 
+	class SoundManager2 {
+		public:
+			SoundManager2();
+	};
 
+	
 
 }

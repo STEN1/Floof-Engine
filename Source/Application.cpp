@@ -10,9 +10,8 @@
 #include "LasLoader.h"
 #include "Octree.h"
 #include "Simulate.h"
-#include "SoundManager.h"
 #include "Renderer/ModelManager.h"
-
+#include "SoundManager.h"
 #include "Renderer/ForwardSceneRenderer.h"
 #include "Renderer/DeferredSceneRenderer.h"
 
@@ -113,6 +112,8 @@ namespace FLOOF {
     }
 
     int Application::Run() {
+
+        SoundManager2 test;
         {
             glm::vec3 cameraPos(0.3f, 0.2f, -1.3f);
         }
