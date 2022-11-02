@@ -113,7 +113,7 @@ namespace FLOOF {
 
     int Application::Run() {
 
-        SoundManager2 test;
+        SoundManager test;
         {
             glm::vec3 cameraPos(0.3f, 0.2f, -1.3f);
         }
