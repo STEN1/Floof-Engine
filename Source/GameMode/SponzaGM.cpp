@@ -16,21 +16,11 @@ const void FLOOF::SponzaGM::SpawnBall(glm::vec3 location, const float radius, co
 
     const auto ballEntity = m_Registry.create();
     auto& transform = m_Registry.emplace<TransformComponent>(ballEntity);
-    auto& ball = m_Registry.emplace<BallComponent>(ballEntity);
-    auto& time = m_Registry.emplace<TimeComponent>(ballEntity);
     auto& spline = m_Registry.emplace<BSplineComponent>(ballEntity);
 
-    ball.Radius = radius;
-    ball.Mass = mass;
-    ball.Elasticity = elasticity;
-
-    auto& velocity = m_Registry.emplace<VelocityComponent>(ballEntity);
     m_Registry.emplace<MeshComponent>(ballEntity, "Assets/Ball.obj");
     m_Registry.emplace<TextureComponent>(ballEntity, texture);
 
     transform.Position = location;
-    transform.Scale = glm::vec3(ball.Radius);
 
-    ball.CollisionSphere.radius = ball.Radius;
-    ball.CollisionSphere.pos = transform.Position;
 }

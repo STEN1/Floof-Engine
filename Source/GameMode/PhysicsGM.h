@@ -20,7 +20,7 @@ namespace FLOOF
 
         const entt::entity SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath);
 
-        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, CollisionPrimitive shape = CollisionPrimitive::ConvexHull);
+        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, bt::CollisionPrimitive shape = bt::CollisionPrimitive::ConvexHull);
 
 	};
 }

@@ -16,26 +16,18 @@ add_executable(Floof
     Source/ObjLoader.h
     Source/ObjLoader.cpp
     Source/Renderer/Vertex.h
-    Source/stb_image.h
-    Source/stb_image.cpp
+        Libs/HeaderOnly/stb_image/stb_image.h
+        Libs/HeaderOnly/stb_image/stb_image.cpp
     Source/Components.h
     Source/Math.h
     Source/Components.cpp
     Source/Input.h
     Source/Utils.h
     Source/Utils.cpp
-    Source/Logger.cpp
-    Source/Logger.h
-    Source/LoggerMacros.h 
-    Source/Physics.cpp
-    Source/Physics.h
-    Source/LasLoader.cpp 
-    Source/LasLoader.h 
-    Source/Octree.h 
-    Source/Octree.cpp
-    Source/Simulate.cpp
-    Source/Simulate.h 
-    Source/Renderer/ModelManager.h 
+        Source/LoggerMacros.h
+        Source/LasLoader.cpp
+    Source/LasLoader.h
+        Source/Renderer/ModelManager.h
     Source/Renderer/TextureManager.h 
     Source/Renderer/ModelManager.cpp 
     Source/Renderer/TextureManager.cpp 

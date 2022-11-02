@@ -3,7 +3,6 @@
 #include <vector>
 #include "Floof.h"
 #include "Renderer/Vertex.h"
-#include "Physics.h"
 class LasLoader {
 
 public:
@@ -12,7 +11,6 @@ public:
     std::pair<std::vector<FLOOF::MeshVertex>, std::vector<uint32_t>> GetIndexedData();
     std::vector<FLOOF::MeshVertex> GetVertexData();
     std::pair<std::vector<FLOOF::ColorNormalVertex>, std::vector<uint32_t>> GetIndexedColorNormalVertexData();
-    std::vector<std::vector<std::pair<FLOOF::Triangle, FLOOF::Triangle>>> GetTerrainData();
     float GetMinY() { return -max.y; }
 private:
     std::vector<FLOOF::ColorVertex> PointData;
@@ -20,7 +18,6 @@ private:
     std::vector<FLOOF::ColorNormalVertex> ColorNormalVertexData;
     std::vector<uint32_t> IndexData;
     std::vector<FLOOF::MeshVertex> TriangulatedVertexData;
-    std::vector<FLOOF::Triangle> triangles;
 
     void ReadTxt(const std::string& path);
     void ReadBin(const std::string& path);

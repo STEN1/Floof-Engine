@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include "Floof.h"
 #include "Math.h"
-#include "Logger.h"
 #include <functional>
 #include <unordered_map>
 

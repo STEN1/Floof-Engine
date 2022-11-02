@@ -1,11 +1,10 @@
 #include "Components.h"
 
 #include <cstring>
-#include "stb_image.h"
+#include "stb_image/stb_image.h"
 #include "ObjLoader.h"
 #include "LoggerMacros.h"
 #include "Utils.h"
-#include "Physics.h"
 #include "Renderer/ModelManager.h"
 
 namespace FLOOF {
@@ -323,64 +322,6 @@ namespace FLOOF {
 
     }
 
-    TerrainComponent::TerrainComponent(std::vector<std::vector<std::pair<Triangle, Triangle>>>& rectangles) {
-        Rectangles = rectangles;
-
-        Height = rectangles.size();
-        if (rectangles.empty())
-            Width = 0;
-        else
-            Width = rectangles[0].size();
-
-        for (auto& rectVec : Rectangles) {
-            for (auto& rect : rectVec) {
-                Triangles.push_back(rect.first);
-                Triangles.push_back(rect.second);
-            }
-        }
-    }
-
-    void TerrainComponent::PrintTriangleData() {
-        uint32_t triangleId = 0;
-        for (auto& triangle : Triangles) {
-            std::cout << "Triangle: " << triangleId++ << std::endl;
-            std::cout << "A: " << triangle.A << std::endl;
-            std::cout << "B: " << triangle.B << std::endl;
-            std::cout << "C: " << triangle.C << std::endl;
-            std::cout << "Normal: " << triangle.N << std::endl;
-        }
-    }
-
-    std::vector<Triangle*> TerrainComponent::GetOverlappingTriangles(CollisionShape* shape) {
-        std::vector<Triangle*> overlapping;
-
-        int xPos = shape->pos.x;
-        int zPos = shape->pos.z;
-
-        int extent = 1;
-        if (shape->shape == CollisionShape::Shape::Sphere)
-            extent += (int)reinterpret_cast<class Sphere*>(shape)->radius;
-
-        int xMin = xPos - extent;
-        int xMax = xPos + extent;
-
-        int zMin = zPos - extent;
-        int zMax = zPos + extent;
-
-        for (int z = zMin; z <= zMax; z++) {
-            for (int x = xMin; x <= xMax; x++) {
-                if (x < 0.f || x >(Width - 1)
-                    || z < 0.f || z >(Height - 1)) {
-                    continue;
-                }
-                overlapping.push_back(&Rectangles[z][x].first);
-                overlapping.push_back(&Rectangles[z][x].second);
-            }
-        }
-
-        return overlapping;
-    }
-
     PointCloudComponent::PointCloudComponent(const std::vector<ColorVertex>& vertexData) {
         auto renderer = VulkanRenderer::Get();
 
@@ -494,8 +435,9 @@ namespace FLOOF {
     }
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
-                                           CollisionPrimitive shape) {
+                                           bt::CollisionPrimitive shape) {
 
+        using namespace bt;
         switch (shape){
             case CollisionPrimitive::Box:
                 CollisionShape = std::make_shared<btBoxShape>(btVector3(scale.x,scale.y,scale.z));

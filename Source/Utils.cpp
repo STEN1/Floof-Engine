@@ -108,45 +108,6 @@ namespace FLOOF {
             }
         }
 
-        glm::vec3 CalcBarycentric(glm::vec3 position, const Triangle& triangle) {
-            glm::vec2 pos{ position.x, position.z };
-
-            glm::vec2 p1 = glm::vec2(triangle.A.x, triangle.A.z);
-            glm::vec2 p2 = glm::vec2(triangle.B.x, triangle.B.z);
-            glm::vec2 p3 = glm::vec2(triangle.C.x, triangle.C.z);
-
-            glm::vec2 Va = p2 - p1;
-            glm::vec2 Vb = p3 - p1;
-            glm::vec3 n = glm::cross(glm::vec3(Va.x, Va.y, 0), glm::vec3(Vb.x, Vb.y, 0));
-            float area = glm::length(n);
-            glm::vec3 cords;
-
-            glm::vec2 p = p2 - pos;
-            glm::vec2 q = p3 - pos;
-            n = glm::cross(glm::vec3(q.x, q.y, 0), glm::vec3(p.x, p.y, 0));
-            cords.x = n.z / area;
-
-            p = p3 - pos;
-            q = p1 - pos;
-            n = glm::cross(glm::vec3(q.x, q.y, 0), glm::vec3(p.x, p.y, 0));
-            cords.y = n.z / area;
-
-            p = p1 - pos;
-            q = p2 - pos;
-            n = glm::cross(glm::vec3(q.x, q.y, 0), glm::vec3(p.x, p.y, 0));
-            cords.z = n.z / area;
-
-            return cords;
-        }
-        bool IsPointInsideTriangle(const glm::vec3& position, const Triangle& triangle) {
-            glm::vec3 v = Utils::CalcBarycentric(position, triangle);
-            for (size_t i = 0; i < 3; i++) {
-                if (v[i] < 0.f || v[i] > 1.f)
-                    return false;
-            }
-            return true;
-        }
-
         std::vector<ColorVertex> LineVertexDataFromObj(const std::string& path) {
             auto [vertexData, indexData] = ObjLoader(path).GetIndexedData();
 
@@ -159,64 +120,6 @@ namespace FLOOF {
             }
 
             return out;
-        }
-
-        std::vector<Triangle> GetVisimTriangles(const std::string& path) {
-
-            std::ifstream file(path);
-            if (!file.is_open()) {
-                std::string msg = path;
-                msg += " could not open";
-                LOG_ERROR(msg.c_str());
-                return {};
-            }
-            std::string line;
-            std::getline(file, line);
-            std::stringstream ss(line);
-            int tricount;
-            ss >> tricount;
-            tricount = tricount / 3;
-            std::vector<Triangle> triangles(tricount);
-
-            auto calcNormal = [](Triangle& triangle) {
-                auto ab = triangle.A - triangle.B;
-                auto ac = triangle.A - triangle.C;
-                triangle.N = glm::normalize(glm::cross(ab, ac));
-            };
-
-            for (auto& tri : triangles) {
-                {
-                    std::string line;
-                    std::getline(file, line);
-                    std::stringstream ss(line);
-                    ss >> tri.A.x;
-                    ss >> tri.A.y;
-                    ss >> tri.A.z;
-                }
-                {
-                    std::string line;
-                    std::getline(file, line);
-                    std::stringstream ss(line);
-                    ss >> tri.B.x;
-                    ss >> tri.B.y;
-                    ss >> tri.B.z;
-                }
-                {
-                    std::string line;
-                    std::getline(file, line);
-                    std::stringstream ss(line);
-                    ss >> tri.C.x;
-                    ss >> tri.C.y;
-                    ss >> tri.C.z;
-
-                    ss >> tri.FrictionConstant;
-                }
-
-                calcNormal(tri);
-            }
-
-
-            return triangles;
         }
 
         std::vector<ColorVertex> MakeBox(glm::vec3 extents, glm::vec3 color) {

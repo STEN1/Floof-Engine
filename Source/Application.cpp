@@ -3,19 +3,13 @@
 #include "Components.h"
 #include "Input.h"
 #include "Utils.h"
-#include "Physics.h"
 #include <string>
-#include "stb_image.h"
+#include "stb_image/stb_image.h"
 #include "imgui_impl_glfw.h"
 #include "LasLoader.h"
-#include "Octree.h"
-#include "Simulate.h"
-
 #include "Renderer/ModelManager.h"
-
 #include "Renderer/ForwardSceneRenderer.h"
 #include "Renderer/DeferredSceneRenderer.h"
-
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
 #include "GameMode/AudioTestGM.h"
@@ -77,8 +71,6 @@ namespace FLOOF {
 
         // Register key callbacks
         Input::Init(m_Window);
-        // Init Logger. Writes to specified log file.
-        Utils::Logger::s_Logger = new Utils::Logger("Floof.log");
 
         m_Scene = std::make_unique<Scene>();
 
@@ -106,7 +98,6 @@ namespace FLOOF {
 
 
         delete m_Renderer;
-        delete Utils::Logger::s_Logger;
 
         glfwDestroyWindow(m_Window);
         glfwTerminate();
@@ -554,7 +545,7 @@ namespace FLOOF {
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
-            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass,CollisionPrimitive::Box);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass,bt::CollisionPrimitive::Box);
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
             m_Scene->AddComponent<TextureComponent>(entity, texture);
 
@@ -569,7 +560,7 @@ namespace FLOOF {
             auto entity = m_Scene->CreateEntity("Ground Ball");
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
-            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),glm::vec3(75.f),0.f,CollisionPrimitive::Sphere);
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),glm::vec3(75.f),0.f,bt::CollisionPrimitive::Sphere);
 
             auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(0.f,-150.f,0.f);
@@ -596,7 +587,7 @@ namespace FLOOF {
                         auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
                         m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
                         m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
-                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,glm::vec3(radius),mass,CollisionPrimitive::Sphere);
+                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,glm::vec3(radius),mass,bt::CollisionPrimitive::Sphere);
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
                         transform.Position = location;
@@ -606,7 +597,7 @@ namespace FLOOF {
                         location = glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f));
 
                         auto cube = m_Scene->CreateEntity("Simulated Cube " + std::to_string(x+y+z));
-                        m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass,CollisionPrimitive::Box);
+                        m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass,bt::CollisionPrimitive::Box);
                         m_Scene->AddComponent<MeshComponent>(cube, "Assets/IdentityCube.obj");
                         m_Scene->AddComponent<TextureComponent>(cube, "Assets/BallTexture.png");
 

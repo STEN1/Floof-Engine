@@ -240,40 +240,6 @@ std::pair<std::vector<FLOOF::ColorNormalVertex>, std::vector<uint32_t>> LasLoade
     return { ColorNormalVertexData, IndexData };
 }
 
-std::vector<std::vector<std::pair<FLOOF::Triangle, FLOOF::Triangle>>> LasLoader::GetTerrainData() {
-
-    int width = (max.x - min.x);
-    int height = (max.z - min.z);
-
-    std::vector<std::vector<std::pair<FLOOF::Triangle, FLOOF::Triangle>>> out(height - 1,
-        std::vector<std::pair<FLOOF::Triangle, FLOOF::Triangle>>(width - 1));
-
-    for (int z = 0; z < height - 1; z++) {
-        for (int x = 0; x < width - 1; x++) {
-            FLOOF::Triangle bottom;
-            FLOOF::Triangle top;
-
-            int aIndex = (x + (z * width));
-            int bIndex = ((x + 1) + (z * width));
-            int cIndex = ((x + 1) + ((z + 1) * width));
-            int dIndex = (x + ((z + 1) * width));
-
-            bottom.A = VertexData[aIndex].Pos;
-            bottom.B = VertexData[cIndex].Pos;
-            bottom.C = VertexData[bIndex].Pos;
-
-            top.A = VertexData[aIndex].Pos;
-            top.B = VertexData[dIndex].Pos;
-            top.C = VertexData[cIndex].Pos;
-
-            bottom.N = glm::normalize(glm::cross(bottom.B - bottom.A, bottom.C - bottom.A));
-            top.N = glm::normalize(glm::cross(top.B - top.A, top.C - top.A));
-
-            out[z][x] = std::make_pair(bottom, top);
-        }
-    }
-    return out;
-}
 
 void LasLoader::ReadTxt(const std::string& path) {
     std::ifstream file(path);

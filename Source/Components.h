@@ -3,7 +3,6 @@
 
 #include "Renderer/VulkanRenderer.h"
 #include "Floof.h"
-#include "Physics.h"
 #include <chrono>
 #include <entt/entt.hpp>
 #include "Renderer/Mesh.h"
@@ -136,30 +135,6 @@ namespace FLOOF {
         float Aspect = 16.f / 9.f;
     };
 
-    struct TerrainComponent {
-        TerrainComponent(std::vector<std::vector<std::pair<Triangle, Triangle>>>& vertexData);
-        void PrintTriangleData();
-        std::vector<Triangle*> GetOverlappingTriangles(CollisionShape* shape);
-        std::vector<std::vector<std::pair<Triangle, Triangle>>> Rectangles;
-        std::vector<Triangle> Triangles;
-        int Width;
-        int Height;
-        float MinY;
-    };
-
-    struct BallComponent {
-        Sphere CollisionSphere;
-        float Radius; // TODO dobbel lagring av radius !! fix??
-        float Mass;
-        float Elasticity{ 0.5f };
-    };
-
-    struct VelocityComponent {
-        glm::vec3 Velocity;
-        glm::vec3 Force;
-
-    };
-
     class BSplineComponent {
     public:
         BSplineComponent(const std::vector<glm::vec3>& controllPoints);
@@ -180,24 +155,18 @@ namespace FLOOF {
         std::vector<glm::vec3> ControllPoints;
         int FindKnotInterval(float t);
     };
-
-    struct DebugComponent {};
-
-    struct TimeComponent {
-        std::chrono::high_resolution_clock::time_point CreationTime;
-        std::chrono::high_resolution_clock::time_point LastPoint;
-    };
-
-    enum CollisionPrimitive{
-        ConvexHull = 0,
-        Box = 1,
-        Sphere,
-        Capsule,
-        Cylinder,
-        Cone,
-    };
+    namespace bt {
+        enum CollisionPrimitive {
+            ConvexHull = 0,
+            Box = 1,
+            Sphere,
+            Capsule,
+            Cylinder,
+            Cone,
+        };
+    }
     struct RigidBodyComponent{
-        RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass, CollisionPrimitive shape);
+        RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass, bt::CollisionPrimitive shape);
         RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape);
         std::shared_ptr<btRigidBody> RigidBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};

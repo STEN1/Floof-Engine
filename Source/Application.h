@@ -4,11 +4,9 @@
 #include <entt/entt.hpp>
 
 #include <unordered_map>
-#include "Logger.h"
 #include <memory>
 #include <chrono>
 #include <unordered_map>
-#include "Physics.h"
 #include "LasLoader.h"
 #include "Scene.h"
 #include "Renderer/SceneRenderer.h"
