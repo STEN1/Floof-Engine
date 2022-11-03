@@ -9,6 +9,7 @@
 #include "Renderer/Texture.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
+#include "SoundManager.h"
 
 namespace FLOOF {
 
@@ -179,5 +180,22 @@ namespace FLOOF {
         btSoftBody* SoftBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
+
+	struct SoundComponent {
+        SoundComponent(SoundManager* manager, std::string path);
+        int id;
+        bool isPlaying{false};
+        bool fadeOut{ false }; // If we want to fade out the sound
+        float fadeTimer{ 1.f };
+        glm::vec3 position{ 1.0f,0.f,0.f };
+        glm::vec3 velocity{ 0.0f,0.f,0.f };
+        float pitch{ 1.f };
+        float gain{ 1.f };
+        bool isLooping{ false };
+	private:
+        std::string mPath;
+        bool loaded{ false }; // set to true when loaded by soundmanager
+
+	};
 }
 

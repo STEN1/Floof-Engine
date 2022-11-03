@@ -8,6 +8,7 @@
 #include "imgui_impl_glfw.h"
 #include "LasLoader.h"
 #include "Renderer/ModelManager.h"
+#include "SoundManager.h"
 #include "Renderer/ForwardSceneRenderer.h"
 #include "Renderer/DeferredSceneRenderer.h"
 #include "GameMode/PhysicsGM.h"
@@ -73,6 +74,7 @@ namespace FLOOF {
         Input::Init(m_Window);
 
         m_Scene = std::make_unique<Scene>();
+        m_SoundManager = new SoundManager;
 
         /*SceneRenderer*/
         SetRendererType(SceneRendererType::Forward);
@@ -649,6 +651,63 @@ namespace FLOOF {
     void Application::MakeAudioTestScene() {
         m_Scene = std::make_unique<Scene>();
 
+
+        {
+            auto texture = "Assets/LightBlue.png";
+            auto location = glm::vec3(0.f, -150.f, 0.f);
+            auto extents = glm::vec3(400.f, 10.f, 400.f);
+            auto mass = 0.f;
+
+            auto entity = m_Scene->CreateEntity("Ground Cube");
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
+            m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
+            m_Scene->AddComponent<TextureComponent>(entity, texture);
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
+                collision.Transform.getOrigin().getY(),
+                collision.Transform.getOrigin().getZ());
+            transform.Scale = extents;
+
+        }
+        {
+            auto entity = m_Scene->CreateEntity("Ground Ball");
+            m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, glm::vec3(0.f, -150.f, 0.f), glm::vec3(75.f), 0.f, bt::CollisionPrimitive::Sphere);
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(0.f, -150.f, 0.f);
+            transform.Scale = glm::vec3(75.f);
+
+        }
+
+
+        {
+            //spawning balls
+            glm::vec3 location = glm::vec3(3.f,25.f,2.f);
+            const float radius = 2.f;
+            const glm::vec3 extents = glm::vec3(radius);
+            const float mass = radius * 100.f;
+
+            auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(location.x + location.y + location.z));
+            m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
+            m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius), mass, bt::CollisionPrimitive::Sphere);
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(Ball);
+            transform.Position = location;
+            transform.Scale = extents;
+
+            //m_Scene->AddComponent<SoundComponent>(Ball, m_SoundManager, "Assets/Sounds/TestSound_Stereo.wav");
+
+
+        }
+        {
+            //m_SoundManager->loadAssets();
+        }
+
+        m_SoundManager->testSound();
 
     }
 }
