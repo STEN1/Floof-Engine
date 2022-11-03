@@ -9,7 +9,7 @@ namespace FLOOF {
         ModelManager();
     public:
 
-        ModelMesh LoadModelMesh(const std::string& path);
+        StaticMeshComponent LoadModelMesh(const std::string& path);
         void ModelMeshDestroyed(std::string& path);
 
         struct btModelData{
@@ -29,7 +29,7 @@ namespace FLOOF {
 
     private:
         struct ModelData {
-            ModelMesh Model;
+            StaticMeshComponent meshComponent;
             uint32_t RefCount = 0;
         };
 

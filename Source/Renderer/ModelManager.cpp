@@ -6,12 +6,12 @@ namespace FLOOF {
     ModelManager::ModelManager() {
     }
 
-    ModelMesh ModelManager::LoadModelMesh(const std::string& path) {
+    StaticMeshComponent ModelManager::LoadModelMesh(const std::string& path) {
 
         auto it = m_MeshCache.find(path);
         if (it != m_MeshCache.end()) {
             it->second.RefCount++;
-            return it->second.Model;
+            return it->second.meshComponent;
         }
 
         ModelData modelData;
@@ -28,14 +28,14 @@ namespace FLOOF {
             meshData.IndexBuffer = renderer->CreateIndexBuffer(mesh.indices);
             meshData.VertexCount = mesh.vertices.size();
             meshData.IndexCount = mesh.indices.size();
-            modelData.Model.meshes.emplace_back(meshData);
+            modelData.meshComponent.meshes.emplace_back(meshData);
         }
-        modelData.Model.Path = path;
+        modelData.meshComponent.Path = path;
 
         auto& data = m_MeshCache[path] = modelData;
         data.RefCount++;
 
-        return modelData.Model;
+        return modelData.meshComponent;
     }
 
     void ModelManager::ModelMeshDestroyed(std::string& path) {
@@ -46,7 +46,7 @@ namespace FLOOF {
         for (auto& [path, data] : m_MeshCache) {
             // TODO: Models also have material data. Need to handle that here?
 
-            for (auto& mesh : data.Model.meshes) {
+            for (auto& mesh : data.meshComponent.meshes) {
                 vmaDestroyBuffer(renderer->m_Allocator, mesh.IndexBuffer.Buffer, mesh.IndexBuffer.Allocation);
                 vmaDestroyBuffer(renderer->m_Allocator, mesh.VertexBuffer.Buffer, mesh.VertexBuffer.Allocation);
             }

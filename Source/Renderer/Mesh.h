@@ -29,7 +29,7 @@ namespace FLOOF {
         MeshData Data{};
     };
 
-    using ModelMesh = StaticMesh<MeshVertex>;
+    using StaticMeshComponent = StaticMesh<MeshVertex>;
     using StaticLineMeshComponent = StaticMesh<ColorVertex>;
     using DynamicLineMeshComponent = DynamicMesh<ColorVertex>;
 }
