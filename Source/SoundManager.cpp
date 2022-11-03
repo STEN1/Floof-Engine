@@ -38,7 +38,7 @@ namespace FLOOF {
 
 
     SoundManager::SoundManager() {
-        paths = std::vector<std::string>(10);
+
     }
 
     void SoundManager::testSound()
@@ -51,7 +51,6 @@ namespace FLOOF {
     {
         int id;
         bool alreadyLoaded{ false };
-        paths.push_back(path);
 
 	    if (!paths.empty())
 	    {
@@ -68,7 +67,7 @@ namespace FLOOF {
         if (!alreadyLoaded)
         {
             paths.push_back(path);
-            int id = paths.size();
+        	id = paths.size()-1;
         }
 
         return id;

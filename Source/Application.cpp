@@ -80,6 +80,8 @@ namespace FLOOF {
         Utils::Logger::s_Logger = new Utils::Logger("Floof.log");
 
         m_Scene = std::make_unique<Scene>();
+        m_SoundManager = new SoundManager;
+
 
         /*SceneRenderer*/
         SetRendererType(SceneRendererType::Forward);
@@ -682,12 +684,12 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            m_Scene->AddComponent<SoundComponent>(Ball, m_SoundManager, "Assets/Sounds/TestSound_Stereo.wav");
+            //m_Scene->AddComponent<SoundComponent>(Ball, m_SoundManager, "Assets/Sounds/TestSound_Stereo.wav");
 
 
         }
         {
-            m_SoundManager->loadAssets();
+            //m_SoundManager->loadAssets();
         }
 
         m_SoundManager->testSound();
