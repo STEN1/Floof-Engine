@@ -288,6 +288,27 @@ namespace FLOOF {
                     ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
                     ImGui::DragFloat3("Scale", &transform->Scale[0]);
                 }
+                if (auto* rigidBody = m_Scene->GetRegistry().try_get<RigidBodyComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Rigid body component");
+                    if (rigidBody->RigidBody) {
+                        ImGui::Text("Position: %.3f, %.3f, %.3f",
+                            rigidBody->RigidBody->getCenterOfMassPosition().getX(),
+                            rigidBody->RigidBody->getCenterOfMassPosition().getY(),
+                            rigidBody->RigidBody->getCenterOfMassPosition().getZ());
+
+                        ImGui::Text("Velocity: %.3f, %.3f, %.3f",
+                            rigidBody->RigidBody->getLinearVelocity().getX(),
+                            rigidBody->RigidBody->getLinearVelocity().getY(),
+                            rigidBody->RigidBody->getLinearVelocity().getZ());
+
+                        ImGui::Text("Velocity length: %.3f", rigidBody->RigidBody->getLinearVelocity().length());
+                    }
+                }
+                if (auto* softBody = m_Scene->GetRegistry().try_get<SoftBodyComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Soft body component");
+                }
                 if (auto* meshComponent = m_Scene->GetRegistry().try_get<MeshComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Mesh component");
@@ -302,6 +323,10 @@ namespace FLOOF {
                     ImGui::Text("Texture component");
                     ImGui::Text(texture->Data.Path.c_str());
                     ImGui::Image(texture->Data.DesctriptorSet, ImVec2(50, 50));
+                }
+                if (auto* soundComponent = m_Scene->GetRegistry().try_get<SoundComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Sound component");
                 }
             }
             ImGui::EndChild();
