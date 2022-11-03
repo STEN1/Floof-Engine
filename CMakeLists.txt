@@ -16,18 +16,16 @@ add_executable(Floof
     Source/ObjLoader.h
     Source/ObjLoader.cpp
     Source/Renderer/Vertex.h
-        Libs/HeaderOnly/stb_image/stb_image.h
-        Libs/HeaderOnly/stb_image/stb_image.cpp
     Source/Components.h
     Source/Math.h
     Source/Components.cpp
     Source/Input.h
     Source/Utils.h
     Source/Utils.cpp
-        Source/LoggerMacros.h
-        Source/LasLoader.cpp
+    Source/LoggerMacros.h
+    Source/LasLoader.cpp
     Source/LasLoader.h
-        Source/Renderer/ModelManager.h
+    Source/Renderer/ModelManager.h
     Source/Renderer/TextureManager.h 
     Source/Renderer/ModelManager.cpp 
     Source/Renderer/TextureManager.cpp 
@@ -37,7 +35,8 @@ add_executable(Floof
     Source/Renderer/ForwardSceneRenderer.h 
     Source/Renderer/DeferredSceneRenderer.h 
     Source/Renderer/DeferredSceneRenderer.cpp 
-    Source/Renderer/ForwardSceneRenderer.cpp 
+    Source/Renderer/ForwardSceneRenderer.cpp
+    Source/Renderer/stb_image.cpp
     Source/Scene.h
     Source/Scene.cpp 
     Source/GameMode/GameMode.h 
