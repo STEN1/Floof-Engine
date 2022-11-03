@@ -25,34 +25,6 @@ namespace FLOOF {
         ASSERT(data);
         uint32_t size = xWidth * yHeight * 4;
 
-        std::vector<stbi_uc> readyData(size);
-        if (channels == 4) {
-            memcpy(readyData.data(), data, size);
-        } else if (channels == 3) {
-            for (uint32_t h = 0; h < yHeight; h++) {
-                for (uint32_t w = 0; w < xWidth; w++) {
-                    uint32_t readyDataIndex = (h * xWidth * 4) + (w * 4);
-                    auto& rdR = readyData[readyDataIndex];
-                    auto& rdG = readyData[readyDataIndex + 1];
-                    auto& rdB = readyData[readyDataIndex + 2];
-                    auto& rdA = readyData[readyDataIndex + 3];
-
-                    uint32_t dataIndex = (h * xWidth * 3) + (w * 3);
-                    auto& dR = data[dataIndex];
-                    auto& dG = data[dataIndex + 1];
-                    auto& dB = data[dataIndex + 2];
-                    auto& dA = data[dataIndex + 3];
-
-                    rdR = dR; rdG = dG; rdB = dB;
-                    rdA = (stbi_uc)255;
-                }
-            }
-        } else {
-            ASSERT(false);
-        }
-
-        stbi_image_free(data);
-
         VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
         // staging buffer
@@ -72,7 +44,34 @@ namespace FLOOF {
             &stagingBufferAlloc, &stagingBufferAllocInfo);
 
         ASSERT(stagingBufferAllocInfo.pMappedData != nullptr);
-        memcpy(stagingBufferAllocInfo.pMappedData, readyData.data(), size);
+        if (channels == 4) {
+            memcpy(stagingBufferAllocInfo.pMappedData, data, size);
+        } else if (channels == 3) {
+            std::vector<stbi_uc> readyData(size);
+            for (uint32_t h = 0; h < yHeight; h++) {
+                for (uint32_t w = 0; w < xWidth; w++) {
+                    uint32_t readyDataIndex = (h * xWidth * 4) + (w * 4);
+                    auto& rdR = readyData[readyDataIndex];
+                    auto& rdG = readyData[readyDataIndex + 1];
+                    auto& rdB = readyData[readyDataIndex + 2];
+                    auto& rdA = readyData[readyDataIndex + 3];
+
+                    uint32_t dataIndex = (h * xWidth * 3) + (w * 3);
+                    auto& dR = data[dataIndex];
+                    auto& dG = data[dataIndex + 1];
+                    auto& dB = data[dataIndex + 2];
+                    auto& dA = data[dataIndex + 3];
+
+                    rdR = dR; rdG = dG; rdB = dB;
+                    rdA = (stbi_uc)255;
+                }
+            }
+            memcpy(stagingBufferAllocInfo.pMappedData, readyData.data(), size);
+        } else {
+            ASSERT(false);
+        }
+        
+        stbi_image_free(data);
 
         // Image
         VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
