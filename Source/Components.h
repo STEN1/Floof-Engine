@@ -208,5 +208,18 @@ namespace FLOOF {
         btSoftBody* SoftBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
+
+	struct SoundComponent {
+        int id;
+        bool isPlaying{false};
+        bool fadeOut{ false }; // If we want to fade out the sound
+        float fadeTimer{ 1.f };
+        glm::vec3 position{ 1.0f,0.f,0.f };
+        glm::vec3 velocity{ 0.0f,0.f,0.f };
+        float pitch{ 1.f };
+        float gain{ 1.f };
+        bool isLooping{ false };
+
+	};
 }
 

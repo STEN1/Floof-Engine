@@ -35,8 +35,8 @@ namespace FLOOF {
 			void openDevice();
 			void createContext();
 			void createListener();
+			void PlaySounds();
 
-			void test();
 			ALCdevice* device;
 			ALCcontext* context;
 			glm::vec3 playerPosition{ 0.f,0.f,0.f };

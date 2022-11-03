@@ -40,7 +40,7 @@ namespace FLOOF {
     SoundManager::SoundManager()
     {
         loadSounds();
-        test();
+        PlaySounds();
     }
 
     void SoundManager::updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up)
@@ -115,23 +115,17 @@ namespace FLOOF {
 
     }
 
-    void SoundManager::test()
+    void SoundManager::PlaySounds()
     {
         openDevice();
         createContext();
         createListener();
 
-        std::vector<ALuint> sources;
-        sources.reserve(soundData.size());
-
-        
-
-        for (auto sound_data : soundData)
-        {
+        for (auto sound_data : soundData) {
             ALuint source;
             // Pass data to OpenAL
             ALuint soundBuffer;
-            alec(alGenBuffers(1, &soundBuffer)); // Generates buffers 
+            alec(alGenBuffers(2, &soundBuffer)); // Generates buffers 
             alec(alBufferData(
                 soundBuffer, // The buffer
                 sound_data.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, // Using the AL format Mono16 if one channel, or Stereo 16 if more
@@ -166,7 +160,6 @@ namespace FLOOF {
                     // Loops until done playing
                     alec(alGetSourcei(source, AL_SOURCE_STATE, &sourceState));
                 }
-
             // Delete sources
             alec(alDeleteSources(1, &source));
             // Delete buffers
