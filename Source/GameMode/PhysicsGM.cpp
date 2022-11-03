@@ -172,7 +172,7 @@ namespace FLOOF {
         const auto entity = m_Scene.CreateEntity("Softbody");
         auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
         m_Scene.AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
-        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
+        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
 
         auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
 
@@ -200,7 +200,7 @@ namespace FLOOF {
 
         auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
         m_Scene.AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
-        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
+        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
 
         auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
 

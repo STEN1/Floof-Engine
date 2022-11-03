@@ -294,7 +294,6 @@ namespace FLOOF {
                 if (auto* staticMeshComponent = m_Scene->GetRegistry().try_get<StaticMeshComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Static mesh component");
-                    ImGui::Text(staticMeshComponent->Path.c_str());
                 }
                 if (auto* texture = m_Scene->GetRegistry().try_get<TextureComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
@@ -617,7 +616,7 @@ namespace FLOOF {
             auto ent = m_Scene->CreateEntity("Sponza");
             auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
             m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
-            sm = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
+            sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
         }
 
         {

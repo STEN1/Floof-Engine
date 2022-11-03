@@ -86,7 +86,7 @@ namespace FLOOF {
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
             texture.Bind(commandBuffer);
-            for (auto& mesh : staticMesh.meshes) {
+            for (auto& mesh : *staticMesh.meshes) {
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
                 if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {

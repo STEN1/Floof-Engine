@@ -13,23 +13,11 @@ namespace FLOOF {
         uint32_t IndexCount{};
     };
 
-    template<typename VertexType>
-    class StaticMesh {
+    class StaticMeshComponent {
     public:
-        StaticMesh() = default;
-        std::vector<MeshData> meshes{};
-        std::vector<Material> materials{};
-        std::string Path = "";
+        StaticMeshComponent() = default;
+        StaticMeshComponent(const std::string& path);
+        std::shared_ptr<std::vector<MeshData>> meshes{};
+        std::shared_ptr<std::vector<Material>> materials{};
     };
-
-    template<typename VertexType>
-    class DynamicMesh {
-    public:
-        DynamicMesh() = default;
-        MeshData Data{};
-    };
-
-    using StaticMeshComponent = StaticMesh<MeshVertex>;
-    using StaticLineMeshComponent = StaticMesh<ColorVertex>;
-    using DynamicLineMeshComponent = DynamicMesh<ColorVertex>;
 }
