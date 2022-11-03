@@ -48,9 +48,9 @@ namespace FLOOF {
         auto ImguiInitInfo = m_Renderer->GetImguiInitInfo();
         auto ImguiRenderPass = m_Renderer->GetImguiRenderPass();
         ImGui_ImplVulkan_Init(&ImguiInitInfo, ImguiRenderPass);
-        auto commandBuffer = m_Renderer->AllocateBeginOneTimeCommandBuffer();
+        auto commandBuffer = m_Renderer->BeginSingleUseCommandBuffer();
         ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-        m_Renderer->EndSubmitFreeCommandBuffer(commandBuffer);
+        m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
         auto* imguiBackend = io.BackendRendererUserData;

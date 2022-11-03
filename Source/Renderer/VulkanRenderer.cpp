@@ -369,7 +369,7 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size) {
-        VkCommandBuffer commandBuffer = AllocateBeginOneTimeCommandBuffer();
+        VkCommandBuffer commandBuffer = BeginSingleUseCommandBuffer();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0; // Optional
@@ -377,7 +377,7 @@ namespace FLOOF {
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, src, dst, 1, &copyRegion);
 
-        EndSubmitFreeCommandBuffer(commandBuffer);
+        EndSingleUseCommandBuffer(commandBuffer);
     }
 
     void VulkanRenderer::CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, uint32_t sizeX, uint32_t sizeY) {
@@ -1224,7 +1224,7 @@ namespace FLOOF {
         vkDestroySwapchainKHR(m_LogicalDevice, window.Swapchain, nullptr);
     }
 
-    VkCommandBuffer VulkanRenderer::AllocateBeginOneTimeCommandBuffer() {
+    VkCommandBuffer VulkanRenderer::BeginSingleUseCommandBuffer() {
         VkCommandBufferAllocateInfo commandAllocInfo{};
         commandAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         commandAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -1240,7 +1240,7 @@ namespace FLOOF {
         return commandBuffer;
     }
 
-    void VulkanRenderer::EndSubmitFreeCommandBuffer(VkCommandBuffer commandBuffer) {
+    void VulkanRenderer::EndSingleUseCommandBuffer(VkCommandBuffer commandBuffer) {
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;

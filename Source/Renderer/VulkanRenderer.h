@@ -194,10 +194,10 @@ namespace FLOOF {
         void FreeTextureDescriptorSet(VkDescriptorSet desctriptorSet);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
-        VkCommandBuffer AllocateBeginOneTimeCommandBuffer();
+        VkCommandBuffer BeginSingleUseCommandBuffer();
 
         // End one time command buffer.
-        void EndSubmitFreeCommandBuffer(VkCommandBuffer);
+        void EndSingleUseCommandBuffer(VkCommandBuffer);
 
         VulkanWindow* GetVulkanWindow() { return &m_VulkanWindow; }
 
