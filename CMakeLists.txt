@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.12)
+﻿cmake_minimum_required (VERSION 3.14)
 project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
@@ -82,13 +82,25 @@ target_link_libraries(Floof Bullet)
 add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
 target_link_libraries(Floof BulletSoftBody)
 
-
-#boost.python
-find_package(Boost COMPONENTS python)
+#boost
+set (BOOST_ROOT "Libs/boost")
+set (Boost_NO_SYSTEM_PATHS ON)
+set (Boost_USE_MULTITHREADED ON)
+set (Boost_USE_STATIC_LIBS OFF)
+set (Boost_USE_STATIC_RUNTIME OFF)
+#find_package(Boost COMPONENTS filesystem REQUIRED)
+#message(STATUS "Boost version: ${Boost_VERSION}")
 if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    target_link_libraries(Floof ${BoosT_LIBRARIES})
+
+    #include_directories(${Boost_INCLUDE_DIR})
+    #target_link_libraries(Floof ${Boost_LIBRARIES})
+
 endif()
+
+add_subdirectory(Libs/boost)
+add_subdirectory(Libs/boost/libs/python) # need to add subdirectory since it is not header only
+target_link_libraries(Floof Boost::python Boost::filesystem)
+
 
 add_subdirectory(Libs/openal-soft)
 target_link_libraries(Floof OpenAL)

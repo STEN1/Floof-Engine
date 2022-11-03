@@ -18,9 +18,9 @@ namespace FLOOF
 
 		void OnUpdateEditor(float deltaTime) override;
 
-        const entt::entity SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath);
+        const entt::entity SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture);
 
-        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, bt::CollisionPrimitive shape = bt::CollisionPrimitive::ConvexHull);
+        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture, bt::CollisionPrimitive shape = bt::CollisionPrimitive::ConvexHull);
 
 	};
 }

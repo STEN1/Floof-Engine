@@ -6,6 +6,9 @@
 #include "../ObjLoader.h"
 #include "../Renderer/ModelManager.h"
 
+#include <boost/filesystem.hpp>
+#include <boost/python.hpp>
+
 namespace FLOOF {
     using namespace bt;
 
@@ -14,12 +17,15 @@ namespace FLOOF {
     }
 
     void PhysicsGM::OnUpdateEditor(float deltaTime) {
+
+        //boost testint TODO remove testing
+        std::cout << boost::filesystem::file_size("Assets/Ball.obj");
+
         ImGui::Begin("Spawn Rigid Bodies");
         if (ImGui::Button("Ball")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/Ball.obj",
-                                      CollisionPrimitive::Sphere);
+            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/Ball.obj","Assets/BallTexture.png",CollisionPrimitive::Sphere);
             auto &body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -27,8 +33,7 @@ namespace FLOOF {
         if (ImGui::Button("Cube")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 100.f, "Assets/IdentityCube.obj",
-                                      CollisionPrimitive::Box);
+            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 100.f, "Assets/IdentityCube.obj","Assets/BallTexture.png",CollisionPrimitive::Box);
             auto &body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -36,8 +41,7 @@ namespace FLOOF {
         if (ImGui::Button("Cone")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/LowPolyCone.fbx",
-                                      CollisionPrimitive::Cone);
+            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/LowPolyCone.fbx","Assets/BallTexture.png",CollisionPrimitive::Cone);
             auto &body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -45,8 +49,7 @@ namespace FLOOF {
         if (ImGui::Button("Cylinder")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.0f), 200.f, "Assets/LowPolyCylinder.fbx",
-                                      CollisionPrimitive::Cylinder);
+            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.0f), 200.f, "Assets/LowPolyCylinder.fbx","Assets/BallTexture.png",  CollisionPrimitive::Cylinder);
             auto &body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -54,7 +57,7 @@ namespace FLOOF {
         if (ImGui::Button("Convex Torus")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/LowPolyTorus.fbx");
+            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(2.f), 200.f, "Assets/LowPolyTorus.fbx","Assets/BallTexture.png");
             auto &body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -63,8 +66,7 @@ namespace FLOOF {
         if (ImGui::Button("Convex Statue")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(1 / 100.f), 400.f,
-                                      "Assets/statue/source/statue1.fbx");
+            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(1 / 100.f), 400.f,"Assets/statue/source/statue1.fbx","Assets/statue/textures/staue1Color.png");
             auto &body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -72,7 +74,7 @@ namespace FLOOF {
         if (ImGui::Button("Bigger Statue")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(1 / 50.f), 600.f, "Assets/statue/source/statue1.fbx");
+            auto ent = SpawnRigidMesh(camera->Position, glm::vec3(1 / 50.f), 600.f, "Assets/statue/source/statue1.fbx","Assets/statue/textures/staue1Color.png");
             auto &body = m_Scene.GetCulledScene().get<RigidBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
@@ -83,7 +85,7 @@ namespace FLOOF {
         if (ImGui::Button("Soft Ball")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f), 800.f, "Assets/LowPolySphere.fbx");
+            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f), 800.f, "Assets/LowPolySphere.fbx","Assets/BallTexture.png");
             auto &body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
@@ -91,7 +93,7 @@ namespace FLOOF {
         if (ImGui::Button("Soft Cylinder")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f), 800.f, "Assets/LowPolyCylinder.fbx");
+            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f), 800.f, "Assets/LowPolyCylinder.fbx","Assets/BallTexture.png");
             auto &body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
@@ -99,7 +101,7 @@ namespace FLOOF {
         if (ImGui::Button("Soft Torus")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f), 800.f, "Assets/LowPolyTorus.fbx");
+            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f), 800.f, "Assets/LowPolyTorus.fbx","Assets/BallTexture.png");
             auto &body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
@@ -107,7 +109,7 @@ namespace FLOOF {
         if (ImGui::Button("Soft Dense Ball")) {
             auto &reg = m_Scene.GetCulledScene();
             auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(10.f), 1000.f, "Assets/Ball.obj");
+            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(10.f), 1000.f, "Assets/Ball.obj","Assets/BallTexture.png");
             auto &body = m_Scene.GetCulledScene().get<SoftBodyComponent>(ent);
             if (m_Scene.GetPhysicSystem())
                 m_Scene.GetPhysicSystem()->AddSoftBody(body.SoftBody);
@@ -167,11 +169,11 @@ namespace FLOOF {
 
     }
 
-    const entt::entity PhysicsGM::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath) {
+    const entt::entity PhysicsGM::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture) {
 
         const auto entity = m_Scene.CreateEntity("Softbody");
         auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
-        m_Scene.AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
+        m_Scene.AddComponent<TextureComponent>(entity, Texture);
         sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
 
         auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
@@ -189,7 +191,7 @@ namespace FLOOF {
         return entity;
     }
 
-    const entt::entity PhysicsGM::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath,
+    const entt::entity PhysicsGM::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture,
                                      CollisionPrimitive shape) {
         const auto entity = m_Scene.CreateEntity("Rigid Mesh");
 
@@ -199,7 +201,7 @@ namespace FLOOF {
             auto &collision = m_Scene.AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, shape);
 
         auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
-        m_Scene.AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
+        m_Scene.AddComponent<TextureComponent>(entity, Texture);
         sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
 
         auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
