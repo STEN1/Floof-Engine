@@ -16,6 +16,7 @@
 
 namespace FLOOF {
 
+    // TODO
 	//bool get_available_devices(std::vector<std::string>& devicesVec, ALCdevice* device)
 	//{
  //       const ALCchar* devices;
@@ -38,9 +39,8 @@ namespace FLOOF {
 
     SoundManager::SoundManager()
     {
-        openDevice();
+        loadSounds();
         test();
-
     }
 
     void SoundManager::updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up)
@@ -50,6 +50,12 @@ namespace FLOOF {
         playerForward = forward;
         playerUp = up;
 
+    }
+
+    void SoundManager::loadSounds()
+    {
+        soundData.push_back(readWavData("Assets/Sounds/TestSound_Stereo.wav"));
+        soundData.push_back(readWavData("Assets/Sounds/TestSound_Mono.wav"));
     }
 
     void SoundManager::openDevice()
@@ -111,55 +117,63 @@ namespace FLOOF {
 
     void SoundManager::test()
     {
+        openDevice();
         createContext();
         createListener();
 
-        wavFile soundData = readWavData("Assets/Sounds/TestSound_Stereo.wav");
+        std::vector<ALuint> sources;
+        sources.reserve(soundData.size());
 
-        // Pass data to OpenAL
-        ALuint soundBuffer;
-        alec(alGenBuffers(1, &soundBuffer)); // Generates buffers 
-        alec(alBufferData(
-            soundBuffer, // The buffer
-            soundData.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, // Using the AL format Mono16 if one channel, or Stereo 16 if more
-            soundData.pcmData.data(), // The data pointer
-            soundData.pcmData.size() * 2, // Multiplied by two since vector is stored in 16 bits and data is read in bytes
-            soundData.sampleRate)); // The sample rate, obiously
+        
 
-        // Create a sound source that plays the sound from the buffer
-        // Update position for source with actualt position later
-        ALuint source;
-        alec(alGenSources(1, &source));
-        // Update position of source
-        alec(alSource3f(source, AL_POSITION, 1.f, 0.f, 0.f));
-        // Update velocity of source
-        alec(alSource3f(source, AL_VELOCITY, 0.f, 0.f, 0.f));
-        // Update pitch of source
-        alec(alSourcef(source, AL_PITCH, 1.f));
-        // Update pitch of source
-        alec(alSourcef(source, AL_GAIN, 1.f));
-        alec(alSourcei(source, AL_LOOPING, AL_FALSE));
-        alec(alSourcei(source, AL_BUFFER, soundBuffer)); // The buffer integer the source should play from
+        for (auto sound_data : soundData)
+        {
+            ALuint source;
+            // Pass data to OpenAL
+            ALuint soundBuffer;
+            alec(alGenBuffers(1, &soundBuffer)); // Generates buffers 
+            alec(alBufferData(
+                soundBuffer, // The buffer
+                sound_data.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, // Using the AL format Mono16 if one channel, or Stereo 16 if more
+                sound_data.pcmData.data(), // The data pointer
+                sound_data.pcmData.size() * 2, // Multiplied by two since vector is stored in 16 bits and data is read in bytes
+                sound_data.sampleRate)); // The sample rate, obiously
 
-        // Play the sound source
-        alec(alSourcePlay(source));
-        // Query if the source is still playing
-        ALint sourceState;
-        alec(alGetSourcei(
-            source, // What source
-            AL_SOURCE_STATE, // Get state
-            &sourceState)) // Where to save state;
+            // Create a sound source that plays the sound from the buffer
+            // Update position for source with actualt position later
+            alec(alGenSources(1, &source));
+            // Update position of source
+            alec(alSource3f(source, AL_POSITION, 1.f, 0.f, 0.f));
+            // Update velocity of source
+            alec(alSource3f(source, AL_VELOCITY, 0.f, 0.f, 0.f));
+            // Update pitch of source
+            alec(alSourcef(source, AL_PITCH, 1.f));
+            // Update pitch of source
+            alec(alSourcef(source, AL_GAIN, 1.f));
+            alec(alSourcei(source, AL_LOOPING, AL_FALSE));
+            alec(alSourcei(source, AL_BUFFER, soundBuffer)); // The buffer integer the source should play from
 
-            while (sourceState == AL_PLAYING) {
-                // Loops until done playing
-                alec(alGetSourcei(source, AL_SOURCE_STATE, &sourceState));
-            }
+            // Play the sound source
+            alec(alSourcePlay(source));
+            // Query if the source is still playing
+            ALint sourceState;
+            alec(alGetSourcei(
+                source, // What source
+                AL_SOURCE_STATE, // Get state
+                &sourceState)) // Where to save state;
 
-        // Clean up resources
-        // Delete sources
-        alec(alDeleteSources(1, &source));
-        // Delete buffers
-        alec(alDeleteBuffers(1, &source));
+                while (sourceState == AL_PLAYING) {
+                    // Loops until done playing
+                    alec(alGetSourcei(source, AL_SOURCE_STATE, &sourceState));
+                }
+
+            // Delete sources
+            alec(alDeleteSources(1, &source));
+            // Delete buffers
+            alec(alDeleteBuffers(1, &source));
+        }
+
+    	
         // Make the current context null
         alec(alcMakeContextCurrent(nullptr));
         // Destroy the current context
