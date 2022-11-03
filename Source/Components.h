@@ -10,6 +10,7 @@
 #include "Renderer/Texture.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
+#include "SoundManager.h"
 
 namespace FLOOF {
 
@@ -210,6 +211,7 @@ namespace FLOOF {
     };
 
 	struct SoundComponent {
+        SoundComponent(SoundManager* manager, std::string path);
         int id;
         bool isPlaying{false};
         bool fadeOut{ false }; // If we want to fade out the sound
@@ -219,6 +221,9 @@ namespace FLOOF {
         float pitch{ 1.f };
         float gain{ 1.f };
         bool isLooping{ false };
+	private:
+        std::string mPath;
+        bool loaded{ false }; // set to true when loaded by soundmanager
 
 	};
 }

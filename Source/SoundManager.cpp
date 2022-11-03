@@ -37,10 +37,49 @@ namespace FLOOF {
 	//}
 
 
-    SoundManager::SoundManager()
+    SoundManager::SoundManager() {
+        paths = std::vector<std::string>(10);
+    }
+
+    void SoundManager::testSound()
     {
-        loadSounds();
+        readSounds();
         PlaySounds();
+    }
+
+    int SoundManager::loadPath(std::string path)
+    {
+        int id;
+        bool alreadyLoaded{ false };
+        paths.push_back(path);
+
+	    if (!paths.empty())
+	    {
+		    for (int i = 0; i < paths.size(); ++i)
+		    {
+			    if (paths[i] == path)
+			    {
+                    id = i;
+                    alreadyLoaded = true;
+			    }   
+		    }
+	    }
+
+        if (!alreadyLoaded)
+        {
+            paths.push_back(path);
+            int id = paths.size();
+        }
+
+        return id;
+    }
+
+    void SoundManager::loadAssets()
+    {
+	    for (auto path : paths) {
+            soundData.push_back(readWavData(path.c_str()));
+	    }
+
     }
 
     void SoundManager::updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up)
@@ -52,7 +91,7 @@ namespace FLOOF {
 
     }
 
-    void SoundManager::loadSounds()
+    void SoundManager::readSounds()
     {
         soundData.push_back(readWavData("Assets/Sounds/TestSound_Stereo.wav"));
         soundData.push_back(readWavData("Assets/Sounds/TestSound_Mono.wav"));
@@ -125,7 +164,7 @@ namespace FLOOF {
             ALuint source;
             // Pass data to OpenAL
             ALuint soundBuffer;
-            alec(alGenBuffers(2, &soundBuffer)); // Generates buffers 
+            alec(alGenBuffers(1, &soundBuffer)); // Generates buffers 
             alec(alBufferData(
                 soundBuffer, // The buffer
                 sound_data.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, // Using the AL format Mono16 if one channel, or Stereo 16 if more

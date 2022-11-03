@@ -29,9 +29,12 @@ namespace FLOOF {
 	class SoundManager {
 		public:
 			SoundManager();
-			void updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up);
+			void testSound();
+			int loadPath(std::string path);
+			void loadAssets();
+			void updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up); // Every tick
 		private:
-			void loadSounds();
+			void readSounds();
 			void openDevice();
 			void createContext();
 			void createListener();
@@ -45,8 +48,27 @@ namespace FLOOF {
 			glm::vec3 playerUp{ 0.f,1.f,0.f };
 			std::vector<wavFile> soundData;
 			wavFile readWavData(std::string path);
+
+			std::vector<std::string> paths;
 	};
 
 	
 
 }
+
+
+/*
+ * in run:
+ *
+ * iterate through soundcomponents
+ * for every:
+ * component.getID(soundmanager.loadPath(component.getPath));
+ *
+ * in draw
+ * iterate through soundcomponents
+ * save in vector of pointers and send to soundmanager
+ * soundmanager.PlaySounds(std::vector<SoundComponent*> sounds);
+ *
+ * in soundmanager 
+
+ */

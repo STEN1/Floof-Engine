@@ -15,6 +15,7 @@
 #include "GameMode/GameMode.h"
 #include "Scene.h"
 #include "Components.h"
+#include "SoundManager.h"
 
 namespace FLOOF {
     static const char* ApplicationDrawModes[] = {
@@ -89,6 +90,7 @@ namespace FLOOF {
         float m_CameraSpeed{ 100.f };
         CameraComponent m_EditorCamera;   
         CameraComponent* m_RenderCamera{nullptr};
+        SoundManager* m_SoundManager;
 
         /*GameMode, temp*/
         std::unique_ptr<GameMode> m_GameMode;

@@ -172,7 +172,8 @@ namespace FLOOF {
             Data.VertexCount = vertexData.size();
             Data.IndexCount = indexData.size();
             s_MeshDataCache[path] = Data;
-        } else {
+        }
+        else {
             Data = it->second;
         }
         m_IsCachedMesh = true;
@@ -218,7 +219,8 @@ namespace FLOOF {
             vkCmdBindIndexBuffer(commandBuffer, Data.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
             vkCmdDrawIndexed(commandBuffer, Data.IndexCount,
                 1, 0, 0, 0);
-        } else {
+        }
+        else {
             vkCmdDraw(commandBuffer, Data.VertexCount, 1, 0, 0);
         }
     }
@@ -480,15 +482,21 @@ namespace FLOOF {
         DefaultMotionState = std::make_shared<btDefaultMotionState>(Transform);
 
         btVector3 localInertia(0, 0, 0);
-        if(mass != 0.f)
+        if (mass != 0.f)
             CollisionShape->calculateLocalInertia(mass, localInertia);
 
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, DefaultMotionState.get(), CollisionShape.get(),localInertia);
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, DefaultMotionState.get(), CollisionShape.get(), localInertia);
         RigidBody = std::make_shared<btRigidBody>(rbInfo);
         RigidBody->setFriction(0.5f);
         RigidBody->setRollingFriction(0.1f);
         RigidBody->setSpinningFriction(0.1f);
     }
+
+    SoundComponent::SoundComponent(SoundManager* manager, std::string path) {
+        id = manager->loadPath(path);
+    }
+
+
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
                                            CollisionPrimitive shape) {
