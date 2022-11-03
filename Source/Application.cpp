@@ -539,7 +539,7 @@ namespace FLOOF {
         // TODO: make physics scene.
 
         {
-            auto texture = "Assets/LightBlue.png";
+            auto texture = "Assets/WaterTexture.png";
             auto location = glm::vec3(0.f, -150.f, 0.f);
             auto extents = glm::vec3(400.f, 10.f, 400.f);
             auto mass = 0.f;
@@ -586,7 +586,7 @@ namespace FLOOF {
 
                         auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
                         m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
-                        m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
+                        m_Scene->AddComponent<TextureComponent>(Ball, "Assets/statue/textures/staue1Color.png");
                         m_Scene->AddComponent<RigidBodyComponent>(Ball,location,glm::vec3(radius),mass,bt::CollisionPrimitive::Sphere);
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
