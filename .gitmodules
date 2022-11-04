@@ -20,3 +20,7 @@
 [submodule "Libs/openal-soft"]
 	path = Libs/openal-soft
 	url = https://github.com/kcat/openal-soft
+[submodule "Libs/simdjson"]
+	path = Libs/simdjson
+	url = https://github.com/simdjson/simdjson
+
