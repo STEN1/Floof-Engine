@@ -6,20 +6,16 @@
 #include "../ObjLoader.h"
 #include "../Renderer/ModelManager.h"
 
-#include <boost/filesystem.hpp>
-#include <boost/python.hpp>
 
 namespace FLOOF {
     using namespace bt;
 
     void PhysicsGM::OnCreate() {
 
+
     }
 
     void PhysicsGM::OnUpdateEditor(float deltaTime) {
-
-        //boost testint TODO remove testing
-        std::cout << boost::filesystem::file_size("Assets/Ball.obj");
 
         ImGui::Begin("Spawn Rigid Bodies");
         if (ImGui::Button("Ball")) {
@@ -166,7 +162,6 @@ namespace FLOOF {
         }
         ImGui::End();
 
-
     }
 
     const entt::entity PhysicsGM::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture) {
@@ -175,6 +170,9 @@ namespace FLOOF {
         auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
         m_Scene.AddComponent<TextureComponent>(entity, Texture);
         sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
+
+        //test python script
+        auto &script = m_Scene.AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
 
         auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
 

@@ -10,6 +10,10 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
 
+//pulls in python api
+#define PY_SSIZE_T_CLEAN
+#include <python.h>
+
 namespace FLOOF {
 
     using StaticMeshComponent = ModelMesh;
@@ -180,6 +184,18 @@ namespace FLOOF {
         SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body);
         btSoftBody* SoftBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
+    };
+    struct ScriptComponent{
+        ScriptComponent(const std::string PyScript);
+        ~ScriptComponent();
+        const std::string Script;
+
+        PyObject * Pint;
+        FILE* Fp;
+
+
+       void RunScript();
+
     };
 }
 

@@ -457,8 +457,8 @@ namespace FLOOF {
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, DefaultMotionState.get(), CollisionShape.get(),localInertia);
         RigidBody = std::make_shared<btRigidBody>(rbInfo);
         RigidBody->setFriction(0.5f);
-        RigidBody->setRollingFriction(0.1f);
-        RigidBody->setSpinningFriction(0.1f);
+        RigidBody->setRollingFriction(0.3f);
+        RigidBody->setSpinningFriction(0.3f);
     }
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
@@ -533,5 +533,22 @@ namespace FLOOF {
 
         SoftBody->setTotalMass(mass, true);
 
+    }
+
+    ScriptComponent::ScriptComponent(const std::string PyScript) :Script(PyScript){
+
+        Py_Initialize();
+
+    }
+
+    ScriptComponent::~ScriptComponent() {
+
+        Py_Finalize();
+
+        delete Pint;
+    }
+
+    void ScriptComponent::RunScript() {
+        PyRun_SimpleString("print('Hello World from Python!!!')");
     }
 }

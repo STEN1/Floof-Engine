@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 
 
-add_executable(Floof 
+add_executable(Floof
     Source/Floof.cpp
     Source/Floof.h
     Source/Renderer/VulkanRenderer.h
@@ -50,6 +50,7 @@ add_executable(Floof
     Source/Renderer/Material.h
     Source/GameMode/AudioTestGM.h
     Source/GameMode/AudioTestGM.cpp
+        Libs/pybind11/include/pybind11/pybind11.h
     )
 
 
@@ -82,24 +83,17 @@ target_link_libraries(Floof Bullet)
 add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
 target_link_libraries(Floof BulletSoftBody)
 
-#boost
-set (BOOST_ROOT "Libs/boost")
-set (Boost_NO_SYSTEM_PATHS ON)
-set (Boost_USE_MULTITHREADED ON)
-set (Boost_USE_STATIC_LIBS OFF)
-set (Boost_USE_STATIC_RUNTIME OFF)
-#find_package(Boost COMPONENTS filesystem REQUIRED)
-#message(STATUS "Boost version: ${Boost_VERSION}")
-if(Boost_FOUND)
+#pybinding
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+target_link_libraries(Floof ${PYTHON_LIBRARIES})
 
-    #include_directories(${Boost_INCLUDE_DIR})
-    #target_link_libraries(Floof ${Boost_LIBRARIES})
-
-endif()
-
-add_subdirectory(Libs/boost)
-add_subdirectory(Libs/boost/libs/python) # need to add subdirectory since it is not header only
-target_link_libraries(Floof Boost::python Boost::filesystem)
+#add_subdirectory(Libs/pybind11)
+#target_include_directories(Floof PUBLIC Libs/pybind11/include)
+#target_link_libraries(Floof pybind11)
+# EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
+# define (VERSION_INFO) here.
+target_compile_definitions(Floof PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 
 
 add_subdirectory(Libs/openal-soft)
@@ -152,17 +146,26 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag -o ${CMA
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
 
+#copy shaders
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND 
     ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/Shaders
     ${CMAKE_CURRENT_BINARY_DIR}/Shaders
     )
 
+#copy assets
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
     ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/Assets
     ${CMAKE_CURRENT_BINARY_DIR}/Assets
     )
+
+#copy scripts
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+        ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/Scripts
+        ${CMAKE_CURRENT_BINARY_DIR}/Scripts
+        )
 
 #check for imgui file if not set default
 if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")

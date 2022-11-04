@@ -1,13 +1,8 @@
 # Floof, en multiplatform Vulkan fysikkmotor
-![Floof example image](Assets/FloofHeaderRainColor.png)
-
-## NB. Terrengdatafilen er for stor for github
-* Last ned jotun.las fra google drive
-	* put filen i /Assets/ mappen til prosjektet
-* https://bit.ly/3M7KHBX
+![Floof example image](Assets/FloofHeaderPhysics.png)
 
 ### Testet på Windows, Linux og macOS
- * Apple Silicon M1
+ * Apple Silicon
  * AMD Graphics
  * Intel Graphics
  * Nvidia Graphics
@@ -21,6 +16,8 @@
 
 
 ## Byggeinstrukser for Windows:
+* Lokal instalasjon av Python 3 
+  * ```winget install -e --id Python.Python.3.11```
 * Oppdatert versjon av Visual studio 2022
 * Oppdatert versjon av CMake
 * Oppdatert versjon av Vulkan SDK https://vulkan.lunarg.com/sdk/home
@@ -44,6 +41,7 @@ Note last ned nyeste versjon av Vulkan SDK til macOS med alle komponenter under 
 
 ### Nødvendige Brew-pakker
 ```
+Brew install python
 Brew install cmake
 Brew install molten-vk
 Brew install vulkan-header
@@ -69,8 +67,8 @@ make -j8
 ```
 
 ## Byggeinstrukser for Linux (Ubuntu)
-
-* Oppdatert versjon av CLion
+* lokal instalasjon av python 3
+  * ````sudo apt-get install python3.11````
 * Oppdatert versjon av CMake
 * Oppdatert versjon av Vulkan SDK https://vulkan.lunarg.com/sdk/home
   * Lag en arbeidsmappe 
@@ -104,10 +102,22 @@ make -j8
 	```
 	~$ vkcube
 	```
-* Klone prosjektet med
+### Klone og kompilere prosjektet
+```
+cd ${Project location}
+```
 ```
 git clone --recursive https://github.com/STEN1/Floof
 ```
-* Åpne mappen med CLion
 
-* Voila!
+```
+mkdir build
+cd build
+```
+
+```
+cmake ..
+make -j8
+````
+
+

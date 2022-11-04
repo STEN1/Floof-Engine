@@ -14,15 +14,9 @@
 [submodule "Libs/bullet3"]
 	path = Libs/bullet3
 	url = https://github.com/bulletphysics/bullet3
-[submodule "Libs/python"]
-	path = Libs/python
-	url = https://github.com/boostorg/python
 [submodule "Libs/assimp"]
 	path = Libs/assimp
 	url = https://github.com/assimp/assimp
 [submodule "Libs/openal-soft"]
 	path = Libs/openal-soft
 	url = https://github.com/kcat/openal-soft
-[submodule "Libs/boost"]
-	path = Libs/boost
-	url = https://github.com/boostorg/boost

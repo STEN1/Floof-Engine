@@ -305,6 +305,17 @@ namespace FLOOF {
             }
             ImGui::EndChild();
             ImGui::End();
+
+            ImGui::Begin("Scripts");
+            if(ImGui::Button("Run Script once")){
+                //run scripts
+                auto view = m_Scene->GetRegistry().view<ScriptComponent>();
+                for (auto [entity, script]: view.each()) {
+                    script.RunScript();
+                }
+            }
+
+            ImGui::End();
         }
     }
 
