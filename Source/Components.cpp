@@ -557,7 +557,6 @@ namespace FLOOF {
 
         Py_Finalize();
 
-        delete Pint;
     }
 
     void ScriptComponent::RunScript() {

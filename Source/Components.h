@@ -189,9 +189,7 @@ namespace FLOOF {
         ~ScriptComponent();
         const std::string Script;
 
-        PyObject * Pint;
         FILE* Fp;
-
 
        void RunScript();
        void updateScripts();
