@@ -176,8 +176,12 @@ namespace FLOOF {
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
 
+        void transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale);
+
+        const bt::CollisionPrimitive Primitive;
     private:
         void InitializeBasicPhysics(const float mass);
+        const glm::vec3 DefaultScale;
     };
     struct SoftBodyComponent{
         SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body);

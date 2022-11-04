@@ -472,7 +472,7 @@ namespace FLOOF {
 
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
-                                           bt::CollisionPrimitive shape) {
+                                           bt::CollisionPrimitive shape) : DefaultScale(scale), Primitive(shape){
 
         using namespace bt;
         switch (shape){
@@ -510,7 +510,7 @@ namespace FLOOF {
 
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape) {
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape)  :DefaultScale(scale), Primitive(bt::ConvexHull){
 
         auto vertices = ModelManager::Get().LoadbtModel(convexShape,scale);
         std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
@@ -520,6 +520,26 @@ namespace FLOOF {
         Transform.setIdentity();
         Transform.setOrigin(btVector3(location.x,location.y,location.z));
         InitializeBasicPhysics(mass);
+
+    }
+
+    void RigidBodyComponent::transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale) {
+        btTransform trans;
+        if (RigidBody && RigidBody->getMotionState()) {
+            RigidBody->getMotionState()->getWorldTransform(trans);
+        } else {
+            trans = RigidBody->getWorldTransform();
+        }
+        RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
+        trans.setOrigin(Utils::glmTobt(location));
+        btQuaternion btquat;
+        auto rot = Utils::glmTobt(rotation);
+        btquat.setEulerZYX(rot.z(),rot.y(),rot.x());
+        trans.setRotation(btquat);
+        RigidBody->getMotionState()->setWorldTransform(trans);
+
+        CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
+        RigidBody->activate(true);
 
     }
 
