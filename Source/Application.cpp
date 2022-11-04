@@ -308,13 +308,17 @@ namespace FLOOF {
 
             ImGui::Begin("Scripts");
             if(ImGui::Button("Run Script once")){
-                //run scripts
                 auto view = m_Scene->GetRegistry().view<ScriptComponent>();
                 for (auto [entity, script]: view.each()) {
                     script.RunScript();
                 }
             }
-
+            if(ImGui::Button("Refresh Scripts")){
+                auto view = m_Scene->GetRegistry().view<ScriptComponent>();
+                for (auto [entity, script]: view.each()) {
+                    script.updateScripts();
+                }
+            }
             ImGui::End();
         }
     }

@@ -50,7 +50,6 @@ add_executable(Floof
     Source/Renderer/Material.h
     Source/GameMode/AudioTestGM.h
     Source/GameMode/AudioTestGM.cpp
-        Libs/pybind11/include/pybind11/pybind11.h
     )
 
 
@@ -145,6 +144,12 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert -o ${CMA
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
+
+
+
+#set current binary dir c++ variable
+add_compile_definitions(BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
+add_compile_definitions(SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 #copy shaders
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND 

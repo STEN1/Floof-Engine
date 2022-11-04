@@ -195,6 +195,7 @@ namespace FLOOF {
 
 
        void RunScript();
+       void updateScripts();
 
     };
 }

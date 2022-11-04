@@ -6,6 +6,8 @@
 #include "LoggerMacros.h"
 #include "Utils.h"
 #include "Renderer/ModelManager.h"
+#include <iostream>
+#include <fstream>
 
 namespace FLOOF {
     TextureComponent::TextureComponent(const std::string& path) {
@@ -539,6 +541,8 @@ namespace FLOOF {
 
         Py_Initialize();
 
+
+
     }
 
     ScriptComponent::~ScriptComponent() {
@@ -549,6 +553,30 @@ namespace FLOOF {
     }
 
     void ScriptComponent::RunScript() {
-        PyRun_SimpleString("print('Hello World from Python!!!')");
+        Fp = fopen(Script.c_str(),"r");
+        PyRun_SimpleFile(Fp,Script.c_str());
+        fclose(Fp);
+
+    }
+
+    void ScriptComponent::updateScripts() {
+        std::string source = SOURCE_DIR;
+        source.append("/");
+        source.append(Script);
+
+        std::string binary = BINARY_DIR;
+        binary.append("/");
+        binary.append(Script);
+
+         std::fstream write(binary);
+         std::fstream read(source);
+
+         std::string line;
+         while(getline(read,line)){
+            write << line << "\n";
+         }
+         write.close();
+         read.close();
+
     }
 }
