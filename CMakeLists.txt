@@ -50,7 +50,9 @@ add_executable(Floof
     Source/Renderer/Material.h
     Source/GameMode/AudioTestGM.h
     Source/GameMode/AudioTestGM.cpp
-    )
+    Source/Renderer/Mesh.cpp
+    Source/SoundManager.h
+    Source/SoundManager.cpp)
 
 
 find_package(Vulkan REQUIRED)

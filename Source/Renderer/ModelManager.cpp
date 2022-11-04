@@ -6,15 +6,14 @@ namespace FLOOF {
     ModelManager::ModelManager() {
     }
 
-    ModelMesh ModelManager::LoadModelMesh(const std::string& path) {
+    std::shared_ptr<std::vector<MeshData>> ModelManager::LoadModelMesh(const std::string& path) {
 
         auto it = m_MeshCache.find(path);
         if (it != m_MeshCache.end()) {
-            it->second.RefCount++;
-            return it->second.Model;
+            return it->second;
         }
 
-        ModelData modelData;
+        std::shared_ptr<std::vector<MeshData>> ret = std::make_shared<std::vector<MeshData>>();
         AssimpLoader loader(path);
         auto* renderer = VulkanRenderer::Get();
 
@@ -28,14 +27,12 @@ namespace FLOOF {
             meshData.IndexBuffer = renderer->CreateIndexBuffer(mesh.indices);
             meshData.VertexCount = mesh.vertices.size();
             meshData.IndexCount = mesh.indices.size();
-            modelData.Model.meshes.emplace_back(meshData);
+            ret->emplace_back(meshData);
         }
-        modelData.Model.Path = path;
 
-        auto& data = m_MeshCache[path] = modelData;
-        data.RefCount++;
+        auto& data = m_MeshCache[path] = ret;
 
-        return modelData.Model;
+        return ret;
     }
 
     void ModelManager::ModelMeshDestroyed(std::string& path) {
@@ -46,7 +43,7 @@ namespace FLOOF {
         for (auto& [path, data] : m_MeshCache) {
             // TODO: Models also have material data. Need to handle that here?
 
-            for (auto& mesh : data.Model.meshes) {
+            for (auto& mesh : *data) {
                 vmaDestroyBuffer(renderer->m_Allocator, mesh.IndexBuffer.Buffer, mesh.IndexBuffer.Allocation);
                 vmaDestroyBuffer(renderer->m_Allocator, mesh.VertexBuffer.Buffer, mesh.VertexBuffer.Allocation);
             }

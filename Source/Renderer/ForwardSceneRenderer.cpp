@@ -38,11 +38,17 @@ namespace FLOOF {
         renderPassInfo.framebuffer = m_TextureFrameBuffers[frameIndex].FrameBuffer;
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = vkExtent;
-        VkClearValue clearColor[2]{};
-        clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-        clearColor[1].depthStencil = { 1.0f, 0 };
+
+        VkClearValue clearColors[2]{};
+        clearColors[0].color = {};
+        clearColors[0].color.float32[0] = 0.f;
+        clearColors[0].color.float32[1] = 0.14f;
+        clearColors[0].color.float32[2] = 0.28;
+        clearColors[0].color.float32[3] = 1.f;
+        clearColors[1].depthStencil = { 1.0f, 0 };
+
         renderPassInfo.clearValueCount = 2;
-        renderPassInfo.pClearValues = clearColor;
+        renderPassInfo.pClearValues = clearColors;
 
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
@@ -80,7 +86,7 @@ namespace FLOOF {
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
             texture.Bind(commandBuffer);
-            for (auto& mesh : staticMesh.meshes) {
+            for (auto& mesh : *staticMesh.meshes) {
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
                 if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
@@ -531,8 +537,8 @@ namespace FLOOF {
         } else {
             colorBlendAttachment.blendEnable = VK_FALSE;
         }
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
         colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
         colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
         colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional

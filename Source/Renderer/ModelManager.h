@@ -9,7 +9,7 @@ namespace FLOOF {
         ModelManager();
     public:
 
-        ModelMesh LoadModelMesh(const std::string& path);
+        std::shared_ptr<std::vector<MeshData>> LoadModelMesh(const std::string& path);
         void ModelMeshDestroyed(std::string& path);
 
         struct btModelData{
@@ -28,12 +28,7 @@ namespace FLOOF {
         }
 
     private:
-        struct ModelData {
-            ModelMesh Model;
-            uint32_t RefCount = 0;
-        };
-
-        std::unordered_map<std::string, ModelData> m_MeshCache;
+        std::unordered_map<std::string, std::shared_ptr<std::vector<MeshData>>> m_MeshCache;
         std::unordered_map<std::string, btModelData> m_btMeshCache;
     };
 }

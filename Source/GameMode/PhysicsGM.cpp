@@ -169,7 +169,7 @@ namespace FLOOF {
         const auto entity = m_Scene.CreateEntity("Softbody");
         auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
         m_Scene.AddComponent<TextureComponent>(entity, Texture);
-        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
+        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
 
         //test python script
         auto &script = m_Scene.AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
@@ -200,7 +200,7 @@ namespace FLOOF {
 
         auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
         m_Scene.AddComponent<TextureComponent>(entity, Texture);
-        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath).meshes;
+        sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
 
         auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
 

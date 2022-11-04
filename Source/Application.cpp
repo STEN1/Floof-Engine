@@ -8,6 +8,7 @@
 #include "imgui_impl_glfw.h"
 #include "LasLoader.h"
 #include "Renderer/ModelManager.h"
+#include "SoundManager.h"
 #include "Renderer/ForwardSceneRenderer.h"
 #include "Renderer/DeferredSceneRenderer.h"
 #include "GameMode/PhysicsGM.h"
@@ -73,6 +74,7 @@ namespace FLOOF {
         Input::Init(m_Window);
 
         m_Scene = std::make_unique<Scene>();
+        m_SoundManager = new SoundManager;
 
         /*SceneRenderer*/
         SetRendererType(SceneRendererType::Forward);
@@ -286,6 +288,27 @@ namespace FLOOF {
                     ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
                     ImGui::DragFloat3("Scale", &transform->Scale[0]);
                 }
+                if (auto* rigidBody = m_Scene->GetRegistry().try_get<RigidBodyComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Rigid body component");
+                    if (rigidBody->RigidBody) {
+                        ImGui::Text("Position: %.3f, %.3f, %.3f",
+                            rigidBody->RigidBody->getCenterOfMassPosition().getX(),
+                            rigidBody->RigidBody->getCenterOfMassPosition().getY(),
+                            rigidBody->RigidBody->getCenterOfMassPosition().getZ());
+
+                        ImGui::Text("Velocity: %.3f, %.3f, %.3f",
+                            rigidBody->RigidBody->getLinearVelocity().getX(),
+                            rigidBody->RigidBody->getLinearVelocity().getY(),
+                            rigidBody->RigidBody->getLinearVelocity().getZ());
+
+                        ImGui::Text("Velocity length: %.3f", rigidBody->RigidBody->getLinearVelocity().length());
+                    }
+                }
+                if (auto* softBody = m_Scene->GetRegistry().try_get<SoftBodyComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Soft body component");
+                }
                 if (auto* meshComponent = m_Scene->GetRegistry().try_get<MeshComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Mesh component");
@@ -294,13 +317,16 @@ namespace FLOOF {
                 if (auto* staticMeshComponent = m_Scene->GetRegistry().try_get<StaticMeshComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Static mesh component");
-                    ImGui::Text(staticMeshComponent->Path.c_str());
                 }
                 if (auto* texture = m_Scene->GetRegistry().try_get<TextureComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Texture component");
                     ImGui::Text(texture->Data.Path.c_str());
                     ImGui::Image(texture->Data.DesctriptorSet, ImVec2(50, 50));
+                }
+                if (auto* soundComponent = m_Scene->GetRegistry().try_get<SoundComponent>(m_Scene->m_SelectedEntity)) {
+                    ImGui::Separator();
+                    ImGui::Text("Sound component");
                 }
             }
             ImGui::EndChild();
@@ -632,7 +658,7 @@ namespace FLOOF {
             auto ent = m_Scene->CreateEntity("Sponza");
             auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
             m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
-            sm = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
+            sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
         }
 
         {
@@ -665,6 +691,63 @@ namespace FLOOF {
     void Application::MakeAudioTestScene() {
         m_Scene = std::make_unique<Scene>();
 
+
+        {
+            auto texture = "Assets/LightBlue.png";
+            auto location = glm::vec3(0.f, -150.f, 0.f);
+            auto extents = glm::vec3(400.f, 10.f, 400.f);
+            auto mass = 0.f;
+
+            auto entity = m_Scene->CreateEntity("Ground Cube");
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
+            m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
+            m_Scene->AddComponent<TextureComponent>(entity, texture);
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
+                collision.Transform.getOrigin().getY(),
+                collision.Transform.getOrigin().getZ());
+            transform.Scale = extents;
+
+        }
+        {
+            auto entity = m_Scene->CreateEntity("Ground Ball");
+            m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, glm::vec3(0.f, -150.f, 0.f), glm::vec3(75.f), 0.f, bt::CollisionPrimitive::Sphere);
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(0.f, -150.f, 0.f);
+            transform.Scale = glm::vec3(75.f);
+
+        }
+
+
+        {
+            //spawning balls
+            glm::vec3 location = glm::vec3(3.f,25.f,2.f);
+            const float radius = 2.f;
+            const glm::vec3 extents = glm::vec3(radius);
+            const float mass = radius * 100.f;
+
+            auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(location.x + location.y + location.z));
+            m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
+            m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
+            m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius), mass, bt::CollisionPrimitive::Sphere);
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(Ball);
+            transform.Position = location;
+            transform.Scale = extents;
+
+            //m_Scene->AddComponent<SoundComponent>(Ball, m_SoundManager, "Assets/Sounds/TestSound_Stereo.wav");
+
+
+        }
+        {
+            //m_SoundManager->loadAssets();
+        }
+
+        m_SoundManager->testSound();
 
     }
 }
