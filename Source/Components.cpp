@@ -8,6 +8,7 @@
 #include "Renderer/ModelManager.h"
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 namespace FLOOF {
     TextureComponent::TextureComponent(const std::string& path) {
@@ -571,7 +572,8 @@ namespace FLOOF {
         source.append("/");
         source.append(Script);
 
-        std::string binary = BINARY_DIR;
+        //std::string binary = BINARY_DIR;
+        std::string binary = std::filesystem::current_path();
         binary.append("/");
         binary.append(Script);
 
