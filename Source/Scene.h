@@ -39,6 +39,11 @@ namespace FLOOF {
             return m_Registry.get<Type>(entity);
         }
 
+        template<typename Type>
+        Type* TryGetComponent(entt::entity entity) {
+            return m_Registry.try_get<Type>(entity);
+        }
+
         std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
     private:

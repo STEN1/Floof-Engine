@@ -304,16 +304,18 @@ namespace FLOOF {
                     ImGui::DragFloat3("Position", &transform->Position[0],0.1f);
                     ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
 
-                    auto& body = m_Scene->GetComponent<RigidBodyComponent>(m_Scene->m_SelectedEntity);
-                   if(body.Primitive == bt::CollisionPrimitive::Sphere){
-                       ImGui::DragFloat("Scale", &transform->Scale[0]);
-                       transform->Scale[1] = transform->Scale[2] = transform->Scale[0];
-                   }
-                   else
-                    ImGui::DragFloat3("Scale", &transform->Scale[0]);
+                    if(auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_SelectedEntity)){
+                        if(body->Primitive == bt::CollisionPrimitive::Sphere){
+                            ImGui::DragFloat("Scale", &transform->Scale[0]);
+                            transform->Scale[1] = transform->Scale[2] = transform->Scale[0];
+                        }
+                        else
+                            ImGui::DragFloat3("Scale", &transform->Scale[0]);
+                        //move physics body
+                        body->transform(transform->Position,transform->Rotation, transform->Scale/2.f);
+                    }
 
-                    //move physics body
-                    body.transform(transform->Position,transform->Rotation, transform->Scale/2.f);
+
                 }
                 if (auto* rigidBody = m_Scene->GetRegistry().try_get<RigidBodyComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
