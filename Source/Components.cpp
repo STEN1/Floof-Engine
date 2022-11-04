@@ -539,7 +539,6 @@ namespace FLOOF {
         trans.setRotation(btquat);
         trans.setOrigin(Utils::glmTobt(location));
         RigidBody->setCenterOfMassTransform(trans);
-        //RigidBody->getMotionState()->setWorldTransform(trans);
 
         CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
 

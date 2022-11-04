@@ -168,9 +168,9 @@ namespace FLOOF {
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
                 m_Scene->m_SelectedEntity = entity;
                 if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
-                    auto& body = m_Scene->GetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
-                    if(body.RigidBody){
-                        body.wakeup();
+                    auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
+                    if(body){
+                        body->wakeup();
                     }
                 }
                 m_Scene->m_LastSelectedEntity = entity;
@@ -182,10 +182,10 @@ namespace FLOOF {
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
                 m_Scene->m_SelectedEntity = entity;
                 if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
-                    auto& body = m_Scene->GetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
-                    if(body.RigidBody){
-                        body.wakeup();
-                    }
+                        auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
+                        if(body){
+                            body->wakeup();
+                        }
                 }
                 m_Scene->m_LastSelectedEntity = entity;
             }
