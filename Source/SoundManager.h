@@ -30,15 +30,16 @@ namespace FLOOF {
 		public:
 			SoundManager();
 			void testSound();
-			int loadPath(std::string path);
+			int loadPath(std::string path); // Could contain the whole component instead
 			void loadAssets();
 			void updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up); // Every tick
+			void PlaySounds();
+			void newTest();
 		private:
 			void readSounds();
 			void openDevice();
 			void createContext();
 			void createListener();
-			void PlaySounds();
 
 			ALCdevice* device;
 			ALCcontext* context;

@@ -44,7 +44,8 @@ namespace FLOOF {
     void SoundManager::testSound()
     {
         readSounds();
-        PlaySounds();
+        //PlaySounds();
+        newTest();
     }
 
     int SoundManager::loadPath(std::string path)
@@ -159,11 +160,14 @@ namespace FLOOF {
         createContext();
         createListener();
 
+        std::vector<ALuint> sources;
+
+        ALuint soundBuffer;
+        alec(alGenBuffers(1, &soundBuffer)); // Generates buffers 
         for (auto sound_data : soundData) {
-            ALuint source;
+            
             // Pass data to OpenAL
-            ALuint soundBuffer;
-            alec(alGenBuffers(1, &soundBuffer)); // Generates buffers 
+
             alec(alBufferData(
                 soundBuffer, // The buffer
                 sound_data.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, // Using the AL format Mono16 if one channel, or Stereo 16 if more
@@ -171,6 +175,7 @@ namespace FLOOF {
                 sound_data.pcmData.size() * 2, // Multiplied by two since vector is stored in 16 bits and data is read in bytes
                 sound_data.sampleRate)); // The sample rate, obiously
 
+            ALuint source;
             // Create a sound source that plays the sound from the buffer
             // Update position for source with actualt position later
             alec(alGenSources(1, &source));
@@ -185,6 +190,7 @@ namespace FLOOF {
             alec(alSourcei(source, AL_LOOPING, AL_FALSE));
             alec(alSourcei(source, AL_BUFFER, soundBuffer)); // The buffer integer the source should play from
 
+            sources.push_back(source);
             // Play the sound source
             alec(alSourcePlay(source));
             // Query if the source is still playing
@@ -203,6 +209,11 @@ namespace FLOOF {
             // Delete buffers
             alec(alDeleteBuffers(1, &source));
         }
+    
+        // Delete sources
+        alec(alDeleteSources(1, &sources[0]));
+        // Delete buffers
+        alec(alDeleteBuffers(1, &sources[0]));
 
     	
         // Make the current context null
@@ -211,6 +222,69 @@ namespace FLOOF {
         alec(alcDestroyContext(context));
         alec(alcCloseDevice(device));
 
+    }
+
+    void SoundManager::newTest()
+    {
+        openDevice();
+        createContext();
+        createListener();
+
+        const int numSources = 2;
+        const int numBuffers = 2;
+
+        ALuint sources[2];
+
+        ALuint soundBuffers[2];
+
+        alec(alGenBuffers(numSources, soundBuffers)); // Generates buffers 
+        alec(alGenSources(numBuffers, sources));
+
+
+        // Pass data to OpenAL
+
+        for (int i = 0; i < soundData.size(); ++i)
+        {
+            alec(alBufferData(soundBuffers[i], soundData[i].channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, soundData[i].pcmData.data(), soundData[0].pcmData.size() * 2, soundData[i].sampleRate));
+
+
+            alec(alSource3f(sources[i], AL_POSITION, 1.f, 0.f, 0.f));
+            alec(alSource3f(sources[i], AL_VELOCITY, 0.f, 0.f, 0.f));
+            alec(alSourcef(sources[i], AL_PITCH, 1.f));
+            alec(alSourcef(sources[i], AL_GAIN, 1.f));
+            alec(alSourcei(sources[i], AL_LOOPING, AL_FALSE));
+            alec(alSourcei(sources[i], AL_BUFFER, soundBuffers[i]));
+
+        }
+
+        for (int i = 0; i < numSources; ++i) {
+            alec(alSourcePlay(sources[i]));
+            alec(alSourcePlay(sources[i]));
+        }
+
+        ALint sourceState = AL_PLAYING;
+
+            while (sourceState == AL_PLAYING) {
+                for (int i = 0; i < sizeof(sources); ++i)
+                {
+                    alec(alGetSourcei(sources[i], AL_SOURCE_STATE, &sourceState));
+                    if (sourceState == AL_PLAYING && i != sizeof(sources) - 1) {
+                        break;
+                    }
+
+                }
+            }
+
+        for (int i = 0; i < sizeof(sources); ++i) {
+            alec(alDeleteSources(numSources, sources));
+            alec(alDeleteBuffers(numBuffers, soundBuffers));
+        }
+
+        // Make the current context null
+        alec(alcMakeContextCurrent(nullptr));
+        // Destroy the current context
+        alec(alcDestroyContext(context));
+        alec(alcCloseDevice(device));
     }
 
     wavFile SoundManager::readWavData(std::string path)
