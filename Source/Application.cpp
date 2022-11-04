@@ -165,14 +165,31 @@ namespace FLOOF {
             // using tree node since it allows for selection
             node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
             ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
                 m_Scene->m_SelectedEntity = entity;
+                if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
+                    auto& body = m_Scene->GetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
+                    if(body.RigidBody){
+                        body.wakeup();
+                    }
+                }
+                m_Scene->m_LastSelectedEntity = entity;
+            }
 
         } else {
             // is parent to children and has to make a tree
             bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
                 m_Scene->m_SelectedEntity = entity;
+                if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
+                    auto& body = m_Scene->GetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
+                    if(body.RigidBody){
+                        body.wakeup();
+                    }
+                }
+                m_Scene->m_LastSelectedEntity = entity;
+            }
+
             if (node_open) {
                 for (auto& childEntity : rel.Children) {
                     auto& childTag = m_Scene->GetComponent<TagComponent>(childEntity);
@@ -284,7 +301,7 @@ namespace FLOOF {
                 if (auto* transform = m_Scene->GetRegistry().try_get<TransformComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Transform component");
-                    ImGui::DragFloat3("Position", &transform->Position[0]);
+                    ImGui::DragFloat3("Position", &transform->Position[0],0.1f);
                     ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
 
                     auto& body = m_Scene->GetComponent<RigidBodyComponent>(m_Scene->m_SelectedEntity);
@@ -294,8 +311,8 @@ namespace FLOOF {
                    }
                    else
                     ImGui::DragFloat3("Scale", &transform->Scale[0]);
-                    //move physics body
 
+                    //move physics body
                     body.transform(transform->Position,transform->Rotation, transform->Scale/2.f);
                 }
                 if (auto* rigidBody = m_Scene->GetRegistry().try_get<RigidBodyComponent>(m_Scene->m_SelectedEntity)) {

@@ -53,5 +53,6 @@ namespace FLOOF {
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
+        entt::entity m_LastSelectedEntity = entt::null;
     };
 }

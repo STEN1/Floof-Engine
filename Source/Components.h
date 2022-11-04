@@ -179,6 +179,7 @@ namespace FLOOF {
         void transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale);
 
         const bt::CollisionPrimitive Primitive;
+        void wakeup();
     private:
         void InitializeBasicPhysics(const float mass);
         const glm::vec3 DefaultScale;

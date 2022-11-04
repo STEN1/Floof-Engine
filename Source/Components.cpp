@@ -525,6 +525,7 @@ namespace FLOOF {
 
     void RigidBodyComponent::transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale) {
         btTransform trans;
+        RigidBody->setActivationState(0);
         if (RigidBody && RigidBody->getMotionState()) {
             RigidBody->getMotionState()->getWorldTransform(trans);
         } else {
@@ -536,11 +537,16 @@ namespace FLOOF {
         auto rot = Utils::glmTobt(rotation);
         btquat.setEulerZYX(rot.z(),rot.y(),rot.x());
         trans.setRotation(btquat);
-        RigidBody->getMotionState()->setWorldTransform(trans);
+        trans.setOrigin(Utils::glmTobt(location));
+        RigidBody->setCenterOfMassTransform(trans);
+        //RigidBody->getMotionState()->setWorldTransform(trans);
 
         CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
-        RigidBody->activate(true);
 
+    }
+
+    void RigidBodyComponent::wakeup() {
+        RigidBody->activate(true);
     }
 
     SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body) {
