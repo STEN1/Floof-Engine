@@ -598,7 +598,7 @@ namespace FLOOF {
         source.append(Script);
 
         //std::string binary = BINARY_DIR;
-        std::string binary = std::filesystem::current_path();
+        std::string binary = std::filesystem::current_path().string();
         binary.append("/");
         binary.append(Script);
 

@@ -85,9 +85,9 @@ add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
 target_link_libraries(Floof BulletSoftBody)
 
 #pybinding
-find_package(PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS})
-target_link_libraries(Floof ${PYTHON_LIBRARIES})
+find_package(Python COMPONENTS Interpreter Development)
+target_include_directories(Floof PUBLIC ${Python_INCLUDE_DIRS})
+target_link_libraries(Floof ${Python_LIBRARIES})
 
 #add_subdirectory(Libs/pybind11)
 #target_include_directories(Floof PUBLIC Libs/pybind11/include)
