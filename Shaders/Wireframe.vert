@@ -7,10 +7,11 @@ layout(location = 3) in vec3 tangent;
 layout(location = 4) in vec3 bitTangent;
 
 layout(push_constant) uniform PushConstants {
-    mat4 mvp;
+    mat4 vp;
+    mat4 model;
     mat4 imodel;
 } pushConstants;
 
 void main() {
-    gl_Position = pushConstants.mvp * vec4(pos, 1.0);
+    gl_Position = pushConstants.vp * pushConstants.model * vec4(pos, 1.0);
 }

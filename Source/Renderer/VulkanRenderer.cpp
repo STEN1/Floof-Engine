@@ -65,6 +65,7 @@ namespace FLOOF {
 
         vkDestroyDescriptorPool(m_LogicalDevice, m_TextureDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_ShaderStorageDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(m_LogicalDevice, m_UBODescriptorPool, nullptr);
         vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
         for (auto& [key, val] : m_DescriptorSetLayouts) {
             vkDestroyDescriptorSetLayout(m_LogicalDevice, val, nullptr);
@@ -210,7 +211,7 @@ namespace FLOOF {
         return GetPipelineLayout(key);
     }
 
-    VulkanBuffer VulkanRenderer::CreateIndexBuffer(const std::vector<uint32_t>& indices) {
+    VulkanBufferData VulkanRenderer::CreateIndexBuffer(const std::vector<uint32_t>& indices) {
         std::size_t size = sizeof(uint32_t) * indices.size();
         VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
         bufferInfo.size = size;
@@ -222,7 +223,7 @@ namespace FLOOF {
         allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
             VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
-        VulkanBuffer stagingBuffer{};
+        VulkanBufferData stagingBuffer{};
         vmaCreateBuffer(m_Allocator, &bufferInfo, &allocInfo,
             &stagingBuffer.Buffer, &stagingBuffer.Allocation, &stagingBuffer.AllocationInfo);
 
@@ -232,7 +233,7 @@ namespace FLOOF {
 
         bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
         allocInfo.flags = 0;
-        VulkanBuffer indexBuffer{};
+        VulkanBufferData indexBuffer{};
         vmaCreateBuffer(m_Allocator, &bufferInfo, &allocInfo,
             &indexBuffer.Buffer, &indexBuffer.Allocation, &indexBuffer.AllocationInfo);
 
@@ -328,7 +329,7 @@ namespace FLOOF {
         vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
     }
 
-    void VulkanRenderer::DestroyVulkanBuffer(VulkanBuffer* buffer) {
+    void VulkanRenderer::DestroyVulkanBuffer(VulkanBufferData* buffer) {
         vmaDestroyBuffer(m_Allocator, buffer->Buffer, buffer->Allocation);
     }
 
@@ -705,6 +706,36 @@ namespace FLOOF {
 
             VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
         }
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO]);
+        }
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO]);
+        }
     }
 
     void VulkanRenderer::CreateGraphicsPipeline(const RenderPipelineParams& params) {
@@ -912,6 +943,22 @@ namespace FLOOF {
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_TextureDescriptorPool);
+            ASSERT(result == VK_SUCCESS);
+        }
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            poolSize.descriptorCount = 256;
+
+            // Create texture descriptor pool.
+            VkDescriptorPoolCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT |
+                VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.maxSets = 256;
+            createInfo.pPoolSizes = &poolSize;
+            createInfo.poolSizeCount = 1;
+            VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_UBODescriptorPool);
             ASSERT(result == VK_SUCCESS);
         }
         {
@@ -1239,6 +1286,23 @@ namespace FLOOF {
 
     void VulkanRenderer::FreeShaderStorageDescriptorSet(VkDescriptorSet desctriptorSet) {
         vkFreeDescriptorSets(m_LogicalDevice, m_ShaderStorageDescriptorPool, 1, &desctriptorSet);
+    }
+
+    VkDescriptorSet VulkanRenderer::AllocateUBODescriptorSet(VkDescriptorSetLayout descriptorSetLayout) {
+        VkDescriptorSet descriptorSet{};
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = m_UBODescriptorPool;
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
+
+        VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &descriptorSet);
+        ASSERT(result == VK_SUCCESS);
+        return descriptorSet;
+    }
+
+    void VulkanRenderer::FreeUBODescriptorSet(VkDescriptorSet desctriptorSet) {
+        vkFreeDescriptorSets(m_LogicalDevice, m_UBODescriptorPool, 1, &desctriptorSet);
     }
 
     void VulkanRenderer::PopulateQueueFamilyIndices(QueueFamilyIndices& QFI) {

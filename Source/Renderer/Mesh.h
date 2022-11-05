@@ -7,8 +7,8 @@
 
 namespace FLOOF {
     struct MeshData {
-        VulkanBuffer VertexBuffer{};
-        VulkanBuffer IndexBuffer{};
+        VulkanBufferData VertexBuffer{};
+        VulkanBufferData IndexBuffer{};
         uint32_t VertexCount{};
         uint32_t IndexCount{};
     };

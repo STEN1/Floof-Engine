@@ -70,8 +70,8 @@ namespace FLOOF {
         void Draw(VkCommandBuffer commandBuffer);
 
         struct MeshData {
-            VulkanBuffer VertexBuffer{};
-            VulkanBuffer IndexBuffer{};
+            VulkanBufferData VertexBuffer{};
+            VulkanBufferData IndexBuffer{};
             uint32_t VertexCount{};
             uint32_t IndexCount{};
             std::string Path{};
@@ -92,7 +92,7 @@ namespace FLOOF {
         void Draw(VkCommandBuffer commandBuffer);
 
         void UpdateBuffer(const std::vector<ColorVertex>& vertexData);
-        VulkanBuffer VertexBuffer{};
+        VulkanBufferData VertexBuffer{};
         uint32_t VertexCount{};
         uint32_t MaxVertexCount{};
     };
@@ -103,7 +103,7 @@ namespace FLOOF {
 
         void Draw(VkCommandBuffer commandBuffer);
 
-        VulkanBuffer VertexBuffer{};
+        VulkanBufferData VertexBuffer{};
         uint32_t VertexCount{};
     };
 
@@ -225,5 +225,23 @@ namespace FLOOF {
         bool loaded{ false }; // set to true when loaded by soundmanager
 
 	};
+
+    struct PointLightComponent {
+        glm::vec4 diffuse = { 0.8f, 0.4f, 0.2f, 0.f };
+        glm::vec4 ambient = glm::vec4(0.4f, 0.4f, 0.4f, 0.f) * 0.1f;
+
+        float lightRange = 20.f;
+
+        struct PointLight {
+            glm::vec4 position;
+            glm::vec4 diffuse;
+            glm::vec4 ambient;
+
+            float constant = 1.f;
+            float linear;
+            float quadratic;
+            float lightRange;
+        };
+    };
 }
 
