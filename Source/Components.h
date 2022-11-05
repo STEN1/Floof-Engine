@@ -13,7 +13,13 @@
 
 //pulls in python api
 #define PY_SSIZE_T_CLEAN
+#ifdef _DEBUG
+#undef _DEBUG
 #include <python.h>
+#define _DEBUG
+#else
+#include <python.h>
+#endif
 
 namespace FLOOF {
 
@@ -176,8 +182,13 @@ namespace FLOOF {
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
 
+        void transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale);
+
+        const bt::CollisionPrimitive Primitive;
+        void wakeup();
     private:
         void InitializeBasicPhysics(const float mass);
+        const glm::vec3 DefaultScale;
     };
     struct SoftBodyComponent{
         SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body);

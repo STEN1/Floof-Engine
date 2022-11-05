@@ -165,14 +165,31 @@ namespace FLOOF {
             // using tree node since it allows for selection
             node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
             ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
                 m_Scene->m_SelectedEntity = entity;
+                if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
+                    auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
+                    if(body){
+                        body->wakeup();
+                    }
+                }
+                m_Scene->m_LastSelectedEntity = entity;
+            }
 
         } else {
             // is parent to children and has to make a tree
             bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
                 m_Scene->m_SelectedEntity = entity;
+                if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
+                        auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
+                        if(body){
+                            body->wakeup();
+                        }
+                }
+                m_Scene->m_LastSelectedEntity = entity;
+            }
+
             if (node_open) {
                 for (auto& childEntity : rel.Children) {
                     auto& childTag = m_Scene->GetComponent<TagComponent>(childEntity);
@@ -284,9 +301,21 @@ namespace FLOOF {
                 if (auto* transform = m_Scene->GetRegistry().try_get<TransformComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Transform component");
-                    ImGui::DragFloat3("Position", &transform->Position[0]);
+                    ImGui::DragFloat3("Position", &transform->Position[0],0.1f);
                     ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
-                    ImGui::DragFloat3("Scale", &transform->Scale[0]);
+
+                    if(auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_SelectedEntity)){
+                        if(body->Primitive == bt::CollisionPrimitive::Sphere){
+                            ImGui::DragFloat("Scale", &transform->Scale[0]);
+                            transform->Scale[1] = transform->Scale[2] = transform->Scale[0];
+                        }
+                        else
+                            ImGui::DragFloat3("Scale", &transform->Scale[0]);
+                        //move physics body
+                        body->transform(transform->Position,transform->Rotation, transform->Scale/2.f);
+                    }
+
+
                 }
                 if (auto* rigidBody = m_Scene->GetRegistry().try_get<RigidBodyComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
@@ -296,6 +325,11 @@ namespace FLOOF {
                             rigidBody->RigidBody->getCenterOfMassPosition().getX(),
                             rigidBody->RigidBody->getCenterOfMassPosition().getY(),
                             rigidBody->RigidBody->getCenterOfMassPosition().getZ());
+
+                        ImGui::Text("Local Scale: %.3f, %.3f, %.3f",
+                                    rigidBody->CollisionShape->getLocalScaling().getX(),
+                                    rigidBody->CollisionShape->getLocalScaling().getY(),
+                                    rigidBody->CollisionShape->getLocalScaling().getZ());
 
                         ImGui::Text("Velocity: %.3f, %.3f, %.3f",
                             rigidBody->RigidBody->getLinearVelocity().getX(),
@@ -628,7 +662,7 @@ namespace FLOOF {
                         auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
                         m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
                         m_Scene->AddComponent<TextureComponent>(Ball, "Assets/statue/textures/staue1Color.png");
-                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,glm::vec3(radius),mass,bt::CollisionPrimitive::Sphere);
+                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
                         transform.Position = location;
