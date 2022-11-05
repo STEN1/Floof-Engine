@@ -14,6 +14,7 @@
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
 #include "GameMode/AudioTestGM.h"
+#include <filesystem>
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -371,7 +372,7 @@ namespace FLOOF {
                     //todo this is bad, should not read all files every frame
                     std::vector<std::string> scripts;
                     for (const auto & entry : std::filesystem::directory_iterator("Scripts")){
-                        std::string cleanname = entry.path();
+                        std::string cleanname = entry.path().string();
                         cleanname.erase(0,8);
                         scripts.emplace_back(cleanname);
 
