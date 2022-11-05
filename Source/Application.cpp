@@ -688,6 +688,8 @@ namespace FLOOF {
             int width = 5;
             float spacing = 5.f;
 
+            bool lightAdded = false;
+
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -704,6 +706,7 @@ namespace FLOOF {
                         m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
                         m_Scene->AddComponent<TextureComponent>(Ball, "Assets/statue/textures/staue1Color.png");
                         m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
+                        m_Scene->AddComponent<PointLightComponent>(Ball);
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
                         transform.Position = location;

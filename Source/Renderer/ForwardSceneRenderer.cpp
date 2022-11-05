@@ -55,19 +55,54 @@ namespace FLOOF {
         auto drawMode = app.GetDrawMode();
         if (drawMode != RenderPipelineKeys::Wireframe)
             drawMode = RenderPipelineKeys::ForwardLit;
+        auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
 
         // Camera setup
         CameraComponent* camera = app.GetRenderCamera();
         glm::mat4 vp = camera->GetVP(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 1.f, 1000000.f);
 
+
+
+        std::vector<PointLightComponent::PointLight> pointLights;
+        auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
+        for (auto [entity, transform, lightComp] : lightView.each()) {
+            PointLightComponent::PointLight light;
+            light.position = glm::vec4(transform.Position, 1.f);
+            light.diffuse = lightComp.diffuse;
+            light.ambient = lightComp.ambient;
+            light.lightRange = lightComp.lightRange;
+            light.linear = 4.5f / light.lightRange;
+            light.quadratic = 75.f / (light.lightRange * light.lightRange);
+            pointLights.push_back(light);
+        }
+
+        m_LightSSBO.Update(pointLights);
+        auto lightDescriptor = m_LightSSBO.GetDescriptorSet();
+
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
+            &lightDescriptor, 0, 0);
+
+        SceneFrameData sceneFrameData{};
+        static float accumulator = 0.f;
+        accumulator += 0.01f;
+        float r = (sinf(accumulator) + 1.f) * 0.5f;
+        float b = (cosf(accumulator) + 1.f) * 0.5f;
+        sceneFrameData.CameraPos = camera->Position;
+        sceneFrameData.LightCount = pointLights.size();
+        m_SceneDataUBO.Update(sceneFrameData);
+        auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
+            &sceneDescriptor, 0, 0);
+
         // Draw models
-        auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
         {
             auto view = scene->m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
             for (auto [entity, transform, mesh, texture] : view.each()) {
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
-                constants.MVP = vp * modelMat;
+                constants.VP = vp;
+                constants.Model = modelMat;
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
@@ -81,7 +116,8 @@ namespace FLOOF {
         for (auto [entity, transform, staticMesh, texture] : view.each()) {
             MeshPushConstants constants;
             glm::mat4 modelMat = transform.GetTransform();
-            constants.MVP = vp * modelMat;
+            constants.VP = vp;
+            constants.Model = modelMat;
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
@@ -103,9 +139,9 @@ namespace FLOOF {
         if (physicDrawer) {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
             auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
-            ColorPushConstants constants;
-            constants.MVP = vp;
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ColorPushConstants), &constants);
+            MeshPushConstants constants;
+            constants.VP = vp;
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
             lineMesh->Draw(commandBuffer);
         }
 
@@ -117,7 +153,8 @@ namespace FLOOF {
 
             MeshPushConstants constants;
             glm::mat4 modelMat = transform.GetTransform();
-            constants.MVP = vp * modelMat;
+            constants.VP = vp;
+            constants.Model = modelMat;
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
@@ -160,8 +197,10 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings.resize(3);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
+            params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -189,7 +228,7 @@ namespace FLOOF {
             params.Topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(ColorPushConstants);
+            params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -404,7 +443,7 @@ namespace FLOOF {
             vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
 
             // Get descriptor set and point it to data.
-            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
+            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::FontTexture]);
 
             VkSampler sampler = renderer->GetFontSampler();
 

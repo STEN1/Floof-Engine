@@ -2,9 +2,15 @@
 
 #include "SceneRenderer.h"
 #include <unordered_map>
-#include "SSBO.h"
+#include "VulkanBuffer.h"
+#include "../Components.h"
 
 namespace FLOOF {
+    struct SceneFrameData {
+        glm::vec3 CameraPos = glm::vec3(0.f);
+        int LightCount = 0;
+    };
+
     class ForwardSceneRenderer : public SceneRenderer {
     public:
         ForwardSceneRenderer();
@@ -42,9 +48,12 @@ namespace FLOOF {
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
         VkFormat m_DepthFormat{};
-        VulkanImage m_DepthBuffer{};
+        VulkanImageData m_DepthBuffer{};
         VkImageView m_DepthBufferImageView = VK_NULL_HANDLE;
 
         glm::vec2 m_Extent{ 0.f, 0.f };
+
+        VulkanUBO<SceneFrameData> m_SceneDataUBO{};
+        VulkanSSBO<PointLightComponent::PointLight> m_LightSSBO{};
     };
 }
