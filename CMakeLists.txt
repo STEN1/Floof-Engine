@@ -52,7 +52,8 @@ add_executable(Floof
     Source/GameMode/AudioTestGM.cpp
     Source/Renderer/Mesh.cpp
     Source/SoundManager.h
-    Source/SoundManager.cpp)
+    Source/SoundManager.cpp 
+    Source/Renderer/SSBO.h)
 
 
 find_package(Vulkan REQUIRED)

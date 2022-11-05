@@ -61,7 +61,7 @@ namespace FLOOF {
         glm::mat4 vp = camera->GetVP(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 1.f, 1000000.f);
 
         // Draw models
-        auto pipelineLayout = BindRenderPipeline(commandBuffer, drawMode);
+        auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
         {
             auto view = scene->m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
             for (auto [entity, transform, mesh, texture] : view.each()) {
@@ -72,7 +72,7 @@ namespace FLOOF {
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
 
-                texture.Bind(commandBuffer);
+                texture.Bind(commandBuffer, pipelineLayout);
                 mesh.Draw(commandBuffer);
             }
         }
@@ -85,7 +85,7 @@ namespace FLOOF {
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
-            texture.Bind(commandBuffer);
+            texture.Bind(commandBuffer, pipelineLayout);
             for (auto& mesh : *staticMesh.meshes) {
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
@@ -101,7 +101,7 @@ namespace FLOOF {
         // Draw debug lines
         auto* physicDrawer = app.GetPhysicsSystemDrawer();
         if (physicDrawer) {
-            auto pipelineLayout = BindRenderPipeline(commandBuffer, RenderPipelineKeys::Line);
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
             auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
             ColorPushConstants constants;
             constants.MVP = vp;
@@ -113,7 +113,7 @@ namespace FLOOF {
         if (auto* meshComponent = scene->m_Registry.try_get<MeshComponent>(scene->m_SelectedEntity)) {
             auto& transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
 
-            auto pipelineLayout = BindRenderPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
 
             MeshPushConstants constants;
             glm::mat4 modelMat = transform.GetTransform();
@@ -149,7 +149,6 @@ namespace FLOOF {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         CreateRenderPass();
         auto* renderer = VulkanRenderer::Get();
-        VkSampler sampler = renderer->GetSampler();
         {	// Default light shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
@@ -162,12 +161,9 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0].binding = 0;
-            params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
-            params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &sampler;
-            CreateRenderPipeline(params);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
         }
         {	// Wireframe
             RenderPipelineParams params;
@@ -180,7 +176,8 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            CreateRenderPipeline(params);
+            params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
         }
         {	// Line drawing shader
             RenderPipelineParams params;
@@ -193,7 +190,8 @@ namespace FLOOF {
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(ColorPushConstants);
-            CreateRenderPipeline(params);
+            params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
         }
     }
 
@@ -202,19 +200,7 @@ namespace FLOOF {
 
         DestoryFrameBuffers();
         DestoryDepthBuffer();
-
-        for (auto& [key, val] : m_DescriptorSetLayouts) {
-            vkDestroyDescriptorSetLayout(renderer->m_LogicalDevice, val, nullptr);
-        }
-        for (auto& [key, val] : m_GraphicsPipelines) {
-            vkDestroyPipeline(renderer->m_LogicalDevice, val, nullptr);
-        }
-        for (auto& [key, val] : m_PipelineLayouts) {
-            vkDestroyPipelineLayout(renderer->m_LogicalDevice, val, nullptr);
-        }
-
         DestroyRenderPass();
-
     }
 
     void ForwardSceneRenderer::ResizeBuffers(glm::vec2 extent) {
@@ -230,11 +216,6 @@ namespace FLOOF {
 
         CreateDepthBuffer();
         CreateFrameBuffers();
-    }
-
-    VkPipelineLayout ForwardSceneRenderer::BindRenderPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys key) {
-        vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipelines[key]);
-        return m_PipelineLayouts[key];
     }
 
     void ForwardSceneRenderer::CreateRenderPass() {
@@ -274,14 +255,6 @@ namespace FLOOF {
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
         subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
-
-        /*VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;*/
 
         // Use subpass dependencies for layout transitions
         std::array<VkSubpassDependency, 2> dependencies;
@@ -430,24 +403,10 @@ namespace FLOOF {
             textureImageViewInfo.subresourceRange.layerCount = 1;
             vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
 
-            //VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-            //samplerInfo.magFilter = VK_FILTER_LINEAR;
-            //samplerInfo.minFilter = VK_FILTER_LINEAR;
-            //samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            //samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-            //samplerInfo.addressModeV = samplerInfo.addressModeU;
-            //samplerInfo.addressModeW = samplerInfo.addressModeU;
-            //samplerInfo.mipLodBias = 0.0f;
-            //samplerInfo.maxAnisotropy = 1.0f;
-            //samplerInfo.minLod = 0.0f;
-            //samplerInfo.maxLod = 1.0f;
-            //samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-            //vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &fbTexture.Texture.Sampler);
-
             // Get descriptor set and point it to data.
-            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet();
+            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
 
-            VkSampler sampler = renderer->GetSampler();
+            VkSampler sampler = renderer->GetFontSampler();
 
             VkDescriptorImageInfo descriptorImageInfo{};
             descriptorImageInfo.sampler = sampler;
@@ -465,164 +424,6 @@ namespace FLOOF {
             vkUpdateDescriptorSets(renderer->m_LogicalDevice, 1, &writeDescriptorSet, 0, nullptr);
         }
     } 
-
-    void ForwardSceneRenderer::CreateRenderPipeline(const RenderPipelineParams& params) {
-        auto* renderer = VulkanRenderer::Get();
-
-        auto vertShader = renderer->MakeShaderModule(params.VertexPath.c_str());
-        auto fragShader = renderer->MakeShaderModule(params.FragmentPath.c_str());
-
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertShaderStageInfo.module = vertShader;
-        vertShaderStageInfo.pName = "main";
-
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = fragShader;
-        fragShaderStageInfo.pName = "main";
-
-        VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &params.BindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = params.AttributeDescriptions.size();
-        vertexInputInfo.pVertexAttributeDescriptions = params.AttributeDescriptions.data();
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = params.Topology;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-        std::vector<VkDynamicState> dynamicStates = {
-        VK_DYNAMIC_STATE_VIEWPORT,
-        VK_DYNAMIC_STATE_SCISSOR
-        };
-
-        VkPipelineDynamicStateCreateInfo dynamicState{};
-        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-        dynamicState.pDynamicStates = dynamicStates.data();
-
-        VkPipelineViewportStateCreateInfo viewportState{};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
-
-        VkPipelineRasterizationStateCreateInfo rasterizer{};
-        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = params.PolygonMode;
-        rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
-        rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-        rasterizer.depthBiasClamp = 0.0f; // Optional
-        rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
-
-        VkPipelineMultisampleStateCreateInfo multisampling{};
-        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-        VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        if (params.Flags & RenderPipelineFlags::AlphaBlend) {
-            colorBlendAttachment.blendEnable = VK_TRUE;
-        } else {
-            colorBlendAttachment.blendEnable = VK_FALSE;
-        }
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
-
-        VkPipelineColorBlendStateCreateInfo colorBlending{};
-        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-        colorBlending.logicOpEnable = VK_FALSE;
-        colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-        colorBlending.attachmentCount = 1;
-        colorBlending.pAttachments = &colorBlendAttachment;
-        colorBlending.blendConstants[0] = 0.0f; // Optional
-        colorBlending.blendConstants[1] = 0.0f; // Optional
-        colorBlending.blendConstants[2] = 0.0f; // Optional
-        colorBlending.blendConstants[3] = 0.0f; // Optional
-
-        VkPushConstantRange pushConstants{};
-        pushConstants.offset = 0;
-        pushConstants.size = params.PushConstantSize;
-        pushConstants.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        if (params.DescriptorSetLayoutBindings.size() != 0) {
-            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
-            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
-            descriptorSetLayoutCreateInfo.bindingCount = params.DescriptorSetLayoutBindings.size();
-            descriptorSetLayoutCreateInfo.pBindings = params.DescriptorSetLayoutBindings.data();
-
-            vkCreateDescriptorSetLayout(renderer->m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[params.Key]);
-
-            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipelineLayoutInfo.setLayoutCount = 1;
-            pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayouts[params.Key];
-            pipelineLayoutInfo.pushConstantRangeCount = 1;
-            pipelineLayoutInfo.pPushConstantRanges = &pushConstants;
-        } else {
-            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipelineLayoutInfo.setLayoutCount = 0;
-            pipelineLayoutInfo.pSetLayouts = nullptr;
-            pipelineLayoutInfo.pushConstantRangeCount = 1;
-            pipelineLayoutInfo.pPushConstantRanges = &pushConstants;
-        }
-
-        VkResult plResult = vkCreatePipelineLayout(renderer->m_LogicalDevice, &pipelineLayoutInfo, nullptr, &m_PipelineLayouts[params.Key]);
-        ASSERT(plResult == VK_SUCCESS);
-
-        VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-        if (params.Flags & RenderPipelineFlags::DepthPass) {
-            depthStencilStateInfo.depthTestEnable = VK_TRUE;
-            depthStencilStateInfo.depthWriteEnable = VK_TRUE;
-        } else {
-            depthStencilStateInfo.depthTestEnable = VK_FALSE;
-            depthStencilStateInfo.depthWriteEnable = VK_FALSE;
-        }
-        depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
-        depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
-        depthStencilStateInfo.stencilTestEnable = VK_FALSE;
-
-        VkGraphicsPipelineCreateInfo pipelineInfo{};
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = 2;
-        pipelineInfo.pStages = shaderStages;
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pDepthStencilState = &depthStencilStateInfo;
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = m_PipelineLayouts[params.Key];
-        pipelineInfo.renderPass = m_RenderPass;
-        pipelineInfo.subpass = 0;
-        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
-        pipelineInfo.basePipelineIndex = -1; // Optional
-
-        VkResult gplResult = vkCreateGraphicsPipelines(renderer->m_LogicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipelines[params.Key]);
-        ASSERT(gplResult == VK_SUCCESS);
-
-        vkDestroyShaderModule(renderer->m_LogicalDevice, vertShader, nullptr);
-        vkDestroyShaderModule(renderer->m_LogicalDevice, fragShader, nullptr);
-        LOG("Forward renderer: Render pipeline created.\n");
-    }
 
     void ForwardSceneRenderer::CreateCommandPool() {
     }
@@ -645,13 +446,11 @@ namespace FLOOF {
             vkDestroyFramebuffer(renderer->m_LogicalDevice, textureFrameBuffer.FrameBuffer, nullptr);
             vkDestroyImageView(renderer->m_LogicalDevice, textureFrameBuffer.Texture.ImageView, nullptr);
             vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.Texture.Image, textureFrameBuffer.Texture.Allocation);
-            //vkDestroySampler(renderer->m_LogicalDevice, textureFrameBuffer.Texture.Sampler, nullptr);
             renderer->FreeTextureDescriptorSet(textureFrameBuffer.Descriptor);
 
             textureFrameBuffer.FrameBuffer = VK_NULL_HANDLE;
             textureFrameBuffer.Texture.ImageView = VK_NULL_HANDLE;
             textureFrameBuffer.Texture.Image = VK_NULL_HANDLE;
-            //textureFrameBuffer.Texture.Sampler = VK_NULL_HANDLE;
             textureFrameBuffer.Descriptor = VK_NULL_HANDLE;
         }
     }

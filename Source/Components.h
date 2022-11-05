@@ -111,7 +111,7 @@ namespace FLOOF {
         TextureComponent(const std::string& path);
         ~TextureComponent();
 
-        void Bind(VkCommandBuffer commandBuffer);
+        void Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
 
         struct TextureData {
             VulkanCombinedTextureSampler CombinedTextureSampler{};
