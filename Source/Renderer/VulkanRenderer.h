@@ -48,7 +48,7 @@ namespace FLOOF {
         MSAA = 1 << 2,
     };
 
-    enum class RenderPipelineKeys : uint32_t {
+    enum RenderPipelineKeys : uint32_t {
         Basic,
         Wireframe,
         Line,
@@ -60,6 +60,12 @@ namespace FLOOF {
         LineStripWithDepth,
         LitColor,
         ForwardLit,
+    };
+
+    enum RenderSetLayouts : uint32_t {
+        LightShaderStorage,
+        DiffuseTexture,
+        FontTexture,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {
@@ -80,7 +86,8 @@ namespace FLOOF {
         VkVertexInputBindingDescription BindingDescription;
         std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
         uint32_t PushConstantSize;
-        std::vector<VkDescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
+        std::vector<VkDescriptorSetLayout> DescriptorSetLayoutBindings;
+        VkRenderPass Renderpass;
     };
 
     struct VulkanImage {
@@ -188,10 +195,16 @@ namespace FLOOF {
         void DestroyVulkanBuffer(VulkanBuffer* buffer);
 
         // Allocates a combined texture-sampler descriptor set.
-        VkDescriptorSet AllocateTextureDescriptorSet(VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE);
+        VkDescriptorSet AllocateTextureDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
         // Frees a combined texture-sampler descriptor set.
         void FreeTextureDescriptorSet(VkDescriptorSet desctriptorSet);
+
+        // Allocates a shader storage descriptor set.
+        VkDescriptorSet AllocateShaderStorageDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
+
+        // Frees a shader storage descriptor set.
+        void FreeShaderStorageDescriptorSet(VkDescriptorSet desctriptorSet);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer BeginSingleUseCommandBuffer();
@@ -205,7 +218,12 @@ namespace FLOOF {
 
         VkPipeline GetPipeline(RenderPipelineKeys key) { return m_GraphicsPipelines[key]; }
 
-        VkSampler GetSampler() { return m_Sampler; }
+        // Main sampler used by imgui texture and font rendering.
+        VkSampler GetFontSampler() { return m_FontSampler; }
+
+        VkSampler GetTextureSampler() { return m_TextureSampler; }
+
+        void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
@@ -232,7 +250,8 @@ namespace FLOOF {
         void CreateSyncObjects(VulkanWindow& window);
 
         void CreateImGuiRenderPass(VulkanWindow& window);
-        void CreateGraphicsPipeline(const RenderPipelineParams& params);
+
+        void CreateDescriptorSetLayouts();
 
         void CreateCommandPool();
         void AllocateCommandBuffers(VulkanWindow& window);
@@ -240,6 +259,9 @@ namespace FLOOF {
         void CreateDescriptorPools();
 
         void CreateFontSampler();
+        void CreateTextureSampler();
+
+        void DestroyTextureSampler();
         void DestroyFontSampler();
 
         void InitGlfwCallbacks();
@@ -276,7 +298,7 @@ namespace FLOOF {
         VkPhysicalDeviceFeatures m_PhysicalDeviceFeatures;
         VmaAllocator m_Allocator;
 
-        std::unordered_map<RenderPipelineKeys, VkDescriptorSetLayout> m_DescriptorSetLayouts;
+        std::unordered_map<RenderSetLayouts, VkDescriptorSetLayout> m_DescriptorSetLayouts;
 
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
@@ -291,8 +313,10 @@ namespace FLOOF {
         VkCommandPool m_CommandPool;
 
         VkDescriptorPool m_TextureDescriptorPool;
+        VkDescriptorPool m_ShaderStorageDescriptorPool;
 
-        VkSampler m_Sampler;
+        VkSampler m_TextureSampler;
+        VkSampler m_FontSampler;
 
         const std::vector<const char*> m_RequiredDeviceExtentions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,

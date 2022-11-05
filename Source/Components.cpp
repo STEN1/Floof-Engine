@@ -116,41 +116,10 @@ namespace FLOOF {
         textureImageViewInfo.subresourceRange.layerCount = 1;
         vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &Data.CombinedTextureSampler.ImageView);
 
-        // sampler
-        //VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-        //samplerInfo.magFilter = VK_FILTER_LINEAR;
-        //samplerInfo.minFilter = VK_FILTER_LINEAR;
-        //samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        //samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        //samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        //samplerInfo.anisotropyEnable = VK_TRUE;
-        //samplerInfo.maxAnisotropy = 16;
-        //samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-        //samplerInfo.unnormalizedCoordinates = VK_FALSE;
-        //samplerInfo.compareEnable = VK_FALSE;
-        //samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        //samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        //samplerInfo.mipLodBias = 0.f;
-        //samplerInfo.minLod = 0.f;
-        //samplerInfo.maxLod = FLT_MAX;
-
-        //VkSamplerCreateInfo samplerInfo = {};
-        //samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        //samplerInfo.magFilter = VK_FILTER_LINEAR;
-        //samplerInfo.minFilter = VK_FILTER_LINEAR;
-        //samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        //samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        //samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        //samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        //samplerInfo.minLod = -1000;
-        //samplerInfo.maxLod = 1000;
-        //samplerInfo.maxAnisotropy = 1.0f;
-        //vkCreateSampler(renderer->m_LogicalDevice, &samplerInfo, nullptr, &Data.CombinedTextureSampler.Sampler);
-
-        VkSampler sampler = renderer->GetSampler();
+        VkSampler sampler = renderer->GetTextureSampler();
 
         // Get descriptor set and point it to data.
-        Data.DesctriptorSet = renderer->AllocateTextureDescriptorSet();
+        Data.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
 
         VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.sampler = sampler;
@@ -173,10 +142,10 @@ namespace FLOOF {
     TextureComponent::~TextureComponent() {
     }
 
-    void TextureComponent::Bind(VkCommandBuffer commandBuffer) {
+    void TextureComponent::Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout) {
         auto renderer = VulkanRenderer::Get();
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderer->GetPipelineLayout(RenderPipelineKeys::Basic),
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
             0, 1, &Data.DesctriptorSet, 0, 0);
     }
 

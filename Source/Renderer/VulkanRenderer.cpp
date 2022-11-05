@@ -49,143 +49,22 @@ namespace FLOOF {
         CreateDescriptorPools();
         CreateCommandPool();
         CreateFontSampler();
+        CreateTextureSampler();
+        CreateDescriptorSetLayouts();
 
         AllocateCommandBuffers(m_VulkanWindow);
 
         InitGlfwCallbacks();
-
-
-        {	// Default light shader
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/Basic.frag.spv";
-            params.VertexPath = "Shaders/Basic.vert.spv";
-            params.Key = RenderPipelineKeys::Basic;
-            params.PolygonMode = VK_POLYGON_MODE_FILL;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            params.BindingDescription = MeshVertex::GetBindingDescription();
-            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0].binding = 0;
-            params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
-            params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &m_Sampler;
-            CreateGraphicsPipeline(params);
-        }
-        {	// Wireframe
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/Basic.frag.spv";
-            params.VertexPath = "Shaders/Basic.vert.spv";
-            params.Key = RenderPipelineKeys::Wireframe;
-            params.PolygonMode = VK_POLYGON_MODE_LINE;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            params.BindingDescription = MeshVertex::GetBindingDescription();
-            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0].binding = 0;
-            params.DescriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            params.DescriptorSetLayoutBindings[0].descriptorCount = 1;
-            params.DescriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            params.DescriptorSetLayoutBindings[0].pImmutableSamplers = &m_Sampler;
-            CreateGraphicsPipeline(params);
-        }
-        {	// Lit color shader for terrain.
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/LitColor.frag.spv";
-            params.VertexPath = "Shaders/LitColor.vert.spv";
-            params.Key = RenderPipelineKeys::LitColor;
-            params.PolygonMode = VK_POLYGON_MODE_FILL;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            params.BindingDescription = ColorNormalVertex::GetBindingDescription();
-            params.AttributeDescriptions = ColorNormalVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
-            CreateGraphicsPipeline(params);
-        }
-        {	// Line drawing shader
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;
-            params.FragmentPath = "Shaders/Color.frag.spv";
-            params.VertexPath = "Shaders/Color.vert.spv";
-            params.Key = RenderPipelineKeys::Line;
-            params.PolygonMode = VK_POLYGON_MODE_LINE;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-            params.BindingDescription = ColorVertex::GetBindingDescription();
-            params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(ColorPushConstants);
-            CreateGraphicsPipeline(params);
-        }
-        {	// Line drawing shader with depth
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/Color.frag.spv";
-            params.VertexPath = "Shaders/Color.vert.spv";
-            params.Key = RenderPipelineKeys::LineWithDepth;
-            params.PolygonMode = VK_POLYGON_MODE_LINE;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-            params.BindingDescription = ColorVertex::GetBindingDescription();
-            params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(ColorPushConstants);
-            CreateGraphicsPipeline(params);
-        }
-        {	// Line strip drawing shader with depth
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/Color.frag.spv";
-            params.VertexPath = "Shaders/Color.vert.spv";
-            params.Key = RenderPipelineKeys::LineStripWithDepth;
-            params.PolygonMode = VK_POLYGON_MODE_LINE;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
-            params.BindingDescription = ColorVertex::GetBindingDescription();
-            params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(ColorPushConstants);
-            CreateGraphicsPipeline(params);
-        }
-        {	// LineStrip drawing shader
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;
-            params.FragmentPath = "Shaders/Color.frag.spv";
-            params.VertexPath = "Shaders/Color.vert.spv";
-            params.Key = RenderPipelineKeys::LineStrip;
-            params.PolygonMode = VK_POLYGON_MODE_LINE;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
-            params.BindingDescription = ColorVertex::GetBindingDescription();
-            params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(ColorPushConstants);
-            CreateGraphicsPipeline(params);
-        }
-        {	// Point drawing shader
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend;// | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/Color.frag.spv";
-            params.VertexPath = "Shaders/Color.vert.spv";
-            params.Key = RenderPipelineKeys::Point;
-            params.PolygonMode = VK_POLYGON_MODE_POINT;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-            params.BindingDescription = ColorVertex::GetBindingDescription();
-            params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(ColorPushConstants);
-            CreateGraphicsPipeline(params);
-        }
     }
 
     VulkanRenderer::~VulkanRenderer() {
-        //for (auto& imageView : m_VulkanWindow.DepthBufferImageViews) {
-        //    vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
-        //}
-        //for (auto& depthBuffer : m_VulkanWindow.DepthBuffers) {
-        //    vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
-        //}
         vmaDestroyAllocator(m_Allocator);
 
         DestroyWindow(m_VulkanWindow);
 
 
         vkDestroyDescriptorPool(m_LogicalDevice, m_TextureDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(m_LogicalDevice, m_ShaderStorageDescriptorPool, nullptr);
         vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
         for (auto& [key, val] : m_DescriptorSetLayouts) {
             vkDestroyDescriptorSetLayout(m_LogicalDevice, val, nullptr);
@@ -196,10 +75,10 @@ namespace FLOOF {
         for (auto& [key, val] : m_PipelineLayouts) {
             vkDestroyPipelineLayout(m_LogicalDevice, val, nullptr);
         }
-        //vkDestroyRenderPass(m_LogicalDevice, m_RenderPass, nullptr);
         vkDestroyRenderPass(m_LogicalDevice, m_ImGuiRenderPass, nullptr);
 
         DestroyFontSampler();
+        DestroyTextureSampler();
 
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
         vkDestroyDevice(m_LogicalDevice, nullptr);
@@ -313,7 +192,7 @@ namespace FLOOF {
         initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         initInfo.Allocator = nullptr;
         initInfo.CheckVkResultFn = nullptr;
-        initInfo.FontSampler = m_Sampler;
+        initInfo.FontSampler = m_FontSampler;
 
         return initInfo;
     }
@@ -321,10 +200,6 @@ namespace FLOOF {
     VkRenderPass VulkanRenderer::GetImguiRenderPass() {
         return m_ImGuiRenderPass;
     }
-
-    //VkRenderPass VulkanRenderer::GetMainRenderPass() {
-    //    return m_RenderPass;
-    //}
 
     void VulkanRenderer::FinishAllFrames() {
         vkDeviceWaitIdle(m_LogicalDevice);
@@ -477,7 +352,6 @@ namespace FLOOF {
         const char** glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-        // Assumes glfw knows what its doing. Might be footgun :)
         std::vector<const char*> extensions(glfwExtensionCount);
         for (int i = 0; i < glfwExtensionCount; i++) {
             extensions[i] = glfwExtensions[i];
@@ -521,8 +395,6 @@ namespace FLOOF {
         createInfo.enabledExtensionCount = extensions.size();
         createInfo.ppEnabledExtensionNames = extensions.data();
 
-        // Enable validation layers in debug builds.
-        // TODO: Make custom callback function for validation layer logging.
 #ifdef NDEBUG
         createInfo.enabledLayerCount = 0;
 #else
@@ -577,7 +449,6 @@ namespace FLOOF {
         m_PhysicalDevice = devices[deviceIndex];
 
         PopulateQueueFamilyIndices(m_QueueFamilyIndices);
-        //ValidatePhysicalDeviceExtentions(); doing this in instance creation.
         ValidatePhysicalDeviceSurfaceCapabilities();
     }
 
@@ -671,8 +542,6 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateWindow(VulkanWindow& window) {
         CreateSwapChain(window);
-        //CreateDepthBuffers(window.Extent);
-        //CreateRenderPass(window);
         CreateImGuiRenderPass(window);
         CreateFramebuffers(window);
         CreateSyncObjects(window);
@@ -759,62 +628,6 @@ namespace FLOOF {
         LOG("Image views created.\n");
     }
 
-    //void VulkanRenderer::CreateRenderPass(VulkanWindow& window) {
-    //    VkAttachmentDescription colorAttachments[1]{};
-    //    colorAttachments[0].format = window.SurfaceFormat.format;
-    //    colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-    //    colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    //    colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    //    colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    //    colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    //    colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    //    colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    //    //colorAttachments[1].format = window.DepthFormat;
-    //    //colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-    //    //colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    //    //colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    //    //colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    //    //colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    //    //colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    //    //colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    //    VkAttachmentReference colorAttachmentRef{};
-    //    colorAttachmentRef.attachment = 0;
-    //    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    //    //VkAttachmentReference depthStencilAttachmentRef{};
-    //    //depthStencilAttachmentRef.attachment = 1;
-    //    //depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    //    VkSubpassDescription subpass{};
-    //    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    //    subpass.colorAttachmentCount = 1;
-    //    subpass.pColorAttachments = &colorAttachmentRef;
-    //    //subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
-
-    //    VkSubpassDependency dependency{};
-    //    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    //    dependency.dstSubpass = 0;
-    //    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    //    dependency.srcAccessMask = 0;
-    //    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    //    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-    //    VkRenderPassCreateInfo renderPassInfo{};
-    //    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    //    renderPassInfo.attachmentCount = 1;
-    //    renderPassInfo.pAttachments = colorAttachments;
-    //    renderPassInfo.subpassCount = 1;
-    //    renderPassInfo.pSubpasses = &subpass;
-    //    renderPassInfo.dependencyCount = 1;
-    //    renderPassInfo.pDependencies = &dependency;
-
-    //    VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_RenderPass);
-    //    ASSERT(result == VK_SUCCESS);
-    //    LOG("Render pass created.\n");
-    //}
-
     void VulkanRenderer::CreateImGuiRenderPass(VulkanWindow& window) {
 
         VkAttachmentDescription colorAttachments[1]{};
@@ -827,28 +640,14 @@ namespace FLOOF {
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-        //colorAttachments[1].format = window.DepthFormat;
-        //colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-        //colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        //colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        //colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        //colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        //colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        //colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        //VkAttachmentReference depthStencilAttachmentRef{};
-        //depthStencilAttachmentRef.attachment = 1;
-        //depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
-        //subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
         std::array<VkSubpassDependency, 1> dependencies{};
 
@@ -858,23 +657,6 @@ namespace FLOOF {
         dependencies[0].srcAccessMask = 0;
         dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        //dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-        //dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-        //dependencies[0].dstSubpass = 0;
-        //dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        //dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        //dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        //dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        //dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-        //dependencies[1].srcSubpass = 0;
-        //dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-        //dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        //dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        //dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        //dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        //dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -888,6 +670,41 @@ namespace FLOOF {
         VkResult result = vkCreateRenderPass(m_LogicalDevice, &renderPassInfo, nullptr, &m_ImGuiRenderPass);
         ASSERT(result == VK_SUCCESS);
         LOG("Render pass created.\n");
+    }
+
+    void FLOOF::VulkanRenderer::CreateDescriptorSetLayouts() {
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layoutBinding.pImmutableSamplers = &m_FontSampler;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::FontTexture]);
+        }
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layoutBinding.pImmutableSamplers = &m_TextureSampler;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
+        }
     }
 
     void VulkanRenderer::CreateGraphicsPipeline(const RenderPipelineParams& params) {
@@ -959,8 +776,8 @@ namespace FLOOF {
         } else {
             colorBlendAttachment.blendEnable = VK_FALSE;
         }
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
         colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
         colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
         colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
@@ -983,42 +800,26 @@ namespace FLOOF {
         pushConstants.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        if (params.DescriptorSetLayoutBindings.size() != 0) {
-            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
-            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
-            descriptorSetLayoutCreateInfo.bindingCount = params.DescriptorSetLayoutBindings.size();
-            descriptorSetLayoutCreateInfo.pBindings = params.DescriptorSetLayoutBindings.data();
-
-            vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[params.Key]);
-
-            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipelineLayoutInfo.setLayoutCount = 1;
-            pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayouts[params.Key];
-            pipelineLayoutInfo.pushConstantRangeCount = 1;
-            pipelineLayoutInfo.pPushConstantRanges = &pushConstants;
-        } else {
-            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            pipelineLayoutInfo.setLayoutCount = 0;
-            pipelineLayoutInfo.pSetLayouts = nullptr;
-            pipelineLayoutInfo.pushConstantRangeCount = 1;
-            pipelineLayoutInfo.pPushConstantRanges = &pushConstants;
-        }
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = params.DescriptorSetLayoutBindings.size();
+        pipelineLayoutInfo.pSetLayouts = params.DescriptorSetLayoutBindings.data();
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstants;
 
         VkResult plResult = vkCreatePipelineLayout(m_LogicalDevice, &pipelineLayoutInfo, nullptr, &m_PipelineLayouts[params.Key]);
         ASSERT(plResult == VK_SUCCESS);
 
         VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-        //if (params.Flags & RenderPipelineFlags::DepthPass) {
-        //    depthStencilStateInfo.depthTestEnable = VK_TRUE;
-        //    depthStencilStateInfo.depthWriteEnable = VK_TRUE;
-        //} else {
-        //    depthStencilStateInfo.depthTestEnable = VK_FALSE;
-        //    depthStencilStateInfo.depthWriteEnable = VK_FALSE;
-        //}
-        //depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
-        //depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
-        //depthStencilStateInfo.stencilTestEnable = VK_FALSE;
+        if (params.Flags & RenderPipelineFlags::DepthPass) {
+            depthStencilStateInfo.depthTestEnable = VK_TRUE;
+            depthStencilStateInfo.depthWriteEnable = VK_TRUE;
+        } else {
+            depthStencilStateInfo.depthTestEnable = VK_FALSE;
+            depthStencilStateInfo.depthWriteEnable = VK_FALSE;
+        }
+        depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
+        depthStencilStateInfo.stencilTestEnable = VK_FALSE;
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1033,7 +834,7 @@ namespace FLOOF {
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = m_PipelineLayouts[params.Key];
-        pipelineInfo.renderPass = m_ImGuiRenderPass;
+        pipelineInfo.renderPass = params.Renderpass;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
@@ -1069,53 +870,6 @@ namespace FLOOF {
         LOG("Framebuffers created.\n");
     }
 
-    /*void VulkanRenderer::CreateDepthBuffers(VkExtent2D extent) {
-        m_VulkanWindow.DepthFormat = FindDepthFormat();
-        ASSERT(m_VulkanWindow.DepthFormat != VK_FORMAT_UNDEFINED);
-
-        VkImageCreateInfo depthImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-        depthImageInfo.imageType = VK_IMAGE_TYPE_2D;
-        depthImageInfo.extent.width = extent.width;
-        depthImageInfo.extent.height = extent.height;
-        depthImageInfo.extent.depth = 1;
-        depthImageInfo.mipLevels = 1;
-        depthImageInfo.arrayLayers = 1;
-        depthImageInfo.format = m_VulkanWindow.DepthFormat;
-        depthImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-        depthImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        depthImageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        depthImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        depthImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-        depthImageInfo.flags = 0;
-
-        VmaAllocationCreateInfo depthImageAllocCreateInfo = {};
-        depthImageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-
-        VkImageViewCreateInfo depthImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-        depthImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        depthImageViewInfo.format = m_VulkanWindow.DepthFormat;
-        depthImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        depthImageViewInfo.subresourceRange.baseMipLevel = 0;
-        depthImageViewInfo.subresourceRange.levelCount = 1;
-        depthImageViewInfo.subresourceRange.baseArrayLayer = 0;
-        depthImageViewInfo.subresourceRange.layerCount = 1;
-
-        m_VulkanWindow.DepthBuffers.resize(m_VulkanWindow.ImageCount);
-        m_VulkanWindow.DepthBufferImageViews.resize(m_VulkanWindow.ImageCount);
-        for (uint32_t i = 0; i < m_VulkanWindow.ImageCount; i++) {
-            vmaCreateImage(m_Allocator, &depthImageInfo, &depthImageAllocCreateInfo,
-                &m_VulkanWindow.DepthBuffers[i].Image,
-                &m_VulkanWindow.DepthBuffers[i].Allocation,
-                &m_VulkanWindow.DepthBuffers[i].AllocationInfo);
-
-            depthImageViewInfo.image = m_VulkanWindow.DepthBuffers[i].Image;
-
-            auto result = vkCreateImageView(m_LogicalDevice, &depthImageViewInfo, nullptr,
-                &m_VulkanWindow.DepthBufferImageViews[i]);
-            ASSERT(result == VK_SUCCESS);
-        }
-    }*/
-
     void VulkanRenderer::CreateCommandPool() {
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -1144,21 +898,38 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CreateDescriptorPools() {
-        VkDescriptorPoolSize poolSize{};
-        poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSize.descriptorCount = 256;
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSize.descriptorCount = 256;
 
-        // Create texture descriptor pool.
-        VkDescriptorPoolCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT |
-            VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-        createInfo.maxSets = 256;
-        createInfo.pPoolSizes = &poolSize;
-        createInfo.poolSizeCount = 1;
-        VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_TextureDescriptorPool);
-        ASSERT(result == VK_SUCCESS);
+            // Create texture descriptor pool.
+            VkDescriptorPoolCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT |
+                VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.maxSets = 256;
+            createInfo.pPoolSizes = &poolSize;
+            createInfo.poolSizeCount = 1;
+            VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_TextureDescriptorPool);
+            ASSERT(result == VK_SUCCESS);
+        }
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            poolSize.descriptorCount = 256;
 
+            // Create texture descriptor pool.
+            VkDescriptorPoolCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT |
+                VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.maxSets = 256;
+            createInfo.pPoolSizes = &poolSize;
+            createInfo.poolSizeCount = 1;
+            VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_ShaderStorageDescriptorPool);
+            ASSERT(result == VK_SUCCESS);
+        }
     }
 
     void VulkanRenderer::CreateFontSampler() {
@@ -1173,12 +944,38 @@ namespace FLOOF {
         info.minLod = -1000;
         info.maxLod = 1000;
         info.maxAnisotropy = 1.0f;
-        VkResult err = vkCreateSampler(m_LogicalDevice, &info, nullptr, &m_Sampler);
+        VkResult err = vkCreateSampler(m_LogicalDevice, &info, nullptr, &m_FontSampler);
         ASSERT(err == VK_SUCCESS);
     }
 
+    void VulkanRenderer::CreateTextureSampler() {
+        VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = 16;
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipLodBias = 0.f;
+        samplerInfo.minLod = 0.f;
+        samplerInfo.maxLod = FLT_MAX;
+
+        VkResult err = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_TextureSampler);
+        ASSERT(err == VK_SUCCESS);
+    }
+
+    void VulkanRenderer::DestroyTextureSampler() {
+        vkDestroySampler(m_LogicalDevice, m_TextureSampler, nullptr);
+    }
+
     void VulkanRenderer::DestroyFontSampler() {
-        vkDestroySampler(m_LogicalDevice, m_Sampler, nullptr);
+        vkDestroySampler(m_LogicalDevice, m_FontSampler, nullptr);
     }
 
     void VulkanRenderer::CreateSyncObjects(VulkanWindow& window) {
@@ -1256,13 +1053,6 @@ namespace FLOOF {
         WaitWhileMinimized();
 
         vkDeviceWaitIdle(m_LogicalDevice);
-
-        //for (auto& imageView : window.DepthBufferImageViews) {
-        //    vkDestroyImageView(m_LogicalDevice, imageView, nullptr);
-        //}
-        //for (auto& depthBuffer : window.DepthBuffers) {
-        //    vmaDestroyImage(m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
-        //}
 
         CleanupSwapChain(window);
 
@@ -1423,11 +1213,7 @@ namespace FLOOF {
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = m_TextureDescriptorPool;
         allocInfo.descriptorSetCount = 1;
-        
-        if (descriptorSetLayout == VK_NULL_HANDLE)
-            allocInfo.pSetLayouts = &m_DescriptorSetLayouts[RenderPipelineKeys::Basic]; // should probably be gotten from pipeline abstraction.
-        else
-            allocInfo.pSetLayouts = &descriptorSetLayout;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
 
         VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &textureDescriptorSet);
         ASSERT(result == VK_SUCCESS);
@@ -1436,6 +1222,23 @@ namespace FLOOF {
 
     void VulkanRenderer::FreeTextureDescriptorSet(VkDescriptorSet desctriptorSet) {
         vkFreeDescriptorSets(m_LogicalDevice, m_TextureDescriptorPool, 1, &desctriptorSet);
+    }
+
+    VkDescriptorSet VulkanRenderer::AllocateShaderStorageDescriptorSet(VkDescriptorSetLayout descriptorSetLayout) {
+        VkDescriptorSet descriptorSet{};
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = m_ShaderStorageDescriptorPool;
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
+
+        VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &descriptorSet);
+        ASSERT(result == VK_SUCCESS);
+        return descriptorSet;
+    }
+
+    void VulkanRenderer::FreeShaderStorageDescriptorSet(VkDescriptorSet desctriptorSet) {
+        vkFreeDescriptorSets(m_LogicalDevice, m_ShaderStorageDescriptorPool, 1, &desctriptorSet);
     }
 
     void VulkanRenderer::PopulateQueueFamilyIndices(QueueFamilyIndices& QFI) {
