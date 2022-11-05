@@ -2,6 +2,7 @@
 
 #include "SceneRenderer.h"
 #include <unordered_map>
+#include "SSBO.h"
 
 namespace FLOOF {
     class ForwardSceneRenderer : public SceneRenderer {
@@ -16,13 +17,10 @@ namespace FLOOF {
 
         void ResizeBuffers(glm::vec2 extent);
 
-        VkPipelineLayout BindRenderPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key);
-
         void CreateRenderPass();
         void CreateDepthBuffer();
         void CreateFrameBufferTextures();
         void CreateFrameBuffers();
-        void CreateRenderPipeline(const RenderPipelineParams& params);
         void CreateCommandPool();
         void AllocateCommandBuffers();
         void CreateSyncObjects();
@@ -46,10 +44,6 @@ namespace FLOOF {
         VkFormat m_DepthFormat{};
         VulkanImage m_DepthBuffer{};
         VkImageView m_DepthBufferImageView = VK_NULL_HANDLE;
-
-        std::unordered_map<RenderPipelineKeys, VkDescriptorSetLayout> m_DescriptorSetLayouts;
-        std::unordered_map<RenderPipelineKeys, VkPipelineLayout> m_PipelineLayouts;
-        std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
 
         glm::vec2 m_Extent{ 0.f, 0.f };
     };
