@@ -1,4 +1,4 @@
-# Floof, en multiplatform Vulkan fysikkmotor
+# Floof, en multiplatform Vulkan Spillmotor
 ![Floof example image](Assets/FloofHeaderPhysics.png)
 
 ### Testet på Windows, Linux og macOS
