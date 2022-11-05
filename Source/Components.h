@@ -198,7 +198,7 @@ namespace FLOOF {
     struct ScriptComponent{
         ScriptComponent(const std::string PyScript);
         ~ScriptComponent();
-        const std::string Script;
+        std::string Script;
 
         FILE* Fp;
 

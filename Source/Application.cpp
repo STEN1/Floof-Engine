@@ -362,18 +362,59 @@ namespace FLOOF {
                     ImGui::Separator();
                     ImGui::Text("Sound component");
                 }
+                if(auto* scriptComponent = m_Scene->TryGetComponent<ScriptComponent>(m_Scene->m_SelectedEntity)){
+                    ImGui::Separator();
+                    ImGui::Text("Script Component");
+                    std::string currentscript = scriptComponent->Script;
+                    currentscript.erase(0,8);
+
+                    //todo this is bad, should not read all files every frame
+                    std::vector<std::string> scripts;
+                    for (const auto & entry : std::filesystem::directory_iterator("Scripts")){
+                        std::string cleanname = entry.path();
+                        cleanname.erase(0,8);
+                        scripts.emplace_back(cleanname);
+
+                    }
+
+                    if(ImGui::BeginCombo("Active Script",currentscript.c_str())){
+                       for (int n = 0; n < scripts.size(); n++){
+                           bool is_selected = (currentscript == scripts[n]);
+                           if(is_selected){
+                               ImGui::SetItemDefaultFocus();
+                           }
+                           if (ImGui::Selectable(scripts[n].c_str(), is_selected)) {
+                               currentscript = scripts[n];
+                               std::string path = "Scripts/";
+                               path.append(currentscript);
+                               scriptComponent->Script = path;
+                               scriptComponent->updateScripts();
+                           }
+
+                       }
+                       ImGui::EndCombo();
+                   }
+
+                    if(ImGui::Button("Refresh Script")){
+                            scriptComponent->updateScripts();
+                    }
+                    if(ImGui::Button("Run Script once")){
+                        scriptComponent->RunScript();
+                    }
+                }
             }
+                                                                       
             ImGui::EndChild();
             ImGui::End();
 
             ImGui::Begin("Scripts");
-            if(ImGui::Button("Run Script once")){
+            if(ImGui::Button("Run all Scripts once")){
                 auto view = m_Scene->GetRegistry().view<ScriptComponent>();
                 for (auto [entity, script]: view.each()) {
                     script.RunScript();
                 }
             }
-            if(ImGui::Button("Refresh Scripts")){
+            if(ImGui::Button("Refresh all Scripts")){
                 auto view = m_Scene->GetRegistry().view<ScriptComponent>();
                 for (auto [entity, script]: view.each()) {
                     script.updateScripts();
