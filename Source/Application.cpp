@@ -14,6 +14,7 @@
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
 #include "GameMode/AudioTestGM.h"
+#include <filesystem>
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -371,7 +372,7 @@ namespace FLOOF {
                     //todo this is bad, should not read all files every frame
                     std::vector<std::string> scripts;
                     for (const auto & entry : std::filesystem::directory_iterator("Scripts")){
-                        std::string cleanname = entry.path();
+                        std::string cleanname = entry.path().string();
                         cleanname.erase(0,8);
                         scripts.emplace_back(cleanname);
 
@@ -490,6 +491,8 @@ namespace FLOOF {
         canvas_p1.y += canvasOffset.y;
 
         glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
+        if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
+            sceneCanvasExtent = glm::vec2(0.f);
 
         VkDescriptorSet sceneTexture = VK_NULL_HANDLE;
 
@@ -688,6 +691,8 @@ namespace FLOOF {
             int width = 5;
             float spacing = 5.f;
 
+            bool lightAdded = false;
+
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -704,6 +709,7 @@ namespace FLOOF {
                         m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
                         m_Scene->AddComponent<TextureComponent>(Ball, "Assets/statue/textures/staue1Color.png");
                         m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
+                        m_Scene->AddComponent<PointLightComponent>(Ball);
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
                         transform.Position = location;

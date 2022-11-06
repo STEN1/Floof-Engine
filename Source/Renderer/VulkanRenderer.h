@@ -25,7 +25,8 @@ namespace FLOOF {
     };
 
     struct MeshPushConstants {
-        glm::mat4 MVP;
+        glm::mat4 VP;
+        glm::mat4 Model;
         glm::mat4 InvModelMat;
     };
 
@@ -63,8 +64,9 @@ namespace FLOOF {
     };
 
     enum RenderSetLayouts : uint32_t {
-        LightShaderStorage,
         DiffuseTexture,
+        SceneFrameUBO,
+        LightSSBO,
         FontTexture,
     };
 
@@ -90,13 +92,13 @@ namespace FLOOF {
         VkRenderPass Renderpass;
     };
 
-    struct VulkanImage {
+    struct VulkanImageData {
         VkImage Image = VK_NULL_HANDLE;
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
     };
 
-    struct VulkanBuffer {
+    struct VulkanBufferData {
         VkBuffer Buffer = VK_NULL_HANDLE;
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
@@ -186,13 +188,13 @@ namespace FLOOF {
 
         // Create vertex buffer from vector of vertex type. (Vertex.h)
         template<typename VertexType>
-        VulkanBuffer CreateVertexBuffer(const std::vector<VertexType>& vertices);
+        VulkanBufferData CreateVertexBuffer(const std::vector<VertexType>& vertices);
 
         // Create index buffer
-        VulkanBuffer CreateIndexBuffer(const std::vector<uint32_t>& indices);
+        VulkanBufferData CreateIndexBuffer(const std::vector<uint32_t>& indices);
 
         // Destroy any vulkan buffer
-        void DestroyVulkanBuffer(VulkanBuffer* buffer);
+        void DestroyVulkanBuffer(VulkanBufferData* buffer);
 
         // Allocates a combined texture-sampler descriptor set.
         VkDescriptorSet AllocateTextureDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
@@ -205,6 +207,12 @@ namespace FLOOF {
 
         // Frees a shader storage descriptor set.
         void FreeShaderStorageDescriptorSet(VkDescriptorSet desctriptorSet);
+
+        // Allocates a shader storage descriptor set.
+        VkDescriptorSet AllocateUBODescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
+
+        // Frees a shader storage descriptor set.
+        void FreeUBODescriptorSet(VkDescriptorSet desctriptorSet);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer BeginSingleUseCommandBuffer();
@@ -222,6 +230,12 @@ namespace FLOOF {
         VkSampler GetFontSampler() { return m_FontSampler; }
 
         VkSampler GetTextureSampler() { return m_TextureSampler; }
+
+        VkDescriptorSetLayout GetDescriptorSetLayout(RenderSetLayouts layout) { return m_DescriptorSetLayouts[layout]; }
+
+        VkDevice GetDevice() { return m_LogicalDevice; }
+
+        VmaAllocator GetAllocator() { return m_Allocator; }
 
         void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
@@ -314,6 +328,7 @@ namespace FLOOF {
 
         VkDescriptorPool m_TextureDescriptorPool;
         VkDescriptorPool m_ShaderStorageDescriptorPool;
+        VkDescriptorPool m_UBODescriptorPool;
 
         VkSampler m_TextureSampler;
         VkSampler m_FontSampler;
@@ -364,7 +379,7 @@ namespace FLOOF {
     };
 
     template<typename VertexType>
-    inline VulkanBuffer VulkanRenderer::CreateVertexBuffer(const std::vector<VertexType>& vertices) {
+    inline VulkanBufferData VulkanRenderer::CreateVertexBuffer(const std::vector<VertexType>& vertices) {
         std::size_t size = sizeof(VertexType) * vertices.size();
         VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
         bufferInfo.size = size;
@@ -376,7 +391,7 @@ namespace FLOOF {
         allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
             VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
-        VulkanBuffer stagingBuffer{};
+        VulkanBufferData stagingBuffer{};
         vmaCreateBuffer(m_Allocator, &bufferInfo, &allocInfo,
             &stagingBuffer.Buffer, &stagingBuffer.Allocation, &stagingBuffer.AllocationInfo);
 
@@ -386,7 +401,7 @@ namespace FLOOF {
 
         bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
         allocInfo.flags = 0;
-        VulkanBuffer vertexBuffer{};
+        VulkanBufferData vertexBuffer{};
         vmaCreateBuffer(m_Allocator, &bufferInfo, &allocInfo,
             &vertexBuffer.Buffer, &vertexBuffer.Allocation, &vertexBuffer.AllocationInfo);
 
