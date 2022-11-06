@@ -404,7 +404,7 @@ namespace FLOOF {
             vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
 
             // Get descriptor set and point it to data.
-            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
+            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::FontTexture]);
 
             VkSampler sampler = renderer->GetFontSampler();
 
