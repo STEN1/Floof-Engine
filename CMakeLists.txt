@@ -134,6 +134,13 @@ target_link_libraries(Floof IMGUI)
 
 target_include_directories(Floof PUBLIC "Libs/HeaderOnly")
 
+
+#if compiled with xcode, not supporting release yet
+if(CMAKE_GENERATOR STREQUAL Xcode)
+    set(CMAKE_CURRENT_BINARY_DIR  "Debug/")
+endif()
+
+
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Basic.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Basic.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Basic.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Basic.frag.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.vert.spv")

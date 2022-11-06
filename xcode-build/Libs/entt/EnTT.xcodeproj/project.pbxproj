@@ -7,21 +7,33 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		041BA11FB1E24491AB3B91B0 /* install */ = {
+		13D919CF1E024DA9917DF336 /* install */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 31392E54C4724AFDAD6A2447 /* Build configuration list for PBXAggregateTarget "install" */;
+			buildConfigurationList = 088EB3DDAB494B8894786994 /* Build configuration list for PBXAggregateTarget "install" */;
 			buildPhases = (
 				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
 			);
 			dependencies = (
-				7C58F0EE31A44C0296BE469A /* PBXTargetDependency */,
+				C9C1FF0E389346D5A0FF27BC /* PBXTargetDependency */,
 			);
 			name = install;
 			productName = install;
 		};
-		DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */ = {
+		222ED28E418F401EAA5F0615 /* ALL_BUILD */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 9050D9AE6EEA442180F12337 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildConfigurationList = 1FD527D3FF59411088170751 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				7BD61FA5A38F36F506FC47DA /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				BBC0260F294F42748A876535 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		3850E568C6F94B0B96D414EE /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 2B25215EA1B348D6A405157B /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
 			buildPhases = (
 				8DAEFAA974DD684D021E80AB /* Generate CMakeFiles/ZERO_CHECK */,
 			);
@@ -30,108 +42,96 @@
 			name = ZERO_CHECK;
 			productName = ZERO_CHECK;
 		};
-		E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 6A86AFCE0FE3461D8BBE1193 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
-			buildPhases = (
-				7BD61FA5A38F36F506FC47DA /* Generate CMakeFiles/ALL_BUILD */,
-			);
-			dependencies = (
-				56F4297D0DD5486AB3A6FB12 /* PBXTargetDependency */,
-			);
-			name = ALL_BUILD;
-			productName = ALL_BUILD;
-		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildStyle section */
-		5FB77EB07D6A4B90A6D65B9E /* Release */ = {
+		5C27B41E57EE455F9FC29F2C /* Release */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = Release;
 		};
-		925DA8F0DE63401392C6F3FF /* Debug */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = Debug;
-		};
-		A0B8B55EDD6B44DD9309C224 /* RelWithDebInfo */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = RelWithDebInfo;
-		};
-		CB38E8D7180840E982E31617 /* MinSizeRel */ = {
+		6FE94CFE503541FA9F807FBD /* MinSizeRel */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = MinSizeRel;
 		};
+		9D10C6D6A18146C98DBFA215 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		F7407AB830044167993F86D5 /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
 /* End PBXBuildStyle section */
 
 /* Begin PBXContainerItemProxy section */
-		4F88AE1C60074C6EA61C610A /* PBXContainerItemProxy */ = {
+		53E9A4246AF74ED48CF52A87 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = AD4E752F66D14B43BF63AEE1 /* Project object */;
+			containerPortal = 7BC4F7C87CB84FE8A2BC2C53 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DFBF11FFD4284FB9AD4788F6;
+			remoteGlobalIDString = 3850E568C6F94B0B96D414EE;
 			remoteInfo = ZERO_CHECK;
 		};
-		FA8085B17ED94374A261BF53 /* PBXContainerItemProxy */ = {
+		97C66BDBB0B8426D8BA1A794 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = AD4E752F66D14B43BF63AEE1 /* Project object */;
+			containerPortal = 7BC4F7C87CB84FE8A2BC2C53 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = E6CAFF21C6974B72ACD76ECB;
+			remoteGlobalIDString = 222ED28E418F401EAA5F0615;
 			remoteInfo = ALL_BUILD;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		BF776ABE53D24D43AD69C647 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/entt/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		DD42552840C34468A2637019 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/entt/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		1B1C096A729A45D8934D7554 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		292F28D1B01945CEA0F2126F /* Products */ = {
+		35EC4EC17BF04298A998866B /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4C750E384EBB4614A7056328 /* CMake Rules */ = {
+		7738C6E2FAEB4E81AA3CC802 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		791C329F9A2D445D8CFD52AF = {
+			isa = PBXGroup;
+			children = (
+				F898D928F08149D590629BE8 /* ALL_BUILD */,
+				35EC4EC17BF04298A998866B /* Products */,
+				7738C6E2FAEB4E81AA3CC802 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		9B9896B2120E41F7BE768AC0 /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = "CMake Rules";
 			sourceTree = "<group>";
 		};
-		CD658396C66B40DB80DBF541 = {
+		F898D928F08149D590629BE8 /* ALL_BUILD */ = {
 			isa = PBXGroup;
 			children = (
-				D1573A79A8584EB3BFB1ECE6 /* ALL_BUILD */,
-				292F28D1B01945CEA0F2126F /* Products */,
-				1B1C096A729A45D8934D7554 /* Frameworks */,
-			);
-			sourceTree = "<group>";
-		};
-		D1573A79A8584EB3BFB1ECE6 /* ALL_BUILD */ = {
-			isa = PBXGroup;
-			children = (
-				4C750E384EBB4614A7056328 /* CMake Rules */,
-				BF776ABE53D24D43AD69C647 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/entt/CMakeLists.txt */,
+				9B9896B2120E41F7BE768AC0 /* CMake Rules */,
+				DD42552840C34468A2637019 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/entt/CMakeLists.txt */,
 			);
 			name = ALL_BUILD;
 			sourceTree = "<group>";
@@ -139,30 +139,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXProject section */
-		AD4E752F66D14B43BF63AEE1 /* Project object */ = {
+		7BC4F7C87CB84FE8A2BC2C53 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1400;
 			};
-			buildConfigurationList = 4F82179A99FC4F44AB056473 /* Build configuration list for PBXProject "EnTT" */;
+			buildConfigurationList = 789C4A2AF8E04FEA80BF0157 /* Build configuration list for PBXProject "EnTT" */;
 			buildSettings = {
 			};
 			buildStyles = (
-				925DA8F0DE63401392C6F3FF /* Debug */,
-				5FB77EB07D6A4B90A6D65B9E /* Release */,
-				CB38E8D7180840E982E31617 /* MinSizeRel */,
-				A0B8B55EDD6B44DD9309C224 /* RelWithDebInfo */,
+				9D10C6D6A18146C98DBFA215 /* Debug */,
+				5C27B41E57EE455F9FC29F2C /* Release */,
+				6FE94CFE503541FA9F807FBD /* MinSizeRel */,
+				F7407AB830044167993F86D5 /* RelWithDebInfo */,
 			);
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
-			mainGroup = CD658396C66B40DB80DBF541;
+			mainGroup = 791C329F9A2D445D8CFD52AF;
 			projectDirPath = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/entt";
 			projectRoot = "";
 			targets = (
-				E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */,
-				DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */,
-				041BA11FB1E24491AB3B91B0 /* install */,
+				222ED28E418F401EAA5F0615 /* ALL_BUILD */,
+				3850E568C6F94B0B96D414EE /* ZERO_CHECK */,
+				13D919CF1E024DA9917DF336 /* install */,
 			);
 		};
 /* End PBXProject section */
@@ -313,210 +313,20 @@ exit 0";
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		56F4297D0DD5486AB3A6FB12 /* PBXTargetDependency */ = {
+		BBC0260F294F42748A876535 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */;
-			targetProxy = 4F88AE1C60074C6EA61C610A /* PBXContainerItemProxy */;
+			target = 3850E568C6F94B0B96D414EE /* ZERO_CHECK */;
+			targetProxy = 53E9A4246AF74ED48CF52A87 /* PBXContainerItemProxy */;
 		};
-		7C58F0EE31A44C0296BE469A /* PBXTargetDependency */ = {
+		C9C1FF0E389346D5A0FF27BC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */;
-			targetProxy = FA8085B17ED94374A261BF53 /* PBXContainerItemProxy */;
+			target = 222ED28E418F401EAA5F0615 /* ALL_BUILD */;
+			targetProxy = 97C66BDBB0B8426D8BA1A794 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		128520FD545E47AA8811160A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		3E36B402DF404717B5B97E44 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		482B7BDC9DB04E258BD2E30A /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		5962DD749BA84966BA915DCF /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
-			};
-			name = RelWithDebInfo;
-		};
-		60565857827546ABB0F8CA82 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
-			};
-			name = Debug;
-		};
-		685C13AA2BAE4112A6C820F8 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
-			};
-			name = Release;
-		};
-		8D4365A4B1C94854A66171F6 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		90413E6363AD4C6A996845B6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		95D6A79DDC8E4C81B47588C0 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
-			};
-			name = MinSizeRel;
-		};
-		9838ED0CB957452BABEEB90C /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		AD6F360741F34499BDE5E513 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		B1A3142146B84F73A626AA51 /* Release */ = {
+		1643AB9BC0FD46109C776778 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -538,7 +348,7 @@ exit 0";
 			};
 			name = Release;
 		};
-		B4212B947E894881A31BFA49 /* Release */ = {
+		2CF7EEE078304BB694538E04 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -552,15 +362,15 @@ exit 0";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = ("","$(inherited)");
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
+				PRODUCT_NAME = ZERO_CHECK;
 				SECTORDER_FLAGS = "";
 				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
-			name = Release;
+			name = Debug;
 		};
-		B50E5B302DF84449B29F652A /* Release */ = {
+		3793F3DDAFD0467F862C535F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -580,9 +390,84 @@ exit 0";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
-			name = Release;
+			name = Debug;
 		};
-		E7CB91CAD20843A3824A4A65 /* RelWithDebInfo */ = {
+		3D2720813FE74234AD6AC1BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		5B5FF4022B904E5C98380DBF /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		5DAA4011E0AB4F75AC972932 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		64A35C48F96D4576A8865170 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
+			};
+			name = RelWithDebInfo;
+		};
+		6B6E26E0E7AB4CA790613167 /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -604,7 +489,7 @@ exit 0";
 			};
 			name = RelWithDebInfo;
 		};
-		FAC15C37CB8A4C3CB6591DCF /* Debug */ = {
+		8DB6A4C1529E40DD9C9E133E /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -624,56 +509,171 @@ exit 0";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
+			name = MinSizeRel;
+		};
+		B87B29909E37420DBAA3CB99 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		C461A07F0EC9464EA86909AC /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		C9034E5A2352422292D1EAA7 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
+			};
+			name = MinSizeRel;
+		};
+		CBB4B6391A914E10ADF70144 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		CDA9EFE2F9964A00A17359B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		DEC12B8CECBB4B9DADC8B6FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
+			};
 			name = Debug;
+		};
+		F2B052793F6D4CCF9955CBAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/entt/build";
+			};
+			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		31392E54C4724AFDAD6A2447 /* Build configuration list for PBXAggregateTarget "install" */ = {
+		088EB3DDAB494B8894786994 /* Build configuration list for PBXAggregateTarget "install" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				90413E6363AD4C6A996845B6 /* Debug */,
-				B50E5B302DF84449B29F652A /* Release */,
-				3E36B402DF404717B5B97E44 /* MinSizeRel */,
-				AD6F360741F34499BDE5E513 /* RelWithDebInfo */,
+				3793F3DDAFD0467F862C535F /* Debug */,
+				CDA9EFE2F9964A00A17359B1 /* Release */,
+				C461A07F0EC9464EA86909AC /* MinSizeRel */,
+				B87B29909E37420DBAA3CB99 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4F82179A99FC4F44AB056473 /* Build configuration list for PBXProject "EnTT" */ = {
+		1FD527D3FF59411088170751 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				60565857827546ABB0F8CA82 /* Debug */,
-				685C13AA2BAE4112A6C820F8 /* Release */,
-				95D6A79DDC8E4C81B47588C0 /* MinSizeRel */,
-				5962DD749BA84966BA915DCF /* RelWithDebInfo */,
+				3D2720813FE74234AD6AC1BC /* Debug */,
+				CBB4B6391A914E10ADF70144 /* Release */,
+				5B5FF4022B904E5C98380DBF /* MinSizeRel */,
+				6B6E26E0E7AB4CA790613167 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		6A86AFCE0FE3461D8BBE1193 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+		2B25215EA1B348D6A405157B /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				128520FD545E47AA8811160A /* Debug */,
-				B4212B947E894881A31BFA49 /* Release */,
-				8D4365A4B1C94854A66171F6 /* MinSizeRel */,
-				E7CB91CAD20843A3824A4A65 /* RelWithDebInfo */,
+				2CF7EEE078304BB694538E04 /* Debug */,
+				1643AB9BC0FD46109C776778 /* Release */,
+				8DB6A4C1529E40DD9C9E133E /* MinSizeRel */,
+				5DAA4011E0AB4F75AC972932 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		9050D9AE6EEA442180F12337 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+		789C4A2AF8E04FEA80BF0157 /* Build configuration list for PBXProject "EnTT" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				FAC15C37CB8A4C3CB6591DCF /* Debug */,
-				B1A3142146B84F73A626AA51 /* Release */,
-				9838ED0CB957452BABEEB90C /* MinSizeRel */,
-				482B7BDC9DB04E258BD2E30A /* RelWithDebInfo */,
+				DEC12B8CECBB4B9DADC8B6FE /* Debug */,
+				F2B052793F6D4CCF9955CBAE /* Release */,
+				C9034E5A2352422292D1EAA7 /* MinSizeRel */,
+				64A35C48F96D4576A8865170 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = AD4E752F66D14B43BF63AEE1 /* Project object */;
+	rootObject = 7BC4F7C87CB84FE8A2BC2C53 /* Project object */;
 }

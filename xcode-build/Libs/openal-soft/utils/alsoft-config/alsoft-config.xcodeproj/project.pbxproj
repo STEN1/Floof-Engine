@@ -7,21 +7,33 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		041BA11FB1E24491AB3B91B0 /* install */ = {
+		13D919CF1E024DA9917DF336 /* install */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 0E8D42376AB641BD963B50E5 /* Build configuration list for PBXAggregateTarget "install" */;
+			buildConfigurationList = F4E4B61BE89546928A6B767C /* Build configuration list for PBXAggregateTarget "install" */;
 			buildPhases = (
 				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
 			);
 			dependencies = (
-				7303151913124A76BE0BF63B /* PBXTargetDependency */,
+				A31E7B0A1C1A487F9B58E310 /* PBXTargetDependency */,
 			);
 			name = install;
 			productName = install;
 		};
-		DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */ = {
+		222ED28E418F401EAA5F0615 /* ALL_BUILD */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = F8761098728C408DA337887A /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildConfigurationList = BC2F3A7D49BE479C930F6A18 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				D58BDF5210EC4F26F4D6173E /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				361340B4BE2C49FC8467E7B1 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		3850E568C6F94B0B96D414EE /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = CDAF321C2C5241D78F3F71DF /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
 			buildPhases = (
 				B51A7E8257757BC2ACFD2CD6 /* Generate CMakeFiles/ZERO_CHECK */,
 			);
@@ -30,139 +42,127 @@
 			name = ZERO_CHECK;
 			productName = ZERO_CHECK;
 		};
-		E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 1A3F6F65531D4624967633C6 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
-			buildPhases = (
-				D58BDF5210EC4F26F4D6173E /* Generate CMakeFiles/ALL_BUILD */,
-			);
-			dependencies = (
-				DE8CB973C7824E5DAED00294 /* PBXTargetDependency */,
-			);
-			name = ALL_BUILD;
-			productName = ALL_BUILD;
-		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildStyle section */
-		1BBD77EBC2C64506B29CB650 /* RelWithDebInfo */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = RelWithDebInfo;
-		};
-		7C98860BC798442E933A0990 /* Debug */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = Debug;
-		};
-		9F5DDE135E834FC6BE32DD65 /* Release */ = {
+		12416BC60D4A4732BFE9DEFA /* Release */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = Release;
 		};
-		FE5DC2313FCA4A999A04976F /* MinSizeRel */ = {
+		6D2E3FAA4616495D92FEDF0A /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		BE8336E2862242F78FB2EE37 /* MinSizeRel */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = MinSizeRel;
 		};
+		E9611DA4A1D24640B6CD2E39 /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
 /* End PBXBuildStyle section */
 
 /* Begin PBXContainerItemProxy section */
-		63BBD64E03E24842BF1324F3 /* PBXContainerItemProxy */ = {
+		2BEC9BB661FA44118FD000C9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D4A4BF9AEA87452B8E35EC37 /* Project object */;
+			containerPortal = 1967BA12B9A043E09DEF5F91 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DFBF11FFD4284FB9AD4788F6;
-			remoteInfo = ZERO_CHECK;
-		};
-		A598699B25864F52B7341D75 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D4A4BF9AEA87452B8E35EC37 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E6CAFF21C6974B72ACD76ECB;
+			remoteGlobalIDString = 222ED28E418F401EAA5F0615;
 			remoteInfo = ALL_BUILD;
+		};
+		9776CE6D4714498D82E77A7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1967BA12B9A043E09DEF5F91 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3850E568C6F94B0B96D414EE;
+			remoteInfo = ZERO_CHECK;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C0D111931FB34EE0BEF70705 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/openal-soft/utils/alsoft-config/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		F63E303BECA641D5A39C5E16 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/openal-soft/utils/alsoft-config/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		19F3FD8A43B24918A9AE4AF1 /* ALL_BUILD */ = {
-			isa = PBXGroup;
-			children = (
-				D7F9A7D054B5422A95FD2851 /* CMake Rules */,
-				C0D111931FB34EE0BEF70705 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/openal-soft/utils/alsoft-config/CMakeLists.txt */,
-			);
-			name = ALL_BUILD;
-			sourceTree = "<group>";
-		};
-		2075E4254A29408F8E1E96F2 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		353DC102CC154751ABC6FAF2 /* Products */ = {
+		2AC0C0929E5240E0BECC65BE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D07A146E7A2044039F6F44DD = {
+		2F43352E6EFF4ABD828BE38A = {
 			isa = PBXGroup;
 			children = (
-				19F3FD8A43B24918A9AE4AF1 /* ALL_BUILD */,
-				353DC102CC154751ABC6FAF2 /* Products */,
-				2075E4254A29408F8E1E96F2 /* Frameworks */,
+				BE3A702E124340B797B0FB3A /* ALL_BUILD */,
+				2AC0C0929E5240E0BECC65BE /* Products */,
+				F19E411C3A3E4E4C9275BC06 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		D7F9A7D054B5422A95FD2851 /* CMake Rules */ = {
+		BE3A702E124340B797B0FB3A /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				BF3F58485C1C488381C4F7CD /* CMake Rules */,
+				F63E303BECA641D5A39C5E16 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/openal-soft/utils/alsoft-config/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		BF3F58485C1C488381C4F7CD /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = "CMake Rules";
 			sourceTree = "<group>";
 		};
+		F19E411C3A3E4E4C9275BC06 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXProject section */
-		D4A4BF9AEA87452B8E35EC37 /* Project object */ = {
+		1967BA12B9A043E09DEF5F91 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1400;
 			};
-			buildConfigurationList = 4711A63282484167A06174E6 /* Build configuration list for PBXProject "alsoft-config" */;
+			buildConfigurationList = C362B9345C334EA69471A795 /* Build configuration list for PBXProject "alsoft-config" */;
 			buildSettings = {
 			};
 			buildStyles = (
-				7C98860BC798442E933A0990 /* Debug */,
-				9F5DDE135E834FC6BE32DD65 /* Release */,
-				FE5DC2313FCA4A999A04976F /* MinSizeRel */,
-				1BBD77EBC2C64506B29CB650 /* RelWithDebInfo */,
+				6D2E3FAA4616495D92FEDF0A /* Debug */,
+				12416BC60D4A4732BFE9DEFA /* Release */,
+				BE8336E2862242F78FB2EE37 /* MinSizeRel */,
+				E9611DA4A1D24640B6CD2E39 /* RelWithDebInfo */,
 			);
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
-			mainGroup = D07A146E7A2044039F6F44DD;
+			mainGroup = 2F43352E6EFF4ABD828BE38A;
 			projectDirPath = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/openal-soft/utils/alsoft-config";
 			projectRoot = "";
 			targets = (
-				E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */,
-				DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */,
-				041BA11FB1E24491AB3B91B0 /* install */,
+				222ED28E418F401EAA5F0615 /* ALL_BUILD */,
+				3850E568C6F94B0B96D414EE /* ZERO_CHECK */,
+				13D919CF1E024DA9917DF336 /* install */,
 			);
 		};
 /* End PBXProject section */
@@ -313,75 +313,20 @@ fi
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		7303151913124A76BE0BF63B /* PBXTargetDependency */ = {
+		361340B4BE2C49FC8467E7B1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */;
-			targetProxy = A598699B25864F52B7341D75 /* PBXContainerItemProxy */;
+			target = 3850E568C6F94B0B96D414EE /* ZERO_CHECK */;
+			targetProxy = 9776CE6D4714498D82E77A7C /* PBXContainerItemProxy */;
 		};
-		DE8CB973C7824E5DAED00294 /* PBXTargetDependency */ = {
+		A31E7B0A1C1A487F9B58E310 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */;
-			targetProxy = 63BBD64E03E24842BF1324F3 /* PBXContainerItemProxy */;
+			target = 222ED28E418F401EAA5F0615 /* ALL_BUILD */;
+			targetProxy = 2BEC9BB661FA44118FD000C9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		0BE28DCBE70B4A7A87A9373B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config/build";
-			};
-			name = Release;
-		};
-		1FCB204E7F7848C6A79DF48B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		256D56B9D4944AF4B5FC6910 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		41533B259A814939B72F358E /* MinSizeRel */ = {
+		00A7933A98B640DD9AC00996 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -392,7 +337,7 @@ fi
 			};
 			name = MinSizeRel;
 		};
-		59A16952A92E48E89F391187 /* RelWithDebInfo */ = {
+		061E8424060A4CEEBDBD0B32 /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -414,29 +359,7 @@ fi
 			};
 			name = RelWithDebInfo;
 		};
-		6540EA46E9614408BA0479BC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		6E41AC495F45402F8A655D1A /* MinSizeRel */ = {
+		13E76A3CFF66476582D3653B /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -456,31 +379,9 @@ fi
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("$(inherited)");
 			};
-			name = MinSizeRel;
+			name = RelWithDebInfo;
 		};
-		7188626CC0EF4EC9A59BE254 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		838AF35B16174DFBA51F686A /* Debug */ = {
+		28FA842B5AD6424FB5B9F77E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -491,7 +392,7 @@ fi
 			};
 			name = Debug;
 		};
-		97E4B6E0F6DE41498AA554FA /* RelWithDebInfo */ = {
+		3ABCF460C20D4898A9A6C94D /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -513,62 +414,7 @@ fi
 			};
 			name = RelWithDebInfo;
 		};
-		A17E8B5BEC204D07AFA6FF6A /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		BFC79A42258E4C468AFCB54D /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config/build";
-			};
-			name = RelWithDebInfo;
-		};
-		E16DDFD2B8E84136ACC174A0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		E94A55AD67CC4012A857C11C /* Debug */ = {
+		4065DFA25FE54A68BE61551E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -590,7 +436,84 @@ fi
 			};
 			name = Debug;
 		};
-		EEA577EEA5BE43EE8C88F0CD /* MinSizeRel */ = {
+		5613A0776A1E4E3088C83062 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		8E825B19321C4E3382A8EC5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		A09AC856B39743A392B0A44A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		B009974B303945E380BB241B /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config/build";
+			};
+			name = RelWithDebInfo;
+		};
+		B65604DFFB65488E8B9FAB31 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -612,7 +535,7 @@ fi
 			};
 			name = MinSizeRel;
 		};
-		FA8C3B37F79C490C9A38A080 /* MinSizeRel */ = {
+		BC96B058C3854661AA12340A /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -633,55 +556,132 @@ fi
 				WARNING_CFLAGS = ("$(inherited)");
 			};
 			name = MinSizeRel;
+		};
+		C1D92E3A0C004FDAA2BD7FAA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config/build";
+			};
+			name = Release;
+		};
+		E1508CE213614759A2F59BD3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		E9353E7070F14A97B41F8330 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		EB982CB6F26241E2814C24CF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/openal-soft/utils/alsoft-config";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0E8D42376AB641BD963B50E5 /* Build configuration list for PBXAggregateTarget "install" */ = {
+		BC2F3A7D49BE479C930F6A18 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				256D56B9D4944AF4B5FC6910 /* Debug */,
-				7188626CC0EF4EC9A59BE254 /* Release */,
-				6E41AC495F45402F8A655D1A /* MinSizeRel */,
-				A17E8B5BEC204D07AFA6FF6A /* RelWithDebInfo */,
+				4065DFA25FE54A68BE61551E /* Debug */,
+				5613A0776A1E4E3088C83062 /* Release */,
+				B65604DFFB65488E8B9FAB31 /* MinSizeRel */,
+				061E8424060A4CEEBDBD0B32 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		1A3F6F65531D4624967633C6 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+		C362B9345C334EA69471A795 /* Build configuration list for PBXProject "alsoft-config" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E94A55AD67CC4012A857C11C /* Debug */,
-				1FCB204E7F7848C6A79DF48B /* Release */,
-				EEA577EEA5BE43EE8C88F0CD /* MinSizeRel */,
-				59A16952A92E48E89F391187 /* RelWithDebInfo */,
+				28FA842B5AD6424FB5B9F77E /* Debug */,
+				C1D92E3A0C004FDAA2BD7FAA /* Release */,
+				00A7933A98B640DD9AC00996 /* MinSizeRel */,
+				B009974B303945E380BB241B /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4711A63282484167A06174E6 /* Build configuration list for PBXProject "alsoft-config" */ = {
+		CDAF321C2C5241D78F3F71DF /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				838AF35B16174DFBA51F686A /* Debug */,
-				0BE28DCBE70B4A7A87A9373B /* Release */,
-				41533B259A814939B72F358E /* MinSizeRel */,
-				BFC79A42258E4C468AFCB54D /* RelWithDebInfo */,
+				EB982CB6F26241E2814C24CF /* Debug */,
+				A09AC856B39743A392B0A44A /* Release */,
+				BC96B058C3854661AA12340A /* MinSizeRel */,
+				3ABCF460C20D4898A9A6C94D /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		F8761098728C408DA337887A /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+		F4E4B61BE89546928A6B767C /* Build configuration list for PBXAggregateTarget "install" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E16DDFD2B8E84136ACC174A0 /* Debug */,
-				6540EA46E9614408BA0479BC /* Release */,
-				FA8C3B37F79C490C9A38A080 /* MinSizeRel */,
-				97E4B6E0F6DE41498AA554FA /* RelWithDebInfo */,
+				8E825B19321C4E3382A8EC5A /* Debug */,
+				E1508CE213614759A2F59BD3 /* Release */,
+				E9353E7070F14A97B41F8330 /* MinSizeRel */,
+				13E76A3CFF66476582D3653B /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = D4A4BF9AEA87452B8E35EC37 /* Project object */;
+	rootObject = 1967BA12B9A043E09DEF5F91 /* Project object */;
 }

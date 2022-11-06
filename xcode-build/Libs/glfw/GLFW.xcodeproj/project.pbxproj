@@ -7,32 +7,46 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		041BA11FB1E24491AB3B91B0 /* install */ = {
+		13D919CF1E024DA9917DF336 /* install */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 4D6AEAC0C8B14765B162FDA9 /* Build configuration list for PBXAggregateTarget "install" */;
+			buildConfigurationList = E232AE280B694B3B942B0394 /* Build configuration list for PBXAggregateTarget "install" */;
 			buildPhases = (
 				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
 			);
 			dependencies = (
-				F919D78265A9451C8F8A0B29 /* PBXTargetDependency */,
+				6C03CEA187614164A85729A8 /* PBXTargetDependency */,
 			);
 			name = install;
 			productName = install;
 		};
-		80021695E8C3439DAC7FEC01 /* update_mappings */ = {
+		16E599894FEE4891A32F5122 /* uninstall */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 63F122F631C84BE4A946DE7E /* Build configuration list for PBXAggregateTarget "update_mappings" */;
+			buildConfigurationList = D467E1D4A34346F4924B8684 /* Build configuration list for PBXAggregateTarget "uninstall" */;
 			buildPhases = (
-				FA2C1F6408373AE2E7FCEDD9 /* Generate src/CMakeFiles/update_mappings */,
+				C3F6C61AF36127975198AA87 /* Generate CMakeFiles/uninstall */,
 			);
 			dependencies = (
+				336E874AEA4C4324B7E7BA63 /* PBXTargetDependency */,
 			);
-			name = update_mappings;
-			productName = update_mappings;
+			name = uninstall;
+			productName = uninstall;
 		};
-		DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */ = {
+		222ED28E418F401EAA5F0615 /* ALL_BUILD */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 700C6ACF48F74309B1AA79E6 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildConfigurationList = 3D7F34AAB991430087754195 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				A31869F2780FCF08F48A3775 /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				B6437E4EFA90467FB33E5813 /* PBXTargetDependency */,
+				27BE3372AB364BAD854E4FB2 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		3850E568C6F94B0B96D414EE /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 741E8B8B04D44D2DBAC1E4F3 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
 			buildPhases = (
 				611BC1A859A8C74890A3F026 /* Generate CMakeFiles/ZERO_CHECK */,
 			);
@@ -41,175 +55,161 @@
 			name = ZERO_CHECK;
 			productName = ZERO_CHECK;
 		};
-		E3C9365D227247F383EC20E9 /* uninstall */ = {
+		3F4E8D65F46442BE8BAB5F71 /* update_mappings */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 41D7E697FE0D4BE786D30A6A /* Build configuration list for PBXAggregateTarget "uninstall" */;
+			buildConfigurationList = 795C3851106F4A198D0F5102 /* Build configuration list for PBXAggregateTarget "update_mappings" */;
 			buildPhases = (
-				C3F6C61AF36127975198AA87 /* Generate CMakeFiles/uninstall */,
+				FA2C1F6408373AE2E7FCEDD9 /* Generate src/CMakeFiles/update_mappings */,
 			);
 			dependencies = (
-				BF2941846C414B59804F5914 /* PBXTargetDependency */,
 			);
-			name = uninstall;
-			productName = uninstall;
-		};
-		E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 9FD577FED275480389E2437D /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
-			buildPhases = (
-				A31869F2780FCF08F48A3775 /* Generate CMakeFiles/ALL_BUILD */,
-			);
-			dependencies = (
-				037975552A7449A39DA7D16F /* PBXTargetDependency */,
-				1D97BED26E9A4CCBA5552443 /* PBXTargetDependency */,
-			);
-			name = ALL_BUILD;
-			productName = ALL_BUILD;
+			name = update_mappings;
+			productName = update_mappings;
 		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		041A5EB5C3DC4592A1E9FD56 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */ = {isa = PBXBuildFile; fileRef = 5CAA1A7D31ED41F5BED113B4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */; };
-		07A40C7DD6294792926EEE79 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */ = {isa = PBXBuildFile; fileRef = 9EA14239BEFE4825A9065090 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */; };
-		0C8CEDFD257A41F590F27748 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */ = {isa = PBXBuildFile; fileRef = A7B908515F02436882C4DD2F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */; };
-		1072321556CD4FCC968E8783 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */ = {isa = PBXBuildFile; fileRef = F3766F9A206C4530AB9E2A37 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */; };
-		149C6641800C426D956AB82F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */ = {isa = PBXBuildFile; fileRef = 10516D2203F84C659E24530A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */; };
-		18518EFF8A414EC6BA699AA4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */ = {isa = PBXBuildFile; fileRef = E3226F40666D4DBA939AFAD1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */; };
-		23769A5453FE4B88B623D3B2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */ = {isa = PBXBuildFile; fileRef = 10FDA13584F8443CA61AC18F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */; };
-		241D7F04018345EEAE2D94D8 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */ = {isa = PBXBuildFile; fileRef = 0F6D0E63427A4CD98F458CFC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */; };
-		2B4634627B654816B9B05D98 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */ = {isa = PBXBuildFile; fileRef = 9F71E3BDC3A34ECCA66C298E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */; };
-		33E76B24CDFD4605B4EAE27F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */ = {isa = PBXBuildFile; fileRef = CFAF4821073247D0BB918B00 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */; };
-		3642747A674944B991AB81FD /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */ = {isa = PBXBuildFile; fileRef = CF84F79B9BC349CAACFF15A4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */; };
-		3B998772A2CB45F698F5BA03 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */ = {isa = PBXBuildFile; fileRef = 5A154FC1EEDA4464A8E0B8F8 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */; };
-		3E60929745634C62BC82BBB9 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = BFB79173A6374962A53459E7 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */; };
-		3EA39FE65CE74E589E9AEDA7 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */ = {isa = PBXBuildFile; fileRef = A03A6A1CC767435892D46B51 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */; };
-		4480B6888556452387E6EEC2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */ = {isa = PBXBuildFile; fileRef = AFBD9E4818FD4A8CB893576C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */; };
-		4B2B0A5C971441A78130D17F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */ = {isa = PBXBuildFile; fileRef = 53F4A88009AD4AEF81F2F06B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */; };
-		4E1ABBEE89734751AF9CA6BC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */ = {isa = PBXBuildFile; fileRef = 95198609E033485586C493C4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */; };
-		51E2D240015F401C8EAA8AE3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */ = {isa = PBXBuildFile; fileRef = BDFB19AA633A49F8909C803B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */; };
-		535379E44C784688A993800F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */ = {isa = PBXBuildFile; fileRef = 9C45076379854FB1B4ADC47E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */; };
-		5AECB7D965494D898B7AD715 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */ = {isa = PBXBuildFile; fileRef = 29743E7C0F964BF2B38CFD91 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */; };
-		5E1C479C182740F7AAD00ED4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */ = {isa = PBXBuildFile; fileRef = 0D43A6949A7B49579C38B51A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */; };
-		70E16C0D91A44E7EB6283F5C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */ = {isa = PBXBuildFile; fileRef = 2B2AC4190DF942D28D4D4670 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */; };
-		714B042570EF4F5999A7404C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */ = {isa = PBXBuildFile; fileRef = 9DDD2E3617BA4F74B92A1628 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */; };
-		7FD9F652ABE24EDEA3D406EC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */ = {isa = PBXBuildFile; fileRef = D70237B54C7B47A78E1E8569 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */; };
-		8B4E83B37A384005BB1AF11C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */ = {isa = PBXBuildFile; fileRef = B53507B23A104C988BDAC8DE /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */; };
-		8F5E7919F15C4A299639D641 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */ = {isa = PBXBuildFile; fileRef = 308D12462E5C4C409F30DEC1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */; };
-		9227FE888F3843139715153A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */ = {isa = PBXBuildFile; fileRef = 157C70B95B4E4D1F8D99943C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */; };
-		9C7B8522BA60462E99043F23 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */ = {isa = PBXBuildFile; fileRef = 7BD6D97A108247B58159E472 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */; };
-		A7AD30BFA52A43E1B381BE47 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */ = {isa = PBXBuildFile; fileRef = E4C2F79B0A91475FAA0373F2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */; };
-		E5EA0004EB72475F9656A868 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */ = {isa = PBXBuildFile; fileRef = 41DC8C78CE814F3D986408F1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */; };
-		ED8ECE61E37D418CA861EC84 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */ = {isa = PBXBuildFile; fileRef = 3153DA238D8946CA985B4555 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */; };
-		EF3C04CA468F4825995FE19E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */ = {isa = PBXBuildFile; fileRef = 4865CD96AD5D43E68B6830AA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */; };
-		F07E4B48A69147A6B1DAEE86 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */ = {isa = PBXBuildFile; fileRef = 0EE91D6B7E714E3EB5C94ADC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */; };
+		02C6091D7B2C41E5B59222D6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */ = {isa = PBXBuildFile; fileRef = C7EE1D41E5064B89BB3BCB4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */; };
+		0AEED71385564FAAAB89DA9B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */ = {isa = PBXBuildFile; fileRef = FD09B1E08EDC42739C76B186 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */; };
+		0F17AC28B8C34E44939111F2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */ = {isa = PBXBuildFile; fileRef = 2915084937814C9BB971808C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */; };
+		146C586F10A04E928C937E91 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */ = {isa = PBXBuildFile; fileRef = 727C97D83B1142B8802BFFE9 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */; };
+		190E5ADB3C9842898FAD1310 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */ = {isa = PBXBuildFile; fileRef = 505FC48DDA0147BB93F448E2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */; };
+		208B2570896445BBA3580DE3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */ = {isa = PBXBuildFile; fileRef = F1CD30CD35204F068388E9D2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */; };
+		228F107E15F04E11BBE00D43 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */ = {isa = PBXBuildFile; fileRef = C2E5B235CD614A70B54037D6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */; };
+		40792CDC4E304985A15DC1B5 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */ = {isa = PBXBuildFile; fileRef = CCDE909E1D4F4567A775AFE3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */; };
+		41ED0257F5E64AE087C94F8F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */ = {isa = PBXBuildFile; fileRef = 1D2C1983E4CE497C880CEE22 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */; };
+		454ACA13AF01445BBEEB08F4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */ = {isa = PBXBuildFile; fileRef = 3266BF3CC2D74E4984A9CE5D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */; };
+		4E4F718E9AF44171B53A574C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */ = {isa = PBXBuildFile; fileRef = 33A2604AA876415ABDE83FF6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */; };
+		53A0EB39F4FC4155878C66ED /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */ = {isa = PBXBuildFile; fileRef = CB2E208B0AB548AB9797EF06 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */; };
+		80AE6FD27BC445158FBB8965 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */ = {isa = PBXBuildFile; fileRef = C5447685F34547B794E2AA4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */; };
+		8574B5FC890E4076BDCE5B12 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */ = {isa = PBXBuildFile; fileRef = 72F99C2B2B1F46AE8D9BEE52 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */; };
+		86E0A5EB326344BD8B36F6D4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */ = {isa = PBXBuildFile; fileRef = 9EC1CDAF5961425A93682B5D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */; };
+		89E748DE83694187AABCD5AC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */ = {isa = PBXBuildFile; fileRef = A3CAA4105F494640B33C4668 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */; };
+		9B48FF0663494BE386EA0A1F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */ = {isa = PBXBuildFile; fileRef = 343EB783679F4385ACA9E98B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */; };
+		A07C681A87974D889E98735E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */ = {isa = PBXBuildFile; fileRef = 8BA2E4FE877B438C80847AA6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */; };
+		A711FD014B724AD78DB60612 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */ = {isa = PBXBuildFile; fileRef = 518A15CAE99E4FBF97134983 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */; };
+		AA216BB0C4CC4EFC89418848 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */ = {isa = PBXBuildFile; fileRef = 6B0CB48D9CEA40EF8CD56088 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */; };
+		AEEF5997D48A4F6783127FBA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */ = {isa = PBXBuildFile; fileRef = 1443E79EA09C417D82CBD8EB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */; };
+		B0682ABBBD3640618766A19B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */ = {isa = PBXBuildFile; fileRef = 428D89D35B6B4741BE7DC803 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */; };
+		B4DE55A8D6AA4FA5ADBB118E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */ = {isa = PBXBuildFile; fileRef = 5AEB750DA44C49A1A7F59E53 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */; };
+		BA93BB546A2B434E9F372065 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 7B6751C9F34F435089F1188C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */; };
+		C09FE519249846BAA0026209 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */ = {isa = PBXBuildFile; fileRef = B5DFB3DBE1834BD68C63D31F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */; };
+		C33D892EB7B2480A9B77EF9F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */ = {isa = PBXBuildFile; fileRef = 03EF696B37AB4C5084E7FA56 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */; };
+		C6171791DB304BB49DED329A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */ = {isa = PBXBuildFile; fileRef = 2C7B78D864424428A23A1B4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */; };
+		CEFABEAB9E9748F081FD7749 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */ = {isa = PBXBuildFile; fileRef = 327E6CCC2F174D6E85EF42AE /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */; };
+		E968552B0E0349EFB606827F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */ = {isa = PBXBuildFile; fileRef = 02FB3B661BFB462AA10ED10F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */; };
+		E9C3117183DE484EBD492228 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */ = {isa = PBXBuildFile; fileRef = 0E605E012BDC45A2A10A0E71 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */; };
+		EC0C32BA6F7D4EF4AB042FEA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */ = {isa = PBXBuildFile; fileRef = 7CE23CB96054473DB40983AD /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */; };
+		EC91C2C3DF5A4D089C02706F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */ = {isa = PBXBuildFile; fileRef = 1D84660E25AB45608E6BDFFB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */; };
+		F14070564EA74F9D981679D3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */ = {isa = PBXBuildFile; fileRef = 5A5333AB45A64F60B0FE74EC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildStyle section */
-		69CD8A2E3FEE4DE388C69BC6 /* MinSizeRel */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = MinSizeRel;
-		};
-		B746A9C29A084859AEBCE67F /* Debug */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = Debug;
-		};
-		D56C6669C6194E4E80301107 /* Release */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = Release;
-		};
-		FC492B776D6F4884BB1C8461 /* RelWithDebInfo */ = {
+		141C265C6CBC47838979C458 /* RelWithDebInfo */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = RelWithDebInfo;
 		};
+		200055B4D2C7460AA251B413 /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+		5EE114C49A3749B8A2BEDAE3 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		BEDEE5A61A62492F9DEB94CE /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
 /* End PBXBuildStyle section */
 
 /* Begin PBXContainerItemProxy section */
-		4809643367B6497BBE4B2494 /* PBXContainerItemProxy */ = {
+		25BC5A5860DD436C96431938 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = F5C35BDCD9834F23BBB6F5C5 /* Project object */;
+			containerPortal = A2DFB094B4BF4F869D7492DB /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = E6CAFF21C6974B72ACD76ECB;
-			remoteInfo = ALL_BUILD;
-		};
-		49FA90FEB5E4418FBD495CCF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F5C35BDCD9834F23BBB6F5C5 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B3756285A5734AC8817C7133;
+			remoteGlobalIDString = D6F87F08638B408E9D397CA6;
 			remoteInfo = glfw;
 		};
-		6DDD624A865C49B5AE890F2A /* PBXContainerItemProxy */ = {
+		890A9F163B83461BAFC35293 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = F5C35BDCD9834F23BBB6F5C5 /* Project object */;
+			containerPortal = A2DFB094B4BF4F869D7492DB /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DFBF11FFD4284FB9AD4788F6;
+			remoteGlobalIDString = 222ED28E418F401EAA5F0615;
+			remoteInfo = ALL_BUILD;
+		};
+		CF6B93EC801B49768E290F6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A2DFB094B4BF4F869D7492DB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3850E568C6F94B0B96D414EE;
 			remoteInfo = ZERO_CHECK;
 		};
-		DA050776DA54441FB21112D4 /* PBXContainerItemProxy */ = {
+		E7A859E58C6D4486B359A6DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = F5C35BDCD9834F23BBB6F5C5 /* Project object */;
+			containerPortal = A2DFB094B4BF4F869D7492DB /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DFBF11FFD4284FB9AD4788F6;
+			remoteGlobalIDString = 3850E568C6F94B0B96D414EE;
 			remoteInfo = ZERO_CHECK;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0888B6AA5B06407FA1A6BABA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		09916284A932406EBD9B1E92 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h.in */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = mappings.h.in; path = src/mappings.h.in; sourceTree = SOURCE_ROOT; };
-		0D43A6949A7B49579C38B51A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = null_joystick.h; path = src/null_joystick.h; sourceTree = SOURCE_ROOT; };
-		0EE91D6B7E714E3EB5C94ADC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_window.m; path = src/cocoa_window.m; sourceTree = SOURCE_ROOT; };
-		0F6D0E63427A4CD98F458CFC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = platform.c; path = src/platform.c; sourceTree = SOURCE_ROOT; };
-		10516D2203F84C659E24530A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = posix_module.c; path = src/posix_module.c; sourceTree = SOURCE_ROOT; };
-		10FDA13584F8443CA61AC18F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = null_platform.h; path = src/null_platform.h; sourceTree = SOURCE_ROOT; };
-		157C70B95B4E4D1F8D99943C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3native.h; path = include/GLFW/glfw3native.h; sourceTree = SOURCE_ROOT; };
-		22DF7072A6184875AFF980C0 /* glfw */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libglfw3.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		29743E7C0F964BF2B38CFD91 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_init.c; path = src/null_init.c; sourceTree = SOURCE_ROOT; };
-		2AA27EFC3A4643C0B1755BCB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMake/GenerateMappings.cmake */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = GenerateMappings.cmake; path = CMake/GenerateMappings.cmake; sourceTree = SOURCE_ROOT; };
-		2B2AC4190DF942D28D4D4670 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = posix_thread.c; path = src/posix_thread.c; sourceTree = SOURCE_ROOT; };
-		308D12462E5C4C409F30DEC1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = platform.h; path = src/platform.h; sourceTree = SOURCE_ROOT; };
-		3153DA238D8946CA985B4555 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_window.c; path = src/null_window.c; sourceTree = SOURCE_ROOT; };
-		41DC8C78CE814F3D986408F1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = context.c; path = src/context.c; sourceTree = SOURCE_ROOT; };
-		4865CD96AD5D43E68B6830AA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_init.m; path = src/cocoa_init.m; sourceTree = SOURCE_ROOT; };
-		53F4A88009AD4AEF81F2F06B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3.h; path = include/GLFW/glfw3.h; sourceTree = SOURCE_ROOT; };
-		5A154FC1EEDA4464A8E0B8F8 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = nsgl_context.m; path = src/nsgl_context.m; sourceTree = SOURCE_ROOT; };
-		5CAA1A7D31ED41F5BED113B4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = input.c; path = src/input.c; sourceTree = SOURCE_ROOT; };
-		7BD6D97A108247B58159E472 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = cocoa_time.c; path = src/cocoa_time.c; sourceTree = SOURCE_ROOT; };
-		95198609E033485586C493C4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = posix_thread.h; path = src/posix_thread.h; sourceTree = SOURCE_ROOT; };
-		9C45076379854FB1B4ADC47E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = vulkan.c; path = src/vulkan.c; sourceTree = SOURCE_ROOT; };
-		9DDD2E3617BA4F74B92A1628 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_joystick.h; path = src/cocoa_joystick.h; sourceTree = SOURCE_ROOT; };
-		9EA14239BEFE4825A9065090 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = osmesa_context.c; path = src/osmesa_context.c; sourceTree = SOURCE_ROOT; };
-		9F71E3BDC3A34ECCA66C298E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = egl_context.c; path = src/egl_context.c; sourceTree = SOURCE_ROOT; };
-		A03A6A1CC767435892D46B51 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_monitor.m; path = src/cocoa_monitor.m; sourceTree = SOURCE_ROOT; };
-		A7B908515F02436882C4DD2F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = monitor.c; path = src/monitor.c; sourceTree = SOURCE_ROOT; };
-		AFBD9E4818FD4A8CB893576C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = window.c; path = src/window.c; sourceTree = SOURCE_ROOT; };
-		B53507B23A104C988BDAC8DE /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mappings.h; path = src/mappings.h; sourceTree = SOURCE_ROOT; };
-		BDFB19AA633A49F8909C803B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = internal.h; path = src/internal.h; sourceTree = SOURCE_ROOT; };
-		BFB79173A6374962A53459E7 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		CF84F79B9BC349CAACFF15A4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_monitor.c; path = src/null_monitor.c; sourceTree = SOURCE_ROOT; };
-		CFAF4821073247D0BB918B00 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_joystick.c; path = src/null_joystick.c; sourceTree = SOURCE_ROOT; };
-		D70237B54C7B47A78E1E8569 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_joystick.m; path = src/cocoa_joystick.m; sourceTree = SOURCE_ROOT; };
-		E3226F40666D4DBA939AFAD1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = init.c; path = src/init.c; sourceTree = SOURCE_ROOT; };
-		E4C2F79B0A91475FAA0373F2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_platform.h; path = src/cocoa_platform.h; sourceTree = SOURCE_ROOT; };
-		F3766F9A206C4530AB9E2A37 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_time.h; path = src/cocoa_time.h; sourceTree = SOURCE_ROOT; };
-		F79D989F663045219FB8798D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		F91ED961D3D740EF9EA80C4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		02FB3B661BFB462AA10ED10F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = egl_context.c; path = src/egl_context.c; sourceTree = SOURCE_ROOT; };
+		03EF696B37AB4C5084E7FA56 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = vulkan.c; path = src/vulkan.c; sourceTree = SOURCE_ROOT; };
+		0E605E012BDC45A2A10A0E71 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = input.c; path = src/input.c; sourceTree = SOURCE_ROOT; };
+		1443E79EA09C417D82CBD8EB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = init.c; path = src/init.c; sourceTree = SOURCE_ROOT; };
+		1CA0D68B9F34463488A80D51 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		1D2C1983E4CE497C880CEE22 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3.h; path = include/GLFW/glfw3.h; sourceTree = SOURCE_ROOT; };
+		1D84660E25AB45608E6BDFFB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = platform.c; path = src/platform.c; sourceTree = SOURCE_ROOT; };
+		256679E8D0274125999395E3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		2915084937814C9BB971808C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_window.m; path = src/cocoa_window.m; sourceTree = SOURCE_ROOT; };
+		2C7B78D864424428A23A1B4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_monitor.c; path = src/null_monitor.c; sourceTree = SOURCE_ROOT; };
+		3266BF3CC2D74E4984A9CE5D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = window.c; path = src/window.c; sourceTree = SOURCE_ROOT; };
+		327E6CCC2F174D6E85EF42AE /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_joystick.m; path = src/cocoa_joystick.m; sourceTree = SOURCE_ROOT; };
+		33A2604AA876415ABDE83FF6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_init.m; path = src/cocoa_init.m; sourceTree = SOURCE_ROOT; };
+		343EB783679F4385ACA9E98B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = posix_module.c; path = src/posix_module.c; sourceTree = SOURCE_ROOT; };
+		428D89D35B6B4741BE7DC803 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = posix_thread.h; path = src/posix_thread.h; sourceTree = SOURCE_ROOT; };
+		466734FABFB846F3B0952585 /* glfw */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libglfw3.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		505FC48DDA0147BB93F448E2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = null_platform.h; path = src/null_platform.h; sourceTree = SOURCE_ROOT; };
+		518A15CAE99E4FBF97134983 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = nsgl_context.m; path = src/nsgl_context.m; sourceTree = SOURCE_ROOT; };
+		5A5333AB45A64F60B0FE74EC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = null_joystick.h; path = src/null_joystick.h; sourceTree = SOURCE_ROOT; };
+		5AEB750DA44C49A1A7F59E53 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = monitor.c; path = src/monitor.c; sourceTree = SOURCE_ROOT; };
+		68BE1D6D2ACD4470829F68D5 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		6B0CB48D9CEA40EF8CD56088 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_monitor.m; path = src/cocoa_monitor.m; sourceTree = SOURCE_ROOT; };
+		6B2D966760B5490CA78D8B54 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMake/GenerateMappings.cmake */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = GenerateMappings.cmake; path = CMake/GenerateMappings.cmake; sourceTree = SOURCE_ROOT; };
+		727C97D83B1142B8802BFFE9 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = osmesa_context.c; path = src/osmesa_context.c; sourceTree = SOURCE_ROOT; };
+		72F99C2B2B1F46AE8D9BEE52 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_time.h; path = src/cocoa_time.h; sourceTree = SOURCE_ROOT; };
+		7B6751C9F34F435089F1188C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		7CE23CB96054473DB40983AD /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_window.c; path = src/null_window.c; sourceTree = SOURCE_ROOT; };
+		8BA2E4FE877B438C80847AA6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = context.c; path = src/context.c; sourceTree = SOURCE_ROOT; };
+		94B3E80AADB4471CAAAE5D94 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h.in */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = mappings.h.in; path = src/mappings.h.in; sourceTree = SOURCE_ROOT; };
+		9EC1CDAF5961425A93682B5D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3native.h; path = include/GLFW/glfw3native.h; sourceTree = SOURCE_ROOT; };
+		A3CAA4105F494640B33C4668 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_joystick.h; path = src/cocoa_joystick.h; sourceTree = SOURCE_ROOT; };
+		B5DFB3DBE1834BD68C63D31F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_platform.h; path = src/cocoa_platform.h; sourceTree = SOURCE_ROOT; };
+		C2E5B235CD614A70B54037D6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = platform.h; path = src/platform.h; sourceTree = SOURCE_ROOT; };
+		C5447685F34547B794E2AA4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_joystick.c; path = src/null_joystick.c; sourceTree = SOURCE_ROOT; };
+		C7EE1D41E5064B89BB3BCB4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = posix_thread.c; path = src/posix_thread.c; sourceTree = SOURCE_ROOT; };
+		CB2E208B0AB548AB9797EF06 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mappings.h; path = src/mappings.h; sourceTree = SOURCE_ROOT; };
+		CCDE909E1D4F4567A775AFE3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = cocoa_time.c; path = src/cocoa_time.c; sourceTree = SOURCE_ROOT; };
+		F1CD30CD35204F068388E9D2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_init.c; path = src/null_init.c; sourceTree = SOURCE_ROOT; };
+		FD09B1E08EDC42739C76B186 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = internal.h; path = src/internal.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		D579A5DC0AB94BB6BBB233FD /* Frameworks */ = {
+		56DE535D201343E59DDE3C66 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -219,164 +219,164 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		01567613DDC64F5BB82C90F2 /* GLFW3 */ = {
+		01E81CF673AC4CA381B374AC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				573032BF793C4D97A395B725 /* uninstall */,
-				DC1F2E32B9774E1A8707C8D2 /* glfw */,
-				5CFF72B2734C4E48A66093B5 /* update_mappings */,
-			);
-			name = GLFW3;
-			sourceTree = "<group>";
-		};
-		06FC9488978748E1B3C83241 = {
-			isa = PBXGroup;
-			children = (
-				01567613DDC64F5BB82C90F2 /* GLFW3 */,
-				6984082B2BD349409D76D271 /* ALL_BUILD */,
-				0F7AEEB7495D4D08880D82AE /* Products */,
-				5BD9061560C64C059C313B1F /* Frameworks */,
-			);
-			sourceTree = "<group>";
-		};
-		0F7AEEB7495D4D08880D82AE /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				22DF7072A6184875AFF980C0 /* glfw */,
+				466734FABFB846F3B0952585 /* glfw */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		573032BF793C4D97A395B725 /* uninstall */ = {
+		22619EFE72AF4911AA1670A5 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
-				AEA3249BF1264D808F743BC2 /* CMake Rules */,
-				F79D989F663045219FB8798D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */,
+				94B3E80AADB4471CAAAE5D94 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h.in */,
 			);
-			name = uninstall;
+			name = "Header Files";
 			sourceTree = "<group>";
 		};
-		5BD9061560C64C059C313B1F /* Frameworks */ = {
+		2E752254DDB542EC94840DB6 /* update_mappings */ = {
+			isa = PBXGroup;
+			children = (
+				22619EFE72AF4911AA1670A5 /* Header Files */,
+				ECB8D96300B145088FF6F640 /* CMake Rules */,
+				6B2D966760B5490CA78D8B54 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMake/GenerateMappings.cmake */,
+				68BE1D6D2ACD4470829F68D5 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */,
+			);
+			name = update_mappings;
+			sourceTree = "<group>";
+		};
+		31DD16D6B2664CB4942FE8A6 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		9B2A7DB9045C424C88707017 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				33A2604AA876415ABDE83FF6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */,
+				327E6CCC2F174D6E85EF42AE /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */,
+				6B0CB48D9CEA40EF8CD56088 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */,
+				CCDE909E1D4F4567A775AFE3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */,
+				2915084937814C9BB971808C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */,
+				8BA2E4FE877B438C80847AA6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */,
+				02FB3B661BFB462AA10ED10F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */,
+				1443E79EA09C417D82CBD8EB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */,
+				0E605E012BDC45A2A10A0E71 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */,
+				5AEB750DA44C49A1A7F59E53 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */,
+				518A15CAE99E4FBF97134983 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */,
+				F1CD30CD35204F068388E9D2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */,
+				C5447685F34547B794E2AA4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */,
+				2C7B78D864424428A23A1B4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */,
+				7CE23CB96054473DB40983AD /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */,
+				727C97D83B1142B8802BFFE9 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */,
+				1D84660E25AB45608E6BDFFB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */,
+				343EB783679F4385ACA9E98B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */,
+				C7EE1D41E5064B89BB3BCB4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */,
+				03EF696B37AB4C5084E7FA56 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */,
+				3266BF3CC2D74E4984A9CE5D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		AA4B97F56A7F49CD8B572289 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		5CFF72B2734C4E48A66093B5 /* update_mappings */ = {
-			isa = PBXGroup;
-			children = (
-				6254AC3BF924477E8E96CD5F /* Header Files */,
-				E641B42872004DCA9A59C6ED /* CMake Rules */,
-				2AA27EFC3A4643C0B1755BCB /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMake/GenerateMappings.cmake */,
-				F91ED961D3D740EF9EA80C4D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */,
-			);
-			name = update_mappings;
-			sourceTree = "<group>";
-		};
-		6254AC3BF924477E8E96CD5F /* Header Files */ = {
-			isa = PBXGroup;
-			children = (
-				09916284A932406EBD9B1E92 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h.in */,
-			);
-			name = "Header Files";
-			sourceTree = "<group>";
-		};
-		6984082B2BD349409D76D271 /* ALL_BUILD */ = {
-			isa = PBXGroup;
-			children = (
-				9006F6071184474CB19B2B9B /* CMake Rules */,
-				0888B6AA5B06407FA1A6BABA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */,
-			);
-			name = ALL_BUILD;
-			sourceTree = "<group>";
-		};
-		9006F6071184474CB19B2B9B /* CMake Rules */ = {
+		AE501D937D6046EA86AE0F80 /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = "CMake Rules";
 			sourceTree = "<group>";
 		};
-		AEA3249BF1264D808F743BC2 /* CMake Rules */ = {
+		B8A467F60FE6453D80D7B704 /* glfw */ = {
 			isa = PBXGroup;
 			children = (
-			);
-			name = "CMake Rules";
-			sourceTree = "<group>";
-		};
-		BA2265EDEE87459A888A232F /* Header Files */ = {
-			isa = PBXGroup;
-			children = (
-				53F4A88009AD4AEF81F2F06B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */,
-				157C70B95B4E4D1F8D99943C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */,
-				9DDD2E3617BA4F74B92A1628 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */,
-				E4C2F79B0A91475FAA0373F2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */,
-				F3766F9A206C4530AB9E2A37 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */,
-				BDFB19AA633A49F8909C803B /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */,
-				B53507B23A104C988BDAC8DE /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */,
-				0D43A6949A7B49579C38B51A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */,
-				10FDA13584F8443CA61AC18F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */,
-				308D12462E5C4C409F30DEC1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */,
-				95198609E033485586C493C4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */,
-			);
-			name = "Header Files";
-			sourceTree = "<group>";
-		};
-		BA9FD9358D3F4DB982E01362 /* Source Files */ = {
-			isa = PBXGroup;
-			children = (
-				4865CD96AD5D43E68B6830AA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */,
-				D70237B54C7B47A78E1E8569 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */,
-				A03A6A1CC767435892D46B51 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */,
-				7BD6D97A108247B58159E472 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */,
-				0EE91D6B7E714E3EB5C94ADC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */,
-				41DC8C78CE814F3D986408F1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */,
-				9F71E3BDC3A34ECCA66C298E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */,
-				E3226F40666D4DBA939AFAD1 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */,
-				5CAA1A7D31ED41F5BED113B4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */,
-				A7B908515F02436882C4DD2F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */,
-				5A154FC1EEDA4464A8E0B8F8 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */,
-				29743E7C0F964BF2B38CFD91 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */,
-				CFAF4821073247D0BB918B00 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */,
-				CF84F79B9BC349CAACFF15A4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */,
-				3153DA238D8946CA985B4555 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */,
-				9EA14239BEFE4825A9065090 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */,
-				0F6D0E63427A4CD98F458CFC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */,
-				10516D2203F84C659E24530A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */,
-				2B2AC4190DF942D28D4D4670 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */,
-				9C45076379854FB1B4ADC47E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */,
-				AFBD9E4818FD4A8CB893576C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */,
-			);
-			name = "Source Files";
-			sourceTree = "<group>";
-		};
-		DC1F2E32B9774E1A8707C8D2 /* glfw */ = {
-			isa = PBXGroup;
-			children = (
-				BA2265EDEE87459A888A232F /* Header Files */,
-				BA9FD9358D3F4DB982E01362 /* Source Files */,
-				BFB79173A6374962A53459E7 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */,
+				DF72B12E7DEE455CA211104C /* Header Files */,
+				9B2A7DB9045C424C88707017 /* Source Files */,
+				7B6751C9F34F435089F1188C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/CMakeLists.txt */,
 			);
 			name = glfw;
 			sourceTree = "<group>";
 		};
-		E641B42872004DCA9A59C6ED /* CMake Rules */ = {
+		C7C14BA0E94242F7A590B3BE /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				31DD16D6B2664CB4942FE8A6 /* CMake Rules */,
+				1CA0D68B9F34463488A80D51 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		D86AF1E8089F4280B2FF3C0C = {
+			isa = PBXGroup;
+			children = (
+				E0C647BB3C114BD3838CCC1B /* GLFW3 */,
+				C7C14BA0E94242F7A590B3BE /* ALL_BUILD */,
+				01E81CF673AC4CA381B374AC /* Products */,
+				AA4B97F56A7F49CD8B572289 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DF72B12E7DEE455CA211104C /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				1D2C1983E4CE497C880CEE22 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3.h */,
+				9EC1CDAF5961425A93682B5D /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include/GLFW/glfw3native.h */,
+				A3CAA4105F494640B33C4668 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.h */,
+				B5DFB3DBE1834BD68C63D31F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_platform.h */,
+				72F99C2B2B1F46AE8D9BEE52 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.h */,
+				FD09B1E08EDC42739C76B186 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/internal.h */,
+				CB2E208B0AB548AB9797EF06 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/mappings.h */,
+				5A5333AB45A64F60B0FE74EC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.h */,
+				505FC48DDA0147BB93F448E2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_platform.h */,
+				C2E5B235CD614A70B54037D6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.h */,
+				428D89D35B6B4741BE7DC803 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		E0C647BB3C114BD3838CCC1B /* GLFW3 */ = {
+			isa = PBXGroup;
+			children = (
+				F503776FE09C4D8C907C1813 /* uninstall */,
+				B8A467F60FE6453D80D7B704 /* glfw */,
+				2E752254DDB542EC94840DB6 /* update_mappings */,
+			);
+			name = GLFW3;
+			sourceTree = "<group>";
+		};
+		ECB8D96300B145088FF6F640 /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		F503776FE09C4D8C907C1813 /* uninstall */ = {
+			isa = PBXGroup;
+			children = (
+				AE501D937D6046EA86AE0F80 /* CMake Rules */,
+				256679E8D0274125999395E3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/CMakeLists.txt */,
+			);
+			name = uninstall;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B3756285A5734AC8817C7133 /* glfw */ = {
+		D6F87F08638B408E9D397CA6 /* glfw */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 91839D72AC7247C69766CCC7 /* Build configuration list for PBXNativeTarget "glfw" */;
+			buildConfigurationList = 85978756F53943E19BC0BD4A /* Build configuration list for PBXNativeTarget "glfw" */;
 			buildPhases = (
-				11F20588708B4ABE86A377C4 /* Sources */,
-				D579A5DC0AB94BB6BBB233FD /* Frameworks */,
+				A4F207FB2E464C3EA03CCDCF /* Sources */,
+				56DE535D201343E59DDE3C66 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -384,39 +384,39 @@
 			);
 			name = glfw;
 			productName = glfw;
-			productReference = 22DF7072A6184875AFF980C0 /* glfw */;
+			productReference = 466734FABFB846F3B0952585 /* glfw */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		F5C35BDCD9834F23BBB6F5C5 /* Project object */ = {
+		A2DFB094B4BF4F869D7492DB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1400;
 			};
-			buildConfigurationList = 82B79A1AD91144C9AAD015A3 /* Build configuration list for PBXProject "GLFW" */;
+			buildConfigurationList = 2F4BF771413D4DC99612398C /* Build configuration list for PBXProject "GLFW" */;
 			buildSettings = {
 			};
 			buildStyles = (
-				B746A9C29A084859AEBCE67F /* Debug */,
-				D56C6669C6194E4E80301107 /* Release */,
-				69CD8A2E3FEE4DE388C69BC6 /* MinSizeRel */,
-				FC492B776D6F4884BB1C8461 /* RelWithDebInfo */,
+				5EE114C49A3749B8A2BEDAE3 /* Debug */,
+				200055B4D2C7460AA251B413 /* Release */,
+				BEDEE5A61A62492F9DEB94CE /* MinSizeRel */,
+				141C265C6CBC47838979C458 /* RelWithDebInfo */,
 			);
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
-			mainGroup = 06FC9488978748E1B3C83241;
+			mainGroup = D86AF1E8089F4280B2FF3C0C;
 			projectDirPath = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw";
 			projectRoot = "";
 			targets = (
-				E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */,
-				DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */,
-				B3756285A5734AC8817C7133 /* glfw */,
-				041BA11FB1E24491AB3B91B0 /* install */,
-				E3C9365D227247F383EC20E9 /* uninstall */,
-				80021695E8C3439DAC7FEC01 /* update_mappings */,
+				222ED28E418F401EAA5F0615 /* ALL_BUILD */,
+				3850E568C6F94B0B96D414EE /* ZERO_CHECK */,
+				D6F87F08638B408E9D397CA6 /* glfw */,
+				13D919CF1E024DA9917DF336 /* install */,
+				16E599894FEE4891A32F5122 /* uninstall */,
+				3F4E8D65F46442BE8BAB5F71 /* update_mappings */,
 			);
 		};
 /* End PBXProject section */
@@ -663,596 +663,61 @@ fi
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		11F20588708B4ABE86A377C4 /* Sources */ = {
+		A4F207FB2E464C3EA03CCDCF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF3C04CA468F4825995FE19E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */,
-				7FD9F652ABE24EDEA3D406EC /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */,
-				3EA39FE65CE74E589E9AEDA7 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */,
-				9C7B8522BA60462E99043F23 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */,
-				F07E4B48A69147A6B1DAEE86 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */,
-				E5EA0004EB72475F9656A868 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */,
-				2B4634627B654816B9B05D98 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */,
-				18518EFF8A414EC6BA699AA4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */,
-				041A5EB5C3DC4592A1E9FD56 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */,
-				0C8CEDFD257A41F590F27748 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */,
-				3B998772A2CB45F698F5BA03 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */,
-				5AECB7D965494D898B7AD715 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */,
-				33E76B24CDFD4605B4EAE27F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */,
-				3642747A674944B991AB81FD /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */,
-				ED8ECE61E37D418CA861EC84 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */,
-				07A40C7DD6294792926EEE79 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */,
-				241D7F04018345EEAE2D94D8 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */,
-				149C6641800C426D956AB82F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */,
-				70E16C0D91A44E7EB6283F5C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */,
-				535379E44C784688A993800F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */,
-				4480B6888556452387E6EEC2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */,
+				4E4F718E9AF44171B53A574C /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_init.m */,
+				CEFABEAB9E9748F081FD7749 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_joystick.m */,
+				AA216BB0C4CC4EFC89418848 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_monitor.m */,
+				40792CDC4E304985A15DC1B5 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_time.c */,
+				0F17AC28B8C34E44939111F2 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/cocoa_window.m */,
+				A07C681A87974D889E98735E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/context.c */,
+				E968552B0E0349EFB606827F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/egl_context.c */,
+				AEEF5997D48A4F6783127FBA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/init.c */,
+				E9C3117183DE484EBD492228 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/input.c */,
+				B4DE55A8D6AA4FA5ADBB118E /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/monitor.c */,
+				A711FD014B724AD78DB60612 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/nsgl_context.m */,
+				208B2570896445BBA3580DE3 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_init.c */,
+				80AE6FD27BC445158FBB8965 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_joystick.c */,
+				C6171791DB304BB49DED329A /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_monitor.c */,
+				EC0C32BA6F7D4EF4AB042FEA /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/null_window.c */,
+				146C586F10A04E928C937E91 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/osmesa_context.c */,
+				EC91C2C3DF5A4D089C02706F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/platform.c */,
+				9B48FF0663494BE386EA0A1F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_module.c */,
+				02C6091D7B2C41E5B59222D6 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/posix_thread.c */,
+				C33D892EB7B2480A9B77EF9F /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/vulkan.c */,
+				454ACA13AF01445BBEEB08F4 /* /Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src/window.c */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		037975552A7449A39DA7D16F /* PBXTargetDependency */ = {
+		27BE3372AB364BAD854E4FB2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */;
-			targetProxy = DA050776DA54441FB21112D4 /* PBXContainerItemProxy */;
+			target = D6F87F08638B408E9D397CA6 /* glfw */;
+			targetProxy = 25BC5A5860DD436C96431938 /* PBXContainerItemProxy */;
 		};
-		1D97BED26E9A4CCBA5552443 /* PBXTargetDependency */ = {
+		336E874AEA4C4324B7E7BA63 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B3756285A5734AC8817C7133 /* glfw */;
-			targetProxy = 49FA90FEB5E4418FBD495CCF /* PBXContainerItemProxy */;
+			target = 3850E568C6F94B0B96D414EE /* ZERO_CHECK */;
+			targetProxy = CF6B93EC801B49768E290F6A /* PBXContainerItemProxy */;
 		};
-		BF2941846C414B59804F5914 /* PBXTargetDependency */ = {
+		6C03CEA187614164A85729A8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DFBF11FFD4284FB9AD4788F6 /* ZERO_CHECK */;
-			targetProxy = 6DDD624A865C49B5AE890F2A /* PBXContainerItemProxy */;
+			target = 222ED28E418F401EAA5F0615 /* ALL_BUILD */;
+			targetProxy = 890A9F163B83461BAFC35293 /* PBXContainerItemProxy */;
 		};
-		F919D78265A9451C8F8A0B29 /* PBXTargetDependency */ = {
+		B6437E4EFA90467FB33E5813 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E6CAFF21C6974B72ACD76ECB /* ALL_BUILD */;
-			targetProxy = 4809643367B6497BBE4B2494 /* PBXContainerItemProxy */;
+			target = 3850E568C6F94B0B96D414EE /* ZERO_CHECK */;
+			targetProxy = E7A859E58C6D4486B359A6DC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		04311D295E2242B1A1BAB1AA /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		095F2D0F248046D9992323FF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		119E623B3C94423E92B743BB /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = update_mappings;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		14D555A7090D4CE883CF5283 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
-			};
-			name = Debug;
-		};
-		2162FB751FAE45CEA5CFAF6E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src","$(inherited)");
-				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = ("    -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
-				OTHER_LIBTOOLFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = glfw3;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		21B45530FBB5423BB3808306 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
-			};
-			name = Release;
-		};
-		26C6E009DFE4431C9784B6A3 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = uninstall;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		38C3EA6DE47B4B898D556C50 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		3F422F274EE54E058FDA5334 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		4536DAA11D0A4396B6616ABE /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
-			};
-			name = MinSizeRel;
-		};
-		5BD400C7E48F4D9799D7FDC3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		639C64900DF2430B8B8BBE1B /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
-			};
-			name = RelWithDebInfo;
-		};
-		6543B03C1B2D4D11B9487BEB /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = update_mappings;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		6E59312B863F4BECB337E2A2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = uninstall;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		7B41A7B1A1C64AA2B17E1FF5 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		7F107229056944E2B3A2E4B9 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = update_mappings;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		95BFBCA4AECF4870898B3251 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		99AF04055E2A4F73A29B489F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		9B2747A7A95D4F99858226DE /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		9B68B10DEF384CBE8B4AC067 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src","$(inherited)");
-				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = ("    -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
-				OTHER_LIBTOOLFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = glfw3;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		B93624EB5C2F4382834A9359 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		BB112CFB1F4C4335816879FE /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = uninstall;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		BF62F4F107AE423AA9B22E5D /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src","$(inherited)");
-				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = ("       -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
-				OTHER_LIBTOOLFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = glfw3;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		C5D901D7466346DAB43B4B04 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		C6FA51943196461EA360C739 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = update_mappings;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		E0485BAA90104B5DBD3B0296 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = ("","$(inherited)");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = uninstall;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		EBEDFEE697B644D98E24193A /* Debug */ = {
+		175F3E3EF1E34EE98610DA37 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -1279,7 +744,330 @@ fi
 			};
 			name = Debug;
 		};
-		EC831087E4F8476BA669D544 /* RelWithDebInfo */ = {
+		198C72CF3DEB49DF9DC8DBC1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		3A1B9166D8BC41D294EE9600 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		3B3A95240792416484C40E0A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		42057398EA1A4C4B8EBE4074 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("    -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		4E07DF75A2E84412A33CCD54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
+			};
+			name = Debug;
+		};
+		5553DFC22B1B43A4A7552F91 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		5C4F564E69F9484A90CF8A1A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		65F69E2CF79E4B03960D1CBC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		6C7D1D26A92F4F5C937CF0DE /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		6DF598A1456D42A9BD6BB7CB /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		6F6924ECF2BA45CA85704A18 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
+			};
+			name = RelWithDebInfo;
+		};
+		8C149A89922C4004B1C51AD4 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("    -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		8E16EFF5DDCC443FAD90D1F7 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		919AC1E270C5441D94F764A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		9765EA4E7DB34299B2F7E58A /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
+			};
+			name = MinSizeRel;
+		};
+		9D5409A834484B1EB1379D0D /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		AA7C2646ABF547BA9B4FC770 /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -1301,87 +1089,299 @@ fi
 			};
 			name = RelWithDebInfo;
 		};
+		BE31D4E2ABC34F60B049360E /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		CCEAE19A07DD49D18D97355A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		D5B2FE0CC3E74B8982363731 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		D81244E54B624D2C89CAB630 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		D84281D6C07D49CFA2EF2A5B /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/include","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/Libs/glfw/src","/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src","$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("       -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/src";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		DA791E82C9E94A009FAD7AD2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		EA2C2CBC8CC44AABA470C586 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		F11D2E639BD14617B477D659 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw/build";
+			};
+			name = Release;
+		};
+		F3D86F77808B4866B39821C2 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		FBCC17C2CDC948E9B46B36CC /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/adriand/Documents/Dev/Vulkan/Floof-Engine/xcode-build/Libs/glfw";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		41D7E697FE0D4BE786D30A6A /* Build configuration list for PBXAggregateTarget "uninstall" */ = {
+		2F4BF771413D4DC99612398C /* Build configuration list for PBXProject "GLFW" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				6E59312B863F4BECB337E2A2 /* Debug */,
-				E0485BAA90104B5DBD3B0296 /* Release */,
-				BB112CFB1F4C4335816879FE /* MinSizeRel */,
-				26C6E009DFE4431C9784B6A3 /* RelWithDebInfo */,
+				4E07DF75A2E84412A33CCD54 /* Debug */,
+				F11D2E639BD14617B477D659 /* Release */,
+				9765EA4E7DB34299B2F7E58A /* MinSizeRel */,
+				6F6924ECF2BA45CA85704A18 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4D6AEAC0C8B14765B162FDA9 /* Build configuration list for PBXAggregateTarget "install" */ = {
+		3D7F34AAB991430087754195 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				095F2D0F248046D9992323FF /* Debug */,
-				99AF04055E2A4F73A29B489F /* Release */,
-				7B41A7B1A1C64AA2B17E1FF5 /* MinSizeRel */,
-				95BFBCA4AECF4870898B3251 /* RelWithDebInfo */,
+				919AC1E270C5441D94F764A6 /* Debug */,
+				EA2C2CBC8CC44AABA470C586 /* Release */,
+				6DF598A1456D42A9BD6BB7CB /* MinSizeRel */,
+				6C7D1D26A92F4F5C937CF0DE /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		63F122F631C84BE4A946DE7E /* Build configuration list for PBXAggregateTarget "update_mappings" */ = {
+		741E8B8B04D44D2DBAC1E4F3 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7F107229056944E2B3A2E4B9 /* Debug */,
-				C6FA51943196461EA360C739 /* Release */,
-				6543B03C1B2D4D11B9487BEB /* MinSizeRel */,
-				119E623B3C94423E92B743BB /* RelWithDebInfo */,
+				CCEAE19A07DD49D18D97355A /* Debug */,
+				D5B2FE0CC3E74B8982363731 /* Release */,
+				BE31D4E2ABC34F60B049360E /* MinSizeRel */,
+				AA7C2646ABF547BA9B4FC770 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		700C6ACF48F74309B1AA79E6 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+		795C3851106F4A198D0F5102 /* Build configuration list for PBXAggregateTarget "update_mappings" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5BD400C7E48F4D9799D7FDC3 /* Debug */,
-				C5D901D7466346DAB43B4B04 /* Release */,
-				04311D295E2242B1A1BAB1AA /* MinSizeRel */,
-				EC831087E4F8476BA669D544 /* RelWithDebInfo */,
+				65F69E2CF79E4B03960D1CBC /* Debug */,
+				198C72CF3DEB49DF9DC8DBC1 /* Release */,
+				8E16EFF5DDCC443FAD90D1F7 /* MinSizeRel */,
+				9D5409A834484B1EB1379D0D /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		82B79A1AD91144C9AAD015A3 /* Build configuration list for PBXProject "GLFW" */ = {
+		85978756F53943E19BC0BD4A /* Build configuration list for PBXNativeTarget "glfw" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				14D555A7090D4CE883CF5283 /* Debug */,
-				21B45530FBB5423BB3808306 /* Release */,
-				4536DAA11D0A4396B6616ABE /* MinSizeRel */,
-				639C64900DF2430B8B8BBE1B /* RelWithDebInfo */,
+				175F3E3EF1E34EE98610DA37 /* Debug */,
+				42057398EA1A4C4B8EBE4074 /* Release */,
+				8C149A89922C4004B1C51AD4 /* MinSizeRel */,
+				D84281D6C07D49CFA2EF2A5B /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		91839D72AC7247C69766CCC7 /* Build configuration list for PBXNativeTarget "glfw" */ = {
+		D467E1D4A34346F4924B8684 /* Build configuration list for PBXAggregateTarget "uninstall" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				EBEDFEE697B644D98E24193A /* Debug */,
-				2162FB751FAE45CEA5CFAF6E /* Release */,
-				9B68B10DEF384CBE8B4AC067 /* MinSizeRel */,
-				BF62F4F107AE423AA9B22E5D /* RelWithDebInfo */,
+				DA791E82C9E94A009FAD7AD2 /* Debug */,
+				3B3A95240792416484C40E0A /* Release */,
+				D81244E54B624D2C89CAB630 /* MinSizeRel */,
+				FBCC17C2CDC948E9B46B36CC /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		9FD577FED275480389E2437D /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+		E232AE280B694B3B942B0394 /* Build configuration list for PBXAggregateTarget "install" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3F422F274EE54E058FDA5334 /* Debug */,
-				B93624EB5C2F4382834A9359 /* Release */,
-				9B2747A7A95D4F99858226DE /* MinSizeRel */,
-				38C3EA6DE47B4B898D556C50 /* RelWithDebInfo */,
+				5C4F564E69F9484A90CF8A1A /* Debug */,
+				5553DFC22B1B43A4A7552F91 /* Release */,
+				3A1B9166D8BC41D294EE9600 /* MinSizeRel */,
+				F3D86F77808B4866B39821C2 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = F5C35BDCD9834F23BBB6F5C5 /* Project object */;
+	rootObject = A2DFB094B4BF4F869D7492DB /* Project object */;
 }
