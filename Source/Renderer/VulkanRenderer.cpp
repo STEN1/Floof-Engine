@@ -458,11 +458,14 @@ namespace FLOOF {
 
         float queuePrio = 1.f;
 
+        std::unordered_map<int, VkDeviceQueueCreateInfo> queueMap;
         VkDeviceQueueCreateInfo dqCreateInfo{};
         dqCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         dqCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.Graphics;
         dqCreateInfo.queueCount = 1;
         dqCreateInfo.pQueuePriorities = &queuePrio;
+
+        queueMap[m_QueueFamilyIndices.Graphics] = dqCreateInfo;
 
         VkDeviceQueueCreateInfo computeQueueCreateInfo{};
         computeQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -470,21 +473,19 @@ namespace FLOOF {
         computeQueueCreateInfo.queueCount = 1;
         computeQueueCreateInfo.pQueuePriorities = &queuePrio;
 
-        std::vector<VkDeviceQueueCreateInfo> dqcreateInfos = { dqCreateInfo, computeQueueCreateInfo };
+        queueMap[m_QueueFamilyIndices.Compute] = computeQueueCreateInfo;
 
-        if (m_QueueFamilyIndices.Graphics != m_QueueFamilyIndices.PresentIndex) {
-            std::cout << "Graphics and present index are not the same. Creating from different queue families.\n";
-            std::cout << "Graphics queue index: " << m_QueueFamilyIndices.Graphics
-                << " Present queue index: " << m_QueueFamilyIndices.PresentIndex << std::endl;
+        VkDeviceQueueCreateInfo createInfoPresentQ{};
+        createInfoPresentQ.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        createInfoPresentQ.queueFamilyIndex = m_QueueFamilyIndices.PresentIndex;
+        createInfoPresentQ.queueCount = 1;
+        createInfoPresentQ.pQueuePriorities = &queuePrio;
 
-            VkDeviceQueueCreateInfo createInfoPresentQ{};
-            createInfoPresentQ.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            createInfoPresentQ.queueFamilyIndex = m_QueueFamilyIndices.PresentIndex;
-            createInfoPresentQ.queueCount = 1;
-            float queuePrio = 1.f;
-            createInfoPresentQ.pQueuePriorities = &queuePrio;
+        queueMap[m_QueueFamilyIndices.PresentIndex] = createInfoPresentQ;
 
-            dqcreateInfos.push_back(createInfoPresentQ);
+        std::vector<VkDeviceQueueCreateInfo> dqcreateInfos;
+        for (auto& [key, val] : queueMap) {
+            dqcreateInfos.push_back(val);
         }
 
         uint32_t extCount{};
