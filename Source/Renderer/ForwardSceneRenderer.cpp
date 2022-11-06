@@ -114,29 +114,32 @@ namespace FLOOF {
             }
         }
 
-        auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
-        for (auto [entity, transform, staticMesh, texture] : view.each()) {
-            MeshPushConstants constants;
-            glm::mat4 modelMat = transform.GetTransform();
-            constants.VP = vp;
-            constants.Model = modelMat;
-            constants.InvModelMat = glm::inverse(modelMat);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                0, sizeof(MeshPushConstants), &constants);
-            if (drawMode == RenderPipelineKeys::ForwardLit)
-                texture.Bind(commandBuffer, pipelineLayout);
-            for (auto& mesh : *staticMesh.meshes) {
-                VkDeviceSize offset{ 0 };
-                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
-                if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
-                    vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-                    vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
-                        1, 0, 0, 0);
-                } else {
-                    vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+        {
+            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
+            for (auto [entity, transform, staticMesh, texture] : view.each()) {
+                MeshPushConstants constants;
+                glm::mat4 modelMat = transform.GetTransform();
+                constants.VP = vp;
+                constants.Model = modelMat;
+                constants.InvModelMat = glm::inverse(modelMat);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                    0, sizeof(MeshPushConstants), &constants);
+                if (drawMode == RenderPipelineKeys::ForwardLit)
+                    texture.Bind(commandBuffer, pipelineLayout);
+                for (auto& mesh : *staticMesh.meshes) {
+                    VkDeviceSize offset{ 0 };
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
+                    if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                        vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
+                            1, 0, 0, 0);
+                    } else {
+                        vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                    }
                 }
             }
         }
+
         // Draw debug lines
         auto* physicDrawer = app.GetPhysicsSystemDrawer();
         if (physicDrawer) {

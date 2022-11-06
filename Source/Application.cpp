@@ -173,8 +173,8 @@ namespace FLOOF {
                     if(body){
                         body->wakeup();
                     }
+                    m_Scene->m_LastSelectedEntity = entity;
                 }
-                m_Scene->m_LastSelectedEntity = entity;
             }
 
         } else {
@@ -187,8 +187,8 @@ namespace FLOOF {
                         if(body){
                             body->wakeup();
                         }
+                    m_Scene->m_LastSelectedEntity = entity;
                 }
-                m_Scene->m_LastSelectedEntity = entity;
             }
 
             if (node_open) {
@@ -529,7 +529,6 @@ namespace FLOOF {
         renderPassInfo.pClearValues = clearColor;
 
         m_Renderer->StartRenderPass(currentFrameData.ImGuiCommandBuffer, &renderPassInfo);
-
         // Render ImGui
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();

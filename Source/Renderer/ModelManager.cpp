@@ -63,7 +63,7 @@ namespace FLOOF {
 
         // Loader returns staticMesh, eventually it will return collision mesh too
         const auto& assimpStaticMesh = loader.GetAssimpStaticMesh();
-
+        ASSERT(assimpStaticMesh.meshes.size() > 0);
         for (const auto& mesh : assimpStaticMesh.meshes)
         {
             btModelData meshData;
