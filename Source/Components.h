@@ -234,11 +234,10 @@ namespace FLOOF {
             glm::vec4 position;
             glm::vec4 diffuse;
             glm::vec4 ambient;
-
-            float constant = 1.f;
             float linear;
             float quadratic;
             float lightRange;
+            float pad;
         };
     };
 }

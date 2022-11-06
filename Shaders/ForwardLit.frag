@@ -12,11 +12,10 @@ struct PointLight {
     vec4 position;
     vec4 diffuse;
     vec4 ambient;
-    
-    float constant;
     float linear;
     float quadratic;
     float lightRange;
+    float pad;
 };  
 
 layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
@@ -49,7 +48,7 @@ void main() {
             // diffuse shading amount.
             float diff = max(dot(lightDir, normal), 0.0);
             // attenuation.
-            float attenuation = 1.0 / (lightSSBO.lights[i].constant + lightSSBO.lights[i].linear * dist + 
+            float attenuation = 1.0 / (1.0 + lightSSBO.lights[i].linear * dist + 
   			             lightSSBO.lights[i].quadratic * (dist * dist));    
             // combine results.
             ambient += lightSSBO.lights[i].ambient.xyz * attenuation;
