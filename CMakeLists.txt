@@ -22,7 +22,6 @@ add_executable(Floof
     Source/Input.h
     Source/Utils.h
     Source/Utils.cpp
-    Source/LoggerMacros.h
     Source/LasLoader.cpp
     Source/LasLoader.h
     Source/Renderer/ModelManager.h

@@ -6,7 +6,6 @@
 #include <string>
 #include <sstream>
 
-#include "LoggerMacros.h"
 #include "ObjLoader.h"
 
 

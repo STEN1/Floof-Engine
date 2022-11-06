@@ -3,7 +3,6 @@
 #include <cstring>
 #include "stb_image/stb_image.h"
 #include "ObjLoader.h"
-#include "LoggerMacros.h"
 #include "Utils.h"
 #include "Renderer/ModelManager.h"
 #include <iostream>
