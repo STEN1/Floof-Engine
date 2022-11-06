@@ -491,7 +491,8 @@ namespace FLOOF {
         canvas_p1.y += canvasOffset.y;
 
         glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
-        sceneCanvasExtent = glm::abs(sceneCanvasExtent);
+        if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
+            sceneCanvasExtent = glm::vec2(0.f);
 
         VkDescriptorSet sceneTexture = VK_NULL_HANDLE;
 
