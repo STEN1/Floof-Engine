@@ -684,7 +684,7 @@ namespace FLOOF {
 
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
             descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
             descriptorSetLayoutCreateInfo.bindingCount = 1;
             descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
 
@@ -700,7 +700,7 @@ namespace FLOOF {
 
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
             descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
             descriptorSetLayoutCreateInfo.bindingCount = 1;
             descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
 
@@ -715,7 +715,7 @@ namespace FLOOF {
 
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
             descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
             descriptorSetLayoutCreateInfo.bindingCount = 1;
             descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
 
@@ -730,7 +730,7 @@ namespace FLOOF {
 
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
             descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
             descriptorSetLayoutCreateInfo.bindingCount = 1;
             descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
 
@@ -937,8 +937,8 @@ namespace FLOOF {
             // Create texture descriptor pool.
             VkDescriptorPoolCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT |
-                VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
+                //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
             createInfo.maxSets = 256;
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
@@ -950,11 +950,11 @@ namespace FLOOF {
             poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             poolSize.descriptorCount = 256;
 
-            // Create texture descriptor pool.
+            // Create UBO descriptor pool.
             VkDescriptorPoolCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT |
-                VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
+                //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
             createInfo.maxSets = 256;
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
@@ -966,11 +966,11 @@ namespace FLOOF {
             poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
             poolSize.descriptorCount = 256;
 
-            // Create texture descriptor pool.
+            // Create SSBO descriptor pool.
             VkDescriptorPoolCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT |
-                VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
+                //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
             createInfo.maxSets = 256;
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
