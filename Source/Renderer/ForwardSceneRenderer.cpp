@@ -63,37 +63,39 @@ namespace FLOOF {
 
 
 
-        std::vector<PointLightComponent::PointLight> pointLights;
-        auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
-        for (auto [entity, transform, lightComp] : lightView.each()) {
-            PointLightComponent::PointLight light;
-            light.position = glm::vec4(transform.Position, 1.f);
-            light.diffuse = lightComp.diffuse;
-            light.ambient = lightComp.ambient;
-            light.lightRange = lightComp.lightRange;
-            light.linear = 4.5f / light.lightRange;
-            light.quadratic = 75.f / (light.lightRange * light.lightRange);
-            pointLights.push_back(light);
+        if (drawMode == RenderPipelineKeys::ForwardLit) {
+            std::vector<PointLightComponent::PointLight> pointLights;
+            auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
+            for (auto [entity, transform, lightComp] : lightView.each()) {
+                PointLightComponent::PointLight light;
+                light.position = glm::vec4(transform.Position, 1.f);
+                light.diffuse = lightComp.diffuse;
+                light.ambient = lightComp.ambient;
+                light.lightRange = lightComp.lightRange;
+                light.linear = 4.5f / light.lightRange;
+                light.quadratic = 75.f / (light.lightRange * light.lightRange);
+                pointLights.push_back(light);
+            }
+
+            m_LightSSBO.Update(pointLights);
+            auto lightDescriptor = m_LightSSBO.GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
+                &lightDescriptor, 0, 0);
+
+            SceneFrameData sceneFrameData{};
+            static float accumulator = 0.f;
+            accumulator += 0.01f;
+            float r = (sinf(accumulator) + 1.f) * 0.5f;
+            float b = (cosf(accumulator) + 1.f) * 0.5f;
+            sceneFrameData.CameraPos = camera->Position;
+            sceneFrameData.LightCount = pointLights.size();
+            m_SceneDataUBO.Update(sceneFrameData);
+            auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
+                &sceneDescriptor, 0, 0);
         }
-
-        m_LightSSBO.Update(pointLights);
-        auto lightDescriptor = m_LightSSBO.GetDescriptorSet();
-
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
-            &lightDescriptor, 0, 0);
-
-        SceneFrameData sceneFrameData{};
-        static float accumulator = 0.f;
-        accumulator += 0.01f;
-        float r = (sinf(accumulator) + 1.f) * 0.5f;
-        float b = (cosf(accumulator) + 1.f) * 0.5f;
-        sceneFrameData.CameraPos = camera->Position;
-        sceneFrameData.LightCount = pointLights.size();
-        m_SceneDataUBO.Update(sceneFrameData);
-        auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
-
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
-            &sceneDescriptor, 0, 0);
 
         // Draw models
         {
@@ -106,8 +108,8 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
-
-                texture.Bind(commandBuffer, pipelineLayout);
+                if (drawMode == RenderPipelineKeys::ForwardLit)
+                    texture.Bind(commandBuffer, pipelineLayout);
                 mesh.Draw(commandBuffer);
             }
         }
@@ -141,6 +143,8 @@ namespace FLOOF {
             auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
             MeshPushConstants constants;
             constants.VP = vp;
+            constants.Model = glm::mat4(1.f);
+            constants.InvModelMat = glm::mat4(1.f);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
             lineMesh->Draw(commandBuffer);
         }
