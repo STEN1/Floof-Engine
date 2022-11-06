@@ -52,7 +52,7 @@ void main() {
   			             lightSSBO.lights[i].quadratic * (dist * dist));    
             // combine results.
             ambient += lightSSBO.lights[i].ambient.xyz * attenuation;
-            diffuse += lightSSBO.lights[i].diffuse.xyz * attenuation;
+            diffuse += lightSSBO.lights[i].diffuse.xyz * attenuation * diff;
         }
     }
     vec3 lightResult = ambient + diffuse;

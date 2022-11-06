@@ -228,7 +228,7 @@ namespace FLOOF {
         glm::vec4 diffuse = { 0.8f, 0.4f, 0.2f, 0.f };
         glm::vec4 ambient = glm::vec4(0.4f, 0.4f, 0.4f, 0.f) * 0.1f;
 
-        float lightRange = 20.f;
+        float lightRange = 50.f;
 
         struct PointLight {
             glm::vec4 position;
