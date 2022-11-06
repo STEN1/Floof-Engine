@@ -37,6 +37,10 @@ void main() {
 
     float diff = max(dot(lightDir, normal), 0.0);
 
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float shininess = 1.0;
+    float specular = pow(max(dot(normal, halfwayDir), 0.0), 16.0) * shininess;
+
     vec3 ambient = lightColor * ambientStrength;
     vec3 diffuse = lightColor * diff;
 
@@ -47,15 +51,19 @@ void main() {
             vec3 lightDir = normalize(lightSSBO.lights[i].position.xyz - fragPos);
             // diffuse shading amount.
             float diff = max(dot(lightDir, normal), 0.0);
+            // specular
+            vec3 halfwayDir = normalize(lightDir + viewDir);
+            float spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
             // attenuation.
             float attenuation = 1.0 / (1.0 + lightSSBO.lights[i].linear * dist + 
   			             lightSSBO.lights[i].quadratic * (dist * dist));    
             // combine results.
             ambient += lightSSBO.lights[i].ambient.xyz * attenuation;
             diffuse += lightSSBO.lights[i].diffuse.xyz * attenuation * diff;
+            specular += shininess * spec * attenuation;
         }
     }
-    vec3 lightResult = ambient + diffuse;
+    vec3 lightResult = ambient + diffuse + (specular * vec3(1.0));
     vec4 text = texture(diffuseTexture, fragUv);
 
     outColor = text * vec4(lightResult, 1.0);

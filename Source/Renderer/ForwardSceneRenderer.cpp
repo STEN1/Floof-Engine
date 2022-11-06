@@ -123,7 +123,8 @@ namespace FLOOF {
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                 0, sizeof(MeshPushConstants), &constants);
-            texture.Bind(commandBuffer, pipelineLayout);
+            if (drawMode == RenderPipelineKeys::ForwardLit)
+                texture.Bind(commandBuffer, pipelineLayout);
             for (auto& mesh : *staticMesh.meshes) {
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
