@@ -105,6 +105,11 @@ add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
 
 set(BUILD_SHARED_LIBS OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
 add_subdirectory(Libs/assimp)
 target_link_libraries(Floof assimp)
 
