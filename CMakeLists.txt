@@ -55,11 +55,11 @@ add_executable(Floof
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
     Source/NativeScripts/NativeScript.h
-        Source/NativeScripts/TestScript.h
-        Source/NativeScripts/TestScript.cpp
-        Source/Renderer/VulkanBuffer.h
-        Source/Renderer/VulkanBuffer.cpp
-        Source/Scripts.cpp)
+    Source/NativeScripts/TestScript.h
+    Source/NativeScripts/TestScript.cpp
+    Source/Renderer/VulkanBuffer.h
+    Source/Renderer/VulkanBuffer.cpp
+    Source/Scripts.cpp)
 
 
 
