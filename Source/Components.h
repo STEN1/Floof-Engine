@@ -19,8 +19,9 @@
 #include <python.h>
 #define _DEBUG
 #else
-#include <python.h>
+#include <Python.h>
 #endif
+
 
 namespace FLOOF {
 
