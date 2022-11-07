@@ -10,6 +10,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "SoundManager.h"
+#include "NativeScripts/NativeScript.h"
 
 //pulls in python api
 #define PY_SSIZE_T_CLEAN
@@ -239,6 +240,16 @@ namespace FLOOF {
             float lightRange;
             float pad;
         };
+    };
+
+    struct NativeScriptComponent {
+        NativeScriptComponent() = delete;
+        NativeScriptComponent(std::unique_ptr<NativeScript> script, std::shared_ptr<Scene> scene, entt::entity entity)
+            : Script(std::move(script)) 
+        {
+            Script->OnCreate(scene, entity);
+        }
+        std::unique_ptr<NativeScript> Script;
     };
 }
 

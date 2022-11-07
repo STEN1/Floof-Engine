@@ -52,7 +52,9 @@ add_executable(Floof
     Source/Renderer/Mesh.cpp
     Source/SoundManager.h
     Source/SoundManager.cpp 
-      "Source/Renderer/VulkanBuffer.h" "Source/Renderer/VulkanBuffer.cpp")
+    Source/Renderer/VulkanBuffer.h
+    Source/Renderer/VulkanBuffer.cpp
+    Source/NativeScripts/NativeScript.h "Source/NativeScripts/TestScript.h" "Source/NativeScripts/TestScript.cpp")
 
 
 find_package(Vulkan REQUIRED)
@@ -96,7 +98,8 @@ target_link_libraries(Floof ${Python_LIBRARIES})
 # define (VERSION_INFO) here.
 target_compile_definitions(Floof PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 
-
+set(LIBTYPE STATIC)
+add_compile_definitions(AL_LIBTYPE_STATIC)
 add_subdirectory(Libs/openal-soft)
 target_link_libraries(Floof OpenAL)
 
@@ -104,6 +107,11 @@ add_subdirectory(Libs/entt)
 target_link_libraries(Floof EnTT)
 
 set(BUILD_SHARED_LIBS OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
 add_subdirectory(Libs/assimp)
 target_link_libraries(Floof assimp)
 

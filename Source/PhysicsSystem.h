@@ -38,6 +38,7 @@ namespace FLOOF {
         btBroadphaseInterface* mBroadPhase{nullptr};
         btSequentialImpulseConstraintSolver* mSolver{nullptr};
         btSoftRigidDynamicsWorld* mDynamicsWorld{nullptr};
+        btSoftBodySolver* mSoftbodySolver{nullptr};
         btSoftBodyWorldInfo mSoftBodyWorldInfo;
 
         btCollisionAlgorithmCreateFunc* mBoxBoxCF{nullptr};

@@ -23,9 +23,9 @@ namespace FLOOF {
         mSoftBodyWorldInfo.m_broadphase = mBroadPhase;
 
         mSolver = new btSequentialImpulseConstraintSolver();
-        auto* softbodySolver = new  btDefaultSoftBodySolver();
+        mSoftbodySolver = new  btDefaultSoftBodySolver();
 
-        mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration,softbodySolver);
+        mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration,mSoftbodySolver);
 
         mDynamicsWorld->setGravity(btVector3(0, GravitationalConstant, 0));
 
@@ -47,6 +47,7 @@ namespace FLOOF {
         delete mBroadPhase;
         delete mDispatcher;
         delete mCollisionConfiguration;
+        delete mSoftbodySolver;
     }
 
     void PhysicsSystem::OnUpdate(float deltaTime) {
