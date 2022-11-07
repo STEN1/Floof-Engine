@@ -15,56 +15,64 @@
 #include <dr_libs/dr_wav.h>
 
 
-// https://stackoverflow.com/questions/28960638/listing-all-devices-open-al-does-not-work 
-std::vector<std::string> GetDevices(const char* list)
-{
-    std::vector<std::string> myDevices;
 
-    ALCchar* ptr, * nptr;
 
-    ptr = (ALCchar*)list;
-    printf("list of all available input devices:\n");
-    if (!list)
-    {
-        printf("none\n");
-    }
-    else
-    {
-        nptr = ptr;
-        while (*(nptr += strlen(ptr) + 1) != 0)
-        {
-            printf("  %s\n", ptr);
-            myDevices.push_back(ptr);
-            ptr = nptr;
-        }
-        printf("  %s\n", ptr);
-        myDevices.push_back(ptr);
-    }
-    return myDevices;
-}
 
 namespace FLOOF {
 
-    // TODO
-	//bool get_available_devices(std::vector<std::string>& devicesVec, ALCdevice* device)
-	//{
- //       const ALCchar* devices;
- //       if (!alcCall(alcGetString, devices, device, nullptr, ALC_DEVICE_SPECIFIER))
- //           return false;
+    std::vector<std::string> GetAvailableDevices()
+	{
+        const ALCchar* devices;
+        std::vector<std::string> devicesVec;
 
- //       const char* ptr = devices;
+        // This extension provides for enumeration of the available OpenAL devices through alcGetString. An alcGetString query of ALC_DEVICE_SPECIFIER with a NULL device passed in will return a list of devices. Each device name will be separated by a single NULL character and the list will be terminated with two NULL characters.
+        if (alcIsExtensionPresent(NULL, "ALC_enumeration_EXT") == AL_FALSE)
+            return std::vector<std::string>(1, "COULD NOT GET DEVICES");
 
- //       devicesVec.clear();
+        if (alcIsExtensionPresent(NULL, "ALC_enumerate_all_EXT") == AL_FALSE)
+            devices = (char*)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+        else
+            devices = (char*)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 
- //       do
- //       {
- //           devicesVec.push_back(std::string(ptr));
- //           ptr += devicesVec.back().size() + 1;
- //       } while (*(ptr + 1) != '\0');
+        do {
+            devicesVec.push_back(std::string(devices));
+            devices += devicesVec.back().size() + 1;
+        } while (*devices != '\0' && *(devices + 1) != '\0');
 
- //       return true;
-	//}
+        return devicesVec;
+	}
 
+    void PrintDevices(const ALCchar* list)
+    {
+        ALCchar* ptr, * nptr;
+
+        ptr = (ALCchar*)list;
+        printf("list of all available input devices:\n");
+        if (!list)
+        {
+            printf("none\n");
+        }
+        else
+        {
+            nptr = ptr;
+            while (*(nptr += strlen(ptr) + 1) != 0)
+            {
+                printf("  %s\n", ptr);
+                ptr = nptr;
+            }
+            printf("  %s\n", ptr);
+        }
+    }
+
+
+	void NewSoundManager::UpdatePlayer(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up) {
+        alec(alListener3f(AL_POSITION, position.x, position.y, position.z));
+
+        alec(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
+
+        ALfloat forwardAndUpVectors[] = { forward.x, forward.y, forward.z, up.x, up.y, up.z };
+        alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
+	}
 
     SoundManager::SoundManager() {
 
@@ -73,7 +81,7 @@ namespace FLOOF {
 
     void SoundManager::testSound()
     {
-        FindDevices();
+        std::vector<std::string> devices = GetAvailableDevices();
 
         readSounds();
         PlaySounds();
@@ -184,21 +192,6 @@ namespace FLOOF {
         // Players orientation
         alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
 
-    }
-
-    void SoundManager::FindDevices()
-    {
-        std::vector<std::string> devices;
-        char* string;
-
-        if (alcIsExtensionPresent(NULL, "ALC_enumeration_EXT") == AL_TRUE)
-        {
-            if (alcIsExtensionPresent(NULL, "ALC_enumerate_all_EXT") == AL_FALSE)
-                string = (char*)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-            else
-                string = (char*)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
-            devices = GetDevices(string);
-        }
     }
 
     void SoundManager::PlaySounds()

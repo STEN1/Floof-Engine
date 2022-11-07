@@ -22,6 +22,11 @@ namespace FLOOF {
 		drwav_uint64 getTotalSamples() { return totalPCMFrameCount * channels; } // in case of for exampe stereo files
 	};
 
+	class NewSoundManager {
+	public:
+		static void UpdatePlayer(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
+	private:
+	};
 
 	// This class contains all audio code at the moment.
 	// The plan is to move a lot into an audio component
@@ -40,7 +45,6 @@ namespace FLOOF {
 			void openDevice();
 			void createContext();
 			void createListener();
-			void FindDevices();
 			std::vector<std::string> devices;
 			ALCdevice* device;
 			ALCcontext* context;
