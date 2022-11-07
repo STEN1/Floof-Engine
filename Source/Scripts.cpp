@@ -27,7 +27,6 @@ static PyObject * fib(PyObject* self, PyObject* args){
     if(!PyArg_ParseTuple(args, "i", &n))
        return NULL;
 
-
     return Py_BuildValue("i",cfib(n));
 
 }

@@ -106,8 +106,7 @@ Logs/
 ImguiDefault/
 *.las
 xcode-build/
-build/
-<<<<<<< HEAD
-dist/
-=======
->>>>>>> FLOOF-26-Scripting
+Source/build/
+Source/Floof.egg-info/
+Source/dist/
+

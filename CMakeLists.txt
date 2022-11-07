@@ -51,14 +51,16 @@ add_executable(Floof
     Source/GameMode/AudioTestGM.cpp
     Source/Renderer/Mesh.cpp
     Source/SoundManager.h
-    Source/SoundManager.cpp 
-<<<<<<< HEAD
+    Source/SoundManager.cpp
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
-    Source/NativeScripts/NativeScript.h "Source/NativeScripts/TestScript.h" "Source/NativeScripts/TestScript.cpp")
-=======
-      "Source/Renderer/VulkanBuffer.h" "Source/Renderer/VulkanBuffer.cpp" Source/Scripts.cpp)
->>>>>>> FLOOF-26-Scripting
+    Source/NativeScripts/NativeScript.h
+        Source/NativeScripts/TestScript.h
+        Source/NativeScripts/TestScript.cpp
+        Source/Renderer/VulkanBuffer.h
+        Source/Renderer/VulkanBuffer.cpp
+        Source/Scripts.cpp)
+
 
 
 find_package(Vulkan REQUIRED)
