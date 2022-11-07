@@ -11,15 +11,7 @@
 #include "BulletSoftBody/btSoftBody.h"
 #include "SoundManager.h"
 
-//pulls in python api
-#define PY_SSIZE_T_CLEAN
-#ifdef _DEBUG
-#undef _DEBUG
-#include <python.h>
-#define _DEBUG
-#else
-#include <python.h>
-#endif
+#include "Scripts.h"
 
 namespace FLOOF {
 
