@@ -209,20 +209,16 @@ namespace FLOOF {
 
     };
 
-	struct SoundComponent {
-        SoundComponent(SoundManager* manager, std::string path);
-        int id;
-        bool isPlaying{false};
-        bool fadeOut{ false }; // If we want to fade out the sound
-        float fadeTimer{ 1.f };
+	struct SoundSourceComponent {
+        SoundSourceComponent();
+
         glm::vec3 position{ 1.0f,0.f,0.f };
         glm::vec3 velocity{ 0.0f,0.f,0.f };
         float pitch{ 1.f };
         float gain{ 1.f };
-        bool isLooping{ false };
-	private:
-        std::string mPath;
-        bool loaded{ false }; // set to true when loaded by soundmanager
+        bool looping{ false };
+        ALuint m_Source;
+        ALuint uint32_t;
 
 	};
 
