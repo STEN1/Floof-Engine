@@ -553,7 +553,7 @@ namespace FLOOF {
     }
 
     void ScriptComponent::RunScript() {
-        Fp = fopen(Script.c_str(),"r");
+        auto Fp = fopen(Script.c_str(),"r");
         PyRun_SimpleFile(Fp,Script.c_str());
         fclose(Fp);
 

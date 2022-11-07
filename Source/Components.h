@@ -202,7 +202,7 @@ namespace FLOOF {
         ~ScriptComponent();
         std::string Script;
 
-        FILE* Fp;
+        //FILE* Fp;
 
        void RunScript();
        void updateScripts();
