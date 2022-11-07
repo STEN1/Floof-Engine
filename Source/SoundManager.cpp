@@ -14,11 +14,117 @@
 #define DR_WAV_IMPLEMENTATION
 #include <dr_libs/dr_wav.h>
 
-
-
-
-
 namespace FLOOF {
+	wavFile wavFile::ReadWav(std::string path)
+	{
+        wavFile soundData;
+        // Read PCM frames to short 16 to a heap allocated array of data
+        drwav_int16* pSamleData = drwav_open_file_and_read_pcm_frames_s16(path.c_str(), &soundData.channels, &soundData.sampleRate, &soundData.totalPCMFrameCount, nullptr);
+
+        // Check if array is null
+        if (pSamleData == NULL) {
+            std::cerr << "Failed to load audio file" << std::endl;
+            // Free the memory allocated by drwav
+            drwav_free(pSamleData, nullptr);
+            return soundData;
+        }
+
+        // Check if data read is too large for the vector
+        if (soundData.getTotalSamples() > drwav_uint64(std::numeric_limits<size_t>::max())) {
+            std::cerr << "Too much data in file for 32bit addressed vector" << std::endl;
+            return soundData;
+        }
+
+        // Resize PCM data to hold all audio samples (resized to account for multiple channels by multiplying frames with channels)
+        soundData.pcmData.resize(size_t(soundData.getTotalSamples()));
+
+        // Copies the loaded samples (pSampleData) into the vector (monoData.pcmData.data())
+        std::memcpy(soundData.pcmData.data(), pSamleData, soundData.pcmData.size() * 2); //memcpy works with bytes, and pcmData i stored with 16 bits, so there are two bytes for every stored value
+
+        // Free the memory allocated by drwav
+        drwav_free(pSamleData, nullptr);
+        return soundData;
+	}
+
+    void NewSoundManager::SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up) {
+        alec(alListener3f(AL_POSITION, position.x, position.y, position.z));
+
+        alec(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
+
+        ALfloat forwardAndUpVectors[] = { forward.x, forward.y, forward.z, up.x, up.y, up.z };
+        alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
+    }
+
+    void NewSoundManager::InitOpenAL() {
+
+    	// Find and set the default audio device
+        const ALCchar* defaultDeviceString = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER); 
+        s_Device = alcOpenDevice(defaultDeviceString); 
+
+    	if (!s_Device) { std::cerr << "Failed to get the default device for OpenAL" << std::endl; return; }
+
+        // Log name of device
+        std::cout << "OpenAL Device: " << alcGetString(s_Device, ALC_DEFAULT_DEVICE_SPECIFIER) << std::endl;
+
+        // Create an OpenAL audio context from the device
+        s_Context = alcCreateContext(s_Device, nullptr);
+        if (!alcMakeContextCurrent(s_Context)) { std::cerr << "failed to make the OpenAl context the current context" << std::endl; return; }
+
+        OpenAL_ErrorCheck("Make context current");
+    }
+
+    void NewSoundManager::CleanOpenAL() {
+        // Make the current context null
+        alec(alcMakeContextCurrent(nullptr));
+        // Destroy the current context
+        alec(alcDestroyContext(s_Context));
+        alec(alcCloseDevice(s_Device));
+    }
+
+    std::vector<std::string> NewSoundManager::GetAvailableDevices() {
+        const ALCchar* devices;
+        std::vector<std::string> devicesVec;
+
+        // This extension provides for enumeration of the available OpenAL devices through alcGetString. An alcGetString query of ALC_DEVICE_SPECIFIER with a NULL device passed in will return a list of devices. Each device name will be separated by a single NULL character and the list will be terminated with two NULL characters.
+        if (alcIsExtensionPresent(NULL, "ALC_enumeration_EXT") == AL_FALSE)
+            return std::vector<std::string>(1, "COULD NOT GET DEVICES");
+
+        if (alcIsExtensionPresent(NULL, "ALC_enumerate_all_EXT") == AL_FALSE)
+            devices = (char*)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+        else
+            devices = (char*)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+
+        printf("List of all available input devices:\n");
+
+        do {
+            printf("  %s\n", devices);
+            devicesVec.push_back(std::string(devices));
+            devices += devicesVec.back().size() + 1;
+        } while (*devices != '\0' && *(devices + 1) != '\0');
+
+        return devicesVec;
+    }
+
+    void NewSoundManager::SetNewDevice(std::string device) {
+
+        std::vector<std::string> devices = GetAvailableDevices();
+        bool deviceExist{ false };
+        for (auto it : devices) {
+            if (it == device) { deviceExist = true; break; };
+        }
+        if (deviceExist) {
+            // Could probably add more error checking here, like in the init function
+            s_Device = alcOpenDevice(device.c_str());
+            s_Context = alcCreateContext(s_Device, nullptr);
+        }
+        else
+        {
+            std::cerr << "failed to make set new OpenAl device" << std::endl;
+        }
+    }
+    ALuint NewSoundManager::readWavData(std::string& path) {
+
+    }
 
     std::vector<std::string> GetAvailableDevices()
 	{
@@ -34,7 +140,10 @@ namespace FLOOF {
         else
             devices = (char*)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 
+        printf("List of all available input devices:\n");
+
         do {
+            printf("  %s\n", devices);
             devicesVec.push_back(std::string(devices));
             devices += devicesVec.back().size() + 1;
         } while (*devices != '\0' && *(devices + 1) != '\0');
@@ -65,16 +174,9 @@ namespace FLOOF {
     }
 
 
-	void NewSoundManager::UpdatePlayer(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up) {
-        alec(alListener3f(AL_POSITION, position.x, position.y, position.z));
 
-        alec(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
 
-        ALfloat forwardAndUpVectors[] = { forward.x, forward.y, forward.z, up.x, up.y, up.z };
-        alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
-	}
-
-    SoundManager::SoundManager() {
+	SoundManager::SoundManager() {
 
     }
 
@@ -249,13 +351,7 @@ namespace FLOOF {
             // Delete buffers
             alec(alDeleteBuffers(1, &source));
         }
-    
-        // Delete sources
-        alec(alDeleteSources(1, &sources[0]));
-        // Delete buffers
-        alec(alDeleteBuffers(1, &sources[0]));
 
-    	
         // Make the current context null
         alec(alcMakeContextCurrent(nullptr));
         // Destroy the current context
@@ -327,35 +423,5 @@ namespace FLOOF {
         alec(alcCloseDevice(device));
     }
 
-    wavFile SoundManager::readWavData(std::string path)
-    {
-        wavFile soundData;
-        // Read PCM frames to short 16 to a heap allocated array of data
-        drwav_int16* pSamleData = drwav_open_file_and_read_pcm_frames_s16(path.c_str(), &soundData.channels, &soundData.sampleRate, &soundData.totalPCMFrameCount, nullptr);
-
-        // Check if array is null
-        if (pSamleData == NULL) {
-            std::cerr << "Failed to load audio file" << std::endl;
-            // Free the memory allocated by drwav
-            drwav_free(pSamleData, nullptr);
-            return soundData;
-        }
-
-        // Check if data read is too large for the vector
-        if (soundData.getTotalSamples() > drwav_uint64(std::numeric_limits<size_t>::max())) {
-            std::cerr << "Too much data in file for 32bit addressed vector" << std::endl;
-            return soundData;
-        }
-
-        // Resize PCM data to hold all audio samples (resized to account for multiple channels by multiplying frames with channels)
-        soundData.pcmData.resize(size_t(soundData.getTotalSamples()));
-
-        // Copies the loaded samples (pSampleData) into the vector (monoData.pcmData.data())
-        std::memcpy(soundData.pcmData.data(), pSamleData, soundData.pcmData.size() * 2); //memcpy works with bytes, and pcmData i stored with 16 bits, so there are two bytes for every stored value
-
-        // Free the memory allocated by drwav
-        drwav_free(pSamleData, nullptr);
-        return soundData;
-    }
 }
 

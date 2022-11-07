@@ -15,6 +15,7 @@
 namespace FLOOF {
 	// Buffers to hold the sound data
 	struct wavFile {
+		static wavFile ReadWav(std::string path);
 		unsigned int channels{ 0 };
 		unsigned int sampleRate{ 0 };
 		drwav_uint64 totalPCMFrameCount{ 0 };
@@ -24,8 +25,17 @@ namespace FLOOF {
 
 	class NewSoundManager {
 	public:
-		static void UpdatePlayer(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
+		static void SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
+		static void InitOpenAL();
+		static void CleanOpenAL();
+		static std::vector<std::string> GetAvailableDevices();
+		static void SetNewDevice(std::string device);
 	private:
+		ALuint readWavData(std::string& path);
+		inline static ALCdevice* s_Device{ nullptr };
+		inline static ALCcontext* s_Context{ nullptr };
+		
+
 	};
 
 	// This class contains all audio code at the moment.
@@ -53,7 +63,6 @@ namespace FLOOF {
 			glm::vec3 playerForward{ 1.f,0.f,0.f };
 			glm::vec3 playerUp{ 0.f,1.f,0.f };
 			std::vector<wavFile> soundData;
-			wavFile readWavData(std::string path);
 
 			std::vector<std::string> paths;
 	};
