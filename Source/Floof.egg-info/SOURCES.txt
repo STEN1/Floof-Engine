@@ -1,0 +1,6 @@
+Scripts.cpp
+setup.py
+Floof.egg-info/PKG-INFO
+Floof.egg-info/SOURCES.txt
+Floof.egg-info/dependency_links.txt
+Floof.egg-info/top_level.txt

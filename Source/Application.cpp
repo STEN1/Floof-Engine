@@ -684,7 +684,6 @@ namespace FLOOF {
             auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(0.f,-150.f,0.f);
             transform.Scale = glm::vec3(75.f);
-
         }
         {
             int height = 5;
@@ -710,6 +709,8 @@ namespace FLOOF {
                         m_Scene->AddComponent<TextureComponent>(Ball, "Assets/statue/textures/staue1Color.png");
                         m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
                         m_Scene->AddComponent<PointLightComponent>(Ball);
+                        //test python script
+                        auto &script = m_Scene->AddComponent<ScriptComponent>(Ball,"Scripts/HelloWorld.py");
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
                         transform.Position = location;
