@@ -40,7 +40,8 @@ namespace FLOOF {
 			void openDevice();
 			void createContext();
 			void createListener();
-
+			void FindDevices();
+			std::vector<std::string> devices;
 			ALCdevice* device;
 			ALCcontext* context;
 			glm::vec3 playerPosition{ 0.f,0.f,0.f };

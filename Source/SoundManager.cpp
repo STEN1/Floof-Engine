@@ -14,6 +14,35 @@
 #define DR_WAV_IMPLEMENTATION
 #include <dr_libs/dr_wav.h>
 
+
+// https://stackoverflow.com/questions/28960638/listing-all-devices-open-al-does-not-work 
+std::vector<std::string> GetDevices(const char* list)
+{
+    std::vector<std::string> myDevices;
+
+    ALCchar* ptr, * nptr;
+
+    ptr = (ALCchar*)list;
+    printf("list of all available input devices:\n");
+    if (!list)
+    {
+        printf("none\n");
+    }
+    else
+    {
+        nptr = ptr;
+        while (*(nptr += strlen(ptr) + 1) != 0)
+        {
+            printf("  %s\n", ptr);
+            myDevices.push_back(ptr);
+            ptr = nptr;
+        }
+        printf("  %s\n", ptr);
+        myDevices.push_back(ptr);
+    }
+    return myDevices;
+}
+
 namespace FLOOF {
 
     // TODO
@@ -41,11 +70,14 @@ namespace FLOOF {
 
     }
 
+
     void SoundManager::testSound()
     {
+        FindDevices();
+
         readSounds();
-        //PlaySounds();
-        newTest();
+        PlaySounds();
+        //newTest();
     }
 
     int SoundManager::loadPath(std::string path)
@@ -100,7 +132,7 @@ namespace FLOOF {
     void SoundManager::openDevice()
     {
         // Find the default audio device
-
+        
         // Save the default audio device as a string
         const ALCchar* defaultDeviceString = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 
@@ -119,7 +151,7 @@ namespace FLOOF {
         std::cout << "OpenAL Device: " << alcGetString(device, ALC_DEFAULT_DEVICE_SPECIFIER) << std::endl;
 
         // Check for device errors
-        OpenAL_ErrorCheck(device);
+        //OpenAL_ErrorCheck(device);
     }
 
     void SoundManager::createContext()
@@ -152,6 +184,21 @@ namespace FLOOF {
         // Players orientation
         alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
 
+    }
+
+    void SoundManager::FindDevices()
+    {
+        std::vector<std::string> devices;
+        char* string;
+
+        if (alcIsExtensionPresent(NULL, "ALC_enumeration_EXT") == AL_TRUE)
+        {
+            if (alcIsExtensionPresent(NULL, "ALC_enumerate_all_EXT") == AL_FALSE)
+                string = (char*)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+            else
+                string = (char*)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+            devices = GetDevices(string);
+        }
     }
 
     void SoundManager::PlaySounds()
