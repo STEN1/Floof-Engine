@@ -49,6 +49,11 @@ namespace FLOOF {
         for (auto [entity, nativeScript] : nativeScriptView.each()) {
             nativeScript.Script->OnUpdate(deltaTime);
         }
+        auto PythonScriptView = m_Registry.view<ScriptComponent>();
+        for (auto [entity, Script] : PythonScriptView.each()) {
+            Script.OnUpdate(deltaTime);
+        }
+
         m_PhysicSystem->OnUpdate(deltaTime);
     }
 }

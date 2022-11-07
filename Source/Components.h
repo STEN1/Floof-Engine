@@ -1,6 +1,11 @@
 #pragma once
-#include "Math.h"
 
+
+//pulls in python api
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
+#include "Math.h"
 #include "Renderer/VulkanRenderer.h"
 #include "Floof.h"
 #include <chrono>
@@ -12,15 +17,6 @@
 #include "SoundManager.h"
 #include "NativeScripts/NativeScript.h"
 
-//pulls in python api
-#define PY_SSIZE_T_CLEAN
-#ifdef _DEBUG
-#undef _DEBUG
-#include <python.h>
-#define _DEBUG
-#else
-#include <Python.h>
-#endif
 
 
 namespace FLOOF {
@@ -202,11 +198,11 @@ namespace FLOOF {
         ~ScriptComponent();
         std::string Script;
 
-        //FILE* Fp;
-
        void RunScript();
        void updateScripts();
 
+       void OnCreate();
+       void OnUpdate(const float deltatime);
     };
 
 	struct SoundComponent {

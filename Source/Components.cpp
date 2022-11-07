@@ -580,4 +580,24 @@ namespace FLOOF {
          read.close();
 
     }
+
+    void ScriptComponent::OnCreate() {
+
+
+    }
+
+    void ScriptComponent::OnUpdate(const float deltatime) {
+
+        auto pName= PyUnicode_FromString(Script.c_str());
+        auto pModule = PyImport_Import(pName);
+
+        if(pModule != NULL){
+            auto pfunc = PyObject_GetAttrString(pModule, "OnUpdate");
+            if(PyCallable_Check(pfunc)){
+              auto pargs = PyTuple_New(2);
+               auto ans =  PyObject_CallObject(pfunc, pargs);
+            }
+
+        }
+    }
 }

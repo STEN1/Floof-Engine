@@ -7,3 +7,5 @@ setup(
     description="Floof Scripting Package",
     ext_modules=[module]
     )
+
+print("setup.py initalized")
