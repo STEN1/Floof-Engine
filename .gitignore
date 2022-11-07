@@ -106,3 +106,5 @@ Logs/
 ImguiDefault/
 *.las
 xcode-build/
+build/
+dist/
