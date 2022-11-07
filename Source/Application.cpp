@@ -14,6 +14,7 @@
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
 #include "GameMode/AudioTestGM.h"
+#include "NativeScripts/TestScript.h"
 #include <filesystem>
 
 // Temp OpenAL includes
@@ -740,6 +741,7 @@ namespace FLOOF {
             auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
             m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
             sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
         }
 
         {

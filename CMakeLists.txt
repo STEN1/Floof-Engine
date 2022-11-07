@@ -52,7 +52,9 @@ add_executable(Floof
     Source/Renderer/Mesh.cpp
     Source/SoundManager.h
     Source/SoundManager.cpp 
-      "Source/Renderer/VulkanBuffer.h" "Source/Renderer/VulkanBuffer.cpp")
+    Source/Renderer/VulkanBuffer.h
+    Source/Renderer/VulkanBuffer.cpp
+    Source/NativeScripts/NativeScript.h "Source/NativeScripts/TestScript.h" "Source/NativeScripts/TestScript.cpp")
 
 
 find_package(Vulkan REQUIRED)
