@@ -96,7 +96,8 @@ target_link_libraries(Floof ${Python_LIBRARIES})
 # define (VERSION_INFO) here.
 target_compile_definitions(Floof PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 
-
+set(LIBTYPE STATIC)
+add_compile_definitions(AL_LIBTYPE_STATIC)
 add_subdirectory(Libs/openal-soft)
 target_link_libraries(Floof OpenAL)
 
