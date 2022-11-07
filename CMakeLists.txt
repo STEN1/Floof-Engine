@@ -59,7 +59,7 @@ add_executable(Floof
     Source/NativeScripts/TestScript.cpp
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
-    Source/Scripts.cpp)
+        Source/Scripts.cpp)
 
 
 
@@ -158,8 +158,8 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAK
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
 
 
-add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}
+execute_process(
+        #OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Source/setup.py install
 )
 
