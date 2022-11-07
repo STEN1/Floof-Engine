@@ -447,25 +447,8 @@ namespace FLOOF {
             textureImageViewInfo.subresourceRange.layerCount = 1;
             vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
 
-            // Get descriptor set and point it to data.
-            fbTexture.Descriptor = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::FontTexture]);
-
             VkSampler sampler = renderer->GetFontSampler();
-
-            VkDescriptorImageInfo descriptorImageInfo{};
-            descriptorImageInfo.sampler = sampler;
-            descriptorImageInfo.imageView = fbTexture.Texture.ImageView;
-            descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-            VkWriteDescriptorSet writeDescriptorSet{};
-            writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            writeDescriptorSet.dstSet = fbTexture.Descriptor;
-            writeDescriptorSet.dstBinding = 0;
-            writeDescriptorSet.descriptorCount = 1;
-            writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            writeDescriptorSet.pImageInfo = &descriptorImageInfo;
-
-            vkUpdateDescriptorSets(renderer->m_LogicalDevice, 1, &writeDescriptorSet, 0, nullptr);
+            fbTexture.Descriptor = ImGui_ImplVulkan_AddTexture(sampler, fbTexture.Texture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
     } 
 
@@ -490,7 +473,7 @@ namespace FLOOF {
             vkDestroyFramebuffer(renderer->m_LogicalDevice, textureFrameBuffer.FrameBuffer, nullptr);
             vkDestroyImageView(renderer->m_LogicalDevice, textureFrameBuffer.Texture.ImageView, nullptr);
             vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.Texture.Image, textureFrameBuffer.Texture.Allocation);
-            renderer->FreeTextureDescriptorSet(textureFrameBuffer.Descriptor);
+            ImGui_ImplVulkan_RemoveTexture(textureFrameBuffer.Descriptor);
 
             textureFrameBuffer.FrameBuffer = VK_NULL_HANDLE;
             textureFrameBuffer.Texture.ImageView = VK_NULL_HANDLE;
