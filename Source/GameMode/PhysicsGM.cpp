@@ -204,6 +204,9 @@ namespace FLOOF {
 
         auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
 
+        //test python script
+        auto &script = m_Scene.AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
+
         transform.Position = Location;
         transform.Scale = Scale;
 
