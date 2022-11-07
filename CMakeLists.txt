@@ -51,10 +51,16 @@ add_executable(Floof
     Source/GameMode/AudioTestGM.cpp
     Source/Renderer/Mesh.cpp
     Source/SoundManager.h
-    Source/SoundManager.cpp 
+    Source/SoundManager.cpp
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
-    Source/NativeScripts/NativeScript.h "Source/NativeScripts/TestScript.h" "Source/NativeScripts/TestScript.cpp")
+    Source/NativeScripts/NativeScript.h
+    Source/NativeScripts/TestScript.h
+    Source/NativeScripts/TestScript.cpp
+    Source/Renderer/VulkanBuffer.h
+    Source/Renderer/VulkanBuffer.cpp
+        Source/Scripts.cpp)
+
 
 
 find_package(Vulkan REQUIRED)
@@ -91,11 +97,6 @@ find_package(Python COMPONENTS Interpreter Development)
 target_include_directories(Floof PUBLIC ${Python_INCLUDE_DIRS})
 target_link_libraries(Floof ${Python_LIBRARIES})
 
-#add_subdirectory(Libs/pybind11)
-#target_include_directories(Floof PUBLIC Libs/pybind11/include)
-#target_link_libraries(Floof pybind11)
-# EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
-# define (VERSION_INFO) here.
 target_compile_definitions(Floof PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 
 set(LIBTYPE STATIC)
@@ -157,6 +158,10 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAK
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
 
 
+execute_process(
+        #OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Source/setup.py install
+)
 
 #set current binary dir c++ variable
 add_compile_definitions(BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")

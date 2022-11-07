@@ -106,3 +106,7 @@ Logs/
 ImguiDefault/
 *.las
 xcode-build/
+Source/build/
+Source/Floof.egg-info/
+Source/dist/
+

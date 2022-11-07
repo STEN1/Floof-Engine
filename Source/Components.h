@@ -19,8 +19,9 @@
 #include <python.h>
 #define _DEBUG
 #else
-#include <python.h>
+#include <Python.h>
 #endif
+
 
 namespace FLOOF {
 
@@ -201,7 +202,7 @@ namespace FLOOF {
         ~ScriptComponent();
         std::string Script;
 
-        FILE* Fp;
+        //FILE* Fp;
 
        void RunScript();
        void updateScripts();
