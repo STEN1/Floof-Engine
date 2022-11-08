@@ -540,9 +540,17 @@ namespace FLOOF {
 
     ScriptComponent::ScriptComponent(const std::string PyScript) :Script(PyScript){
 
+
+
+
+        setenv("PYTHONPATH","Scripts",1);
         Py_Initialize();
 
+        ModuleName = Script.substr(8, Script.size());
+        ModuleName = ModuleName.substr(0,ModuleName.size()-3);
 
+        Pname= PyUnicode_FromString(ModuleName.c_str());
+        Pmodule = PyImport_Import(Pname);
 
     }
 
@@ -583,21 +591,40 @@ namespace FLOOF {
 
     void ScriptComponent::OnCreate() {
 
-
+        if(Pmodule){
+            auto pfunc = PyObject_GetAttrString(Pmodule, "create");
+            if(PyCallable_Check(pfunc)){
+                auto ans =  PyObject_CallObject(pfunc, NULL);
+            }
+        }
     }
 
     void ScriptComponent::OnUpdate(const float deltatime) {
 
-        auto pName= PyUnicode_FromString(Script.c_str());
-        auto pModule = PyImport_Import(pName);
-
-        if(pModule != NULL){
-            auto pfunc = PyObject_GetAttrString(pModule, "OnUpdate");
+        if(Pmodule){
+            auto pfunc = PyObject_GetAttrString(Pmodule, "update");
             if(PyCallable_Check(pfunc)){
-              auto pargs = PyTuple_New(2);
-               auto ans =  PyObject_CallObject(pfunc, pargs);
+                PyObject *args = PyTuple_New(1);
+                PyObject* dt = PyFloat_FromDouble(deltatime);
+                PyTuple_SetItem(args, 0, dt);
+
+                 auto ans =  PyObject_CallObject(pfunc, args);
             }
 
         }
+    }
+
+    void ScriptComponent::ReloadScript() {
+        Py_Finalize();
+        Py_Initialize();
+        Pname = NULL;
+        Pmodule = NULL;
+
+        ModuleName = Script.substr(8, Script.size());
+        ModuleName = ModuleName.substr(0,ModuleName.size()-3);
+
+        Pname= PyUnicode_FromString(ModuleName.c_str());
+        Pmodule = PyImport_Import(Pname);
+
     }
 }

@@ -197,10 +197,14 @@ namespace FLOOF {
         ScriptComponent(const std::string PyScript);
         ~ScriptComponent();
         std::string Script;
+        std::string ModuleName;
 
-       void RunScript();
-       void updateScripts();
+        PyObject* Pname;
+        PyObject* Pmodule;
+        void RunScript();
+        void updateScripts();
 
+        void ReloadScript();
        void OnCreate();
        void OnUpdate(const float deltatime);
     };

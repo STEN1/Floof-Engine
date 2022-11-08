@@ -6,6 +6,6 @@ Floof.printTest()
 
 print('Hello world from Python FILE!!!')
 
-def OnUpdate():
+def update(deltatime):
     print("called on update from python")
     return True

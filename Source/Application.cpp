@@ -368,7 +368,7 @@ namespace FLOOF {
                 if(auto* scriptComponent = m_Scene->TryGetComponent<ScriptComponent>(m_Scene->m_SelectedEntity)){
                     ImGui::Separator();
                     ImGui::Text("Script Component");
-                    std::string currentscript = scriptComponent->Script;
+                    std::string currentscript = scriptComponent->ModuleName;
                     currentscript.erase(0,8);
 
                     //todo this is bad, should not read all files every frame
@@ -391,7 +391,7 @@ namespace FLOOF {
                                std::string path = "Scripts/";
                                path.append(currentscript);
                                scriptComponent->Script = path;
-                               scriptComponent->updateScripts();
+                               scriptComponent->ReloadScript();
                            }
 
                        }
@@ -400,6 +400,7 @@ namespace FLOOF {
 
                     if(ImGui::Button("Refresh Script")){
                             scriptComponent->updateScripts();
+                            scriptComponent->ReloadScript();
                     }
                     if(ImGui::Button("Run Script once")){
                         scriptComponent->RunScript();
@@ -421,6 +422,7 @@ namespace FLOOF {
                 auto view = m_Scene->GetRegistry().view<ScriptComponent>();
                 for (auto [entity, script]: view.each()) {
                     script.updateScripts();
+                    script.ReloadScript();
                 }
             }
             ImGui::End();
@@ -711,7 +713,7 @@ namespace FLOOF {
                         m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
                         m_Scene->AddComponent<PointLightComponent>(Ball);
                         //test python script
-                        auto &script = m_Scene->AddComponent<ScriptComponent>(Ball,"Scripts/HelloWorld.py");
+                        auto &script = m_Scene->AddComponent<ScriptComponent>(Ball,"Scripts/example.py");
 
                         auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
                         transform.Position = location;
