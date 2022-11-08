@@ -2,8 +2,6 @@
 project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
-
-
 add_executable(Floof
     Source/Floof.cpp
     Source/Floof.h
@@ -59,9 +57,7 @@ add_executable(Floof
     Source/NativeScripts/TestScript.cpp
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
-        Source/Scripts.cpp)
-
-
+    Source/Scripts.cpp)
 
 find_package(Vulkan REQUIRED)
 target_include_directories(Floof PUBLIC ${Vulkan_INCLUDE_DIRS})
@@ -74,10 +70,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
 
-#set(BUILD_SHARED_LIBS OFF)
 set(BULLET_VERSION 3)
 set(BULLET_PHYSICS_SOURCE_DIR ../../)
-#add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
 set(Bullet_Dir Libs/bullet3/src)
 add_library(Bullet STATIC)
 add_compile_definitions(BT_USE_SSE_IN_API) #enable SSE
@@ -142,8 +136,6 @@ target_include_directories(IMGUI
 target_link_libraries(Floof IMGUI)
 
 target_include_directories(Floof PUBLIC "Libs/HeaderOnly")
-
-
 
 #if compiled with xcode, not supporting release yet
 if(CMAKE_GENERATOR STREQUAL Xcode)
