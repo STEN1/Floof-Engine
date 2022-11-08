@@ -10,7 +10,8 @@ namespace FLOOF {
     public:
         static void Init(GLFWwindow* window) {
             s_Window = window;
-            glfwSetKeyCallback(s_Window, GLFWKeyCallback);
+            // overrides imgui key callbacks.
+            //glfwSetKeyCallback(s_Window, GLFWKeyCallback);
         }
         static int Key(int keyCode) {
             return glfwGetKey(s_Window, keyCode);

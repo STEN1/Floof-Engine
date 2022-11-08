@@ -39,7 +39,7 @@ namespace FLOOF {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
         //io.ConfigViewportsNoAutoMerge = true;
-        //io.ConfigViewportsNoTaskBarIcon = true;  // Enable Gamepad Controls
+        //io.ConfigViewportsNoTaskBarIcon = true;
 
         ImGui::StyleColorsDark();
 
