@@ -5,11 +5,12 @@
 #include "Floof.h"
 #include <chrono>
 #include <entt/entt.hpp>
+
+#include "al.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Texture.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
-#include "SoundManager.h"
 #include "NativeScripts/NativeScript.h"
 
 //pulls in python api

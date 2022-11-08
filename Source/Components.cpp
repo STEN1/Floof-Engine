@@ -433,8 +433,8 @@ namespace FLOOF {
         RigidBody->setSpinningFriction(0.3f);
     }
 
-    SoundSourceComponent::SoundSourceComponent(SoundManager* manager, std::string path) {
-        id = manager->loadPath(path);
+    SoundSourceComponent::SoundSourceComponent() {
+
     }
 
 
