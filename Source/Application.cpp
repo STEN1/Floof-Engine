@@ -361,7 +361,7 @@ namespace FLOOF {
                     // TODO: Make imgui texture descriptor for all textures.
                     //ImGui::Image(texture->Data.DesctriptorSet, ImVec2(50, 50));
                 }
-                if (auto* soundComponent = m_Scene->GetRegistry().try_get<SoundComponent>(m_Scene->m_SelectedEntity)) {
+                if (auto* soundComponent = m_Scene->GetRegistry().try_get<SoundSourceComponent>(m_Scene->m_SelectedEntity)) {
                     ImGui::Separator();
                     ImGui::Text("Sound component");
                 }
