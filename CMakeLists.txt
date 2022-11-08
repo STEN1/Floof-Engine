@@ -74,22 +74,22 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(Libs/glfw)
 target_link_libraries(Floof glfw)
 
-set(BUILD_SHARED_LIBS OFF)
+#set(BUILD_SHARED_LIBS OFF)
 set(BULLET_VERSION 3)
 set(BULLET_PHYSICS_SOURCE_DIR ../../)
 #add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
-add_compile_definitions(BT_USE_SSE_IN_API) #enable SSE
-set(Bullet_Dir Libs/bullet3)
+set(Bullet_Dir Libs/bullet3/src)
 add_library(Bullet STATIC)
-target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
+add_compile_definitions(BT_USE_SSE_IN_API) #enable SSE
 target_sources(Bullet PRIVATE
-        ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
-        ${Bullet_Dir}/src/btBulletCollisionAll.cpp
-        ${Bullet_Dir}/src/btLinearMathAll.cpp)
+        ${Bullet_Dir}/btBulletDynamicsAll.cpp
+        ${Bullet_Dir}/btBulletCollisionAll.cpp
+        ${Bullet_Dir}/btLinearMathAll.cpp)
+target_include_directories(Floof PUBLIC ${Bullet_Dir})
 target_link_libraries(Floof Bullet)
 
 #Add each submodule manually
-add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
+add_subdirectory(${Bullet_Dir}/BulletSoftBody)
 target_link_libraries(Floof BulletSoftBody)
 
 #pybinding
