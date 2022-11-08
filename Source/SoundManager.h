@@ -1,6 +1,4 @@
 #pragma once
-#include "al.h"
-#include "alc.h"
 
 #include <cstring>
 #include <iostream>
@@ -8,14 +6,18 @@
 #include <type_traits>
 #include <vector>
 #include <bit>
+#include <unordered_map>
 #include <glm/vec3.hpp>
 
+#include "al.h"
+#include "alc.h"
+#include "Components.h"
 #include "dr_libs/dr_wav.h"
 
 namespace FLOOF {
 	// Buffers to hold the sound data
-	struct wavFile {
-		static wavFile ReadWav(std::string path);
+	struct WavFile {
+		static WavFile ReadWav(std::string path);
 		unsigned int channels{ 0 };
 		unsigned int sampleRate{ 0 };
 		drwav_uint64 totalPCMFrameCount{ 0 };
@@ -31,7 +33,12 @@ namespace FLOOF {
 		static std::vector<std::string> GetAvailableDevices();
 		static void SetNewDevice(std::string device);
 	private:
-		ALuint readWavData(std::string& path);
+		ALuint LoadWav(std::string sound);
+		static ALuint GenerateSource(SoundSourceComponent* source);
+		static void DeleteSource(SoundSourceComponent* source);
+
+		inline static std::unordered_map<std::string, ALuint> s_Sounds;
+		inline static std::vector<SoundSourceComponent*> s_Sources;
 		inline static ALCdevice* s_Device{ nullptr };
 		inline static ALCcontext* s_Context{ nullptr };
 		
@@ -62,7 +69,7 @@ namespace FLOOF {
 			glm::vec3 playerVelocity{ 0.f,0.f,0.f };
 			glm::vec3 playerForward{ 1.f,0.f,0.f };
 			glm::vec3 playerUp{ 0.f,1.f,0.f };
-			std::vector<wavFile> soundData;
+			std::vector<WavFile> soundData;
 
 			std::vector<std::string> paths;
 	};
@@ -82,7 +89,7 @@ namespace FLOOF {
  * in draw
  * iterate through soundcomponents
  * save in vector of pointers and send to soundmanager
- * soundmanager.PlaySounds(std::vector<SoundComponent*> sounds);
+ * soundmanager.PlaySounds(std::vector<SoundSourceComponent*> sounds);
  *
  * in soundmanager 
 

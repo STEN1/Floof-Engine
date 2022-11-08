@@ -15,9 +15,9 @@
 #include <dr_libs/dr_wav.h>
 
 namespace FLOOF {
-	wavFile wavFile::ReadWav(std::string path)
+	WavFile WavFile::ReadWav(std::string path)
 	{
-        wavFile soundData;
+        WavFile soundData;
         // Read PCM frames to short 16 to a heap allocated array of data
         drwav_int16* pSamleData = drwav_open_file_and_read_pcm_frames_s16(path.c_str(), &soundData.channels, &soundData.sampleRate, &soundData.totalPCMFrameCount, nullptr);
 
@@ -122,8 +122,48 @@ namespace FLOOF {
             std::cerr << "failed to make set new OpenAl device" << std::endl;
         }
     }
-    ALuint NewSoundManager::readWavData(std::string& path) {
+    ALuint NewSoundManager::LoadWav(std::string sound) {
 
+        std::string path = "Assets/Sounds/" + sound;
+        // Check if sound already loaded
+		if (auto it = s_Sounds.find(path); it != s_Sounds.end())
+            return it->second;
+
+        // Read file
+        WavFile soundData = WavFile::ReadWav(path);
+
+        // Generate buffer 
+        ALuint buffer;
+        alec(alGenBuffers(1, &buffer));
+
+        alec(alBufferData(
+            buffer, // The buffer
+            soundData.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, // Using the AL format Mono16 if one channel, or Stereo 16 if more
+            soundData.pcmData.data(), // The data pointer
+            soundData.pcmData.size() * 2, // Multiplied by two since vector is stored in 16 bits and data is read in bytes
+            soundData.sampleRate)); // The sample rate, obiously
+
+		s_Sounds[sound] = buffer;
+        return buffer;
+    }
+
+    ALuint NewSoundManager::GenerateSource(SoundSourceComponent* source) {
+        ALuint tempSource;
+        alGenSources(1, &tempSource);
+        if (auto error = alGetError(); error != AL_NO_ERROR)
+            std::cerr << "alGenSources error: " + std::to_string(error);
+
+        s_Sources.push_back(source);
+        return tempSource;
+    }
+
+    void NewSoundManager::DeleteSource(SoundSourceComponent* source) {
+
+        if (auto it = std::find(s_Sources.begin(), s_Sources.end(), source); it != s_Sources.end())
+        {
+            alDeleteSources(1, &(*it)->m_Source);
+            s_Sources.erase(it);
+        }
     }
 
     std::vector<std::string> GetAvailableDevices()
@@ -219,7 +259,7 @@ namespace FLOOF {
     void SoundManager::loadAssets()
     {
 	    for (auto path : paths) {
-            soundData.push_back(readWavData(path.c_str()));
+            soundData.push_back(WavFile::ReadWav(path.c_str()));
 	    }
 
     }
@@ -235,8 +275,8 @@ namespace FLOOF {
 
     void SoundManager::readSounds()
     {
-        soundData.push_back(readWavData("Assets/Sounds/TestSound_Stereo.wav"));
-        soundData.push_back(readWavData("Assets/Sounds/TestSound_Mono.wav"));
+        soundData.push_back(WavFile::ReadWav("Assets/Sounds/TestSound_Stereo.wav"));
+        soundData.push_back(WavFile::ReadWav("Assets/Sounds/TestSound_Mono.wav"));
     }
 
     void SoundManager::openDevice()
