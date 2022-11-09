@@ -3,12 +3,16 @@
 
 //pulls in python api
 #define PY_SSIZE_T_CLEAN
-#ifdef _DEBUG
-#undef _DEBUG
-#include <python.h>
-#define _DEBUG
+#ifdef WIN32
+    #ifdef _DEBUG
+        #undef _DEBUG
+        #include <python.h>
+        #define _DEBUG
+    #else
+        #include <Python.h>
+    #endif
 #else
-#include <Python.h>
+    #include <python.h>
 #endif
 
 #include "Math.h"
