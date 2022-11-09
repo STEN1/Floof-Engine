@@ -75,15 +75,15 @@ target_link_libraries(Floof glfw)
 set(BUILD_SHARED_LIBS OFF)
 set(BULLET_VERSION 3)
 set(BULLET_PHYSICS_SOURCE_DIR ../../)
+#add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
+add_compile_definitions(BT_USE_SSE_IN_API) #enable SSE
 set(Bullet_Dir Libs/bullet3)
 add_library(Bullet STATIC)
-#add_compile_definitions(BT_USE_SSE_IN_API) #enable SSE
-add_compile_definitions(__BT_DISABLE_SSE__)
+target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
         ${Bullet_Dir}/src/btLinearMathAll.cpp)
-target_include_directories(Floof PUBLIC ${Bullet_Dir})
 target_link_libraries(Floof Bullet)
 
 #Add each submodule manually
