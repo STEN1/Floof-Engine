@@ -11,7 +11,7 @@
 
 //pulls in python api
 // The python headers must be included last!
-// Fucks up some defines STL on MSVC debug builds.
+// Fucks up some defines for the STL on MSVC debug builds.
 #define PY_SSIZE_T_CLEAN
 #ifdef WIN32
 #ifdef _DEBUG
