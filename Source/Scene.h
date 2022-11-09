@@ -52,6 +52,7 @@ namespace FLOOF {
         /// Make sure no registry resource is being used on the gpu
         /// </summary>
         void OnUpdate(float deltaTime);
+        void OnCreate();
     private:
         entt::registry m_Registry;
         std::shared_ptr<PhysicsSystem> m_PhysicSystem;       

@@ -11,6 +11,7 @@ namespace FLOOF {
         world->setDebugDrawer(m_PhysicsDebugDrawer.get());
 
     }
+
     Scene::~Scene() {
     }
 
@@ -49,6 +50,18 @@ namespace FLOOF {
         for (auto [entity, nativeScript] : nativeScriptView.each()) {
             nativeScript.Script->OnUpdate(deltaTime);
         }
+        auto PythonScriptView = m_Registry.view<ScriptComponent>();
+        for (auto [entity, Script] : PythonScriptView.each()) {
+            Script.OnUpdate(deltaTime);
+        }
+
         m_PhysicSystem->OnUpdate(deltaTime);
+    }
+
+    void Scene::OnCreate() {
+        auto PythonScriptView = m_Registry.view<ScriptComponent>();
+        for (auto [entity, Script] : PythonScriptView.each()) {
+            Script.OnCreate();
+        }
     }
 }
