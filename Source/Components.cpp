@@ -9,6 +9,22 @@
 #include <fstream>
 #include <filesystem>
 
+//pulls in python api
+// The python headers must be included last!
+// Fucks up some defines STL on MSVC debug builds.
+#define PY_SSIZE_T_CLEAN
+#ifdef WIN32
+#ifdef _DEBUG
+#undef _DEBUG
+#include <python.h>
+#define _DEBUG
+#else
+#include <Python.h>
+#endif
+#else
+#include <python.h>
+#endif
+
 namespace FLOOF {
     TextureComponent::TextureComponent(const std::string& path) {
         auto it = s_TextureDataCache.find(path);

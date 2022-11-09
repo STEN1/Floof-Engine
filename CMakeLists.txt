@@ -57,7 +57,6 @@ add_executable(Floof
     Source/NativeScripts/TestScript.cpp
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
-    Source/Scripts.cpp
     Source/HeightmapLoader.h
     Source/HeightmapLoader.cpp)
 

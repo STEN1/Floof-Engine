@@ -1,20 +1,5 @@
 #pragma once
 
-
-//pulls in python api
-#define PY_SSIZE_T_CLEAN
-#ifdef WIN32
-    #ifdef _DEBUG
-        #undef _DEBUG
-        #include <python.h>
-        #define _DEBUG
-    #else
-        #include <Python.h>
-    #endif
-#else
-    #include <python.h>
-#endif
-
 #include "Math.h"
 #include "Renderer/VulkanRenderer.h"
 #include "Floof.h"
@@ -28,7 +13,7 @@
 #include "BulletSoftBody/btSoftBody.h"
 #include "NativeScripts/NativeScript.h"
 
-
+#include <pytypedefs.h>
 
 namespace FLOOF {
 
@@ -204,6 +189,8 @@ namespace FLOOF {
         btSoftBody* SoftBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
+
+    
     struct ScriptComponent{
         ScriptComponent(const std::string PyScript);
         ~ScriptComponent();
