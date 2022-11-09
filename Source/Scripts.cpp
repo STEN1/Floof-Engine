@@ -36,12 +36,12 @@ static PyObject * log(PyObject* self, PyObject *args){
 
 static PyObject * Start(PyObject* self, PyObject*args){
 
-
+    return NULL;
 }
 
 static PyObject * OnUpdate(PyObject* self, PyObject*args){
 
-
+    return NULL;
 }
 
 
