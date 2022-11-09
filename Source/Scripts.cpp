@@ -3,7 +3,13 @@
 
 //pulls in python api NB ALLWAYS TOP OF INCLUDES
 #define PY_SSIZE_T_CLEAN
+#ifdef _DEBUG
+#undef _DEBUG
+#include <python.h>
+#define _DEBUG
+#else
 #include <Python.h>
+#endif
 
 #include <iostream>
 

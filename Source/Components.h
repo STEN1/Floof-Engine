@@ -3,7 +3,13 @@
 
 //pulls in python api
 #define PY_SSIZE_T_CLEAN
+#ifdef _DEBUG
+#undef _DEBUG
+#include <python.h>
+#define _DEBUG
+#else
 #include <Python.h>
+#endif
 
 #include "Math.h"
 #include "Renderer/VulkanRenderer.h"
