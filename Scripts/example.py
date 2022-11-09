@@ -8,5 +8,5 @@ def create():
 
 
 def update(deltatime):
-    print("On update called from python: deltatime =  " + str(deltatime))
+    #print("On update called from python: deltatime =  " + str(deltatime))
     return True

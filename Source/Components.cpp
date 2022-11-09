@@ -542,8 +542,12 @@ namespace FLOOF {
 
 
 
+        #if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+            _putenv_s("PYTHONPATH", "Scripts");
+        #else
+            setenv("PYTHONPATH","Scripts",1);
+        #endif
 
-        setenv("PYTHONPATH","Scripts",1);
         Py_Initialize();
 
         ModuleName = Script.substr(8, Script.size());
@@ -552,6 +556,7 @@ namespace FLOOF {
         Pname= PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
 
+        OnCreate();
     }
 
     ScriptComponent::~ScriptComponent() {
