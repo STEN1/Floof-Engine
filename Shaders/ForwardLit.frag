@@ -46,22 +46,19 @@ void main() {
 
     for (int i = 0; i < sceneFrameUBO.lightCount; i++) {
         float dist = length(lightSSBO.lights[i].position.xyz - fragPos);
-        if (dist < lightSSBO.lights[i].lightRange)
-        {
-            vec3 lightDir = normalize(lightSSBO.lights[i].position.xyz - fragPos);
-            // diffuse shading amount.
-            float diff = max(dot(lightDir, normal), 0.0);
-            // specular
-            vec3 halfwayDir = normalize(lightDir + viewDir);
-            float spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
-            // attenuation.
-            float attenuation = 1.0 / (1.0 + lightSSBO.lights[i].linear * dist + 
-  			             lightSSBO.lights[i].quadratic * (dist * dist));    
-            // combine results.
-            ambient += lightSSBO.lights[i].ambient.xyz * attenuation;
-            diffuse += lightSSBO.lights[i].diffuse.xyz * attenuation * diff;
-            specular += shininess * spec * attenuation;
-        }
+        vec3 lightDir = normalize(lightSSBO.lights[i].position.xyz - fragPos);
+        // diffuse shading amount.
+        float diff = max(dot(lightDir, normal), 0.0);
+        // specular
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
+        // attenuation.
+        float attenuation = 1.0 / (1.0 + lightSSBO.lights[i].linear * dist + 
+  			            lightSSBO.lights[i].quadratic * (dist * dist));    
+        // combine results.
+        ambient += lightSSBO.lights[i].ambient.xyz * attenuation;
+        diffuse += lightSSBO.lights[i].diffuse.xyz * attenuation * diff;
+        specular += shininess * spec * attenuation;
     }
     vec3 lightResult = ambient + diffuse + (specular * vec3(1.0));
     vec4 text = texture(diffuseTexture, fragUv);
