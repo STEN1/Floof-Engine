@@ -14,6 +14,7 @@
 #include "Scene.h"
 #include "Components.h"
 #include "SoundManager.h"
+#include "ApplicationLayer.h"
 
 namespace FLOOF {
     static const char* ApplicationDrawModes[] = {
@@ -23,6 +24,10 @@ namespace FLOOF {
 
     class Application {
         friend class ForwardSceneRenderer;
+        friend class EditorLayer;
+        friend class ApplicationPanel;
+        friend class SceneGraphPanel;
+        friend class ComponentsPanel;
         Application();
     public:
         int Run();
@@ -50,6 +55,8 @@ namespace FLOOF {
         GLFWwindow* m_Window;
         ImGuiContext* m_ImguiContext;
         VulkanRenderer* m_Renderer;
+
+        std::vector<std::unique_ptr<ApplicationLayer>> m_ApplicationLayers;
 
     public:
         PhysicsDebugDraw* GetPhysicsSystemDrawer() { return m_Scene->GetPhysicsDebugDrawer(); }
@@ -97,8 +104,5 @@ namespace FLOOF {
         RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
 
         std::shared_ptr<Scene> m_Scene;
-
-        /*ImGui and editor utility*/
-        void MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel);
     };
 }

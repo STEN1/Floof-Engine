@@ -9,6 +9,9 @@ namespace FLOOF {
     class Scene {
         friend class Application;
         friend class ForwardSceneRenderer;
+        friend class EditorLayer;
+        friend class SceneGraphPanel;
+        friend class ComponentsPanel;
     public:
         Scene();
         ~Scene();
