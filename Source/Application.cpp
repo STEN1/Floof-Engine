@@ -78,7 +78,8 @@ namespace FLOOF {
         Input::Init(m_Window);
 
         m_Scene = std::make_unique<Scene>();
-        m_SoundManager = new SoundManager;
+        m_SoundManager = new OldSoundManager;
+        
 
         /*SceneRenderer*/
         SetRendererType(SceneRendererType::Forward);
@@ -561,15 +562,22 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            //m_Scene->AddComponent<SoundComponent>(Ball, m_SoundManager, "Assets/Sounds/TestSound_Stereo.wav");
+           
 
 
+            //m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            //auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
+            //sound.Play();
         }
         {
             //m_SoundManager->loadAssets();
         }
+        //SoundManager::InitOpenAL();
+        //SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+        //std::string path("TestSound_Stereo.wav");
+        //SoundSourceComponent test(path);
+        //test.Play();
 
-        m_SoundManager->testSound();
 
     }
 }
