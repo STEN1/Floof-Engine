@@ -103,6 +103,7 @@ namespace FLOOF {
         GameModeType m_GameModeType{ GameModeType::Physics };
         RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
 
+    public:
         std::shared_ptr<Scene> m_Scene;
     };
 }
