@@ -59,7 +59,7 @@ add_executable(Floof
     Source/Renderer/VulkanBuffer.cpp
     Source/Scripts.cpp
     Source/HeightmapLoader.h
-    Source/HeightmapLoader.cpp)
+    Source/HeightmapLoader.cpp Source/NativeScripts/MonsterTruckScript.cpp Source/NativeScripts/MonsterTruckScript.h)
 
 find_package(Vulkan REQUIRED)
 target_include_directories(Floof PUBLIC ${Vulkan_INCLUDE_DIRS})
