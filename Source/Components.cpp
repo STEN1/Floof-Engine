@@ -9,6 +9,8 @@
 #include <fstream>
 #include <filesystem>
 
+#include "SoundManager.h"
+
 //pulls in python api
 // The python headers must be included last!
 // Fucks up some defines for the STL on MSVC debug builds.
@@ -24,6 +26,7 @@
 #else
 #include <python.h>
 #endif
+
 
 namespace FLOOF {
     TextureComponent::TextureComponent(const std::string& path) {
@@ -449,12 +452,6 @@ namespace FLOOF {
         RigidBody->setSpinningFriction(0.3f);
     }
 
-    SoundSourceComponent::SoundSourceComponent() {
-
-    }
-
-
-
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
                                            bt::CollisionPrimitive shape) : DefaultScale(scale), Primitive(shape){
 
@@ -611,6 +608,40 @@ namespace FLOOF {
             }
 
         }
+    }
+
+    SoundSourceComponent::SoundSourceComponent(std::string& path) {
+        m_Sound = SoundManager::LoadWav(path);
+        m_Source = SoundManager::GenerateSource(this);
+        alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
+    }
+
+    SoundSourceComponent::~SoundSourceComponent() {
+        SoundManager::DeleteSource(this);
+    }
+
+    void SoundSourceComponent::Volume(float volume) {
+        alec(alSourcef(m_Source, AL_GAIN, volume));
+    }
+
+    void SoundSourceComponent::Play() {
+        alec(alSourcePlay(m_Source));
+    }
+
+    void SoundSourceComponent::Stop() {
+        alec(alSourceStop(m_Source));
+
+    }
+
+    void SoundSourceComponent::Looping(bool isLooping) {
+	    if (isLooping)
+	    {
+            alec(alSourcei(m_Source, AL_LOOPING, AL_TRUE));
+	    }
+	    else
+	    {
+            alec(alSourcei(m_Source, AL_LOOPING, AL_FALSE));
+	    }
     }
 
     void ScriptComponent::ReloadScript() {
