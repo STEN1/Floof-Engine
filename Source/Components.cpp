@@ -588,28 +588,6 @@ namespace FLOOF {
 
     }
 
-    void ScriptComponent::updateScripts() {
-        std::string source = SOURCE_DIR;
-        source.append("/");
-        source.append(Script);
-
-        //std::string binary = BINARY_DIR;
-        std::string binary = std::filesystem::current_path().string();
-        binary.append("/");
-        binary.append(Script);
-
-         std::fstream write(binary);
-         std::fstream read(source);
-
-         std::string line;
-         while(getline(read,line)){
-            write << line << "\n";
-         }
-         write.close();
-         read.close();
-
-    }
-
     void ScriptComponent::OnCreate() {
 
         if(Pmodule){

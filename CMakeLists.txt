@@ -60,7 +60,9 @@ add_executable(Floof
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
     Source/HeightmapLoader.h
-    Source/HeightmapLoader.cpp "Source/ApplicationLayer.h" "Source/ApplicationLayer.cpp" "Source/Editor/EditorLayer.h" "Source/Editor/EditorLayer.cpp" "Source/Editor/EditorPanels/SceneGraphPanel.h" "Source/Editor/EditorPanels/SceneGraphPanel.cpp" "Source/Editor/EditorPanels/ComponentsPanel.h" "Source/Editor/EditorPanels/ComponentsPanel.cpp" "Source/Editor/EditorPanels/EditorPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.cpp")
+    Source/HeightmapLoader.cpp "Source/ApplicationLayer.h" "Source/ApplicationLayer.cpp" "Source/Editor/EditorLayer.h" "Source/Editor/EditorLayer.cpp" "Source/Editor/EditorPanels/SceneGraphPanel.h" "Source/Editor/EditorPanels/SceneGraphPanel.cpp" "Source/Editor/EditorPanels/ComponentsPanel.h" "Source/Editor/EditorPanels/ComponentsPanel.cpp" "Source/Editor/EditorPanels/EditorPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.cpp"
+    Source/HeightmapLoader.cpp Source/NativeScripts/MonsterTruckScript.cpp Source/NativeScripts/MonsterTruckScript.h)
+
 
 find_package(Vulkan REQUIRED)
 target_include_directories(Floof PUBLIC ${Vulkan_INCLUDE_DIRS})
@@ -92,6 +94,7 @@ add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
 target_link_libraries(Floof BulletSoftBody)
 
 #pybinding
+find_package(Python)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 target_include_directories(Floof PUBLIC ${Python_INCLUDE_DIRS})
 target_link_libraries(Floof ${Python_LIBRARIES})
@@ -165,7 +168,7 @@ add_compile_definitions(BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 add_compile_definitions(SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 #check for imgui file if not set default
-if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini")
 else()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy

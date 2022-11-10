@@ -190,7 +190,6 @@ namespace FLOOF {
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
 
-    
     struct ScriptComponent{
         ScriptComponent(const std::string PyScript);
         ~ScriptComponent();
@@ -200,7 +199,6 @@ namespace FLOOF {
         PyObject* Pname;
         PyObject* Pmodule;
         void RunScript();
-        void updateScripts();
 
         void ReloadScript();
        void OnCreate();

@@ -17,6 +17,7 @@
 #include "NativeScripts/TestScript.h"
 #include <filesystem>
 #include "Editor/EditorLayer.h"
+#include "NativeScripts/MonsterTruckScript.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -417,7 +418,13 @@ namespace FLOOF {
             transform.Position = glm::vec3(0.f,-150.f,0.f);
             transform.Scale = glm::vec3(75.f);
         }
+        //make monstertruck
         {
+            auto ent = m_Scene->CreateEntity("MonsterTruck");
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
+        }
+
+        if (false){
             int height = 5;
             int width = 5;
             float spacing = 5.f;

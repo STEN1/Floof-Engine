@@ -107,7 +107,6 @@ namespace FLOOF {
                 }
 
                 if (ImGui::Button("Refresh Script")) {
-                    scriptComponent->updateScripts();
                     scriptComponent->ReloadScript();
                 }
                 if (ImGui::Button("Run Script once")) {
@@ -125,7 +124,6 @@ namespace FLOOF {
             if (ImGui::Button("Refresh all Scripts")) {
                 auto view = app.m_Scene->GetRegistry().view<ScriptComponent>();
                 for (auto [entity, script] : view.each()) {
-                    script.updateScripts();
                     script.ReloadScript();
                 }
             }
