@@ -2,6 +2,8 @@
 project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
+add_compile_definitions(FLOOF_DEVELOPER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+
 add_executable(Floof
     Source/Floof.cpp
     Source/Floof.h
@@ -162,33 +164,12 @@ execute_process(
 add_compile_definitions(BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 add_compile_definitions(SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
-#copy shaders
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND 
-    ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/Shaders
-    ${CMAKE_CURRENT_BINARY_DIR}/Shaders
-    )
-
-#copy assets
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
-    ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/Assets
-    ${CMAKE_CURRENT_BINARY_DIR}/Assets
-    )
-
-#copy scripts
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
-        ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/Scripts
-        ${CMAKE_CURRENT_BINARY_DIR}/Scripts
-        )
-
 #check for imgui file if not set default
 if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")
 else()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/ImguiDefault/imgui.ini
-            ${CMAKE_CURRENT_BINARY_DIR}/imgui.ini
+            ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
             )
 endif()

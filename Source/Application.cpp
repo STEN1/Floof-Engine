@@ -203,7 +203,7 @@ namespace FLOOF {
 
         m_Scene->OnUpdate(deltaTime);
 
-        if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
+        //if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
 
     void Application::Draw() {
@@ -358,8 +358,8 @@ namespace FLOOF {
             }
         }
 
-        if (m_GameMode)
-            m_GameMode->OnCreate();
+        /*if (m_GameMode)
+            m_GameMode->OnCreate();*/
         // Sets up the bullet physics world based on whats in scene.
         if (m_Scene)
             m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
