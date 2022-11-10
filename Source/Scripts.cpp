@@ -4,7 +4,7 @@
 //pulls in python api NB ALLWAYS TOP OF INCLUDES
 #define PY_SSIZE_T_CLEAN
 #ifdef WIN32
-#ifdef _DEBUG
+    #ifdef _DEBUG
         #undef _DEBUG
         #include <python.h>
         #define _DEBUG
