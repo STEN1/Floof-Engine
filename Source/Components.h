@@ -199,7 +199,6 @@ namespace FLOOF {
         PyObject* Pname;
         PyObject* Pmodule;
         void RunScript();
-        void updateScripts();
 
         void ReloadScript();
        void OnCreate();
