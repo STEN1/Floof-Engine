@@ -42,7 +42,6 @@ namespace FLOOF {
                     if (body) {
                         body->wakeup();
                     }
-                    app.m_Scene->m_LastSelectedEntity = entity;
                 }
             }
 
@@ -56,7 +55,6 @@ namespace FLOOF {
                     if (body) {
                         body->wakeup();
                     }
-                    app.m_Scene->m_LastSelectedEntity = entity;
                 }
             }
 

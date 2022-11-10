@@ -13,7 +13,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto& texture = scene->AddComponent<TextureComponent>(frame, "Assets/MonsterTruck/texturesFrame/HarmaaRunko_albedo.jpg");
 
         auto& transform =scene->GetComponent<TransformComponent>(frame);
-        transform.Scale = glm::vec3(10.f);
+        transform.Scale = glm::vec3(5.f);
         transform.Rotation = glm::vec3(1.5f,0.f,0.f);
     }
     {

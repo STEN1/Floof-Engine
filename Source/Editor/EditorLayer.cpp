@@ -72,5 +72,8 @@ namespace FLOOF {
         for (auto& [key, editorPanel] : m_EditorPanels) {
             editorPanel->DrawPanel();
         }
+
+        //set last entity after ui stuff is done
+        app.m_Scene->m_LastSelectedEntity = app.m_Scene->m_SelectedEntity;
 	}
 }
