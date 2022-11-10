@@ -167,7 +167,7 @@ add_compile_definitions(BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 add_compile_definitions(SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 #check for imgui file if not set default
-if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini")
 else()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy
