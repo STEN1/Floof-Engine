@@ -168,6 +168,29 @@ namespace FLOOF {
                 0, sizeof(MeshPushConstants), &constants);
 
             meshComponent->Draw(commandBuffer);
+        } else if (auto* staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(scene->m_SelectedEntity)) {
+            auto& transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
+
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
+
+            MeshPushConstants constants;
+            glm::mat4 modelMat = transform.GetTransform();
+            constants.VP = vp;
+            constants.Model = modelMat;
+            constants.InvModelMat = glm::inverse(modelMat);
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                0, sizeof(MeshPushConstants), &constants);
+            for (auto& mesh : *staticMeshComponent->meshes) {
+                VkDeviceSize offset{ 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
+                if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                    vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                    vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
+                        1, 0, 0, 0);
+                } else {
+                    vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                }
+            }
         }
 
         // End main renderpass
