@@ -190,7 +190,6 @@ namespace FLOOF {
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
 
-    
     struct ScriptComponent{
         ScriptComponent(const std::string PyScript);
         ~ScriptComponent();
