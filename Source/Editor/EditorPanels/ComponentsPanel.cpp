@@ -17,14 +17,14 @@ namespace FLOOF {
 
                 if (auto *body = app.m_Scene->TryGetComponent<RigidBodyComponent>(app.m_Scene->m_SelectedEntity)) {
                     if (body->Primitive == bt::CollisionPrimitive::Sphere) {
-                        ImGui::DragFloat("Scale", &transform->Scale[0]);
+                        ImGui::DragFloat("Scale", &transform->Scale[0],0.1,0.01,MAXFLOAT);
                         transform->Scale[1] = transform->Scale[2] = transform->Scale[0];
                     } else
-                        ImGui::DragFloat3("Scale", &transform->Scale[0]);
+                        ImGui::DragFloat3("Scale", &transform->Scale[0],0.1,0.01,MAXFLOAT);
                     //move physics body
                     body->transform(transform->Position, transform->Rotation, transform->Scale / 2.f);
                 } else {
-                    ImGui::DragFloat3("Scale", &transform->Scale[0]);
+                    ImGui::DragFloat3("Scale", &transform->Scale[0],0.1,0.01,MAXFLOAT);
                 }
 
 

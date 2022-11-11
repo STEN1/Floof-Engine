@@ -188,7 +188,8 @@ namespace FLOOF {
     };
     struct SoftBodyComponent{
         SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body);
-        btSoftBody* SoftBody{nullptr};
+        ~SoftBodyComponent();
+        btSoftBody* SoftBody{nullptr}; // i dont have owernship
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
 
