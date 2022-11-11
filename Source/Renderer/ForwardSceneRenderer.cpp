@@ -53,8 +53,6 @@ namespace FLOOF {
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         auto drawMode = app.GetDrawMode();
-        if (drawMode != RenderPipelineKeys::Wireframe)
-            drawMode = RenderPipelineKeys::ForwardLit;
         auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
 
         // Camera setup
@@ -107,7 +105,7 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                                    0, sizeof(MeshPushConstants), &constants);
-                if (drawMode == RenderPipelineKeys::ForwardLit)
+                if (drawMode == RenderPipelineKeys::ForwardLit || drawMode == RenderPipelineKeys::UnLit)
                     texture.Bind(commandBuffer, pipelineLayout);
                 mesh.Draw(commandBuffer);
             }
@@ -123,7 +121,7 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                                    0, sizeof(MeshPushConstants), &constants);
-                if (drawMode == RenderPipelineKeys::ForwardLit)
+                if (drawMode == RenderPipelineKeys::ForwardLit || drawMode == RenderPipelineKeys::UnLit)
                     texture.Bind(commandBuffer, pipelineLayout);
                 for (auto &mesh: *staticMesh.meshes) {
                     VkDeviceSize offset{0};
@@ -168,8 +166,8 @@ namespace FLOOF {
                                0, sizeof(MeshPushConstants), &constants);
 
             meshComponent->Draw(commandBuffer);
-        } else if (auto *staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(
-                scene->m_SelectedEntity)) {
+        } 
+        else if (auto *staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(scene->m_SelectedEntity)) {
             auto &transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
@@ -250,6 +248,22 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
+        {    // UnLit
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.FragmentPath = "Shaders/UnLit.frag.spv";
+            params.VertexPath = "Shaders/UnLit.vert.spv";
+            params.Key = RenderPipelineKeys::UnLit;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.Renderpass = m_RenderPass;
+            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
             renderer->CreateGraphicsPipeline(params);
         }
         {    // Line drawing shader

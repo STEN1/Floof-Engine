@@ -156,6 +156,8 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert -o ${CMA
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag.spv")
 
 
 execute_process(

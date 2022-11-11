@@ -20,6 +20,7 @@ namespace FLOOF {
     static const char* ApplicationDrawModes[] = {
         "Lit",
         "Wireframe",
+        "UnLit",
     };
 
     class Application {
@@ -100,7 +101,7 @@ namespace FLOOF {
         /*GameMode, temp*/
         std::unique_ptr<GameMode> m_GameMode;
         GameModeType m_GameModeType{ GameModeType::Physics };
-        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
+        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::ForwardLit };
 
     public:
         std::shared_ptr<Scene> m_Scene;

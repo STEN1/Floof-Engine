@@ -4,4 +4,6 @@ glslc Shaders/ForwardLit.vert -o Shaders/ForwardLit.vert.spv
 glslc Shaders/ForwardLit.frag -o Shaders/ForwardLit.frag.spv
 glslc Shaders/Wireframe.vert -o Shaders/Wireframe.vert.spv
 glslc Shaders/Wireframe.frag -o Shaders/Wireframe.frag.spv
+glslc Shaders/UnLit.vert -o Shaders/UnLit.vert.spv
+glslc Shaders/UnLit.frag -o Shaders/UnLit.frag.spv
 pause
