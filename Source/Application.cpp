@@ -55,7 +55,7 @@ namespace FLOOF {
         m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        auto* imguiBackend = io.BackendRendererUserData;
+        m_SceneRenderer = std::make_unique<ForwardSceneRenderer>();
 
         // Upload icons for windows and taskbar
         GLFWimage images[3]{};
@@ -521,5 +521,7 @@ namespace FLOOF {
     }
     void Application::MakeLandscapeScene()
     {
+        m_Scene = std::make_unique<Scene>();
+
     }
 }
