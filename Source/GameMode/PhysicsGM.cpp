@@ -165,23 +165,25 @@ namespace FLOOF {
     }
 
     const entt::entity PhysicsGM::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture) {
+        auto& app = Application::Get();
+        auto m_Scene = app.m_Scene;
 
-        const auto entity = m_Scene.CreateEntity("Softbody");
-        auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
-        m_Scene.AddComponent<TextureComponent>(entity, Texture);
+        const auto entity = m_Scene->CreateEntity("Softbody");
+        auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity);
+        m_Scene->AddComponent<TextureComponent>(entity, Texture);
         sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
 
         //test python script
-        auto &script = m_Scene.AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
+        auto &script = m_Scene->AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
 
-        auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
+        auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
 
         //create softbody
         auto btvert = ModelManager::Get().LoadbtModel(FilePath, Scale);
-        btSoftBody *psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene.GetPhysicSystem()->getSoftBodyWorldInfo(),
+        btSoftBody *psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),
                                                                   &btvert.btVertices[0], btvert.VertCount, true);
         psb->translate(btVector3(Location.x, Location.y, Location.z));
-        auto &collision = m_Scene.AddComponent<SoftBodyComponent>(entity, 0.7, 0.7, mass, psb);
+        auto &collision = m_Scene->AddComponent<SoftBodyComponent>(entity, 0.7, 0.7, mass, psb);
 
         transform.Position = Location;
         transform.Scale = Scale;
@@ -191,21 +193,24 @@ namespace FLOOF {
 
     const entt::entity PhysicsGM::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture,
                                      CollisionPrimitive shape) {
-        const auto entity = m_Scene.CreateEntity("Rigid Mesh");
+        auto& app = Application::Get();
+        auto m_Scene = app.m_Scene;
+
+        const auto entity = m_Scene->CreateEntity("Rigid Mesh");
 
         if (shape == CollisionPrimitive::ConvexHull)
-            auto &collision = m_Scene.AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, FilePath);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, FilePath);
         else
-            auto &collision = m_Scene.AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, shape);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, shape);
 
-        auto &sm = m_Scene.AddComponent<StaticMeshComponent>(entity);
-        m_Scene.AddComponent<TextureComponent>(entity, Texture);
+        auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity);
+        m_Scene->AddComponent<TextureComponent>(entity, Texture);
         sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
 
-        auto &transform = m_Scene.GetComponent<TransformComponent>(entity);
+        auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
 
         //test python script
-        auto &script = m_Scene.AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
+        auto &script = m_Scene->AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
 
         transform.Position = Location;
         transform.Scale = Scale;

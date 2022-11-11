@@ -1,16 +1,5 @@
 #include "SoundManager.h"
 
-// Check for errors
-#define OpenAL_ErrorCheck(message) {\
-    ALenum error = alGetError();\
-    if (error != AL_NO_ERROR) std::cerr << "OpenAL Error: " << error << " with call for " << #message << std::endl;\
-}
-
-// Macro to route function calls into to check for errors
-#define alec(FUNCTION_CALL)\
-    FUNCTION_CALL;\
-    OpenAL_ErrorCheck(FUNCTION_CALL)
-
 #define DR_WAV_IMPLEMENTATION
 #include <dr_libs/dr_wav.h>
 
@@ -46,7 +35,7 @@ namespace FLOOF {
         return soundData;
 	}
 
-    void NewSoundManager::SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up) {
+    void SoundManager::SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up) {
         alec(alListener3f(AL_POSITION, position.x, position.y, position.z));
 
         alec(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
@@ -55,7 +44,7 @@ namespace FLOOF {
         alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
     }
 
-    void NewSoundManager::InitOpenAL() {
+    void SoundManager::InitOpenAL() {
 
     	// Find and set the default audio device
         const ALCchar* defaultDeviceString = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER); 
@@ -73,7 +62,7 @@ namespace FLOOF {
         OpenAL_ErrorCheck("Make context current");
     }
 
-    void NewSoundManager::CleanOpenAL() {
+    void SoundManager::CleanOpenAL() {
         // Make the current context null
         alec(alcMakeContextCurrent(nullptr));
         // Destroy the current context
@@ -81,7 +70,7 @@ namespace FLOOF {
         alec(alcCloseDevice(s_Device));
     }
 
-    std::vector<std::string> NewSoundManager::GetAvailableDevices() {
+    std::vector<std::string> SoundManager::GetAvailableDevices() {
         const ALCchar* devices;
         std::vector<std::string> devicesVec;
 
@@ -105,7 +94,7 @@ namespace FLOOF {
         return devicesVec;
     }
 
-    void NewSoundManager::SetNewDevice(std::string device) {
+    void SoundManager::SetNewDevice(std::string device) {
 
         std::vector<std::string> devices = GetAvailableDevices();
         bool deviceExist{ false };
@@ -122,7 +111,7 @@ namespace FLOOF {
             std::cerr << "failed to make set new OpenAl device" << std::endl;
         }
     }
-    ALuint NewSoundManager::LoadWav(std::string sound) {
+    ALuint SoundManager::LoadWav(std::string sound) {
 
         std::string path = "Assets/Sounds/" + sound;
         // Check if sound already loaded
@@ -147,7 +136,7 @@ namespace FLOOF {
         return buffer;
     }
 
-    ALuint NewSoundManager::GenerateSource(SoundSourceComponent* source) {
+    ALuint SoundManager::GenerateSource(SoundSourceComponent* source) {
         ALuint tempSource;
         alGenSources(1, &tempSource);
         if (auto error = alGetError(); error != AL_NO_ERROR)
@@ -157,10 +146,9 @@ namespace FLOOF {
         return tempSource;
     }
 
-    void NewSoundManager::DeleteSource(SoundSourceComponent* source) {
+    void SoundManager::DeleteSource(SoundSourceComponent* source) {
 
-        if (auto it = std::find(s_Sources.begin(), s_Sources.end(), source); it != s_Sources.end())
-        {
+        if (auto it = std::find(s_Sources.begin(), s_Sources.end(), source); it != s_Sources.end()) {
             alDeleteSources(1, &(*it)->m_Source);
             s_Sources.erase(it);
         }
@@ -216,12 +204,12 @@ namespace FLOOF {
 
 
 
-	SoundManager::SoundManager() {
+    OldSoundManager::OldSoundManager() {
 
     }
 
 
-    void SoundManager::testSound()
+    void OldSoundManager::testSound()
     {
         std::vector<std::string> devices = GetAvailableDevices();
 
@@ -230,7 +218,7 @@ namespace FLOOF {
         //newTest();
     }
 
-    int SoundManager::loadPath(std::string path)
+    int OldSoundManager::loadPath(std::string path)
     {
         int id;
         bool alreadyLoaded{ false };
@@ -256,7 +244,7 @@ namespace FLOOF {
         return id;
     }
 
-    void SoundManager::loadAssets()
+    void OldSoundManager::loadAssets()
     {
 	    for (auto path : paths) {
             soundData.push_back(WavFile::ReadWav(path.c_str()));
@@ -264,7 +252,7 @@ namespace FLOOF {
 
     }
 
-    void SoundManager::updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up)
+    void OldSoundManager::updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up)
     {
         playerPosition = pos;
         playerVelocity = vel;
@@ -273,13 +261,13 @@ namespace FLOOF {
 
     }
 
-    void SoundManager::readSounds()
+    void OldSoundManager::readSounds()
     {
         soundData.push_back(WavFile::ReadWav("Assets/Sounds/TestSound_Stereo.wav"));
         soundData.push_back(WavFile::ReadWav("Assets/Sounds/TestSound_Mono.wav"));
     }
 
-    void SoundManager::openDevice()
+    void OldSoundManager::openDevice()
     {
         // Find the default audio device
         
@@ -304,7 +292,7 @@ namespace FLOOF {
         //OpenAL_ErrorCheck(device);
     }
 
-    void SoundManager::createContext()
+    void OldSoundManager::createContext()
     {
         // Create an OpenAL audio context from the device
         context = alcCreateContext(device, nullptr);
@@ -318,7 +306,7 @@ namespace FLOOF {
         OpenAL_ErrorCheck("Make context current");
     }
 
-    void SoundManager::createListener()
+    void OldSoundManager::createListener()
     {
         // Create a listerner in 3D space (Should be updated with players actual value later)
         // Players position
@@ -336,7 +324,7 @@ namespace FLOOF {
 
     }
 
-    void SoundManager::PlaySounds()
+    void OldSoundManager::PlaySounds()
     {
         openDevice();
         createContext();
@@ -400,7 +388,7 @@ namespace FLOOF {
 
     }
 
-    void SoundManager::newTest()
+    void OldSoundManager::newTest()
     {
         openDevice();
         createContext();

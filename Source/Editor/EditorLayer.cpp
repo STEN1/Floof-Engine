@@ -5,6 +5,7 @@
 #include "EditorPanels/ApplicationPanel.h"
 #include "EditorPanels/SceneGraphPanel.h"
 #include "EditorPanels/ComponentsPanel.h"
+#include "EditorPanels/PhysicsPanel.h"
 
 namespace FLOOF {
     EditorLayer::EditorLayer()
@@ -12,6 +13,7 @@ namespace FLOOF {
         m_EditorPanels.try_emplace("ApplicationPanel", std::make_unique<ApplicationPanel>());
         m_EditorPanels.try_emplace("SceneGraphPanel", std::make_unique<SceneGraphPanel>());
         m_EditorPanels.try_emplace("ComponentsPanel", std::make_unique<ComponentsPanel>());
+        m_EditorPanels.try_emplace("PhysicsPanel", std::make_unique<PhysicsPanel>());
     }
 
     void EditorLayer::OnUpdate(float deltaTime)
@@ -70,5 +72,8 @@ namespace FLOOF {
         for (auto& [key, editorPanel] : m_EditorPanels) {
             editorPanel->DrawPanel();
         }
+
+        //set last entity after ui stuff is done
+        app.m_Scene->m_LastSelectedEntity = app.m_Scene->m_SelectedEntity;
 	}
 }

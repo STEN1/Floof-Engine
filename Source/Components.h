@@ -15,6 +15,8 @@
 
 #include <pytypedefs.h>
 
+class SoundManager;
+
 namespace FLOOF {
 
     struct Relationship {
@@ -206,15 +208,22 @@ namespace FLOOF {
     };
 
 	struct SoundSourceComponent {
-        SoundSourceComponent();
-
+        friend class SoundManager;
+	public:
+        SoundSourceComponent(std::string& path);
+        ~SoundSourceComponent();
+        void Volume(float volume);
+        void Play();
+        void Stop();
+        void Looping(bool isLooping);
+        ALuint m_Source;
+        ALuint m_Sound;
+	private:
         glm::vec3 position{ 1.0f,0.f,0.f };
         glm::vec3 velocity{ 0.0f,0.f,0.f };
         float pitch{ 1.f };
         float gain{ 1.f };
         bool looping{ false };
-        ALuint m_Source;
-        ALuint uint32_t;
 
 	};
 

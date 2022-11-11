@@ -201,6 +201,7 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
+    internalMesh.name = mesh->mName.data;
     staticMesh.meshes.emplace_back(internalMesh);
     return true;
 }

@@ -96,13 +96,14 @@ namespace FLOOF {
         float m_CameraSpeed{ 100.f };
         CameraComponent m_EditorCamera;   
         CameraComponent* m_RenderCamera{nullptr};
-        SoundManager* m_SoundManager;
+        OldSoundManager* m_SoundManager;
 
         /*GameMode, temp*/
         std::unique_ptr<GameMode> m_GameMode;
         GameModeType m_GameModeType{ GameModeType::Physics };
         RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
 
+    public:
         std::shared_ptr<Scene> m_Scene;
     };
 }

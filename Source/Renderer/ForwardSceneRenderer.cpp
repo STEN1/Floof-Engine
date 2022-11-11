@@ -19,11 +19,11 @@ namespace FLOOF {
         if (extent != m_Extent)
             ResizeBuffers(extent);
 
-        auto& app = Application::Get();
-        auto* renderer = VulkanRenderer::Get();
-        auto* window = renderer->GetVulkanWindow();
+        auto &app = Application::Get();
+        auto *renderer = VulkanRenderer::Get();
+        auto *window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
-        auto& frameData = window->Frames[frameIndex];
+        auto &frameData = window->Frames[frameIndex];
         auto waitSemaphore = frameData.ImageAvailableSemaphore;
         auto signalSemaphore = frameData.MainPassEndSemaphore;
         auto commandBuffer = frameData.MainCommandBuffer;
@@ -36,7 +36,7 @@ namespace FLOOF {
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = m_RenderPass;
         renderPassInfo.framebuffer = m_TextureFrameBuffers[frameIndex].FrameBuffer;
-        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = vkExtent;
 
         VkClearValue clearColors[2]{};
@@ -45,7 +45,7 @@ namespace FLOOF {
         clearColors[0].color.float32[1] = 0.14f;
         clearColors[0].color.float32[2] = 0.28;
         clearColors[0].color.float32[3] = 1.f;
-        clearColors[1].depthStencil = { 1.0f, 0 };
+        clearColors[1].depthStencil = {1.0f, 0};
 
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColors;
@@ -58,15 +58,14 @@ namespace FLOOF {
         auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
 
         // Camera setup
-        CameraComponent* camera = app.GetRenderCamera();
-        glm::mat4 vp = camera->GetVP(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 1.f, 1000000.f);
-
+        CameraComponent *camera = app.GetRenderCamera();
+        glm::mat4 vp = camera->GetVP(glm::radians(70.f), vkExtent.width / (float) vkExtent.height, 1.f, 1000000.f);
 
 
         if (drawMode == RenderPipelineKeys::ForwardLit) {
             std::vector<PointLightComponent::PointLight> pointLights;
             auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
-            for (auto [entity, transform, lightComp] : lightView.each()) {
+            for (auto [entity, transform, lightComp]: lightView.each()) {
                 PointLightComponent::PointLight light;
                 light.position = glm::vec4(transform.Position, 1.f);
                 light.diffuse = lightComp.diffuse;
@@ -81,7 +80,7 @@ namespace FLOOF {
             auto lightDescriptor = m_LightSSBO.GetDescriptorSet();
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
-                &lightDescriptor, 0, 0);
+                                    &lightDescriptor, 0, 0);
 
             SceneFrameData sceneFrameData{};
             static float accumulator = 0.f;
@@ -94,20 +93,20 @@ namespace FLOOF {
             auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
-                &sceneDescriptor, 0, 0);
+                                    &sceneDescriptor, 0, 0);
         }
 
         // Draw models
         {
             auto view = scene->m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
-            for (auto [entity, transform, mesh, texture] : view.each()) {
+            for (auto [entity, transform, mesh, texture]: view.each()) {
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
                 constants.VP = vp;
                 constants.Model = modelMat;
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
+                                   0, sizeof(MeshPushConstants), &constants);
                 if (drawMode == RenderPipelineKeys::ForwardLit)
                     texture.Bind(commandBuffer, pipelineLayout);
                 mesh.Draw(commandBuffer);
@@ -116,23 +115,23 @@ namespace FLOOF {
 
         {
             auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
-            for (auto [entity, transform, staticMesh, texture] : view.each()) {
+            for (auto [entity, transform, staticMesh, texture]: view.each()) {
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
                 constants.VP = vp;
                 constants.Model = modelMat;
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
+                                   0, sizeof(MeshPushConstants), &constants);
                 if (drawMode == RenderPipelineKeys::ForwardLit)
                     texture.Bind(commandBuffer, pipelineLayout);
-                for (auto& mesh : *staticMesh.meshes) {
-                    VkDeviceSize offset{ 0 };
+                for (auto &mesh: *staticMesh.meshes) {
+                    VkDeviceSize offset{0};
                     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
                     if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
                         vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
                         vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
-                            1, 0, 0, 0);
+                                         1, 0, 0, 0);
                     } else {
                         vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
                     }
@@ -141,21 +140,22 @@ namespace FLOOF {
         }
 
         // Draw debug lines
-        auto* physicDrawer = app.GetPhysicsSystemDrawer();
+        auto *physicDrawer = app.GetPhysicsSystemDrawer();
         if (physicDrawer) {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
-            auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
+            auto *lineMesh = physicDrawer->GetUpdatedLineMesh();
             MeshPushConstants constants;
             constants.VP = vp;
             constants.Model = glm::mat4(1.f);
             constants.InvModelMat = glm::mat4(1.f);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                               &constants);
             lineMesh->Draw(commandBuffer);
         }
 
         // Draw wireframe for selected object
-        if (auto* meshComponent = scene->m_Registry.try_get<MeshComponent>(scene->m_SelectedEntity)) {
-            auto& transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
+        if (auto *meshComponent = scene->m_Registry.try_get<MeshComponent>(scene->m_SelectedEntity)) {
+            auto &transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
 
@@ -165,11 +165,12 @@ namespace FLOOF {
             constants.Model = modelMat;
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                0, sizeof(MeshPushConstants), &constants);
+                               0, sizeof(MeshPushConstants), &constants);
 
             meshComponent->Draw(commandBuffer);
-        } else if (auto* staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(scene->m_SelectedEntity)) {
-            auto& transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
+        } else if (auto *staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(
+                scene->m_SelectedEntity)) {
+            auto &transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
 
@@ -179,16 +180,18 @@ namespace FLOOF {
             constants.Model = modelMat;
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                0, sizeof(MeshPushConstants), &constants);
-            for (auto& mesh : *staticMeshComponent->meshes) {
-                VkDeviceSize offset{ 0 };
-                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
-                if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
-                    vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-                    vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
-                        1, 0, 0, 0);
-                } else {
-                    vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                               0, sizeof(MeshPushConstants), &constants);
+            for (auto &mesh: *staticMeshComponent->meshes) {
+                if (staticMeshComponent->mapDrawWireframeMeshes[mesh.MeshName]) {
+                    VkDeviceSize offset{0};
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
+                    if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                        vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
+                                         1, 0, 0, 0);
+                    } else {
+                        vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                    }
                 }
             }
         }
@@ -196,7 +199,7 @@ namespace FLOOF {
         // End main renderpass
         renderer->EndRenderPass(commandBuffer);
 
-        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -216,8 +219,8 @@ namespace FLOOF {
     void ForwardSceneRenderer::CreateTextureRenderer() {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         CreateRenderPass();
-        auto* renderer = VulkanRenderer::Get();
-        {	// Default light shader
+        auto *renderer = VulkanRenderer::Get();
+        {    // Default light shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/ForwardLit.frag.spv";
@@ -235,7 +238,7 @@ namespace FLOOF {
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
-        {	// Wireframe
+        {    // Wireframe
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend;
             params.FragmentPath = "Shaders/Wireframe.frag.spv";
@@ -249,7 +252,7 @@ namespace FLOOF {
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
-        {	// Line drawing shader
+        {    // Line drawing shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend;
             params.FragmentPath = "Shaders/Color.frag.spv";
@@ -266,7 +269,7 @@ namespace FLOOF {
     }
 
     void ForwardSceneRenderer::DestroyTextureRenderer() {
-        auto* renderer = VulkanRenderer::Get();
+        auto *renderer = VulkanRenderer::Get();
 
         DestoryFrameBuffers();
         DestoryDepthBuffer();
@@ -278,7 +281,7 @@ namespace FLOOF {
 
         m_Extent = extent;
 
-        auto* renderer = VulkanRenderer::Get();
+        auto *renderer = VulkanRenderer::Get();
         renderer->FinishAllFrames();
 
         DestoryFrameBuffers();
@@ -289,8 +292,8 @@ namespace FLOOF {
     }
 
     void ForwardSceneRenderer::CreateRenderPass() {
-        auto* renderer = VulkanRenderer::Get();
-        auto* window = renderer->GetVulkanWindow();
+        auto *renderer = VulkanRenderer::Get();
+        auto *window = renderer->GetVulkanWindow();
         m_DepthFormat = renderer->FindDepthFormat();
 
         VkAttachmentDescription colorAttachments[2]{};
@@ -360,11 +363,11 @@ namespace FLOOF {
     }
 
     void ForwardSceneRenderer::CreateDepthBuffer() {
-        auto* renderer = VulkanRenderer::Get();
+        auto *renderer = VulkanRenderer::Get();
 
         ASSERT(m_DepthFormat != VK_FORMAT_UNDEFINED);
 
-        VkImageCreateInfo depthImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+        VkImageCreateInfo depthImageInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
         depthImageInfo.imageType = VK_IMAGE_TYPE_2D;
         depthImageInfo.extent.width = m_Extent.x;
         depthImageInfo.extent.height = m_Extent.y;
@@ -382,7 +385,7 @@ namespace FLOOF {
         VmaAllocationCreateInfo depthImageAllocCreateInfo = {};
         depthImageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 
-        VkImageViewCreateInfo depthImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+        VkImageViewCreateInfo depthImageViewInfo = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
         depthImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         depthImageViewInfo.format = m_DepthFormat;
         depthImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -392,26 +395,26 @@ namespace FLOOF {
         depthImageViewInfo.subresourceRange.layerCount = 1;
 
         vmaCreateImage(renderer->m_Allocator, &depthImageInfo, &depthImageAllocCreateInfo,
-            &m_DepthBuffer.Image,
-            &m_DepthBuffer.Allocation,
-            &m_DepthBuffer.AllocationInfo);
+                       &m_DepthBuffer.Image,
+                       &m_DepthBuffer.Allocation,
+                       &m_DepthBuffer.AllocationInfo);
 
         depthImageViewInfo.image = m_DepthBuffer.Image;
 
         auto result = vkCreateImageView(renderer->m_LogicalDevice, &depthImageViewInfo, nullptr,
-            &m_DepthBufferImageView);
+                                        &m_DepthBufferImageView);
         ASSERT(result == VK_SUCCESS);
     }
 
     void ForwardSceneRenderer::CreateFrameBuffers() {
-        auto* renderer = VulkanRenderer::Get();
+        auto *renderer = VulkanRenderer::Get();
 
         CreateFrameBufferTextures();
 
-        for (auto& textureFrameBuffer : m_TextureFrameBuffers) {
+        for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
             VkImageView attachments[] = {
-                textureFrameBuffer.Texture.ImageView,
-                m_DepthBufferImageView,
+                    textureFrameBuffer.Texture.ImageView,
+                    m_DepthBufferImageView,
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
@@ -423,24 +426,25 @@ namespace FLOOF {
             framebufferInfo.height = m_Extent.y;
             framebufferInfo.layers = 1;
 
-            VkResult result = vkCreateFramebuffer(renderer->m_LogicalDevice, &framebufferInfo, nullptr, &textureFrameBuffer.FrameBuffer);
+            VkResult result = vkCreateFramebuffer(renderer->m_LogicalDevice, &framebufferInfo, nullptr,
+                                                  &textureFrameBuffer.FrameBuffer);
             ASSERT(result == VK_SUCCESS);
         }
         LOG("Forward renderer: Framebuffers created.\n");
     }
 
     void ForwardSceneRenderer::CreateFrameBufferTextures() {
-        auto* renderer = VulkanRenderer::Get();
-        auto* window = renderer->GetVulkanWindow();
+        auto *renderer = VulkanRenderer::Get();
+        auto *window = renderer->GetVulkanWindow();
 
         VkFormat format = window->SurfaceFormat.format;
 
         uint32_t xWidth = m_Extent.x;
         uint32_t yHeight = m_Extent.y;
 
-        for (auto& fbTexture : m_TextureFrameBuffers) {
+        for (auto &fbTexture: m_TextureFrameBuffers) {
             // Image
-            VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+            VkImageCreateInfo imageInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
             imageInfo.imageType = VK_IMAGE_TYPE_2D;
             imageInfo.extent.width = xWidth;
             imageInfo.extent.height = yHeight;
@@ -459,10 +463,10 @@ namespace FLOOF {
             imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 
             vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &fbTexture.Texture.Image,
-                &fbTexture.Texture.Allocation, &fbTexture.Texture.AllocationInfo);
+                           &fbTexture.Texture.Allocation, &fbTexture.Texture.AllocationInfo);
 
             // create image view
-            VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+            VkImageViewCreateInfo textureImageViewInfo = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
             textureImageViewInfo.image = fbTexture.Texture.Image;
             textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
             textureImageViewInfo.format = format;
@@ -474,9 +478,10 @@ namespace FLOOF {
             vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
 
             VkSampler sampler = renderer->GetFontSampler();
-            fbTexture.Descriptor = ImGui_ImplVulkan_AddTexture(sampler, fbTexture.Texture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            fbTexture.Descriptor = ImGui_ImplVulkan_AddTexture(sampler, fbTexture.Texture.ImageView,
+                                                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
-    } 
+    }
 
     void ForwardSceneRenderer::CreateCommandPool() {
     }
@@ -488,17 +493,18 @@ namespace FLOOF {
     }
 
     void ForwardSceneRenderer::DestroyRenderPass() {
-        auto* renderer = VulkanRenderer::Get();
+        auto *renderer = VulkanRenderer::Get();
         vkDestroyRenderPass(renderer->m_LogicalDevice, m_RenderPass, nullptr);
     }
 
     void ForwardSceneRenderer::DestoryFrameBuffers() {
-        auto* renderer = VulkanRenderer::Get();
+        auto *renderer = VulkanRenderer::Get();
 
-        for (auto& textureFrameBuffer : m_TextureFrameBuffers) {
+        for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
             vkDestroyFramebuffer(renderer->m_LogicalDevice, textureFrameBuffer.FrameBuffer, nullptr);
             vkDestroyImageView(renderer->m_LogicalDevice, textureFrameBuffer.Texture.ImageView, nullptr);
-            vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.Texture.Image, textureFrameBuffer.Texture.Allocation);
+            vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.Texture.Image,
+                            textureFrameBuffer.Texture.Allocation);
             ImGui_ImplVulkan_RemoveTexture(textureFrameBuffer.Descriptor);
 
             textureFrameBuffer.FrameBuffer = VK_NULL_HANDLE;
@@ -518,7 +524,7 @@ namespace FLOOF {
     }
 
     void ForwardSceneRenderer::DestoryDepthBuffer() {
-        auto* renderer = VulkanRenderer::Get();
+        auto *renderer = VulkanRenderer::Get();
 
         vkDestroyImageView(renderer->m_LogicalDevice, m_DepthBufferImageView, nullptr);
         m_DepthBufferImageView = VK_NULL_HANDLE;
