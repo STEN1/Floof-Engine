@@ -5,6 +5,7 @@ cmake-build-debug/
 /.idea
 Debug/
 Build/
+Scripts/__pycache__
 
 # C++ objects and libs
 *.slo
@@ -110,3 +111,4 @@ Source/build/
 Source/Floof.egg-info/
 Source/dist/
 
+/Scripts/__pycache__/HelloWorld.cpython-311.pyc
