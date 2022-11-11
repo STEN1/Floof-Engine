@@ -75,7 +75,6 @@ namespace FLOOF {
         }
 
         m_Scene = std::make_unique<Scene>();
-        m_SoundManager = new OldSoundManager;
         
 
         /*SceneRenderer*/

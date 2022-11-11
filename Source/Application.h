@@ -96,7 +96,6 @@ namespace FLOOF {
         float m_CameraSpeed{ 100.f };
         CameraComponent m_EditorCamera;   
         CameraComponent* m_RenderCamera{nullptr};
-        OldSoundManager* m_SoundManager;
 
         /*GameMode, temp*/
         std::unique_ptr<GameMode> m_GameMode;
