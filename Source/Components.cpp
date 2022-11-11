@@ -615,7 +615,7 @@ namespace FLOOF {
         }
     }
 
-    SoundSourceComponent::SoundSourceComponent(std::string& path) {
+    SoundSourceComponent::SoundSourceComponent(const std::string& path) {
         m_Sound = SoundManager::LoadWav(path);
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));

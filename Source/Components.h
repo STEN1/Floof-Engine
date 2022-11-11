@@ -54,6 +54,13 @@ namespace FLOOF {
             }
             return transform;
         }
+
+        glm::vec3 GetWorldPosition() const
+        {
+            glm::mat4 transform = GetTransform();
+            glm::vec3 pos(transform[3].x, transform[3].y, transform[3].z);
+            return pos;
+        }
     };
 
     struct MeshComponent {
@@ -211,7 +218,7 @@ namespace FLOOF {
 	struct SoundSourceComponent {
         friend class SoundManager;
 	public:
-        SoundSourceComponent(std::string& path);
+        SoundSourceComponent(const std::string& path);
         ~SoundSourceComponent();
         void Volume(float volume);
         void Play();
