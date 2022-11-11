@@ -74,9 +74,6 @@ namespace FLOOF {
             stbi_image_free(images[i].pixels);
         }
 
-        // Register key callbacks
-        Input::Init(m_Window);
-
         m_Scene = std::make_unique<Scene>();
         m_SoundManager = new SoundManager;
 
@@ -165,25 +162,25 @@ namespace FLOOF {
     void Application::UpdateCameraSystem(float deltaTime)
     {
         auto moveAmount = static_cast<float>(m_CameraSpeed * deltaTime);
-        if (Input::Key(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_LeftShift)) {
             moveAmount *= 8;
         }
-        if (Input::Key(GLFW_KEY_W) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_W)) {
             m_EditorCamera.MoveForward(moveAmount);
         }
-        if (Input::Key(GLFW_KEY_S) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_S)) {
             m_EditorCamera.MoveForward(-moveAmount);
         }
-        if (Input::Key(GLFW_KEY_D) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_D)) {
             m_EditorCamera.MoveRight(moveAmount);
         }
-        if (Input::Key(GLFW_KEY_A) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_A)) {
             m_EditorCamera.MoveRight(-moveAmount);
         }
-        if (Input::Key(GLFW_KEY_Q) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_Q)) {
             m_EditorCamera.MoveUp(-moveAmount);
         }
-        if (Input::Key(GLFW_KEY_E) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_E)) {
             m_EditorCamera.MoveUp(moveAmount);
         }
         static glm::vec2 oldMousePos = glm::vec2(0.f);
@@ -191,8 +188,8 @@ namespace FLOOF {
         glm::vec2 mouseDelta = mousePos - oldMousePos;
         oldMousePos = mousePos;
         static constexpr float mouseSpeed = 0.002f;
-        if (Input::MouseButton(GLFW_MOUSE_BUTTON_2) == GLFW_PRESS
-            || Input::Key(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        if (Input::MouseButton(ImGuiMouseButton_Right)
+            || Input::Key(ImGuiKey_LeftCtrl)) {
             m_EditorCamera.Yaw(mouseDelta.x * mouseSpeed);
             m_EditorCamera.Pitch(mouseDelta.y * mouseSpeed);
         }
