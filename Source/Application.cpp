@@ -192,7 +192,6 @@ namespace FLOOF {
     void Application::Update(double deltaTime) {
         UpdateCameraSystem(deltaTime);
         UpdateImGui(deltaTime);
-
         m_Scene->OnUpdate(deltaTime);
 
         //if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
@@ -513,9 +512,7 @@ namespace FLOOF {
             auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
             sound.Play();
         }
-        {
-            //m_SoundManager->loadAssets();
-        }
+
         
 
 

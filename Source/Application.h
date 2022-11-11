@@ -21,8 +21,8 @@ namespace FLOOF {
         "Wireframe",
         "UnLit",
     };
-
     class Application {
+        friend class SoundManager;
         friend class ForwardSceneRenderer;
         friend class EditorLayer;
         friend class ApplicationPanel;

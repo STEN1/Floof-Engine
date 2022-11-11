@@ -55,8 +55,7 @@ namespace FLOOF {
             return transform;
         }
 
-        glm::vec3 GetWorldPosition() const
-        {
+        glm::vec3 GetWorldPosition() const {
             glm::mat4 transform = GetTransform();
             glm::vec3 pos(transform[3].x, transform[3].y, transform[3].z);
             return pos;
