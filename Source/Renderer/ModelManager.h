@@ -16,6 +16,10 @@ namespace FLOOF {
             std::vector<btVector3> btVertices;
             std::vector<int> btIndices;
             uint32_t VertCount;
+            std::vector<btScalar> getVertices();
+        private:
+            std::vector<btScalar> ScalarVertices;
+
         };
         btModelData LoadbtModel(const std::string& path, const glm::vec3 scale);
 

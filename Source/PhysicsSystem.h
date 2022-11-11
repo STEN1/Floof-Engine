@@ -43,6 +43,7 @@ namespace FLOOF {
 
         btCollisionAlgorithmCreateFunc* mBoxBoxCF{nullptr};
         btAlignedObjectArray<btSoftRigidCollisionAlgorithm*> mSoftRigidCollisionAlgorithms;
+
     };
 
     struct LineMeshComponent;
