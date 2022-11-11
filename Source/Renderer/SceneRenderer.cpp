@@ -1,19 +1,19 @@
-#include "ForwardSceneRenderer.h"
+#include "SceneRenderer.h"
 #include "VulkanRenderer.h"
 #include "../Components.h"
 #include "../Application.h"
 #include <iostream>
 
 namespace FLOOF {
-    ForwardSceneRenderer::ForwardSceneRenderer() {
+    SceneRenderer::SceneRenderer() {
         CreateTextureRenderer();
     }
 
-    ForwardSceneRenderer::~ForwardSceneRenderer() {
+    SceneRenderer::~SceneRenderer() {
         DestroyTextureRenderer();
     }
 
-    VkDescriptorSet ForwardSceneRenderer::RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent) {
+    VkDescriptorSet SceneRenderer::RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent) {
         if (extent == glm::vec2(0.f))
             return VK_NULL_HANDLE;
         if (extent != m_Extent)
@@ -213,7 +213,7 @@ namespace FLOOF {
         return m_TextureFrameBuffers[frameIndex].Descriptor;
     }
 
-    void ForwardSceneRenderer::CreateTextureRenderer() {
+    void SceneRenderer::CreateTextureRenderer() {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         CreateRenderPass();
         auto *renderer = VulkanRenderer::Get();
@@ -299,7 +299,7 @@ namespace FLOOF {
         }
     }
 
-    void ForwardSceneRenderer::DestroyTextureRenderer() {
+    void SceneRenderer::DestroyTextureRenderer() {
         auto *renderer = VulkanRenderer::Get();
 
         DestoryFrameBuffers();
@@ -307,7 +307,7 @@ namespace FLOOF {
         DestroyRenderPass();
     }
 
-    void ForwardSceneRenderer::ResizeBuffers(glm::vec2 extent) {
+    void SceneRenderer::ResizeBuffers(glm::vec2 extent) {
         std::cout << "Forward renderer: Resizing texture buffers.\n";
 
         m_Extent = extent;
@@ -322,7 +322,7 @@ namespace FLOOF {
         CreateFrameBuffers();
     }
 
-    void ForwardSceneRenderer::CreateRenderPass() {
+    void SceneRenderer::CreateRenderPass() {
         auto *renderer = VulkanRenderer::Get();
         auto *window = renderer->GetVulkanWindow();
         m_DepthFormat = renderer->FindDepthFormat();
@@ -393,7 +393,7 @@ namespace FLOOF {
         LOG("Forward renderer: Render pass created.\n");
     }
 
-    void ForwardSceneRenderer::CreateDepthBuffer() {
+    void SceneRenderer::CreateDepthBuffer() {
         auto *renderer = VulkanRenderer::Get();
 
         ASSERT(m_DepthFormat != VK_FORMAT_UNDEFINED);
@@ -437,7 +437,7 @@ namespace FLOOF {
         ASSERT(result == VK_SUCCESS);
     }
 
-    void ForwardSceneRenderer::CreateFrameBuffers() {
+    void SceneRenderer::CreateFrameBuffers() {
         auto *renderer = VulkanRenderer::Get();
 
         CreateFrameBufferTextures();
@@ -464,7 +464,7 @@ namespace FLOOF {
         LOG("Forward renderer: Framebuffers created.\n");
     }
 
-    void ForwardSceneRenderer::CreateFrameBufferTextures() {
+    void SceneRenderer::CreateFrameBufferTextures() {
         auto *renderer = VulkanRenderer::Get();
         auto *window = renderer->GetVulkanWindow();
 
@@ -514,21 +514,21 @@ namespace FLOOF {
         }
     }
 
-    void ForwardSceneRenderer::CreateCommandPool() {
+    void SceneRenderer::CreateCommandPool() {
     }
 
-    void ForwardSceneRenderer::AllocateCommandBuffers() {
+    void SceneRenderer::AllocateCommandBuffers() {
     }
 
-    void ForwardSceneRenderer::CreateSyncObjects() {
+    void SceneRenderer::CreateSyncObjects() {
     }
 
-    void ForwardSceneRenderer::DestroyRenderPass() {
+    void SceneRenderer::DestroyRenderPass() {
         auto *renderer = VulkanRenderer::Get();
         vkDestroyRenderPass(renderer->m_LogicalDevice, m_RenderPass, nullptr);
     }
 
-    void ForwardSceneRenderer::DestoryFrameBuffers() {
+    void SceneRenderer::DestoryFrameBuffers() {
         auto *renderer = VulkanRenderer::Get();
 
         for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
@@ -545,16 +545,16 @@ namespace FLOOF {
         }
     }
 
-    void ForwardSceneRenderer::DestoryRenderPipeline() {
+    void SceneRenderer::DestoryRenderPipeline() {
     }
 
-    void ForwardSceneRenderer::DestoryCommandPool() {
+    void SceneRenderer::DestoryCommandPool() {
     }
 
-    void ForwardSceneRenderer::DestroySyncObjects() {
+    void SceneRenderer::DestroySyncObjects() {
     }
 
-    void ForwardSceneRenderer::DestoryDepthBuffer() {
+    void SceneRenderer::DestoryDepthBuffer() {
         auto *renderer = VulkanRenderer::Get();
 
         vkDestroyImageView(renderer->m_LogicalDevice, m_DepthBufferImageView, nullptr);

@@ -22,7 +22,7 @@ namespace FLOOF {
 
     class Scene {
         friend class Application;
-        friend class ForwardSceneRenderer;
+        friend class SceneRenderer;
         friend class EditorLayer;
         friend class SceneGraphPanel;
         friend class ComponentsPanel;

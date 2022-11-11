@@ -6,6 +6,7 @@
 #include "EditorPanels/SceneGraphPanel.h"
 #include "EditorPanels/ComponentsPanel.h"
 #include "EditorPanels/PhysicsPanel.h"
+#include "EditorPanels/RendererPanel.h"
 
 namespace FLOOF {
     EditorLayer::EditorLayer()
@@ -14,6 +15,7 @@ namespace FLOOF {
         m_EditorPanels.try_emplace("SceneGraphPanel", std::make_unique<SceneGraphPanel>());
         m_EditorPanels.try_emplace("ComponentsPanel", std::make_unique<ComponentsPanel>());
         m_EditorPanels.try_emplace("PhysicsPanel", std::make_unique<PhysicsPanel>());
+        m_EditorPanels.try_emplace("RendererPanel", std::make_unique<RendererPanel>());
     }
 
     void EditorLayer::OnUpdate(float deltaTime)

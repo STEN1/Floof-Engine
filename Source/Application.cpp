@@ -9,7 +9,6 @@
 #include "LasLoader.h"
 #include "Renderer/ModelManager.h"
 #include "SoundManager.h"
-#include "Renderer/ForwardSceneRenderer.h"
 #include "NativeScripts/TestScript.h"
 #include <filesystem>
 #include "Editor/EditorLayer.h"
@@ -54,7 +53,7 @@ namespace FLOOF {
         m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        m_SceneRenderer = std::make_unique<ForwardSceneRenderer>();
+        m_SceneRenderer = std::make_unique<SceneRenderer>();
 
         // Upload icons for windows and taskbar
         GLFWimage images[3]{};

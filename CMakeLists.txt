@@ -30,11 +30,8 @@ add_executable(Floof
     Source/Renderer/TextureManager.cpp 
     Source/Renderer/Mesh.h 
     Source/Renderer/Texture.h
-    Source/Renderer/SceneRenderer.h 
-    Source/Renderer/ForwardSceneRenderer.h 
-     
-     
-    Source/Renderer/ForwardSceneRenderer.cpp
+    "Source/Renderer/SceneRenderer.h" 
+    "Source/Renderer/SceneRenderer.cpp"
     Source/Renderer/stb_image.cpp
     Source/Scene.h
     Source/Scene.cpp 

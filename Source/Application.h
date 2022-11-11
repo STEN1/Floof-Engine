@@ -95,7 +95,7 @@ namespace FLOOF {
         float m_CameraSpeed{ 100.f };
         CameraComponent m_EditorCamera;   
         CameraComponent* m_RenderCamera{nullptr};
-        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::ForwardLit };
+        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::PBR };
 
     public:
         std::shared_ptr<Scene> m_Scene;
