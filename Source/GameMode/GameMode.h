@@ -5,7 +5,7 @@ namespace FLOOF
 { 
 	enum class GameModeType
 	{
-		Physics, Sponza, Audio
+		Physics, Sponza, Audio, Heightmap
 	};
 
 	static const char* GameModeTypeStrings[] =

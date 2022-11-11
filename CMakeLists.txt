@@ -58,7 +58,7 @@ add_executable(Floof
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
     Source/HeightmapLoader.h
-    Source/HeightmapLoader.cpp)
+    Source/HeightmapLoader.cpp  )
 
 find_package(Vulkan REQUIRED)
 target_include_directories(Floof PUBLIC ${Vulkan_INCLUDE_DIRS})
@@ -82,7 +82,7 @@ target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
-        ${Bullet_Dir}/src/btLinearMathAll.cpp)
+        ${Bullet_Dir}/src/btLinearMathAll.cpp  )
 target_link_libraries(Floof Bullet)
 
 #Add each submodule manually
@@ -127,7 +127,7 @@ target_sources(IMGUI
     PRIVATE
     ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-    )
+      )
 
 target_include_directories(IMGUI
     PUBLIC ${IMGUI_DIR}

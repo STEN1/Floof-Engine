@@ -57,6 +57,7 @@ namespace FLOOF {
         void MakePhysicsScene();
         void MakeSponsaScene();
         void MakeAudioTestScene();
+        void MakeHeightMapTestScene();
 
         void SetGameModeType(GameModeType type);
         GameModeType GetGameModeType() const;

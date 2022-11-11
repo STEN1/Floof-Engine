@@ -14,6 +14,7 @@
 #include "GameMode/PhysicsGM.h"
 #include "GameMode/SponzaGM.h"
 #include "GameMode/AudioTestGM.h"
+#include "GameMode/HeightmapTest.h"
 #include "NativeScripts/TestScript.h"
 #include <filesystem>
 
@@ -622,6 +623,12 @@ namespace FLOOF {
                 m_GameMode = std::make_unique<AudioTestGM>(*m_Scene.get());
                 break;
             }
+            case GameModeType::Heightmap: 
+            {
+                MakeHeightMapTestScene();
+                m_GameMode = std::make_unique<HeightmapTest>(*m_Scene.get());
+                break;
+            }
             default:
             {
                 LOG("GameModeType is invalid\n");
@@ -834,6 +841,9 @@ namespace FLOOF {
         }
 
         m_SoundManager->testSound();
+
+    }
+    void Application::MakeHeightMapTestScene() {
 
     }
 }
