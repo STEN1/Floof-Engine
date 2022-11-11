@@ -333,7 +333,7 @@ namespace FLOOF {
         {
             auto texture = "Assets/WaterTexture.png";
             auto location = glm::vec3(0.f, -150.f, 0.f);
-            auto extents = glm::vec3(400.f, 10.f, 400.f);
+            auto extents = glm::vec3(800.f, 10.f, 800.f);
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
@@ -348,7 +348,7 @@ namespace FLOOF {
             transform.Scale = extents;
 
         }
-        {
+        if(false){
             auto entity = m_Scene->CreateEntity("Ground Ball");
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");

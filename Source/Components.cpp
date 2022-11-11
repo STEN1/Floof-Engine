@@ -529,7 +529,7 @@ namespace FLOOF {
         RigidBody->activate(true);
     }
 
-    SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body) {
+    SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody*body) {
 
         SoftBody = body;
         SoftBody->m_cfg.kVC = conservation; //Konservation coefficient
@@ -548,6 +548,11 @@ namespace FLOOF {
         SoftBody->setPose(true, false);
 
         SoftBody->setTotalMass(mass, true);
+
+    }
+
+    SoftBodyComponent::~SoftBodyComponent() {
+        delete SoftBody;
 
     }
 
