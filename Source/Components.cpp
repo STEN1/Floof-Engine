@@ -235,8 +235,7 @@ namespace FLOOF {
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &Data.VertexBuffer.Buffer, &offset);
         if (Data.IndexBuffer.Buffer != VK_NULL_HANDLE) {
             vkCmdBindIndexBuffer(commandBuffer, Data.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-            vkCmdDrawIndexed(commandBuffer, Data.IndexCount,
-                1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffer, Data.IndexCount, 1, 0, 0, 0);
         }
         else {
             vkCmdDraw(commandBuffer, Data.VertexCount, 1, 0, 0);

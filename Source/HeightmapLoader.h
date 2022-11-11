@@ -9,15 +9,14 @@ namespace FLOOF {
 		HeightmapLoader();
 
 		bool readFile();
-		bool buildMesh();
+		bool buildHeightmap();
 	private:
 		const char* filepath { "Assets/TerrainTextures/Terrain_Tough/heightmap.png" };
 
-		std::vector<ColorVertex> PointData;
-		std::vector<MeshVertex> VertexData;
-		std::vector<ColorNormalVertex> ColorNormalVertexData;
-		std::vector<uint32_t> IndexData;
-		std::vector<MeshVertex> mVertexsData;
+		std::vector<MeshVertex> mVertices;
+		std::vector<int> mIndices;
+
+		float zScale{ 1.0f };
 
 		int height, width, channels;
 		unsigned char* img{ nullptr };

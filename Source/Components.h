@@ -254,5 +254,13 @@ namespace FLOOF {
         }
         std::unique_ptr<NativeScript> Script;
     };
+
+    struct HeightmapComponent {
+        HeightmapComponent(std::string filepath);
+
+        glm::vec3 postion{ 0 };
+
+
+    };
 }
 
