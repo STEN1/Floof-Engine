@@ -617,6 +617,7 @@ namespace FLOOF {
 
     SoundSourceComponent::SoundSourceComponent(const std::string& path) {
         m_Sound = SoundManager::LoadWav(path);
+        m_Path = path;
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
     }
@@ -629,6 +630,23 @@ namespace FLOOF {
         alec(alSourcef(m_Source, AL_GAIN, volume));
     }
 
+    void SoundSourceComponent::Pitch() {
+        alec(alSourcef(m_Source, AL_PITCH, m_Pitch));
+    }
+
+    void SoundSourceComponent::UpdateStatus() {
+
+    	ALint sourceState;
+        alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState))
+
+        if(sourceState == AL_PLAYING) {
+        	isPlaying = true;
+        }
+        else {
+            isPlaying = false;
+        }
+    }
+
     void SoundSourceComponent::Play() {
         alec(alSourcePlay(m_Source));
     }
@@ -638,15 +656,22 @@ namespace FLOOF {
 
     }
 
-    void SoundSourceComponent::Looping(bool isLooping) {
-	    if (isLooping)
+    void SoundSourceComponent::Looping(bool looping) {
+	    if (looping)
 	    {
             alec(alSourcei(m_Source, AL_LOOPING, AL_TRUE));
+            isLooping = true;
 	    }
 	    else
 	    {
             alec(alSourcei(m_Source, AL_LOOPING, AL_FALSE));
+            isLooping = false;
 	    }
+    }
+
+    void SoundSourceComponent::Update() {
+        Volume(m_Volume);
+
     }
 
     void ScriptComponent::ReloadScript() {

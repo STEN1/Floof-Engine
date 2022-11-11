@@ -124,6 +124,7 @@ namespace FLOOF {
         for (auto [entity, transform, soundsource] : view.each()) {
             auto pos = transform.GetWorldPosition();
             alec(alSource3f(soundsource.m_Source, AL_POSITION, pos.x, pos.y, pos.z));
+            soundsource.UpdateStatus();
         }
 
     }

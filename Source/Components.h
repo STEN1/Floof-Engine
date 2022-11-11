@@ -220,17 +220,20 @@ namespace FLOOF {
         SoundSourceComponent(const std::string& path);
         ~SoundSourceComponent();
         void Volume(float volume);
+        void Pitch();
+        void UpdateStatus();
         void Play();
         void Stop();
-        void Looping(bool isLooping);
+        void Looping(bool looping);
+        void Update();
         ALuint m_Source;
         ALuint m_Sound;
-	private:
-        glm::vec3 position{ 1.0f,0.f,0.f };
-        glm::vec3 velocity{ 0.0f,0.f,0.f };
-        float pitch{ 1.f };
-        float gain{ 1.f };
-        bool looping{ false };
+		std::string m_Path;
+        float m_Volume{1.f};
+        float m_Pitch{ 1.f };
+        bool isPlaying{ false };
+        bool isLooping{ false };
+
 
 	};
 
