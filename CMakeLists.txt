@@ -38,17 +38,9 @@ add_executable(Floof
     Source/Renderer/stb_image.cpp
     Source/Scene.h
     Source/Scene.cpp 
-    Source/GameMode/GameMode.h 
-    Source/GameMode/PhysicsGM.h 
-    Source/GameMode/PhysicsGM.cpp 
-    Source/GameMode/SponzaGM.h
-    Source/GameMode/SponzaGM.cpp
     Source/PhysicsSystem.cpp
     Source/PhysicsSystem.h
-    Source/GameMode/SponzaGM.cpp
     Source/Renderer/Material.h
-    Source/GameMode/AudioTestGM.h
-    Source/GameMode/AudioTestGM.cpp
     Source/Renderer/Mesh.cpp
     Source/SoundManager.h
     Source/SoundManager.cpp

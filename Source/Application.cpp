@@ -11,9 +11,6 @@
 #include "SoundManager.h"
 #include "Renderer/ForwardSceneRenderer.h"
 #include "Renderer/DeferredSceneRenderer.h"
-#include "GameMode/PhysicsGM.h"
-#include "GameMode/SponzaGM.h"
-#include "GameMode/AudioTestGM.h"
 #include "NativeScripts/TestScript.h"
 #include <filesystem>
 #include "Editor/EditorLayer.h"
@@ -74,13 +71,7 @@ namespace FLOOF {
             stbi_image_free(images[i].pixels);
         }
 
-        m_Scene = std::make_unique<Scene>();
-
-        /*SceneRenderer*/
-        SetRendererType(SceneRendererType::Forward);
-        
-        /*GameMode*/
-        SetGameModeType(GameModeType::Physics);
+        SelectDebugScene(DebugScenes::Physics);
 
         m_ApplicationLayers.emplace_back(std::make_unique<EditorLayer>());
     }
@@ -89,7 +80,6 @@ namespace FLOOF {
         m_Renderer->FinishAllFrames();
 
         m_Scene = nullptr;
-        m_GameMode = nullptr;
         m_SceneRenderer = nullptr;
 
         ImGui_ImplVulkan_Shutdown();
@@ -292,60 +282,27 @@ namespace FLOOF {
         m_Renderer->Present();
     }
 
-    void Application::SetRendererType(SceneRendererType type)
-    {
-        if (type == m_SceneRendererType && m_SceneRenderer) return;
-
-        m_SceneRendererType = type;
-
-        switch (m_SceneRendererType) {
-            case SceneRendererType::Forward:
-            {
-                m_SceneRenderer = std::make_unique<ForwardSceneRenderer>();
-                break;
-            }
-            case SceneRendererType::Deferred:
-            {
-                m_SceneRenderer = std::make_unique<DeferredSceneRenderer>();
-                break;
-            }
-            default:
-            {
-                LOG("SceneRendererType is invalid\n");
-                break;
-            }
-        }
-    }
-
-    void Application::SetGameModeType(GameModeType type) {
-        if (type == m_GameModeType && m_GameMode) return;
-
-        m_GameModeType = type;
-
-        // TODO: Game mode should probably be chosen by the scene based
-        // on data from a stored scene in JSON format. 
-        // Then this function should be "LoadScene(string scenePath)".
-        // That way we can load scene from a file browser of some kind.
-        // 
-        // Eventually the scene gamemode is just a path to a python script.
-
-        switch (m_GameModeType) {
-            case GameModeType::Physics:
+    void Application::SelectDebugScene(DebugScenes type) {
+        m_CurrentDebugScene = type;
+        switch (type) {
+            case DebugScenes::Physics:
             {
                 MakePhysicsScene();
-                m_GameMode = std::make_unique<PhysicsGM>(*m_Scene.get());
                 break;
             }
-            case GameModeType::Sponza:
+            case DebugScenes::Sponza:
             {
                 MakeSponsaScene();
-                m_GameMode = std::make_unique<SponzaGM>(*m_Scene.get());
                 break;
             }
-            case GameModeType::Audio:
+            case DebugScenes::Audio:
             {
                 MakeAudioTestScene();
-                m_GameMode = std::make_unique<AudioTestGM>(*m_Scene.get());
+                break;
+            }
+            case DebugScenes::Landscape:
+            {
+                MakeLandscapeScene();
                 break;
             }
             default:
@@ -354,17 +311,8 @@ namespace FLOOF {
                 break;
             }
         }
-
-        /*if (m_GameMode)
-            m_GameMode->OnCreate();*/
-        // Sets up the bullet physics world based on whats in scene.
         if (m_Scene)
             m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
-    }
-
-    SceneRendererType Application::GetRendererType() const
-    {
-        return m_SceneRendererType;
     }
 
     void Application::SetRenderCamera(CameraComponent& cam)
@@ -375,10 +323,6 @@ namespace FLOOF {
     CameraComponent* Application::GetRenderCamera()
     {
         return m_RenderCamera;
-    }
-
-    GameModeType Application::GetGameModeType() const {
-        return m_GameModeType;
     }
 
     void Application::MakePhysicsScene() {
@@ -574,5 +518,8 @@ namespace FLOOF {
         //test.Play();
 
 
+    }
+    void Application::MakeLandscapeScene()
+    {
     }
 }

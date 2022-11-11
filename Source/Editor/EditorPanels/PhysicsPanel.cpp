@@ -1,6 +1,5 @@
 #include "PhysicsPanel.h"
 #include "../../Application.h"
-#include "../../GameMode/PhysicsGM.h"
 #include "../../Components.h"
 
 void FLOOF::PhysicsPanel::DrawPanel() {
