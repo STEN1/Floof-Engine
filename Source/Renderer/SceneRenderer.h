@@ -7,17 +7,6 @@
 #include "../Scene.h"
 
 namespace FLOOF {
-  
-    enum class SceneRendererType
-    {
-        Forward, Deferred, Size
-    };
-
-    static const char* SceneRendererTypeStrings[] =
-    {
-        "Forward", "Deferred"
-    };
-
     class SceneRenderer {      
     public:
         SceneRenderer() = default;

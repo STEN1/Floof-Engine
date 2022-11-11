@@ -83,7 +83,7 @@ namespace FLOOF {
             auto view = mScene.view<SoftBodyComponent, TransformComponent>();
             for (auto [entity, SoftBodyComponent, transform]: view.each()) {
 
-                btSoftBody *body = SoftBodyComponent.SoftBody;
+                btSoftBody* body = SoftBodyComponent.SoftBody;
                 btTransform trans;
 
                 if(!body)

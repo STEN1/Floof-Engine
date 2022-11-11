@@ -10,19 +10,24 @@
 #include "LasLoader.h"
 #include "Scene.h"
 #include "Renderer/SceneRenderer.h"
-#include "GameMode/GameMode.h"
 #include "Scene.h"
 #include "Components.h"
 #include "SoundManager.h"
+#include "ApplicationLayer.h"
 
 namespace FLOOF {
     static const char* ApplicationDrawModes[] = {
         "Lit",
         "Wireframe",
+        "UnLit",
     };
 
     class Application {
         friend class ForwardSceneRenderer;
+        friend class EditorLayer;
+        friend class ApplicationPanel;
+        friend class SceneGraphPanel;
+        friend class ComponentsPanel;
         Application();
     public:
         int Run();
@@ -51,19 +56,18 @@ namespace FLOOF {
         ImGuiContext* m_ImguiContext;
         VulkanRenderer* m_Renderer;
 
+        std::vector<std::unique_ptr<ApplicationLayer>> m_ApplicationLayers;
+
+        void SelectDebugScene(DebugScenes type);
+        DebugScenes m_CurrentDebugScene;
+
     public:
         PhysicsDebugDraw* GetPhysicsSystemDrawer() { return m_Scene->GetPhysicsDebugDrawer(); }
 
         void MakePhysicsScene();
         void MakeSponsaScene();
         void MakeAudioTestScene();
-        void MakeHeightMapTestScene();
-
-        void SetGameModeType(GameModeType type);
-        GameModeType GetGameModeType() const;
-
-        void SetRendererType(SceneRendererType type);
-        SceneRendererType GetRendererType() const;
+        void MakeLandscapeScene();
 
         void SetDrawMode(RenderPipelineKeys drawMode) { m_DrawMode = drawMode; }
         RenderPipelineKeys GetDrawMode() { return m_DrawMode; }
@@ -84,22 +88,14 @@ namespace FLOOF {
     private:
         /*SceneRenderer Objects*/     
         std::unique_ptr<SceneRenderer> m_SceneRenderer;
-        SceneRendererType m_SceneRendererType{ SceneRendererType::Forward };
 
         /*SceneCamera, temp*/
         float m_CameraSpeed{ 100.f };
         CameraComponent m_EditorCamera;   
         CameraComponent* m_RenderCamera{nullptr};
-        SoundManager* m_SoundManager;
+        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::ForwardLit };
 
-        /*GameMode, temp*/
-        std::unique_ptr<GameMode> m_GameMode;
-        GameModeType m_GameModeType{ GameModeType::Physics };
-        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::Basic };
-
+    public:
         std::shared_ptr<Scene> m_Scene;
-
-        /*ImGui and editor utility*/
-        void MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel);
     };
 }

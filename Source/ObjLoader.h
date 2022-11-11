@@ -45,6 +45,7 @@ private:
     {
         std::vector<FLOOF::MeshVertex> vertices;
         std::vector<uint32_t> indices;
+        std::string name;
     };
 
     struct AssimpCollisionMesh

@@ -11,12 +11,10 @@
 #include "SoundManager.h"
 #include "Renderer/ForwardSceneRenderer.h"
 #include "Renderer/DeferredSceneRenderer.h"
-#include "GameMode/PhysicsGM.h"
-#include "GameMode/SponzaGM.h"
-#include "GameMode/AudioTestGM.h"
-#include "GameMode/HeightmapTest.h"
 #include "NativeScripts/TestScript.h"
 #include <filesystem>
+#include "Editor/EditorLayer.h"
+#include "NativeScripts/MonsterTruckScript.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -57,7 +55,7 @@ namespace FLOOF {
         m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        auto* imguiBackend = io.BackendRendererUserData;
+        m_SceneRenderer = std::make_unique<ForwardSceneRenderer>();
 
         // Upload icons for windows and taskbar
         GLFWimage images[3]{};
@@ -73,24 +71,15 @@ namespace FLOOF {
             stbi_image_free(images[i].pixels);
         }
 
-        // Register key callbacks
-        Input::Init(m_Window);
+        SelectDebugScene(DebugScenes::Physics);
 
-        m_Scene = std::make_unique<Scene>();
-        m_SoundManager = new SoundManager;
-
-        /*SceneRenderer*/
-        SetRendererType(SceneRendererType::Forward);
-        
-        /*GameMode*/
-        SetGameModeType(GameModeType::Physics);
+        m_ApplicationLayers.emplace_back(std::make_unique<EditorLayer>());
     }
 
     void Application::CleanApplication() {
         m_Renderer->FinishAllFrames();
 
         m_Scene = nullptr;
-        m_GameMode = nullptr;
         m_SceneRenderer = nullptr;
 
         ImGui_ImplVulkan_Shutdown();
@@ -152,306 +141,35 @@ namespace FLOOF {
         return 0;
     }
 
-    void Application::MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel) {
-        static ImGuiTreeNodeFlags base_flags =
-            ImGuiTreeNodeFlags_OpenOnArrow |
-            ImGuiTreeNodeFlags_OpenOnDoubleClick |
-            ImGuiTreeNodeFlags_SpanAvailWidth;
-
-        ImGuiTreeNodeFlags node_flags = base_flags;
-
-        if (entity == m_Scene->m_SelectedEntity)
-            node_flags |= ImGuiTreeNodeFlags_Selected;
-
-        if (rel.Children.empty()) {
-            // Parent without children are just nodes.
-            // using tree node since it allows for selection
-            node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-            ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
-                m_Scene->m_SelectedEntity = entity;
-                if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
-                    auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
-                    if(body){
-                        body->wakeup();
-                    }
-                    m_Scene->m_LastSelectedEntity = entity;
-                }
-            }
-
-        } else {
-            // is parent to children and has to make a tree
-            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
-                m_Scene->m_SelectedEntity = entity;
-                if(m_Scene->m_LastSelectedEntity != m_Scene->m_SelectedEntity && m_Scene->m_LastSelectedEntity != entt::null){
-                        auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_LastSelectedEntity);
-                        if(body){
-                            body->wakeup();
-                        }
-                    m_Scene->m_LastSelectedEntity = entity;
-                }
-            }
-
-            if (node_open) {
-                for (auto& childEntity : rel.Children) {
-                    auto& childTag = m_Scene->GetComponent<TagComponent>(childEntity);
-                    auto& childRel = m_Scene->GetComponent<Relationship>(childEntity);
-                    MakeTreeNode(childEntity, childTag.Tag.c_str(), childRel);
-                }
-                ImGui::TreePop();
-            }
-        }
-    }
-
     void Application::UpdateImGui(float deltaTime)
     {
-        // ImGui viewports
-        static bool dockSpaceOpen = true;
-        static bool showDemoWindow = false;
-
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
-        ImGui::SetNextWindowViewport(viewport->ID);
-
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-        window_flags |= ImGuiWindowFlags_MenuBar;
-        window_flags |= ImGuiWindowFlags_NoTitleBar;
-        window_flags |= ImGuiWindowFlags_NoResize;
-        window_flags |= ImGuiWindowFlags_NoCollapse;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-        window_flags |= ImGuiWindowFlags_NoNavFocus;
-        window_flags |= ImGuiWindowFlags_NoBackground;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-        // No ImGui begin commands should come before this one.
-        // The dock space needs to be created before everyting else to work.
-        ImGui::Begin("Dock space", &dockSpaceOpen, window_flags);
-
-        ImGui::PopStyleVar(3);
-
-        auto dockSpaceID = ImGui::GetID("Dock space ID");
-        ImGui::DockSpace(dockSpaceID, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
-
-        if (ImGui::BeginMenuBar()) {
-            if (ImGui::BeginMenu("Options")) {
-                if (ImGui::MenuItem("Show/Hide ImGui demo")) {
-                    showDemoWindow = !showDemoWindow;
-                }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenuBar();
-        }
-
-        if (showDemoWindow)
-            ImGui::ShowDemoWindow(&showDemoWindow);
-
-        static int selectedRenderType = static_cast<int>(m_SceneRendererType);
-        static int selectedGameType = static_cast<int>(m_GameModeType);
-        static int selectedDrawMode = static_cast<int>(m_DrawMode);
-
-        ImGui::Begin("Application");
-        if (ImGui::Combo("SceneRendererType", 
-            &selectedRenderType,
-            SceneRendererTypeStrings, 
-            IM_ARRAYSIZE(SceneRendererTypeStrings)))
-        {
-            SetRendererType(static_cast<SceneRendererType>(selectedRenderType));
-        }
-        if (ImGui::Combo("DrawMode", 
-            &selectedDrawMode, 
-            ApplicationDrawModes, 
-            IM_ARRAYSIZE(ApplicationDrawModes))) 
-        {
-            SetDrawMode(static_cast<RenderPipelineKeys>(selectedDrawMode));
-        }
-        ImGui::NewLine();
-        ImGui::Separator();
-        ImGui::NewLine();
-        if (ImGui::Combo("GameMode",
-            &selectedGameType,
-            GameModeTypeStrings,
-            IM_ARRAYSIZE(GameModeTypeStrings)))
-        {
-            SetGameModeType(static_cast<GameModeType>(selectedGameType));
-        }
-        ImGui::End();
-
-        // Draw scene graph and component view
-        if (m_Scene) {
-            //ImGui::PushStyleVar()
-            ImGui::Begin("Scene");
-            ImGui::BeginChild("Scene graph", ImVec2(0.f, ImGui::GetWindowHeight() / 2.f));
-            auto view = m_Scene->GetRegistry().view<TransformComponent, TagComponent, Relationship>();
-            for (auto [entity, transform, tag, rel] : view.each()) {
-                // only care about entitys without parent.
-                // deal with child entitys later.
-                if (rel.Parent != entt::null)
-                    continue;
-
-                MakeTreeNode(entity, tag.Tag.c_str(), rel);
-            }
-            ImGui::EndChild();
-            ImGui::Separator();
-            // Start component view
-            ImGui::BeginChild("Components");
-            ImGui::Text("Components");
-            if (m_Scene && m_Scene->m_SelectedEntity != entt::null) {
-                if (auto* transform = m_Scene->GetRegistry().try_get<TransformComponent>(m_Scene->m_SelectedEntity)) {
-                    ImGui::Separator();
-                    ImGui::Text("Transform component");
-                    ImGui::DragFloat3("Position", &transform->Position[0],0.1f);
-                    ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
-
-                    if(auto* body = m_Scene->TryGetComponent<RigidBodyComponent>(m_Scene->m_SelectedEntity)){
-                        if(body->Primitive == bt::CollisionPrimitive::Sphere){
-                            ImGui::DragFloat("Scale", &transform->Scale[0]);
-                            transform->Scale[1] = transform->Scale[2] = transform->Scale[0];
-                        }
-                        else
-                            ImGui::DragFloat3("Scale", &transform->Scale[0]);
-                        //move physics body
-                        body->transform(transform->Position,transform->Rotation, transform->Scale/2.f);
-                    }
-
-
-                }
-                if (auto* rigidBody = m_Scene->GetRegistry().try_get<RigidBodyComponent>(m_Scene->m_SelectedEntity)) {
-                    ImGui::Separator();
-                    ImGui::Text("Rigid body component");
-                    if (rigidBody->RigidBody) {
-                        ImGui::Text("Position: %.3f, %.3f, %.3f",
-                            rigidBody->RigidBody->getCenterOfMassPosition().getX(),
-                            rigidBody->RigidBody->getCenterOfMassPosition().getY(),
-                            rigidBody->RigidBody->getCenterOfMassPosition().getZ());
-
-                        ImGui::Text("Local Scale: %.3f, %.3f, %.3f",
-                                    rigidBody->CollisionShape->getLocalScaling().getX(),
-                                    rigidBody->CollisionShape->getLocalScaling().getY(),
-                                    rigidBody->CollisionShape->getLocalScaling().getZ());
-
-                        ImGui::Text("Velocity: %.3f, %.3f, %.3f",
-                            rigidBody->RigidBody->getLinearVelocity().getX(),
-                            rigidBody->RigidBody->getLinearVelocity().getY(),
-                            rigidBody->RigidBody->getLinearVelocity().getZ());
-
-                        ImGui::Text("Velocity length: %.3f", rigidBody->RigidBody->getLinearVelocity().length());
-                    }
-                }
-                if (auto* softBody = m_Scene->GetRegistry().try_get<SoftBodyComponent>(m_Scene->m_SelectedEntity)) {
-                    ImGui::Separator();
-                    ImGui::Text("Soft body component");
-                }
-                if (auto* meshComponent = m_Scene->GetRegistry().try_get<MeshComponent>(m_Scene->m_SelectedEntity)) {
-                    ImGui::Separator();
-                    ImGui::Text("Mesh component");
-                    ImGui::Text(meshComponent->Data.Path.c_str());
-                }
-                if (auto* staticMeshComponent = m_Scene->GetRegistry().try_get<StaticMeshComponent>(m_Scene->m_SelectedEntity)) {
-                    ImGui::Separator();
-                    ImGui::Text("Static mesh component");
-                }
-                if (auto* texture = m_Scene->GetRegistry().try_get<TextureComponent>(m_Scene->m_SelectedEntity)) {
-                    ImGui::Separator();
-                    ImGui::Text("Texture component");
-                    ImGui::Text(texture->Data.Path.c_str());
-                    // TODO: Make imgui texture descriptor for all textures.
-                    //ImGui::Image(texture->Data.DesctriptorSet, ImVec2(50, 50));
-                }
-                if (auto* soundComponent = m_Scene->GetRegistry().try_get<SoundSourceComponent>(m_Scene->m_SelectedEntity)) {
-                    ImGui::Separator();
-                    ImGui::Text("Sound component");
-                }
-                if(auto* scriptComponent = m_Scene->TryGetComponent<ScriptComponent>(m_Scene->m_SelectedEntity)){
-                    ImGui::Separator();
-                    ImGui::Text("Script Component");
-                    std::string currentscript = scriptComponent->ModuleName;
-                    currentscript.erase(0,8);
-
-                    //todo this is bad, should not read all files every frame
-                    std::vector<std::string> scripts;
-                    for (const auto & entry : std::filesystem::directory_iterator("Scripts")){
-                        std::string cleanname = entry.path().string();
-                        cleanname.erase(0,8);
-                        scripts.emplace_back(cleanname);
-
-                    }
-
-                    if(ImGui::BeginCombo("Active Script",currentscript.c_str())){
-                       for (int n = 0; n < scripts.size(); n++){
-                           bool is_selected = (currentscript == scripts[n]);
-                           if(is_selected){
-                               ImGui::SetItemDefaultFocus();
-                           }
-                           if (ImGui::Selectable(scripts[n].c_str(), is_selected)) {
-                               currentscript = scripts[n];
-                               std::string path = "Scripts/";
-                               path.append(currentscript);
-                               scriptComponent->Script = path;
-                               scriptComponent->ReloadScript();
-                           }
-
-                       }
-                       ImGui::EndCombo();
-                   }
-
-                    if(ImGui::Button("Refresh Script")){
-                            scriptComponent->updateScripts();
-                            scriptComponent->ReloadScript();
-                    }
-                    if(ImGui::Button("Run Script once")){
-                        scriptComponent->RunScript();
-                    }
-                }
-            }
-                                                                       
-            ImGui::EndChild();
-            ImGui::End();
-
-            ImGui::Begin("Scripts");
-            if(ImGui::Button("Run all Scripts once")){
-                auto view = m_Scene->GetRegistry().view<ScriptComponent>();
-                for (auto [entity, script]: view.each()) {
-                    script.RunScript();
-                }
-            }
-            if(ImGui::Button("Refresh all Scripts")){
-                auto view = m_Scene->GetRegistry().view<ScriptComponent>();
-                for (auto [entity, script]: view.each()) {
-                    script.updateScripts();
-                    script.ReloadScript();
-                }
-            }
-            ImGui::End();
+        for (auto& layer : m_ApplicationLayers) {
+            layer->OnImGuiUpdate(deltaTime);
         }
     }
 
     void Application::UpdateCameraSystem(float deltaTime)
     {
         auto moveAmount = static_cast<float>(m_CameraSpeed * deltaTime);
-        if (Input::Key(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_LeftShift)) {
             moveAmount *= 8;
         }
-        if (Input::Key(GLFW_KEY_W) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_W)) {
             m_EditorCamera.MoveForward(moveAmount);
         }
-        if (Input::Key(GLFW_KEY_S) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_S)) {
             m_EditorCamera.MoveForward(-moveAmount);
         }
-        if (Input::Key(GLFW_KEY_D) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_D)) {
             m_EditorCamera.MoveRight(moveAmount);
         }
-        if (Input::Key(GLFW_KEY_A) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_A)) {
             m_EditorCamera.MoveRight(-moveAmount);
         }
-        if (Input::Key(GLFW_KEY_Q) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_Q)) {
             m_EditorCamera.MoveUp(-moveAmount);
         }
-        if (Input::Key(GLFW_KEY_E) == GLFW_PRESS) {
+        if (Input::Key(ImGuiKey_E)) {
             m_EditorCamera.MoveUp(moveAmount);
         }
         static glm::vec2 oldMousePos = glm::vec2(0.f);
@@ -459,8 +177,8 @@ namespace FLOOF {
         glm::vec2 mouseDelta = mousePos - oldMousePos;
         oldMousePos = mousePos;
         static constexpr float mouseSpeed = 0.002f;
-        if (Input::MouseButton(GLFW_MOUSE_BUTTON_2) == GLFW_PRESS
-            || Input::Key(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        if (Input::MouseButton(ImGuiMouseButton_Right)
+            || Input::Key(ImGuiKey_LeftCtrl)) {
             m_EditorCamera.Yaw(mouseDelta.x * mouseSpeed);
             m_EditorCamera.Pitch(mouseDelta.y * mouseSpeed);
         }
@@ -472,7 +190,7 @@ namespace FLOOF {
 
         m_Scene->OnUpdate(deltaTime);
 
-        if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
+        //if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
 
     void Application::Draw() {
@@ -516,9 +234,6 @@ namespace FLOOF {
             signalSemaphore = currentFrameData.RenderFinishedSemaphore;
         }
 
-        ImGui::End();
-
-        // Ends Dockspace window
         ImGui::End();
 
         // Start ImGui renderpass and draw ImGui
@@ -567,66 +282,27 @@ namespace FLOOF {
         m_Renderer->Present();
     }
 
-    void Application::SetRendererType(SceneRendererType type)
-    {
-        if (type == m_SceneRendererType && m_SceneRenderer) return;
-
-        m_SceneRendererType = type;
-
-        switch (m_SceneRendererType) {
-            case SceneRendererType::Forward:
-            {
-                m_SceneRenderer = std::make_unique<ForwardSceneRenderer>();
-                break;
-            }
-            case SceneRendererType::Deferred:
-            {
-                m_SceneRenderer = std::make_unique<DeferredSceneRenderer>();
-                break;
-            }
-            default:
-            {
-                LOG("SceneRendererType is invalid\n");
-                break;
-            }
-        }
-    }
-
-    void Application::SetGameModeType(GameModeType type) {
-        if (type == m_GameModeType && m_GameMode) return;
-
-        m_GameModeType = type;
-
-        // TODO: Game mode should probably be chosen by the scene based
-        // on data from a stored scene in JSON format. 
-        // Then this function should be "LoadScene(string scenePath)".
-        // That way we can load scene from a file browser of some kind.
-        // 
-        // Eventually the scene gamemode is just a path to a python script.
-
-        switch (m_GameModeType) {
-            case GameModeType::Physics:
+    void Application::SelectDebugScene(DebugScenes type) {
+        m_CurrentDebugScene = type;
+        switch (type) {
+            case DebugScenes::Physics:
             {
                 MakePhysicsScene();
-                m_GameMode = std::make_unique<PhysicsGM>(*m_Scene.get());
                 break;
             }
-            case GameModeType::Sponza:
+            case DebugScenes::Sponza:
             {
                 MakeSponsaScene();
-                m_GameMode = std::make_unique<SponzaGM>(*m_Scene.get());
                 break;
             }
-            case GameModeType::Audio:
+            case DebugScenes::Audio:
             {
                 MakeAudioTestScene();
-                m_GameMode = std::make_unique<AudioTestGM>(*m_Scene.get());
                 break;
             }
-            case GameModeType::Heightmap: 
+            case DebugScenes::Landscape:
             {
-                MakeHeightMapTestScene();
-                m_GameMode = std::make_unique<HeightmapTest>(*m_Scene.get());
+                MakeLandscapeScene();
                 break;
             }
             default:
@@ -635,17 +311,8 @@ namespace FLOOF {
                 break;
             }
         }
-
-        if (m_GameMode)
-            m_GameMode->OnCreate();
-        // Sets up the bullet physics world based on whats in scene.
         if (m_Scene)
             m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
-    }
-
-    SceneRendererType Application::GetRendererType() const
-    {
-        return m_SceneRendererType;
     }
 
     void Application::SetRenderCamera(CameraComponent& cam)
@@ -658,10 +325,6 @@ namespace FLOOF {
         return m_RenderCamera;
     }
 
-    GameModeType Application::GetGameModeType() const {
-        return m_GameModeType;
-    }
-
     void Application::MakePhysicsScene() {
         m_Scene = std::make_unique<Scene>();
 
@@ -670,7 +333,7 @@ namespace FLOOF {
         {
             auto texture = "Assets/WaterTexture.png";
             auto location = glm::vec3(0.f, -150.f, 0.f);
-            auto extents = glm::vec3(400.f, 10.f, 400.f);
+            auto extents = glm::vec3(800.f, 10.f, 800.f);
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
@@ -685,7 +348,7 @@ namespace FLOOF {
             transform.Scale = extents;
 
         }
-        {
+        if(false){
             auto entity = m_Scene->CreateEntity("Ground Ball");
             m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
             m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
@@ -695,7 +358,13 @@ namespace FLOOF {
             transform.Position = glm::vec3(0.f,-150.f,0.f);
             transform.Scale = glm::vec3(75.f);
         }
+        //make monstertruck
         {
+            auto ent = m_Scene->CreateEntity("MonsterTruck");
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
+        }
+
+        if (false){
             int height = 5;
             int width = 5;
             float spacing = 5.f;
@@ -832,18 +501,27 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            //m_Scene->AddComponent<SoundComponent>(Ball, m_SoundManager, "Assets/Sounds/TestSound_Stereo.wav");
+           
 
 
+            //m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            //auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
+            //sound.Play();
         }
         {
             //m_SoundManager->loadAssets();
         }
+        //SoundManager::InitOpenAL();
+        //SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+        //std::string path("TestSound_Stereo.wav");
+        //SoundSourceComponent test(path);
+        //test.Play();
 
-        m_SoundManager->testSound();
 
     }
-    void Application::MakeHeightMapTestScene() {
+    void Application::MakeLandscapeScene()
+    {
+        m_Scene = std::make_unique<Scene>();
 
     }
 }

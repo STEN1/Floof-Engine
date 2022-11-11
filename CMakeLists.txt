@@ -2,6 +2,8 @@
 project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
+add_compile_definitions(FLOOF_DEVELOPER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+
 add_executable(Floof
     Source/Floof.cpp
     Source/Floof.h
@@ -36,17 +38,9 @@ add_executable(Floof
     Source/Renderer/stb_image.cpp
     Source/Scene.h
     Source/Scene.cpp 
-    Source/GameMode/GameMode.h 
-    Source/GameMode/PhysicsGM.h 
-    Source/GameMode/PhysicsGM.cpp 
-    Source/GameMode/SponzaGM.h
-    Source/GameMode/SponzaGM.cpp
     Source/PhysicsSystem.cpp
     Source/PhysicsSystem.h
-    Source/GameMode/SponzaGM.cpp
     Source/Renderer/Material.h
-    Source/GameMode/AudioTestGM.h
-    Source/GameMode/AudioTestGM.cpp
     Source/Renderer/Mesh.cpp
     Source/SoundManager.h
     Source/SoundManager.cpp
@@ -58,7 +52,9 @@ add_executable(Floof
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
     Source/HeightmapLoader.h
-    Source/HeightmapLoader.cpp  )
+    Source/HeightmapLoader.cpp "Source/ApplicationLayer.h" "Source/ApplicationLayer.cpp" "Source/Editor/EditorLayer.h" "Source/Editor/EditorLayer.cpp" "Source/Editor/EditorPanels/SceneGraphPanel.h" "Source/Editor/EditorPanels/SceneGraphPanel.cpp" "Source/Editor/EditorPanels/ComponentsPanel.h" "Source/Editor/EditorPanels/ComponentsPanel.cpp" "Source/Editor/EditorPanels/EditorPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.cpp"
+    Source/HeightmapLoader.cpp Source/NativeScripts/MonsterTruckScript.cpp Source/NativeScripts/MonsterTruckScript.h Source/Editor/EditorPanels/PhysicsPanel.cpp Source/Editor/EditorPanels/PhysicsPanel.h)
+
 
 find_package(Vulkan REQUIRED)
 target_include_directories(Floof PUBLIC ${Vulkan_INCLUDE_DIRS})
@@ -82,7 +78,7 @@ target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
-        ${Bullet_Dir}/src/btLinearMathAll.cpp  )
+        ${Bullet_Dir}/src/btLinearMathAll.cpp)
 target_link_libraries(Floof Bullet)
 
 #Add each submodule manually
@@ -90,6 +86,7 @@ add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
 target_link_libraries(Floof BulletSoftBody)
 
 #pybinding
+find_package(Python)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 target_include_directories(Floof PUBLIC ${Python_INCLUDE_DIRS})
 target_link_libraries(Floof ${Python_LIBRARIES})
@@ -127,7 +124,7 @@ target_sources(IMGUI
     PRIVATE
     ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-      )
+    )
 
 target_include_directories(IMGUI
     PUBLIC ${IMGUI_DIR}
@@ -151,6 +148,8 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert -o ${CMA
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag.spv")
 
 
 execute_process(
@@ -162,33 +161,12 @@ execute_process(
 add_compile_definitions(BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 add_compile_definitions(SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
-#copy shaders
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND 
-    ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/Shaders
-    ${CMAKE_CURRENT_BINARY_DIR}/Shaders
-    )
-
-#copy assets
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
-    ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/Assets
-    ${CMAKE_CURRENT_BINARY_DIR}/Assets
-    )
-
-#copy scripts
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
-        ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/Scripts
-        ${CMAKE_CURRENT_BINARY_DIR}/Scripts
-        )
-
 #check for imgui file if not set default
-if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini")
 else()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/ImguiDefault/imgui.ini
-            ${CMAKE_CURRENT_BINARY_DIR}/imgui.ini
+            ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
             )
 endif()

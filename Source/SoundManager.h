@@ -14,6 +14,17 @@
 #include "Components.h"
 #include "dr_libs/dr_wav.h"
 
+// Check for errors
+#define OpenAL_ErrorCheck(message) {\
+    ALenum error = alGetError();\
+    if (error != AL_NO_ERROR) std::cerr << "OpenAL Error: " << error << " with call for " << #message << std::endl;\
+}
+
+// Macro to route function calls into to check for errors
+#define alec(FUNCTION_CALL)\
+    FUNCTION_CALL;\
+    OpenAL_ErrorCheck(FUNCTION_CALL)
+
 namespace FLOOF {
 	// Buffers to hold the sound data
 	struct WavFile {
@@ -25,7 +36,8 @@ namespace FLOOF {
 		drwav_uint64 getTotalSamples() { return totalPCMFrameCount * channels; } // in case of for exampe stereo files
 	};
 
-	class NewSoundManager {
+	class SoundManager {
+		friend class SoundSourceComponent;
 	public:
 		static void SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
 		static void InitOpenAL();
@@ -33,7 +45,7 @@ namespace FLOOF {
 		static std::vector<std::string> GetAvailableDevices();
 		static void SetNewDevice(std::string device);
 	private:
-		ALuint LoadWav(std::string sound);
+		static ALuint LoadWav(std::string sound);
 		static ALuint GenerateSource(SoundSourceComponent* source);
 		static void DeleteSource(SoundSourceComponent* source);
 
@@ -48,9 +60,9 @@ namespace FLOOF {
 	// This class contains all audio code at the moment.
 	// The plan is to move a lot into an audio component
 	// This is just to get it up and running for the time being
-	class SoundManager {
+	class OldSoundManager {
 		public:
-			SoundManager();
+			OldSoundManager();
 			void testSound();
 			int loadPath(std::string path); // Could contain the whole component instead
 			void loadAssets();

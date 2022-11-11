@@ -50,8 +50,10 @@ namespace FLOOF {
     };
 
     enum RenderPipelineKeys : uint32_t {
-        Basic,
+        ForwardLit,
         Wireframe,
+        UnLit,
+        Basic,
         Line,
         LineStrip,
         Lit,
@@ -60,7 +62,6 @@ namespace FLOOF {
         LineWithDepth,
         LineStripWithDepth,
         LitColor,
-        ForwardLit,
     };
 
     enum RenderSetLayouts : uint32_t {

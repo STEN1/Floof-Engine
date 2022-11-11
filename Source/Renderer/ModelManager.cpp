@@ -27,6 +27,7 @@ namespace FLOOF {
             meshData.IndexBuffer = renderer->CreateIndexBuffer(mesh.indices);
             meshData.VertexCount = mesh.vertices.size();
             meshData.IndexCount = mesh.indices.size();
+            meshData.MeshName = mesh.name;
             ret->emplace_back(meshData);
         }
 
