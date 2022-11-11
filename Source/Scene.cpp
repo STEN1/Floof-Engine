@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Components.h"
+#include "SoundManager.h"
 
 namespace FLOOF {
     Scene::Scene() {
@@ -56,6 +57,8 @@ namespace FLOOF {
         }
 
         m_PhysicSystem->OnUpdate(deltaTime);
+        SoundManager::Update();
+
     }
 
     void Scene::OnCreate() {

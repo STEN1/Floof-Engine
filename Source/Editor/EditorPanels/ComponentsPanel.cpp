@@ -95,7 +95,22 @@ namespace FLOOF {
 			if (auto* soundComponent = app.m_Scene->GetRegistry().try_get<SoundSourceComponent>(
 				app.m_Scene->m_SelectedEntity)) {
 				ImGui::Separator();
-				ImGui::Text("Sound component");
+				ImGui::Text("Sound Component");
+				ImGui::Text(soundComponent->m_Path.c_str());
+
+				if (ImGui::DragFloat("Volume", &soundComponent->m_Volume, 0.001f, 0.f, 1.f)) {
+					soundComponent->Update();
+				}
+				if (ImGui::DragFloat("Pitch", &soundComponent->m_Pitch, 0.01f, 0.f, 50.f)) {
+					soundComponent->Pitch();
+				}
+
+				if (soundComponent->isPlaying) { if (ImGui::Button("Stop")) { soundComponent->Stop(); }}
+				if (!soundComponent->isPlaying) { if (ImGui::Button("Play")) { soundComponent->Play(); } }
+				if (soundComponent->isLooping) { if (ImGui::Button("Looping")) { soundComponent->Looping(false); } }
+				if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }
+
+
 			}
 			if (auto* scriptComponent = app.m_Scene->TryGetComponent<ScriptComponent>(
 				app.m_Scene->m_SelectedEntity)) {

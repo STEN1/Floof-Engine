@@ -22,8 +22,8 @@ namespace FLOOF {
         "UnLit",
         "PBR",
     };
-
     class Application {
+        friend class SoundManager;
         friend class ForwardSceneRenderer;
         friend class EditorLayer;
         friend class ApplicationPanel;

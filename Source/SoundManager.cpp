@@ -3,6 +3,8 @@
 #define DR_WAV_IMPLEMENTATION
 #include <dr_libs/dr_wav.h>
 
+#include "Application.h"
+
 namespace FLOOF {
 	WavFile WavFile::ReadWav(std::string path)
 	{
@@ -111,6 +113,22 @@ namespace FLOOF {
             std::cerr << "failed to make set new OpenAl device" << std::endl;
         }
     }
+
+    void SoundManager::Update() {
+        auto& app = Application::Get();
+        auto& registry = app.m_Scene->GetRegistry();
+        auto camera = app.m_EditorCamera;
+		SetListener(camera.Position, glm::vec3(0.f), camera.Forward, camera.Up);
+
+        auto view = registry.view<TransformComponent, SoundSourceComponent>();
+        for (auto [entity, transform, soundsource] : view.each()) {
+            auto pos = transform.GetWorldPosition();
+            alec(alSource3f(soundsource.m_Source, AL_POSITION, pos.x, pos.y, pos.z));
+            soundsource.UpdateStatus();
+        }
+
+    }
+
     ALuint SoundManager::LoadWav(std::string sound) {
 
         std::string path = "Assets/Sounds/" + sound;

@@ -73,6 +73,9 @@ namespace FLOOF {
         SelectDebugScene(DebugScenes::Physics);
 
         m_ApplicationLayers.emplace_back(std::make_unique<EditorLayer>());
+
+        SoundManager::InitOpenAL();
+
     }
 
     void Application::CleanApplication() {
@@ -94,6 +97,8 @@ namespace FLOOF {
 
         glfwDestroyWindow(m_Window);
         glfwTerminate();
+
+        SoundManager::CleanOpenAL();
     }
 
     int Application::Run() {
@@ -186,7 +191,6 @@ namespace FLOOF {
     void Application::Update(double deltaTime) {
         UpdateCameraSystem(deltaTime);
         UpdateImGui(deltaTime);
-
         m_Scene->OnUpdate(deltaTime);
 
         //if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
@@ -487,21 +491,16 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-           
+			SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
 
-            //m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
-            //auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
-            //sound.Play();
+            m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
+            sound.Play();
         }
-        {
-            //m_SoundManager->loadAssets();
-        }
-        //SoundManager::InitOpenAL();
-        //SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-        //std::string path("TestSound_Stereo.wav");
-        //SoundSourceComponent test(path);
-        //test.Play();
+
+        
+
 
 
     }
