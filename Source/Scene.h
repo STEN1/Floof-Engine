@@ -11,13 +11,13 @@ namespace FLOOF {
         Physics,
         Audio,
         Landscape,
-        Sponza,
+        RenderingDemo,
     };
     static const char* DebugSceneNames[] = {
         "Physics",
         "Audio",
         "Landscape",
-        "Sponza",
+        "RenderingDemo",
     };
 
     class Scene {

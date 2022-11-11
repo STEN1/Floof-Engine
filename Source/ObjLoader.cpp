@@ -202,6 +202,21 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
     }
 
     internalMesh.name = mesh->mName.data;
+    std::cout << "Mesh name: " << internalMesh.name << std::endl;
+    aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+    std::cout << "Material name: " << mat->GetName().C_Str() << std::endl;
+
+    for (uint32_t i = 0; i <= AI_TEXTURE_TYPE_MAX; i++) {
+        auto textureCount = mat->GetTextureCount(static_cast<aiTextureType>(i));
+        if (textureCount > 0) {
+            std::cout << "Has " << textureCount << " texture of type: " << i << std::endl;
+        }
+    }
+
+    LoadMaterialTexture(mat, aiTextureType_DIFFUSE, "texture_diffuse");
+    LoadMaterialTexture(mat, aiTextureType_NORMALS, "texture_normals");
+    LoadMaterialTexture(mat, aiTextureType_SPECULAR, "texture_specular");
+
     staticMesh.meshes.emplace_back(internalMesh);
     return true;
 }
@@ -242,4 +257,19 @@ void AssimpLoader::LoadModel(const std::string& path)
     }
 
     ProcessNode(scene->mRootNode, scene);
+}
+
+bool AssimpLoader::LoadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName)
+{
+    if (mat->GetTextureCount(type) == 0) {
+        return false;
+    }
+
+    std::cout << typeName << " path:";
+    for (uint32_t i = 0; i < mat->GetTextureCount(type); i++) {
+        aiString path;
+        mat->GetTexture(type, i, &path);
+        std::cout << " " << path.C_Str();
+    }
+    std::cout << std::endl;
 }

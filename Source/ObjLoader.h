@@ -62,6 +62,8 @@ private:
     bool LoadMesh(aiMesh* mesh, const aiScene* scene);
     void LoadModel(const std::string& path);
 
+    bool LoadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName);
+
 public:
     const AssimpStaticMesh& GetAssimpStaticMesh() const
     {

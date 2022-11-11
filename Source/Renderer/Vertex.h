@@ -136,4 +136,74 @@ namespace FLOOF {
             return attributeDescriptions;
         }
     };
+
+    struct SimpleVertex {
+        glm::vec3 Pos{};
+
+        static VkVertexInputBindingDescription GetBindingDescription() {
+            VkVertexInputBindingDescription bindingDescription{};
+
+            bindingDescription.binding = 0;
+            bindingDescription.stride = sizeof(SimpleVertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            return bindingDescription;
+        }
+
+        static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(1);
+
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(SimpleVertex, Pos);
+
+            return attributeDescriptions;
+        }
+    };
+
+    static constexpr SimpleVertex skyboxVertices[] = {
+        // positions          
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+
+        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{1.0f, -1.0f,  1.0}}
+    };
 }
