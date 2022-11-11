@@ -740,6 +740,10 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::CreateGraphicsPipeline(const RenderPipelineParams& params) {
+        auto it = m_GraphicsPipelines.find(params.Key);
+        if (it != m_GraphicsPipelines.end())
+            return;
+
         auto vertShader = MakeShaderModule(params.VertexPath.c_str());
         auto fragShader = MakeShaderModule(params.FragmentPath.c_str());
 

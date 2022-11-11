@@ -20,6 +20,7 @@ namespace FLOOF {
         "Lit",
         "Wireframe",
         "UnLit",
+        "PBR",
     };
 
     class Application {
@@ -28,6 +29,7 @@ namespace FLOOF {
         friend class ApplicationPanel;
         friend class SceneGraphPanel;
         friend class ComponentsPanel;
+        friend class RendererPanel;
         Application();
     public:
         int Run();

@@ -10,7 +10,6 @@
 #include "Renderer/ModelManager.h"
 #include "SoundManager.h"
 #include "Renderer/ForwardSceneRenderer.h"
-#include "Renderer/DeferredSceneRenderer.h"
 #include "NativeScripts/TestScript.h"
 #include <filesystem>
 #include "Editor/EditorLayer.h"
@@ -423,31 +422,18 @@ namespace FLOOF {
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
         }
 
-        {
-            auto rootEntity = m_Scene->CreateEntity("RootBall1");
-            m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
+        for (float x = 0.f; x < 20.f; x += 5.f) {
+            for (float y = 0.f; y < 20.f; y += 5.f) {
+                for (float z = 0.f; z < 20.f; z += 5.f) {
+                    auto entity = m_Scene->CreateEntity("PointLight ball");
+                    m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
+                    m_Scene->AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
+                    m_Scene->AddComponent<PointLightComponent>(entity);
 
-            auto leafEntity1 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity1, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity1, "Assets/BallTexture.png");
-
-            auto leafEntity2 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
-        }
-        {
-            auto rootEntity = m_Scene->CreateEntity("RootBall2");
-            m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
-
-            auto leafEntity1 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity1, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity1, "Assets/BallTexture.png");
-
-            auto leafEntity2 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
+                    auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                    transform.Position = glm::vec3(x, y, z);
+                }
+            }
         }
     }
     void Application::MakeAudioTestScene() {

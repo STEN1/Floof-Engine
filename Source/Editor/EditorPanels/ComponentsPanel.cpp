@@ -27,8 +27,6 @@ namespace FLOOF {
 				} else {
 					ImGui::DragFloat3("Scale", &transform->Scale[0], 0.1, 0.01, std::numeric_limits<float>::max());
 				}
-
-
 			}
 			if (auto* rigidBody = app.m_Scene->GetRegistry().try_get<RigidBodyComponent>(
 				app.m_Scene->m_SelectedEntity)) {

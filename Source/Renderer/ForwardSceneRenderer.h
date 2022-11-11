@@ -9,6 +9,10 @@ namespace FLOOF {
     struct SceneFrameData {
         glm::vec3 CameraPos = glm::vec3(0.f);
         int LightCount = 0;
+        float roughness = 0.f;
+        float metallic = 0.f;
+        float ao = 1.f;
+        float pad = 0.f;
     };
 
     class ForwardSceneRenderer : public SceneRenderer {
@@ -53,6 +57,7 @@ namespace FLOOF {
 
         glm::vec2 m_Extent{ 0.f, 0.f };
 
+        SceneFrameData m_SceneFrameData;
         VulkanUBO<SceneFrameData> m_SceneDataUBO{};
         VulkanSSBO<PointLightComponent::PointLight> m_LightSSBO{};
     };

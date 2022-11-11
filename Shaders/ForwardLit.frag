@@ -21,6 +21,10 @@ struct PointLight {
 layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     vec3 cameraPos;
     int lightCount;
+    float roughness;
+    float metallic;
+    float ao;
+    float pad;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {

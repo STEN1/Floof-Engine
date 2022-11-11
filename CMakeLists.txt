@@ -32,8 +32,8 @@ add_executable(Floof
     Source/Renderer/Texture.h
     Source/Renderer/SceneRenderer.h 
     Source/Renderer/ForwardSceneRenderer.h 
-    Source/Renderer/DeferredSceneRenderer.h 
-    Source/Renderer/DeferredSceneRenderer.cpp 
+     
+     
     Source/Renderer/ForwardSceneRenderer.cpp
     Source/Renderer/stb_image.cpp
     Source/Scene.h
@@ -53,7 +53,7 @@ add_executable(Floof
     Source/Renderer/VulkanBuffer.cpp
     Source/HeightmapLoader.h
     Source/HeightmapLoader.cpp "Source/ApplicationLayer.h" "Source/ApplicationLayer.cpp" "Source/Editor/EditorLayer.h" "Source/Editor/EditorLayer.cpp" "Source/Editor/EditorPanels/SceneGraphPanel.h" "Source/Editor/EditorPanels/SceneGraphPanel.cpp" "Source/Editor/EditorPanels/ComponentsPanel.h" "Source/Editor/EditorPanels/ComponentsPanel.cpp" "Source/Editor/EditorPanels/EditorPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.cpp"
-    Source/HeightmapLoader.cpp Source/NativeScripts/MonsterTruckScript.cpp Source/NativeScripts/MonsterTruckScript.h Source/Editor/EditorPanels/PhysicsPanel.cpp Source/Editor/EditorPanels/PhysicsPanel.h)
+    Source/HeightmapLoader.cpp Source/NativeScripts/MonsterTruckScript.cpp Source/NativeScripts/MonsterTruckScript.h Source/Editor/EditorPanels/PhysicsPanel.cpp Source/Editor/EditorPanels/PhysicsPanel.h "Source/Editor/EditorPanels/RendererPanel.h" "Source/Editor/EditorPanels/RendererPanel.cpp")
 
 
 find_package(Vulkan REQUIRED)
@@ -150,6 +150,8 @@ exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAK
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert.spv")
 exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.vert.spv")
+exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.frag.spv")
 
 
 execute_process(

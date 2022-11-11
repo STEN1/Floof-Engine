@@ -60,7 +60,7 @@ namespace FLOOF {
         glm::mat4 vp = camera->GetVP(glm::radians(70.f), vkExtent.width / (float) vkExtent.height, 1.f, 1000000.f);
 
 
-        if (drawMode == RenderPipelineKeys::ForwardLit) {
+        if (drawMode == RenderPipelineKeys::PBR || drawMode == RenderPipelineKeys::ForwardLit) {
             std::vector<PointLightComponent::PointLight> pointLights;
             auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
             for (auto [entity, transform, lightComp]: lightView.each()) {
@@ -80,14 +80,13 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
                                     &lightDescriptor, 0, 0);
 
-            SceneFrameData sceneFrameData{};
             static float accumulator = 0.f;
             accumulator += 0.01f;
             float r = (sinf(accumulator) + 1.f) * 0.5f;
             float b = (cosf(accumulator) + 1.f) * 0.5f;
-            sceneFrameData.CameraPos = camera->Position;
-            sceneFrameData.LightCount = pointLights.size();
-            m_SceneDataUBO.Update(sceneFrameData);
+            m_SceneFrameData.CameraPos = camera->Position;
+            m_SceneFrameData.LightCount = pointLights.size();
+            m_SceneDataUBO.Update(m_SceneFrameData);
             auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
@@ -105,7 +104,7 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                                    0, sizeof(MeshPushConstants), &constants);
-                if (drawMode == RenderPipelineKeys::ForwardLit || drawMode == RenderPipelineKeys::UnLit)
+                if (drawMode != RenderPipelineKeys::Wireframe)
                     texture.Bind(commandBuffer, pipelineLayout);
                 mesh.Draw(commandBuffer);
             }
@@ -121,7 +120,7 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                                    0, sizeof(MeshPushConstants), &constants);
-                if (drawMode == RenderPipelineKeys::ForwardLit || drawMode == RenderPipelineKeys::UnLit)
+                if (drawMode != RenderPipelineKeys::Wireframe)
                     texture.Bind(commandBuffer, pipelineLayout);
                 for (auto &mesh: *staticMesh.meshes) {
                     VkDeviceSize offset{0};
@@ -224,6 +223,24 @@ namespace FLOOF {
             params.FragmentPath = "Shaders/ForwardLit.frag.spv";
             params.VertexPath = "Shaders/ForwardLit.vert.spv";
             params.Key = RenderPipelineKeys::ForwardLit;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.DescriptorSetLayoutBindings.resize(3);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
+            params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
+        {    // PBR shader
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.FragmentPath = "Shaders/PBR.frag.spv";
+            params.VertexPath = "Shaders/PBR.vert.spv";
+            params.Key = RenderPipelineKeys::PBR;
             params.PolygonMode = VK_POLYGON_MODE_FILL;
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             params.BindingDescription = MeshVertex::GetBindingDescription();

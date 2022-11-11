@@ -53,6 +53,7 @@ namespace FLOOF {
         ForwardLit,
         Wireframe,
         UnLit,
+        PBR,
         Basic,
         Line,
         LineStrip,
