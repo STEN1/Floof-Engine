@@ -60,7 +60,7 @@ namespace FLOOF {
         glm::mat4 vp = camera->GetVP(glm::radians(70.f), vkExtent.width / (float) vkExtent.height, 1.f, 1000000.f);
 
 
-        if (drawMode == RenderPipelineKeys::PBR || drawMode == RenderPipelineKeys::ForwardLit) {
+        if (drawMode == RenderPipelineKeys::PBR) {
             std::vector<PointLightComponent::PointLight> pointLights;
             auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
             for (auto [entity, transform, lightComp]: lightView.each()) {
@@ -95,8 +95,8 @@ namespace FLOOF {
 
         // Draw models
         {
-            auto view = scene->m_Registry.view<TransformComponent, MeshComponent, TextureComponent>();
-            for (auto [entity, transform, mesh, texture]: view.each()) {
+            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
+            for (auto [entity, transform, staticMesh]: view.each()) {
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
                 constants.VP = vp;
@@ -104,25 +104,13 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                                    0, sizeof(MeshPushConstants), &constants);
-                if (drawMode != RenderPipelineKeys::Wireframe)
-                    texture.Bind(commandBuffer, pipelineLayout);
-                mesh.Draw(commandBuffer);
-            }
-        }
-
-        {
-            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent, TextureComponent>();
-            for (auto [entity, transform, staticMesh, texture]: view.each()) {
-                MeshPushConstants constants;
-                glm::mat4 modelMat = transform.GetTransform();
-                constants.VP = vp;
-                constants.Model = modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                                   0, sizeof(MeshPushConstants), &constants);
-                if (drawMode != RenderPipelineKeys::Wireframe)
-                    texture.Bind(commandBuffer, pipelineLayout);
                 for (auto &mesh: staticMesh.meshes) {
+                    if (drawMode != RenderPipelineKeys::Wireframe) {
+                        if (mesh.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
+                            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                                0, 1, &mesh.MeshMaterial.DescriptorSet, 0, nullptr);
+                        }
+                    }
                     VkDeviceSize offset{0};
                     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
                     if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
@@ -151,22 +139,7 @@ namespace FLOOF {
         }
 
         // Draw wireframe for selected object
-        if (auto *meshComponent = scene->m_Registry.try_get<MeshComponent>(scene->m_SelectedEntity)) {
-            auto &transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
-
-            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
-
-            MeshPushConstants constants;
-            glm::mat4 modelMat = transform.GetTransform();
-            constants.VP = vp;
-            constants.Model = modelMat;
-            constants.InvModelMat = glm::inverse(modelMat);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                               0, sizeof(MeshPushConstants), &constants);
-
-            meshComponent->Draw(commandBuffer);
-        } 
-        else if (auto* staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(scene->m_SelectedEntity)) {
+        if (auto* staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(scene->m_SelectedEntity)) {
             auto &transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
@@ -217,24 +190,6 @@ namespace FLOOF {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         CreateRenderPass();
         auto *renderer = VulkanRenderer::Get();
-        {    // Default light shader
-            RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
-            params.FragmentPath = "Shaders/ForwardLit.frag.spv";
-            params.VertexPath = "Shaders/ForwardLit.vert.spv";
-            params.Key = RenderPipelineKeys::ForwardLit;
-            params.PolygonMode = VK_POLYGON_MODE_FILL;
-            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            params.BindingDescription = MeshVertex::GetBindingDescription();
-            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(3);
-            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
-            params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
-            params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.Renderpass = m_RenderPass;
-            renderer->CreateGraphicsPipeline(params);
-        }
         {    // PBR shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
@@ -247,7 +202,7 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(3);
-            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;

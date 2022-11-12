@@ -161,13 +161,14 @@ void FLOOF::PhysicsPanel::DrawPanel() {
 }
 
 
-const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture) {
+const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture) {
     auto& app = Application::Get();
     auto m_Scene = app.m_Scene;
 
     const auto entity = m_Scene->CreateEntity("Softbody");
     auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity, FilePath);
-    m_Scene->AddComponent<TextureComponent>(entity, Texture);
+    sm.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+    sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
     //test python script
     auto &script = m_Scene->AddComponent<ScriptComponent>(entity,"Scripts/HelloWorld.py");
@@ -187,7 +188,7 @@ const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::v
     return entity;
 }
 
-const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string Texture,
+const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture,
                                              bt::CollisionPrimitive shape) {
     auto& app = Application::Get();
     auto m_Scene = app.m_Scene;
@@ -200,7 +201,8 @@ const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::
         auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, shape);
 
     auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity, FilePath);
-    m_Scene->AddComponent<TextureComponent>(entity, Texture);
+    sm.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+    sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
     auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
 

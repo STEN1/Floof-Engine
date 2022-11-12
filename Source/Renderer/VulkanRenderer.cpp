@@ -66,6 +66,7 @@ namespace FLOOF {
         vkDestroyDescriptorPool(m_LogicalDevice, m_TextureDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_ShaderStorageDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_UBODescriptorPool, nullptr);
+        vkDestroyDescriptorPool(m_LogicalDevice, m_MaterialDescriptorPool, nullptr);
         vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
         for (auto& [key, val] : m_DescriptorSetLayouts) {
             vkDestroyDescriptorSetLayout(m_LogicalDevice, val, nullptr);

@@ -11,13 +11,13 @@ namespace FLOOF {
             Diffuse = Texture(TextureColor::White);
 
         if (!Normals.IsValid())
-            Normals = Texture(TextureColor::Blue);
+            Normals = Texture(TextureColor::FlatNormal);
 
         if (!Metallic.IsValid())
             Metallic = Texture(TextureColor::Black);
 
         if (!Roughness.IsValid())
-            Roughness = Texture(TextureColor::White);
+            Roughness = Texture(TextureColor::DarkGrey);
 
         if (!AO.IsValid())
             AO = Texture(TextureColor::White);

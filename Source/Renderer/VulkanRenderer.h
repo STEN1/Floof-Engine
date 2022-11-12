@@ -50,7 +50,6 @@ namespace FLOOF {
     };
 
     enum class RenderPipelineKeys : uint32_t {
-        ForwardLit,
         Wireframe,
         UnLit,
         PBR,
@@ -141,8 +140,6 @@ namespace FLOOF {
     };
 
     class VulkanRenderer {
-        friend class TextureComponent;
-        friend class MeshComponent;
         friend class LineMeshComponent;
         friend class PointCloudComponent;
         friend class ModelManager;

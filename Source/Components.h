@@ -62,31 +62,6 @@ namespace FLOOF {
         }
     };
 
-    struct MeshComponent {
-        MeshComponent(const std::string& objPath);
-        MeshComponent(const std::vector<MeshVertex>& vertexData, const std::vector<uint32_t>& indexData);
-        MeshComponent(const std::vector<ColorNormalVertex>& vertexData, const std::vector<uint32_t>& indexData);
-        MeshComponent(const std::vector<MeshVertex>& vertexData);
-        ~MeshComponent();
-
-        void Draw(VkCommandBuffer commandBuffer);
-
-        struct MeshData {
-            VulkanBufferData VertexBuffer{};
-            VulkanBufferData IndexBuffer{};
-            uint32_t VertexCount{};
-            uint32_t IndexCount{};
-            std::string Path{};
-        };
-
-        MeshData Data{};
-
-        static void ClearMeshDataCache();
-    private:
-        bool m_IsCachedMesh = false;
-        inline static std::unordered_map<std::string, MeshData> s_MeshDataCache;
-    };
-
     struct LineMeshComponent {
         LineMeshComponent(const std::vector<ColorVertex>& vertexData);
         ~LineMeshComponent();
@@ -107,24 +82,6 @@ namespace FLOOF {
 
         VulkanBufferData VertexBuffer{};
         uint32_t VertexCount{};
-    };
-
-    struct TextureComponent {
-        TextureComponent(const std::string& path);
-        ~TextureComponent();
-
-        void Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
-
-        struct TextureData {
-            VulkanTexture VKTexture{};
-            std::string Path{};
-        };
-
-        TextureData Data{};
-
-        static void ClearTextureDataCache();
-    private:
-        inline static std::unordered_map<std::string, TextureData> s_TextureDataCache;
     };
 
     struct CameraComponent {

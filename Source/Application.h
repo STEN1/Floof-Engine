@@ -17,7 +17,6 @@
 
 namespace FLOOF {
     static const char* ApplicationDrawModes[] = {
-        "Lit",
         "Wireframe",
         "UnLit",
         "PBR",

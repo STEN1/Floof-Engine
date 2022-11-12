@@ -55,12 +55,6 @@ namespace FLOOF {
 				ImGui::Separator();
 				ImGui::Text("Soft body component");
 			}
-			if (auto* meshComponent = app.m_Scene->GetRegistry().try_get<MeshComponent>(
-				app.m_Scene->m_SelectedEntity)) {
-				ImGui::Separator();
-				ImGui::Text("Mesh component");
-				ImGui::Text(meshComponent->Data.Path.c_str());
-			}
 			if (auto* meshes = app.m_Scene->GetRegistry().try_get<StaticMeshComponent>(app.m_Scene->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Static mesh component");
@@ -83,14 +77,6 @@ namespace FLOOF {
 					}
 				}
 
-			}
-			if (auto* texture = app.m_Scene->GetRegistry().try_get<TextureComponent>(
-				app.m_Scene->m_SelectedEntity)) {
-				ImGui::Separator();
-				ImGui::Text("Texture component");
-				ImGui::Text(texture->Data.Path.c_str());
-				// TODO: Make imgui texture descriptor for all textures.
-				//ImGui::Image(texture->Data.DesctriptorSet, ImVec2(50, 50));
 			}
 			if (auto* soundComponent = app.m_Scene->GetRegistry().try_get<SoundSourceComponent>(
 				app.m_Scene->m_SelectedEntity)) {

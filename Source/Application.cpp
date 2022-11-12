@@ -88,9 +88,7 @@ namespace FLOOF {
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext(m_ImguiContext);
 
-        MeshComponent::ClearMeshDataCache();
         ModelManager::DestroyAll();
-        TextureComponent::ClearTextureDataCache();
         TextureManager::DestroyAll();
 
         delete m_Renderer;
@@ -342,8 +340,9 @@ namespace FLOOF {
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
             auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass,bt::CollisionPrimitive::Box);
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, texture);
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
             auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
@@ -354,8 +353,10 @@ namespace FLOOF {
         }
         if(false){
             auto entity = m_Scene->CreateEntity("Ground Ball");
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/LightBlue.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),glm::vec3(75.f),0.f,bt::CollisionPrimitive::Sphere);
 
             auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
@@ -388,8 +389,10 @@ namespace FLOOF {
                         const float mass = radius*100.f;
 
                         auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
-                        m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
-                        m_Scene->AddComponent<TextureComponent>(Ball, "Assets/statue/textures/staue1Color.png");
+                        auto& ballMesh = m_Scene->AddComponent<StaticMeshComponent>(Ball, "Assets/Ball.obj");
+                        ballMesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Ball.obj");
+                        ballMesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
                         m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
                         m_Scene->AddComponent<PointLightComponent>(Ball);
                         //test python script
@@ -404,8 +407,9 @@ namespace FLOOF {
 
                         auto cube = m_Scene->CreateEntity("Simulated Cube " + std::to_string(x+y+z));
                         m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass,bt::CollisionPrimitive::Box);
-                        m_Scene->AddComponent<MeshComponent>(cube, "Assets/IdentityCube.obj");
-                        m_Scene->AddComponent<TextureComponent>(cube, "Assets/BallTexture.png");
+                        auto& cubeMesh = m_Scene->AddComponent<StaticMeshComponent>(cube, "Assets/IdentityCube.obj");
+                        cubeMesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/IdentityCube.obj");
+                        cubeMesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
                         auto & cubeTransform = m_Scene->GetComponent<TransformComponent>(cube);
                         cubeTransform.Position = location;
@@ -422,7 +426,12 @@ namespace FLOOF {
         {
             auto ent = m_Scene->CreateEntity("Cerberus");
             auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX");
-            m_Scene->AddComponent<TextureComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
+            sm.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
+            sm.meshes[0].MeshMaterial.Normals = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.tga");
+            sm.meshes[0].MeshMaterial.Metallic = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_M.tga");
+            sm.meshes[0].MeshMaterial.Roughness = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_R.tga");
+            sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
             auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
             transform.Position = glm::vec3(-20.f, 100.f, -24.f);
@@ -433,8 +442,10 @@ namespace FLOOF {
             for (float y = 0.f; y < 20.f; y += 5.f) {
                 for (float z = 0.f; z < 20.f; z += 5.f) {
                     auto entity = m_Scene->CreateEntity("PointLight ball");
-                    m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
-                    m_Scene->AddComponent<TextureComponent>(entity, "Assets/BallTexture.png");
+                    auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                    mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
+                    mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
                     m_Scene->AddComponent<PointLightComponent>(entity);
 
                     auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
@@ -455,8 +466,9 @@ namespace FLOOF {
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
             auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, texture);
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
@@ -467,8 +479,10 @@ namespace FLOOF {
         }
         {
             auto entity = m_Scene->CreateEntity("Ground Ball");
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/LightBlue.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, glm::vec3(0.f, -150.f, 0.f), glm::vec3(75.f), 0.f, bt::CollisionPrimitive::Sphere);
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
@@ -486,8 +500,10 @@ namespace FLOOF {
             const float mass = radius * 100.f;
 
             auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(location.x + location.y + location.z));
-            m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(Ball, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/BallTexture.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius), mass, bt::CollisionPrimitive::Sphere);
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(Ball);

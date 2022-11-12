@@ -178,6 +178,16 @@ namespace FLOOF {
             break;
         case TextureColor::Black:
             break;
+        case TextureColor::DarkGrey:
+            dR = (stbi_uc)50;
+            dG = (stbi_uc)50;
+            dB = (stbi_uc)50;
+            break;
+        case TextureColor::FlatNormal:
+            dR = (stbi_uc)128;
+            dG = (stbi_uc)128;
+            dB = (stbi_uc)255;
+            break;
         }
 
         // staging buffer

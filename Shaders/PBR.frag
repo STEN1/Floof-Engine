@@ -39,6 +39,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
+vec3 getNormal();
 
 const float PI = 3.14159265359;
 
@@ -46,13 +47,13 @@ void main() {
     vec3 skyColor = vec3(1.0, 1.0, 1.0);
     vec3 skyDir = normalize(vec3(0.0,1.0,2.0));
 
-    vec3 N = normalize(fragNormal);
+    vec3 N = getNormal();
     vec3 V = normalize(sceneFrameUBO.cameraPos - fragPos);
 
     vec3 albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
-    float roughness = sceneFrameUBO.roughness;
-    float metallic = sceneFrameUBO.metallic;
-    float ao = sceneFrameUBO.ao;
+    float roughness = texture(roughnessTexture, fragUv).r;
+    float metallic = texture(metallicTexture, fragUv).r;
+    float ao = texture(aoTexture, fragUv).r;
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, sceneFrameUBO.metallic);
@@ -158,4 +159,22 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}  
+}
+
+vec3 getNormal()
+{
+	// Perturb normal, see http://www.thetenthplanet.de/archives/1180
+	vec3 tangentNormal = texture(normalsTexture, fragUv).xyz * 2.0 - 1.0;
+
+	vec3 q1 = dFdx(fragPos);
+	vec3 q2 = dFdy(fragPos);
+	vec2 st1 = dFdx(fragUv);
+	vec2 st2 = dFdy(fragUv);
+
+	vec3 N = normalize(fragNormal);
+	vec3 T = normalize(q1 * st2.t - q2 * st1.t);
+	vec3 B = -normalize(cross(N, T));
+	mat3 TBN = mat3(T, B, N);
+
+	return normalize(TBN * tangentNormal);
+}

@@ -14,6 +14,8 @@ namespace FLOOF {
         Blue,
         White,
         Black,
+        DarkGrey,
+        FlatNormal,
     };
 
     class TextureManager {
