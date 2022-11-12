@@ -235,7 +235,7 @@ namespace FLOOF {
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             renderer->CreateGraphicsPipeline(params);
         }
         {    // Line drawing shader
