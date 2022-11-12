@@ -88,7 +88,7 @@ namespace FLOOF {
         ImGui::DestroyContext(m_ImguiContext);
 
         MeshComponent::ClearMeshDataCache();
-        ModelManager::Get().DestroyAll();
+        ModelManager::DestroyAll();
         TextureComponent::ClearTextureDataCache();
 
 
@@ -419,9 +419,8 @@ namespace FLOOF {
 
         {
             auto ent = m_Scene->CreateEntity("Cerberus");
-            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
+            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX");
             m_Scene->AddComponent<TextureComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
-            sm.meshes = ModelManager::Get().LoadModelMesh("Assets/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
             auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
             transform.Position = glm::vec3(-20.f, 100.f, -24.f);

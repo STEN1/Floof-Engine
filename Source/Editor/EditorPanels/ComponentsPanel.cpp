@@ -65,17 +65,17 @@ namespace FLOOF {
 				ImGui::Separator();
 				ImGui::Text("Static mesh component");
 				if (ImGui::Button("Toggle all Wireframe off")) {
-					for (auto& mesh : *meshes->meshes) {
+					for (auto& mesh : meshes->meshes) {
 						meshes->mapDrawWireframeMeshes[mesh.MeshName] = false;
 					}
 				}
 				if (app.m_Scene->m_SelectedEntity != app.m_Scene->m_LastSelectedEntity) {
-					for (auto& mesh : *meshes->meshes) {
+					for (auto& mesh : meshes->meshes) {
 						meshes->mapDrawWireframeMeshes[mesh.MeshName] = true;
 					}
 				}
 				ImGui::Text("Internal Meshes list:");
-				for (auto& mesh : *meshes->meshes) {
+				for (auto& mesh : meshes->meshes) {
 					std::string name = "\t";
 					name += mesh.MeshName;
 					if (ImGui::Selectable(name.c_str(), meshes->mapDrawWireframeMeshes[mesh.MeshName])) {

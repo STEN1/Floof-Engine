@@ -122,7 +122,7 @@ namespace FLOOF {
                                    0, sizeof(MeshPushConstants), &constants);
                 if (drawMode != RenderPipelineKeys::Wireframe)
                     texture.Bind(commandBuffer, pipelineLayout);
-                for (auto &mesh: *staticMesh.meshes) {
+                for (auto &mesh: staticMesh.meshes) {
                     VkDeviceSize offset{0};
                     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
                     if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
@@ -166,7 +166,7 @@ namespace FLOOF {
 
             meshComponent->Draw(commandBuffer);
         } 
-        else if (auto *staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(scene->m_SelectedEntity)) {
+        else if (auto* staticMeshComponent = scene->m_Registry.try_get<StaticMeshComponent>(scene->m_SelectedEntity)) {
             auto &transform = scene->m_Registry.get<TransformComponent>(scene->m_SelectedEntity);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Wireframe);
@@ -178,7 +178,7 @@ namespace FLOOF {
             constants.InvModelMat = glm::inverse(modelMat);
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                                0, sizeof(MeshPushConstants), &constants);
-            for (auto &mesh: *staticMeshComponent->meshes) {
+            for (auto &mesh: staticMeshComponent->meshes) {
                 if (staticMeshComponent->mapDrawWireframeMeshes[mesh.MeshName]) {
                     VkDeviceSize offset{0};
                     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
@@ -210,7 +210,7 @@ namespace FLOOF {
 
         renderer->QueueSubmitGraphics(1, &submitInfo);
 
-        return m_TextureFrameBuffers[frameIndex].Descriptor;
+        return m_TextureFrameBuffers[frameIndex].VKTexture.DesctriptorSet;
     }
 
     void SceneRenderer::CreateTextureRenderer() {
@@ -444,7 +444,7 @@ namespace FLOOF {
 
         for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
             VkImageView attachments[] = {
-                    textureFrameBuffer.Texture.ImageView,
+                    textureFrameBuffer.VKTexture.ImageView,
                     m_DepthBufferImageView,
             };
 
@@ -493,12 +493,12 @@ namespace FLOOF {
             VmaAllocationCreateInfo imageAllocCreateInfo = {};
             imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 
-            vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &fbTexture.Texture.Image,
-                           &fbTexture.Texture.Allocation, &fbTexture.Texture.AllocationInfo);
+            vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &fbTexture.VKTexture.Image,
+                           &fbTexture.VKTexture.Allocation, &fbTexture.VKTexture.AllocationInfo);
 
             // create image view
             VkImageViewCreateInfo textureImageViewInfo = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
-            textureImageViewInfo.image = fbTexture.Texture.Image;
+            textureImageViewInfo.image = fbTexture.VKTexture.Image;
             textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
             textureImageViewInfo.format = format;
             textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -506,10 +506,10 @@ namespace FLOOF {
             textureImageViewInfo.subresourceRange.levelCount = 1;
             textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
             textureImageViewInfo.subresourceRange.layerCount = 1;
-            vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.Texture.ImageView);
+            vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &fbTexture.VKTexture.ImageView);
 
             VkSampler sampler = renderer->GetFontSampler();
-            fbTexture.Descriptor = ImGui_ImplVulkan_AddTexture(sampler, fbTexture.Texture.ImageView,
+            fbTexture.VKTexture.DesctriptorSet = ImGui_ImplVulkan_AddTexture(sampler, fbTexture.VKTexture.ImageView,
                                                                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
     }
@@ -533,15 +533,15 @@ namespace FLOOF {
 
         for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
             vkDestroyFramebuffer(renderer->m_LogicalDevice, textureFrameBuffer.FrameBuffer, nullptr);
-            vkDestroyImageView(renderer->m_LogicalDevice, textureFrameBuffer.Texture.ImageView, nullptr);
-            vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.Texture.Image,
-                            textureFrameBuffer.Texture.Allocation);
-            ImGui_ImplVulkan_RemoveTexture(textureFrameBuffer.Descriptor);
+            vkDestroyImageView(renderer->m_LogicalDevice, textureFrameBuffer.VKTexture.ImageView, nullptr);
+            vmaDestroyImage(renderer->m_Allocator, textureFrameBuffer.VKTexture.Image,
+                            textureFrameBuffer.VKTexture.Allocation);
+            ImGui_ImplVulkan_RemoveTexture(textureFrameBuffer.VKTexture.DesctriptorSet);
 
             textureFrameBuffer.FrameBuffer = VK_NULL_HANDLE;
-            textureFrameBuffer.Texture.ImageView = VK_NULL_HANDLE;
-            textureFrameBuffer.Texture.Image = VK_NULL_HANDLE;
-            textureFrameBuffer.Descriptor = VK_NULL_HANDLE;
+            textureFrameBuffer.VKTexture.ImageView = VK_NULL_HANDLE;
+            textureFrameBuffer.VKTexture.Image = VK_NULL_HANDLE;
+            textureFrameBuffer.VKTexture.DesctriptorSet = VK_NULL_HANDLE;
         }
     }
 

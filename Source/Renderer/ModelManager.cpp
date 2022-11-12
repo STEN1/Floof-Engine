@@ -3,17 +3,14 @@
 #include "VulkanRenderer.h"
 
 namespace FLOOF {
-    ModelManager::ModelManager() {
-    }
+    std::vector<MeshData> ModelManager::LoadModelMesh(const std::string& path) {
 
-    std::shared_ptr<std::vector<MeshData>> ModelManager::LoadModelMesh(const std::string& path) {
-
-        auto it = m_MeshCache.find(path);
-        if (it != m_MeshCache.end()) {
+        auto it = s_MeshCache.find(path);
+        if (it != s_MeshCache.end()) {
             return it->second;
         }
 
-        std::shared_ptr<std::vector<MeshData>> ret = std::make_shared<std::vector<MeshData>>();
+        std::vector<MeshData> ret;
         AssimpLoader loader(path);
         auto* renderer = VulkanRenderer::Get();
 
@@ -28,34 +25,34 @@ namespace FLOOF {
             meshData.VertexCount = mesh.vertices.size();
             meshData.IndexCount = mesh.indices.size();
             meshData.MeshName = mesh.name;
-            ret->emplace_back(meshData);
+            ret.emplace_back(meshData);
         }
 
-        auto& data = m_MeshCache[path] = ret;
+        s_MeshCache[path] = ret;
 
         return ret;
     }
 
-    void ModelManager::ModelMeshDestroyed(std::string& path) {
+    void ModelManager::ModelMeshDestroyed(const std::string& path) {
     }
 
     void ModelManager::DestroyAll() {
         auto* renderer = VulkanRenderer::Get();
-        for (auto& [path, data] : m_MeshCache) {
+        for (auto& [path, data] : s_MeshCache) {
             // TODO: Models also have material data. Need to handle that here?
 
-            for (auto& mesh : *data) {
+            for (auto& mesh : data) {
                 vmaDestroyBuffer(renderer->m_Allocator, mesh.IndexBuffer.Buffer, mesh.IndexBuffer.Allocation);
                 vmaDestroyBuffer(renderer->m_Allocator, mesh.VertexBuffer.Buffer, mesh.VertexBuffer.Allocation);
             }
         }
     }
 
-    ModelManager::btModelData ModelManager::LoadbtModel(const std::string &path,const glm::vec3 scale) {
+    btModelData ModelManager::LoadbtModel(const std::string &path,const glm::vec3 scale) {
 
         auto pathwithScale = path + std::to_string(scale.x) + std::to_string(scale.y)+ std::to_string(scale.z) ;
-        auto it = m_btMeshCache.find(pathwithScale);
-        if (it != m_btMeshCache.end()) {
+        auto it = s_btMeshCache.find(pathwithScale);
+        if (it != s_btMeshCache.end()) {
             std::cout << "Getting btModel data from cache" << std::endl;
             return it->second;
         }
@@ -76,7 +73,7 @@ namespace FLOOF {
                 meshData.btIndices.emplace_back(ind);
             }
             meshData.VertCount = mesh.vertices.size();
-            m_btMeshCache[pathwithScale] = meshData;
+            s_btMeshCache[pathwithScale] = meshData;
            return meshData;
         }
 

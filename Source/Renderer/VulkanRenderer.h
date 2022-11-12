@@ -34,10 +34,10 @@ namespace FLOOF {
         glm::mat4 MVP;
     };
 
-    struct VulkanCombinedTextureSampler {
+    struct VulkanTexture {
         VkImage Image = VK_NULL_HANDLE;
         VkImageView ImageView = VK_NULL_HANDLE;
-        VkSampler Sampler = VK_NULL_HANDLE;
+        VkDescriptorSet DesctriptorSet{};
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
     };

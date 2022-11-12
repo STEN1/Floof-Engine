@@ -113,18 +113,18 @@ namespace FLOOF {
         VmaAllocationCreateInfo imageAllocCreateInfo = {};
         imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 
-        vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &Data.CombinedTextureSampler.Image,
-            &Data.CombinedTextureSampler.Allocation, &Data.CombinedTextureSampler.AllocationInfo);
+        vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &Data.VKTexture.Image,
+            &Data.VKTexture.Allocation, &Data.VKTexture.AllocationInfo);
 
         // copy image from staging buffer to image buffer(gpu only memory)
-        renderer->CopyBufferToImage(stagingBuffer, Data.CombinedTextureSampler.Image, xWidth, yHeight);
+        renderer->CopyBufferToImage(stagingBuffer, Data.VKTexture.Image, xWidth, yHeight);
 
         // free staging buffer
         vmaDestroyBuffer(renderer->m_Allocator, stagingBuffer, stagingBufferAlloc);
 
         // create image view
         VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-        textureImageViewInfo.image = Data.CombinedTextureSampler.Image;
+        textureImageViewInfo.image = Data.VKTexture.Image;
         textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         textureImageViewInfo.format = format;
         textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -132,21 +132,21 @@ namespace FLOOF {
         textureImageViewInfo.subresourceRange.levelCount = 1;
         textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
         textureImageViewInfo.subresourceRange.layerCount = 1;
-        vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &Data.CombinedTextureSampler.ImageView);
+        vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &Data.VKTexture.ImageView);
 
         VkSampler sampler = renderer->GetTextureSampler();
 
         // Get descriptor set and point it to data.
-        Data.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
+        Data.VKTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
 
         VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.sampler = sampler;
-        descriptorImageInfo.imageView = Data.CombinedTextureSampler.ImageView;
+        descriptorImageInfo.imageView = Data.VKTexture.ImageView;
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkWriteDescriptorSet writeDescriptorSet{};
         writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescriptorSet.dstSet = Data.DesctriptorSet;
+        writeDescriptorSet.dstSet = Data.VKTexture.DesctriptorSet;
         writeDescriptorSet.dstBinding = 0;
         writeDescriptorSet.descriptorCount = 1;
         writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -164,16 +164,16 @@ namespace FLOOF {
         auto renderer = VulkanRenderer::Get();
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-            0, 1, &Data.DesctriptorSet, 0, 0);
+            0, 1, &Data.VKTexture.DesctriptorSet, 0, 0);
     }
 
     void TextureComponent::ClearTextureDataCache() {
         auto renderer = VulkanRenderer::Get();
 
         for (auto& [key, data] : s_TextureDataCache) {
-            renderer->FreeTextureDescriptorSet(data.DesctriptorSet);
-            vkDestroyImageView(renderer->m_LogicalDevice, data.CombinedTextureSampler.ImageView, nullptr);
-            vmaDestroyImage(renderer->m_Allocator, data.CombinedTextureSampler.Image, data.CombinedTextureSampler.Allocation);
+            renderer->FreeTextureDescriptorSet(data.VKTexture.DesctriptorSet);
+            vkDestroyImageView(renderer->m_LogicalDevice, data.VKTexture.ImageView, nullptr);
+            vmaDestroyImage(renderer->m_Allocator, data.VKTexture.Image, data.VKTexture.Allocation);
             //vkDestroySampler(renderer->m_LogicalDevice, data.CombinedTextureSampler.Sampler, nullptr);
         }
     }
@@ -478,7 +478,7 @@ namespace FLOOF {
                 break;
             case CollisionPrimitive::ConvexHull :
                 assert("Pls give a convex shape file in constructor");
-                auto vertices = ModelManager::Get().LoadbtModel("Assets/LowPolySphere.fbx",scale);
+                auto vertices = ModelManager::LoadbtModel("Assets/LowPolySphere.fbx",scale);
                 std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
                 hullShape->optimizeConvexHull();
                 CollisionShape = hullShape;
@@ -493,7 +493,7 @@ namespace FLOOF {
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape)  :DefaultScale(scale), Primitive(bt::ConvexHull){
 
-        auto vertices = ModelManager::Get().LoadbtModel(convexShape,scale);
+        auto vertices = ModelManager::LoadbtModel(convexShape,scale);
         std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
         hullShape->optimizeConvexHull();
         CollisionShape = hullShape;

@@ -41,11 +41,23 @@ private:
     unsigned int aiFlags = aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_GenUVCoords | aiProcess_FlipUVs;
     std::string path = "";
 
+    struct AssimpMaterial
+    {
+        std::string DiffusePath;
+        std::string NormalsPath;
+        std::string MetallicPath;
+        std::string RoughnessPath;
+        std::string AOPath;
+        std::string Name;
+    };
+
     struct AssimpMesh
     {
         std::vector<FLOOF::MeshVertex> vertices;
         std::vector<uint32_t> indices;
         std::string name;
+
+        AssimpMaterial material;
     };
 
     struct AssimpCollisionMesh
@@ -62,7 +74,7 @@ private:
     bool LoadMesh(aiMesh* mesh, const aiScene* scene);
     void LoadModel(const std::string& path);
 
-    bool LoadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName);
+    std::string LoadMaterialTexture(aiMaterial* mat, aiTextureType type);
 
 public:
     const AssimpStaticMesh& GetAssimpStaticMesh() const

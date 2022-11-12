@@ -8,8 +8,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
     {
         frame = entity;
-        auto& mesh = scene->AddComponent<StaticMeshComponent>(frame);
-        mesh.meshes = ModelManager::Get().LoadModelMesh("Assets/MonsterTruck/MonstertruckFrame.fbx");
+        auto& mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/MonsterTruck/MonstertruckFrame.fbx");
         auto& texture = scene->AddComponent<TextureComponent>(frame, "Assets/MonsterTruck/texturesFrame/HarmaaRunko_albedo.jpg");
 
         auto& transform =scene->GetComponent<TransformComponent>(frame);
@@ -18,8 +17,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_fr = scene->CreateEntity("Wheel Front left", frame);
-        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr);
-        mesh.meshes = ModelManager::Get().LoadModelMesh("Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/MonsterTruck/LPWheelFixed.fbx");
         auto& texture = scene->AddComponent<TextureComponent>(Wheel_fr, "Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
 
         auto& transform =scene->GetComponent<TransformComponent>(Wheel_fr);
@@ -29,8 +27,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front right", frame);
-        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl);
-        mesh.meshes = ModelManager::Get().LoadModelMesh("Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/MonsterTruck/LPWheelFixed.fbx");
         auto& texture = scene->AddComponent<TextureComponent>(Wheel_fl, "Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
 
         auto& transform =scene->GetComponent<TransformComponent>(Wheel_fl);
@@ -40,8 +37,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right", frame);
-        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br);
-        mesh.meshes = ModelManager::Get().LoadModelMesh("Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/MonsterTruck/LPWheelFixed.fbx");
         auto& texture = scene->AddComponent<TextureComponent>(Wheel_br, "Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
 
         auto& transform =scene->GetComponent<TransformComponent>(Wheel_br);
@@ -51,8 +47,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_bl = scene->CreateEntity("Wheel back left",frame);
-        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl);
-        mesh.meshes = ModelManager::Get().LoadModelMesh("Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/MonsterTruck/LPWheelFixed.fbx");
         auto& texture = scene->AddComponent<TextureComponent>(Wheel_bl, "Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
 
         auto& transform =scene->GetComponent<TransformComponent>(Wheel_bl);

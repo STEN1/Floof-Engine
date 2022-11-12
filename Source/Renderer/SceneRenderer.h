@@ -45,9 +45,8 @@ namespace FLOOF {
         VkRenderPass m_RenderPass;
 
         struct TextureFrameBuffer {
-            VulkanCombinedTextureSampler Texture;
+            VulkanTexture VKTexture;
             VkFramebuffer FrameBuffer = VK_NULL_HANDLE;
-            VkDescriptorSet Descriptor;
         };
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;

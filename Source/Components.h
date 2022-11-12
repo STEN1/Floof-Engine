@@ -116,8 +116,7 @@ namespace FLOOF {
         void Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
 
         struct TextureData {
-            VulkanCombinedTextureSampler CombinedTextureSampler{};
-            VkDescriptorSet DesctriptorSet{};
+            VulkanTexture VKTexture{};
             std::string Path{};
         };
 

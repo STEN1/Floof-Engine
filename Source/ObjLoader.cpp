@@ -213,9 +213,21 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
-    LoadMaterialTexture(mat, aiTextureType_DIFFUSE, "texture_diffuse");
-    LoadMaterialTexture(mat, aiTextureType_NORMALS, "texture_normals");
-    LoadMaterialTexture(mat, aiTextureType_SPECULAR, "texture_specular");
+    internalMesh.material.DiffusePath = LoadMaterialTexture(mat, aiTextureType_BASE_COLOR);
+    if (internalMesh.material.DiffusePath.empty())
+        internalMesh.material.DiffusePath = LoadMaterialTexture(mat, aiTextureType_DIFFUSE);
+
+    internalMesh.material.NormalsPath = LoadMaterialTexture(mat, aiTextureType_NORMAL_CAMERA);
+    if (internalMesh.material.NormalsPath.empty())
+        internalMesh.material.NormalsPath = LoadMaterialTexture(mat, aiTextureType_NORMALS);
+
+    internalMesh.material.MetallicPath = LoadMaterialTexture(mat, aiTextureType_METALNESS);
+    if (internalMesh.material.MetallicPath.empty())
+        internalMesh.material.MetallicPath = LoadMaterialTexture(mat, aiTextureType_SPECULAR);
+
+    internalMesh.material.RoughnessPath = LoadMaterialTexture(mat, aiTextureType_DIFFUSE_ROUGHNESS);
+
+    internalMesh.material.AOPath = LoadMaterialTexture(mat, aiTextureType_AMBIENT_OCCLUSION);
 
     staticMesh.meshes.emplace_back(internalMesh);
     return true;
@@ -259,17 +271,12 @@ void AssimpLoader::LoadModel(const std::string& path)
     ProcessNode(scene->mRootNode, scene);
 }
 
-bool AssimpLoader::LoadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::string AssimpLoader::LoadMaterialTexture(aiMaterial* mat, aiTextureType type)
 {
     if (mat->GetTextureCount(type) == 0) {
-        return false;
+        return std::string();
     }
-
-    std::cout << typeName << " path:";
-    for (uint32_t i = 0; i < mat->GetTextureCount(type); i++) {
-        aiString path;
-        mat->GetTexture(type, i, &path);
-        std::cout << " " << path.C_Str();
-    }
-    std::cout << std::endl;
+    aiString path;
+    mat->GetTexture(type, 0, &path);
+    return std::string(path.C_Str());
 }
