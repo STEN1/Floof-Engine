@@ -77,9 +77,28 @@ namespace FLOOF {
                     auto& dR = data[dataIndex];
                     auto& dG = data[dataIndex + 1];
                     auto& dB = data[dataIndex + 2];
-                    auto& dA = data[dataIndex + 3];
 
                     rdR = dR; rdG = dG; rdB = dB;
+                    rdA = (stbi_uc)255;
+                }
+            }
+            memcpy(stagingBufferAllocInfo.pMappedData, readyData.data(), size);
+        } else if (channels == 1) {
+            std::vector<stbi_uc> readyData(size);
+            for (uint32_t h = 0; h < yHeight; h++) {
+                for (uint32_t w = 0; w < xWidth; w++) {
+                    uint32_t readyDataIndex = (h * xWidth * 4) + (w * 4);
+                    auto& rdR = readyData[readyDataIndex];
+                    auto& rdG = readyData[readyDataIndex + 1];
+                    auto& rdB = readyData[readyDataIndex + 2];
+                    auto& rdA = readyData[readyDataIndex + 3];
+
+                    uint32_t dataIndex = (h * xWidth * 1) + (w * 1);
+                    auto& dR = data[dataIndex];
+
+                    rdR = dR; 
+                    rdG = (stbi_uc)0;
+                    rdB = (stbi_uc)0;
                     rdA = (stbi_uc)255;
                 }
             }
