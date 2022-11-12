@@ -10,6 +10,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         frame = entity;
         auto& mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/MonsterTruck/MonstertruckFrame.fbx");
         mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_albedo.jpg");
+        //mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_metallic.jpg");
+        //mesh.meshes[0].MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_AO.jpg");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_normal.jpg");
+        //mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_roughness.jpg");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
         auto& transform = scene->GetComponent<TransformComponent>(frame);
@@ -20,6 +24,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         Wheel_fr = scene->CreateEntity("Wheel Front left", frame);
         auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/MonsterTruck/LPWheelFixed.fbx");
         mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
+        mesh.meshes[0].MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
         auto& transform = scene->GetComponent<TransformComponent>(Wheel_fr);
@@ -31,6 +39,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         Wheel_fl = scene->CreateEntity("Wheel Front right", frame);
         auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/MonsterTruck/LPWheelFixed.fbx");
         mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
+        mesh.meshes[0].MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
         auto& transform = scene->GetComponent<TransformComponent>(Wheel_fl);
@@ -42,6 +54,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         Wheel_br = scene->CreateEntity("Wheel Back right", frame);
         auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/MonsterTruck/LPWheelFixed.fbx");
         mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
+        mesh.meshes[0].MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
         auto& transform = scene->GetComponent<TransformComponent>(Wheel_br);
@@ -53,6 +69,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         Wheel_bl = scene->CreateEntity("Wheel back left", frame);
         auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/MonsterTruck/LPWheelFixed.fbx");
         mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
+        mesh.meshes[0].MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
         auto& transform =scene->GetComponent<TransformComponent>(Wheel_bl);
