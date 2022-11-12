@@ -219,5 +219,28 @@ namespace FLOOF {
         }
         std::unique_ptr<NativeScript> Script;
     };
+    struct EngineComponent{
+
+        EngineComponent();
+        std::shared_ptr<btRaycastVehicle> RaycastVehicle{nullptr};
+
+        float	gEngineForce = 0.f;
+        float	gBreakingForce = 0.f;
+
+        float	maxEngineForce = 1000.f;//this should be engine/velocity dependent
+        float	maxBreakingForce = 100.f;
+
+        float	gVehicleSteering = 0.f;
+        float	steeringIncrement = 0.04f;
+        float	steeringClamp = 0.3f;
+        float	wheelRadius = 0.5f;
+        float	wheelWidth = 0.4f;
+        float	wheelFriction = 1000;//BT_LARGE_FLOAT;
+        float	suspensionStiffness = 20.f;
+        float	suspensionDamping = 2.3f;
+        float	suspensionCompression = 4.4f;
+        float	rollInfluence = 0.1f;//1.0f;
+
+    };
 }
 

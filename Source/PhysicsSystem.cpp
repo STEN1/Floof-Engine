@@ -59,8 +59,8 @@ namespace FLOOF {
 
         //rigid body
         {
-            auto view = mScene.view<RigidBodyComponent, TransformComponent>();
-            for (auto [entity, RigidBodyComponent, transform]: view.each()) {
+            auto view = mScene.view<RigidBodyComponent, TransformComponent,Relationship>();
+            for (auto [entity, RigidBodyComponent, transform,rel]: view.each()) {
 
 
                 btRigidBody *body = RigidBodyComponent.RigidBody.get();
@@ -71,11 +71,25 @@ namespace FLOOF {
                     trans = body->getWorldTransform();
                 }
 
-                float x, y, z;
-                trans.getRotation().getEulerZYX(z, y, x);
-                transform.Rotation = glm::vec3(x, y, z);
 
-                transform.Position =  glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),trans.getOrigin().getZ());
+
+                //depends on parent transform
+                if(rel.Parent != entt::null){
+                    auto* partrans =  mScene.try_get<TransformComponent>(rel.Parent);
+
+                    float x, y, z;
+                    trans.getRotation().getEulerZYX(z, y, x);
+                    transform.Rotation = glm::vec3(x-partrans->Rotation.x, y-partrans->Rotation.y, z-partrans->Rotation.z);
+
+                   auto newloc =glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),trans.getOrigin().getZ());
+                   transform.Position = (newloc-partrans->Position) / partrans->Scale;
+                }
+                else{
+                    float x, y, z;
+                    trans.getRotation().getEulerZYX(z, y, x);
+                    transform.Rotation = glm::vec3(x, y, z);
+                    transform.Position =  glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),trans.getOrigin().getZ());
+                }
             }
         }
         //soft body

@@ -290,16 +290,16 @@ namespace FLOOF {
         } else {
             trans = RigidBody->getWorldTransform();
         }
-        RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
+        //RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
         trans.setOrigin(Utils::glmTobt(location));
         btQuaternion btquat;
         auto rot = Utils::glmTobt(rotation);
         btquat.setEulerZYX(rot.z(),rot.y(),rot.x());
         trans.setRotation(btquat);
         trans.setOrigin(Utils::glmTobt(location));
-        RigidBody->setCenterOfMassTransform(trans);
+        //RigidBody->setCenterOfMassTransform(trans);
 
-        CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
+        //CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
 
     }
 
@@ -463,6 +463,10 @@ namespace FLOOF {
 
         Pname= PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
+
+    }
+
+    EngineComponent::EngineComponent() {
 
     }
 }
