@@ -13,6 +13,7 @@
 #include <filesystem>
 #include "Editor/EditorLayer.h"
 #include "NativeScripts/MonsterTruckScript.h"
+#include "Renderer/TextureManager.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -90,7 +91,7 @@ namespace FLOOF {
         MeshComponent::ClearMeshDataCache();
         ModelManager::DestroyAll();
         TextureComponent::ClearTextureDataCache();
-
+        TextureManager::DestroyAll();
 
         delete m_Renderer;
 
@@ -286,6 +287,7 @@ namespace FLOOF {
 
     void Application::SelectDebugScene(DebugScenes type) {
         m_CurrentDebugScene = type;
+        VulkanRenderer::Get()->FinishAllFrames();
         switch (type) {
             case DebugScenes::Physics:
             {

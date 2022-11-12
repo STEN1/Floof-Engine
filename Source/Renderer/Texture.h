@@ -2,14 +2,20 @@
 
 #include "../Floof.h"
 #include "VulkanRenderer.h"
+#include "TextureManager.h"
 
 #include <string>
 
 namespace FLOOF {
-    class Texture {
-        Texture() = delete;
-    public:
-    private:
+    struct Texture {
+        Texture() = default;
+        Texture(const std::string& path);
+        Texture(TextureColor color);
 
+        bool IsValid() { return VkTexture.DesctriptorSet != VK_NULL_HANDLE; }
+
+        VulkanTexture VkTexture;
+        std::string Path;
+        TextureColor Color = TextureColor::None;
     };
 }

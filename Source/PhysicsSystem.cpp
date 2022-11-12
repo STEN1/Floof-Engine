@@ -128,7 +128,7 @@ namespace FLOOF {
             btRigidBody* body = btRigidBody::upcast(obj);
             if (body && body->getMotionState())
             {
-                delete body->getMotionState();
+                //delete body->getMotionState();
             }
             mDynamicsWorld->removeCollisionObject(obj);
         }

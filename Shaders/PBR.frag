@@ -7,6 +7,10 @@ layout(location = 2) in vec3 fragPos;
 layout(location = 0) out vec4 outColor;
 
 layout (set = 0, binding = 0) uniform sampler2D diffuseTexture;
+layout (set = 0, binding = 1) uniform sampler2D normalsTexture;
+layout (set = 0, binding = 2) uniform sampler2D metallicTexture;
+layout (set = 0, binding = 3) uniform sampler2D roughnessTexture;
+layout (set = 0, binding = 4) uniform sampler2D aoTexture;
 
 struct PointLight {    
     vec4 position;

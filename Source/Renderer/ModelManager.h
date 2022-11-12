@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Floof.h"
 #include <unordered_map>
 #include <string>

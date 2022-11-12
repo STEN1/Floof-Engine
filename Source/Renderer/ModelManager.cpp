@@ -25,6 +25,11 @@ namespace FLOOF {
             meshData.VertexCount = mesh.vertices.size();
             meshData.IndexCount = mesh.indices.size();
             meshData.MeshName = mesh.name;
+            meshData.MeshMaterial.Diffuse.Path = mesh.material.DiffusePath;
+            meshData.MeshMaterial.Normals.Path = mesh.material.NormalsPath;
+            meshData.MeshMaterial.Metallic.Path = mesh.material.MetallicPath;
+            meshData.MeshMaterial.Roughness.Path = mesh.material.RoughnessPath;
+            meshData.MeshMaterial.AO.Path = mesh.material.AOPath;
             ret.emplace_back(meshData);
         }
 

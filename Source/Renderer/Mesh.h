@@ -12,7 +12,8 @@ namespace FLOOF {
         uint32_t VertexCount{};
         uint32_t IndexCount{};
         std::string MeshName{"NoName"};
-        uint32_t MaterialIndex{};
+
+        Material MeshMaterial;
     };
 
     class StaticMeshComponent {
@@ -20,7 +21,6 @@ namespace FLOOF {
         StaticMeshComponent() = default;
         StaticMeshComponent(const std::string& path);
         std::vector<MeshData> meshes{};
-        std::vector<Material> materials{};
         std::unordered_map<std::string, bool> mapDrawWireframeMeshes{};
     };
 }
