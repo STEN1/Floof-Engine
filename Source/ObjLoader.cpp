@@ -149,7 +149,7 @@ AssimpLoader::AssimpLoader(const std::string& path)
     LoadModel(path);
 }
 
-bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
+bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x4& nodeTransform)
 {
     AssimpLoader::AssimpMesh internalMesh;
 
@@ -175,14 +175,6 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
                     vertex.UV[j] = mesh->mTextureCoords[0][i][j];
                 }
             }
-        }
-        {	//Tangents
-            if (mesh->HasTangentsAndBitangents())
-                for (auto j = 0; j < 3; j++)
-                {
-                    vertex.Tangent[j] = mesh->mTangents[i][j];
-                    vertex.BitTangent[j] = mesh->mBitangents[i][j];
-                }
         }
         internalMesh.vertices.emplace_back(vertex);
     }
@@ -229,21 +221,24 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
 
     internalMesh.material.AOPath = LoadMaterialTexture(mat, aiTextureType_AMBIENT_OCCLUSION);
 
+    internalMesh.Transform = nodeTransform;
+
     staticMesh.meshes.emplace_back(internalMesh);
     return true;
 }
 
-void AssimpLoader::ProcessNode(aiNode* node, const aiScene* scene)
+void AssimpLoader::ProcessNode(aiNode* node, const aiScene* scene, const aiMatrix4x4& nodeTransform)
 {
     for (auto i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        if (!LoadMesh(mesh, scene))
+        if (!LoadMesh(mesh, scene, nodeTransform))
             std::cerr << "failed to load mesh: " << path << std::endl;
     }
     for (auto i = 0; i < node->mNumChildren; i++)
     {
-        ProcessNode(node->mChildren[i], scene);
+        auto childTransform = nodeTransform * node->mChildren[i]->mTransformation;
+        ProcessNode(node->mChildren[i], scene, childTransform);
     }
 };
 
@@ -268,7 +263,8 @@ void AssimpLoader::LoadModel(const std::string& path)
         return;
     }
 
-    ProcessNode(scene->mRootNode, scene);
+    auto& transform = scene->mRootNode->mTransformation;
+    ProcessNode(scene->mRootNode, scene, transform);
 }
 
 std::string AssimpLoader::LoadMaterialTexture(aiMaterial* mat, aiTextureType type)

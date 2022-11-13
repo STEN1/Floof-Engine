@@ -22,7 +22,7 @@ namespace FLOOF {
         s_ColorTextureCache.clear();
     }
 
-    VulkanTexture TextureManager::GetTextureFromPath(const std::string& path)
+    VulkanTexture TextureManager::GetTextureFromPath(const std::string& path, bool flip, bool glNormal)
     {
         auto it = s_TextureCache.find(path);
         if (it != s_TextureCache.end())
@@ -31,7 +31,7 @@ namespace FLOOF {
         auto renderer = VulkanRenderer::Get();
         // Load texture
         int xWidth, yHeight, channels;
-        stbi_set_flip_vertically_on_load(false);
+        stbi_set_flip_vertically_on_load(flip);
         auto* data = stbi_load(path.c_str(), &xWidth, &yHeight, &channels, 0);
 
         VulkanTexture texture;
@@ -62,6 +62,14 @@ namespace FLOOF {
 
         ASSERT(stagingBufferAllocInfo.pMappedData != nullptr);
         if (channels == 4) {
+            if (glNormal) {
+                for (uint32_t h = 0; h < yHeight; h++) {
+                    for (uint32_t w = 0; w < xWidth; w++) {
+                        uint32_t dataIndex = (h * xWidth * 4) + (w * 4);
+                        data[dataIndex + 1] = (stbi_uc)255 - data[dataIndex + 1];
+                    }
+                }
+            }
             memcpy(stagingBufferAllocInfo.pMappedData, data, size);
         } else if (channels == 3) {
             std::vector<stbi_uc> readyData(size);
@@ -80,6 +88,14 @@ namespace FLOOF {
 
                     rdR = dR; rdG = dG; rdB = dB;
                     rdA = (stbi_uc)255;
+                }
+            }
+            if (glNormal) {
+                for (uint32_t h = 0; h < yHeight; h++) {
+                    for (uint32_t w = 0; w < xWidth; w++) {
+                        uint32_t dataIndex = (h * xWidth * 4) + (w * 4);
+                        readyData[dataIndex + 1] = (stbi_uc)255 - readyData[dataIndex + 1];
+                    }
                 }
             }
             memcpy(stagingBufferAllocInfo.pMappedData, readyData.data(), size);

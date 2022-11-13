@@ -11,11 +11,9 @@ namespace FLOOF {
         glm::vec3 Pos{};
         glm::vec3 Normal{};
         glm::vec2 UV{};
-        glm::vec3 Tangent{};
-        glm::vec3 BitTangent{};
 
         bool operator == (const MeshVertex& other) const {
-            return Pos == other.Pos && Normal == other.Normal && UV == other.UV && Tangent == other.Tangent && BitTangent == other.BitTangent;
+            return Pos == other.Pos && Normal == other.Normal && UV == other.UV;
         }
 
         static VkVertexInputBindingDescription GetBindingDescription() {
@@ -29,7 +27,7 @@ namespace FLOOF {
         }
 
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
-            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(5);
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
@@ -45,16 +43,6 @@ namespace FLOOF {
             attributeDescriptions[2].location = 2;
             attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
             attributeDescriptions[2].offset = offsetof(MeshVertex, UV);
-
-            attributeDescriptions[3].binding = 0;
-            attributeDescriptions[3].location = 3;
-            attributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[3].offset = offsetof(MeshVertex, Tangent);
-
-            attributeDescriptions[4].binding = 0;
-            attributeDescriptions[4].location = 4;
-            attributeDescriptions[4].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[4].offset = offsetof(MeshVertex, BitTangent);
 
             return attributeDescriptions;
         }

@@ -9,7 +9,7 @@
 namespace FLOOF {
     struct Texture {
         Texture() = default;
-        Texture(const std::string& path);
+        Texture(const std::string& path, bool flip = false, bool glNormal = false);
         Texture(TextureColor color);
 
         bool IsValid() { return VkTexture.DesctriptorSet != VK_NULL_HANDLE; }
