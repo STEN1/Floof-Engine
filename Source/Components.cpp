@@ -310,7 +310,11 @@ namespace FLOOF {
     SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody*body) {
 
         SoftBody = body;
+
+        SoftBody->generateBendingConstraints(2);
+
         SoftBody->m_cfg.kVC = conservation; //Konservation coefficient
+        SoftBody->m_cfg.kPR = 0.1;
         SoftBody->m_materials[0]->m_kLST = stiffness; // linear stiffness
 
         //soft rigid collision and soft soft collision
@@ -322,10 +326,10 @@ namespace FLOOF {
         SoftBody->m_cfg.kSK_SPLT_CL = 1;
         SoftBody->m_cfg.collisions = btSoftBody::fCollision::CL_SS + btSoftBody::fCollision::CL_RS;
         SoftBody->randomizeConstraints();
-        SoftBody->generateClusters(16);
-        SoftBody->setPose(true, false);
+        SoftBody->generateClusters(2);
+        SoftBody->setPose(true, true);
 
-        SoftBody->setTotalMass(mass, true);
+        SoftBody->setTotalMass(mass, false);
 
     }
 

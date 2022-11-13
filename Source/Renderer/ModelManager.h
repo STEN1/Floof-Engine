@@ -11,6 +11,9 @@ namespace FLOOF {
         std::vector<btVector3> btVertices{};
         std::vector<int> btIndices{};
         uint32_t VertCount{};
+        std::vector<btScalar> GetVertices();
+    private:
+        std::vector<btScalar> ScalarVertices;
     };
 
     class ModelManager {

@@ -83,4 +83,18 @@ namespace FLOOF {
         }
 
     }
+
+
+    std::vector<btScalar> btModelData::GetVertices() {
+
+        ScalarVertices.resize(VertCount*3);
+        std::cout << "mesh vertices"<< std::endl;
+        for(int i{0} ,j{0}; i < VertCount; j+=3, i++){
+            ScalarVertices[j] = btVertices[i].x();
+            ScalarVertices[j+1] = btVertices[i].y();
+            ScalarVertices[j+2] = btVertices[i].z();
+
+        }
+        return ScalarVertices;
+    }
 }
