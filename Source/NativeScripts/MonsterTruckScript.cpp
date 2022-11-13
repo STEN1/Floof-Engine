@@ -19,8 +19,6 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto& transform = scene->GetComponent<TransformComponent>(frame);
         transform.Scale = glm::vec3(5.f);
         transform.Rotation = glm::vec3(1.5f, 0.f, 0.f);
-        auto &body = scene->AddComponent<RigidBodyComponent>(frame,transform.Position,transform.Scale,500,"Assets/MonsterTruck/MonstertruckFrame.fbx");
-        scene->GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
     {
         Wheel_fr = scene->CreateEntity("Wheel Front left", frame);
@@ -36,10 +34,6 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Position = glm::vec3(-7.f, -4.f, 2.f);
         transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f, 0.f, -1.5f);
-
-        auto& transFrame = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr,transform.Position,transform.Scale+transFrame.Scale,500,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        scene->GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front right", frame);
@@ -55,10 +49,6 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Position = glm::vec3(-7.f, 4.f, 2.f);
         transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f, 0.f, 1.5f);
-
-        auto& transFrame = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl,transform.Position,transform.Scale+transFrame.Scale,500,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        scene->GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right", frame);
@@ -74,10 +64,6 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Position = glm::vec3(7.f, 4.f, 2.f);
         transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f, 0.f, 1.5f);
-
-        auto& transFrame = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br,transform.Position,transform.Scale+transFrame.Scale,500,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        scene->GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
     {
         Wheel_bl = scene->CreateEntity("Wheel back left", frame);
@@ -93,10 +79,6 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Position = glm::vec3(7.f,-4.f,2.f);
         transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f,0.f,-1.5f);
-
-        auto& transFrame = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl,transform.Position,transform.Scale+transFrame.Scale,500,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        scene->GetPhysicSystem()->AddRigidBody(body.RigidBody.get());
     }
 
 
