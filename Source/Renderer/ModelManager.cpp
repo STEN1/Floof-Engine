@@ -84,7 +84,8 @@ namespace FLOOF {
 
     }
 
-    std::vector<btScalar> ModelManager::btModelData::getVertices() {
+
+    std::vector<btScalar> btModelData::GetVertices() {
 
         ScalarVertices.resize(VertCount*3);
         std::cout << "mesh vertices"<< std::endl;
@@ -96,5 +97,4 @@ namespace FLOOF {
         }
         return ScalarVertices;
     }
-
 }

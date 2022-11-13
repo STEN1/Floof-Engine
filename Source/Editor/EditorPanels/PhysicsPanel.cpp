@@ -192,7 +192,7 @@ const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::v
     //create softbody
     auto btvert = ModelManager::LoadbtModel(FilePath, Scale);
 
-    btSoftBody *psb = btSoftBodyHelpers::CreateFromTriMesh(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.getVertices()[0], &btvert.btIndices[0], btvert.btIndices.size()/3);
+    btSoftBody *psb = btSoftBodyHelpers::CreateFromTriMesh(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.GetVertices()[0], &btvert.btIndices[0], btvert.btIndices.size()/3);
 
     psb->translate(btVector3(Location.x, Location.y, Location.z));
 
