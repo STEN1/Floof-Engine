@@ -63,13 +63,10 @@ namespace FLOOF {
 
         //rigid body
         {
-<<<<<<< HEAD
+
             auto view = mScene.view<RigidBodyComponent, TransformComponent, Relationship>();
             for (auto [entity, RigidBodyComponent, transform, rel]: view.each()) {
-=======
-            auto view = mScene.view<RigidBodyComponent, TransformComponent>();
-            for (auto [entity, RigidBodyComponent, transform]: view.each()) {
->>>>>>> parent of a886ba8 (car start)
+
 
 
                 btRigidBody *body = RigidBodyComponent.RigidBody.get();
@@ -81,7 +78,7 @@ namespace FLOOF {
                 } else {
                     trans = body->getWorldTransform();
                 }
-                
+
                 //depends on parent transform
                 if (rel.Parent != entt::null) {
                     auto *partrans = mScene.try_get<TransformComponent>(rel.Parent);
