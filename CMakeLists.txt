@@ -30,8 +30,8 @@ add_executable(Floof
     Source/Renderer/TextureManager.cpp 
     Source/Renderer/Mesh.h 
     Source/Renderer/Texture.h
-    "Source/Renderer/SceneRenderer.h" 
-    "Source/Renderer/SceneRenderer.cpp"
+    Source/Renderer/SceneRenderer.h
+    Source/Renderer/SceneRenderer.cpp
     Source/Renderer/stb_image.cpp
     Source/Scene.h
     Source/Scene.cpp 
@@ -49,8 +49,28 @@ add_executable(Floof
     Source/Renderer/VulkanBuffer.h
     Source/Renderer/VulkanBuffer.cpp
     Source/HeightmapLoader.h
-    Source/HeightmapLoader.cpp "Source/ApplicationLayer.h" "Source/ApplicationLayer.cpp" "Source/Editor/EditorLayer.h" "Source/Editor/EditorLayer.cpp" "Source/Editor/EditorPanels/SceneGraphPanel.h" "Source/Editor/EditorPanels/SceneGraphPanel.cpp" "Source/Editor/EditorPanels/ComponentsPanel.h" "Source/Editor/EditorPanels/ComponentsPanel.cpp" "Source/Editor/EditorPanels/EditorPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.h" "Source/Editor/EditorPanels/ApplicationPanel.cpp"
-    Source/HeightmapLoader.cpp Source/NativeScripts/MonsterTruckScript.cpp Source/NativeScripts/MonsterTruckScript.h Source/Editor/EditorPanels/PhysicsPanel.cpp Source/Editor/EditorPanels/PhysicsPanel.h "Source/Editor/EditorPanels/RendererPanel.h" "Source/Editor/EditorPanels/RendererPanel.cpp" "Source/Renderer/Texture.cpp" "Source/Renderer/Material.cpp" "Source/TransformComponent.h")
+    Source/HeightmapLoader.cpp
+    Source/ApplicationLayer.h
+    Source/ApplicationLayer.cpp
+    Source/Editor/EditorLayer.h
+    Source/Editor/EditorLayer.cpp
+    Source/Editor/EditorPanels/SceneGraphPanel.h
+    Source/Editor/EditorPanels/SceneGraphPanel.cpp
+    Source/Editor/EditorPanels/ComponentsPanel.h
+    Source/Editor/EditorPanels/ComponentsPanel.cpp
+    Source/Editor/EditorPanels/EditorPanel.h
+    Source/Editor/EditorPanels/ApplicationPanel.h
+    Source/Editor/EditorPanels/ApplicationPanel.cpp
+    Source/HeightmapLoader.cpp
+    Source/NativeScripts/MonsterTruckScript.cpp
+    Source/NativeScripts/MonsterTruckScript.h
+    Source/Editor/EditorPanels/PhysicsPanel.cpp
+    Source/Editor/EditorPanels/PhysicsPanel.h
+    Source/Editor/EditorPanels/RendererPanel.h
+    Source/Editor/EditorPanels/RendererPanel.cpp
+    Source/Renderer/Texture.cpp
+    Source/Renderer/Material.cpp
+    Source/TransformComponent.h)
 
 
 find_package(Vulkan REQUIRED)
