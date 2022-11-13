@@ -54,31 +54,12 @@ namespace FLOOF {
             }
             return transform;
         }
-    };
 
-    struct MeshComponent {
-        MeshComponent(const std::string& objPath);
-        MeshComponent(const std::vector<MeshVertex>& vertexData, const std::vector<uint32_t>& indexData);
-        MeshComponent(const std::vector<ColorNormalVertex>& vertexData, const std::vector<uint32_t>& indexData);
-        MeshComponent(const std::vector<MeshVertex>& vertexData);
-        ~MeshComponent();
-
-        void Draw(VkCommandBuffer commandBuffer);
-
-        struct MeshData {
-            VulkanBufferData VertexBuffer{};
-            VulkanBufferData IndexBuffer{};
-            uint32_t VertexCount{};
-            uint32_t IndexCount{};
-            std::string Path{};
-        };
-
-        MeshData Data{};
-
-        static void ClearMeshDataCache();
-    private:
-        bool m_IsCachedMesh = false;
-        inline static std::unordered_map<std::string, MeshData> s_MeshDataCache;
+        glm::vec3 GetWorldPosition() const {
+            glm::mat4 transform = GetTransform();
+            glm::vec3 pos(transform[3].x, transform[3].y, transform[3].z);
+            return pos;
+        }
     };
 
     struct LineMeshComponent {
@@ -101,25 +82,6 @@ namespace FLOOF {
 
         VulkanBufferData VertexBuffer{};
         uint32_t VertexCount{};
-    };
-
-    struct TextureComponent {
-        TextureComponent(const std::string& path);
-        ~TextureComponent();
-
-        void Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
-
-        struct TextureData {
-            VulkanCombinedTextureSampler CombinedTextureSampler{};
-            VkDescriptorSet DesctriptorSet{};
-            std::string Path{};
-        };
-
-        TextureData Data{};
-
-        static void ClearTextureDataCache();
-    private:
-        inline static std::unordered_map<std::string, TextureData> s_TextureDataCache;
     };
 
     struct CameraComponent {
@@ -211,25 +173,28 @@ namespace FLOOF {
 	struct SoundSourceComponent {
         friend class SoundManager;
 	public:
-        SoundSourceComponent(std::string& path);
+        SoundSourceComponent(const std::string& path);
         ~SoundSourceComponent();
         void Volume(float volume);
+        void Pitch();
+        void UpdateStatus();
         void Play();
         void Stop();
-        void Looping(bool isLooping);
+        void Looping(bool looping);
+        void Update();
         ALuint m_Source;
         ALuint m_Sound;
-	private:
-        glm::vec3 position{ 1.0f,0.f,0.f };
-        glm::vec3 velocity{ 0.0f,0.f,0.f };
-        float pitch{ 1.f };
-        float gain{ 1.f };
-        bool looping{ false };
+		std::string m_Path;
+        float m_Volume{1.f};
+        float m_Pitch{ 1.f };
+        bool isPlaying{ false };
+        bool isLooping{ false };
+
 
 	};
 
     struct PointLightComponent {
-        glm::vec4 diffuse = { 0.8f, 0.4f, 0.2f, 0.f };
+        glm::vec4 diffuse = { 1.0f, 0.7f, 0.5f, 0.f };
         glm::vec4 ambient = glm::vec4(0.4f, 0.4f, 0.4f, 0.f) * 0.1f;
 
         float lightRange = 50.f;
@@ -253,6 +218,29 @@ namespace FLOOF {
             Script->OnCreate(scene, entity);
         }
         std::unique_ptr<NativeScript> Script;
+    };
+    struct EngineComponent{
+
+        EngineComponent();
+        std::shared_ptr<btRaycastVehicle> RaycastVehicle{nullptr};
+
+        float	gEngineForce = 0.f;
+        float	gBreakingForce = 0.f;
+
+        float	maxEngineForce = 1000.f;//this should be engine/velocity dependent
+        float	maxBreakingForce = 100.f;
+
+        float	gVehicleSteering = 0.f;
+        float	steeringIncrement = 0.04f;
+        float	steeringClamp = 0.3f;
+        float	wheelRadius = 0.5f;
+        float	wheelWidth = 0.4f;
+        float	wheelFriction = 1000;//BT_LARGE_FLOAT;
+        float	suspensionStiffness = 20.f;
+        float	suspensionDamping = 2.3f;
+        float	suspensionCompression = 4.4f;
+        float	rollInfluence = 0.1f;//1.0f;
+
     };
 }
 

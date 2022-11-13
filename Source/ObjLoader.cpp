@@ -202,6 +202,33 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene)
     }
 
     internalMesh.name = mesh->mName.data;
+    std::cout << "Mesh name: " << internalMesh.name << std::endl;
+    aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+    std::cout << "Material name: " << mat->GetName().C_Str() << std::endl;
+
+    for (uint32_t i = 0; i <= AI_TEXTURE_TYPE_MAX; i++) {
+        auto textureCount = mat->GetTextureCount(static_cast<aiTextureType>(i));
+        if (textureCount > 0) {
+            std::cout << "Has " << textureCount << " texture of type: " << i << std::endl;
+        }
+    }
+
+    internalMesh.material.DiffusePath = LoadMaterialTexture(mat, aiTextureType_BASE_COLOR);
+    if (internalMesh.material.DiffusePath.empty())
+        internalMesh.material.DiffusePath = LoadMaterialTexture(mat, aiTextureType_DIFFUSE);
+
+    internalMesh.material.NormalsPath = LoadMaterialTexture(mat, aiTextureType_NORMAL_CAMERA);
+    if (internalMesh.material.NormalsPath.empty())
+        internalMesh.material.NormalsPath = LoadMaterialTexture(mat, aiTextureType_NORMALS);
+
+    internalMesh.material.MetallicPath = LoadMaterialTexture(mat, aiTextureType_METALNESS);
+    if (internalMesh.material.MetallicPath.empty())
+        internalMesh.material.MetallicPath = LoadMaterialTexture(mat, aiTextureType_SPECULAR);
+
+    internalMesh.material.RoughnessPath = LoadMaterialTexture(mat, aiTextureType_DIFFUSE_ROUGHNESS);
+
+    internalMesh.material.AOPath = LoadMaterialTexture(mat, aiTextureType_AMBIENT_OCCLUSION);
+
     staticMesh.meshes.emplace_back(internalMesh);
     return true;
 }
@@ -242,4 +269,14 @@ void AssimpLoader::LoadModel(const std::string& path)
     }
 
     ProcessNode(scene->mRootNode, scene);
+}
+
+std::string AssimpLoader::LoadMaterialTexture(aiMaterial* mat, aiTextureType type)
+{
+    if (mat->GetTextureCount(type) == 0) {
+        return std::string();
+    }
+    aiString path;
+    mat->GetTexture(type, 0, &path);
+    return std::string(path.C_Str());
 }

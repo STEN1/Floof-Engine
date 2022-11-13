@@ -10,7 +10,6 @@
 #include "LasLoader.h"
 #include "Scene.h"
 #include "Renderer/SceneRenderer.h"
-#include "GameMode/GameMode.h"
 #include "Scene.h"
 #include "Components.h"
 #include "SoundManager.h"
@@ -18,17 +17,18 @@
 
 namespace FLOOF {
     static const char* ApplicationDrawModes[] = {
-        "Lit",
         "Wireframe",
         "UnLit",
+        "PBR",
     };
-
     class Application {
+        friend class SoundManager;
         friend class ForwardSceneRenderer;
         friend class EditorLayer;
         friend class ApplicationPanel;
         friend class SceneGraphPanel;
         friend class ComponentsPanel;
+        friend class RendererPanel;
         Application();
     public:
         int Run();
@@ -59,18 +59,16 @@ namespace FLOOF {
 
         std::vector<std::unique_ptr<ApplicationLayer>> m_ApplicationLayers;
 
+        void SelectDebugScene(DebugScenes type);
+        DebugScenes m_CurrentDebugScene;
+
     public:
         PhysicsDebugDraw* GetPhysicsSystemDrawer() { return m_Scene->GetPhysicsDebugDrawer(); }
 
         void MakePhysicsScene();
-        void MakeSponsaScene();
+        void MakeRenderingDemoScene();
         void MakeAudioTestScene();
-
-        void SetGameModeType(GameModeType type);
-        GameModeType GetGameModeType() const;
-
-        void SetRendererType(SceneRendererType type);
-        SceneRendererType GetRendererType() const;
+        void MakeLandscapeScene();
 
         void SetDrawMode(RenderPipelineKeys drawMode) { m_DrawMode = drawMode; }
         RenderPipelineKeys GetDrawMode() { return m_DrawMode; }
@@ -91,17 +89,12 @@ namespace FLOOF {
     private:
         /*SceneRenderer Objects*/     
         std::unique_ptr<SceneRenderer> m_SceneRenderer;
-        SceneRendererType m_SceneRendererType{ SceneRendererType::Forward };
 
         /*SceneCamera, temp*/
         float m_CameraSpeed{ 100.f };
         CameraComponent m_EditorCamera;   
         CameraComponent* m_RenderCamera{nullptr};
-
-        /*GameMode, temp*/
-        std::unique_ptr<GameMode> m_GameMode;
-        GameModeType m_GameModeType{ GameModeType::Physics };
-        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::ForwardLit };
+        RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::PBR };
 
     public:
         std::shared_ptr<Scene> m_Scene;

@@ -1,6 +1,5 @@
 #include "PhysicsPanel.h"
 #include "../../Application.h"
-#include "../../GameMode/PhysicsGM.h"
 #include "../../Components.h"
 #include "../../Renderer/ModelManager.h"
 #include "../../bullet3/src/BulletSoftBody/btSoftBodyHelpers.h"
@@ -174,16 +173,16 @@ void FLOOF::PhysicsPanel::DrawPanel() {
 }
 
 
-const entt::entity
-FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath,
-                                   const std::string Texture) {
-    auto &app = Application::Get();
+
+const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture) {
+    auto& app = Application::Get();
+
     auto m_Scene = app.m_Scene;
 
     const auto entity = m_Scene->CreateEntity("Softbody");
-    auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity);
-    m_Scene->AddComponent<TextureComponent>(entity, Texture);
-    sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
+    auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity, FilePath);
+    sm.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+    sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
     //test python script
     //auto &script = m_Scene->AddComponent<ScriptComponent>(entity, "Scripts/HelloWorld.py");
@@ -191,10 +190,10 @@ FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const fl
     auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
 
     //create softbody
-    auto btvert = ModelManager::Get().LoadbtModel(FilePath, Scale);
+    auto btvert = ModelManager::LoadbtModel(FilePath, Scale);
 
-    //btSoftBody *psb = btSoftBodyHelpers::CreateFromTriMesh(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.getVertices()[0], &btvert.btIndices[0], btvert.btIndices.size()/3);
-    btSoftBody* psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.btVertices[0], btvert.VertCount);
+    btSoftBody *psb = btSoftBodyHelpers::CreateFromTriMesh(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.getVertices()[0], &btvert.btIndices[0], btvert.btIndices.size()/3);
+
     psb->translate(btVector3(Location.x, Location.y, Location.z));
 
     auto &collision = m_Scene->AddComponent<SoftBodyComponent>(entity, 0.1, 0.7, mass, psb);
@@ -206,11 +205,11 @@ FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const fl
 
 }
 
-const entt::entity
-FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath,
-                                    const std::string Texture,
-                                    bt::CollisionPrimitive shape) {
-    auto &app = Application::Get();
+
+const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture,
+                                             bt::CollisionPrimitive shape) {
+    auto& app = Application::Get();
+
     auto m_Scene = app.m_Scene;
 
     const auto entity = m_Scene->CreateEntity("Rigid Mesh");
@@ -220,9 +219,9 @@ FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const f
     else
         auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, shape);
 
-    auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity);
-    m_Scene->AddComponent<TextureComponent>(entity, Texture);
-    sm.meshes = ModelManager::Get().LoadModelMesh(FilePath);
+    auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity, FilePath);
+    sm.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+    sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
     auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
 

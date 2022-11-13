@@ -29,228 +29,6 @@
 
 
 namespace FLOOF {
-    TextureComponent::TextureComponent(const std::string& path) {
-        auto it = s_TextureDataCache.find(path);
-        if (it != s_TextureDataCache.end()) {
-            Data = it->second;
-            return;
-        }
-
-        Data.Path = path;
-
-        auto renderer = VulkanRenderer::Get();
-        // Load texture
-        int xWidth, yHeight, channels;
-        stbi_set_flip_vertically_on_load(false);
-        auto* data = stbi_load(path.c_str(), &xWidth, &yHeight, &channels, 0);
-        ASSERT(data);
-        uint32_t size = xWidth * yHeight * 4;
-
-        VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
-
-        // staging buffer
-        VkBufferCreateInfo stagingCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        stagingCreateInfo.size = size;
-        stagingCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-
-        VmaAllocationCreateInfo stagingBufAllocCreateInfo = {};
-        stagingBufAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-        stagingBufAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-            VMA_ALLOCATION_CREATE_MAPPED_BIT;
-
-        VkBuffer stagingBuffer{};
-        VmaAllocation stagingBufferAlloc{};
-        VmaAllocationInfo stagingBufferAllocInfo{};
-        vmaCreateBuffer(renderer->m_Allocator, &stagingCreateInfo, &stagingBufAllocCreateInfo, &stagingBuffer,
-            &stagingBufferAlloc, &stagingBufferAllocInfo);
-
-        ASSERT(stagingBufferAllocInfo.pMappedData != nullptr);
-        if (channels == 4) {
-            memcpy(stagingBufferAllocInfo.pMappedData, data, size);
-        } else if (channels == 3) {
-            std::vector<stbi_uc> readyData(size);
-            for (uint32_t h = 0; h < yHeight; h++) {
-                for (uint32_t w = 0; w < xWidth; w++) {
-                    uint32_t readyDataIndex = (h * xWidth * 4) + (w * 4);
-                    auto& rdR = readyData[readyDataIndex];
-                    auto& rdG = readyData[readyDataIndex + 1];
-                    auto& rdB = readyData[readyDataIndex + 2];
-                    auto& rdA = readyData[readyDataIndex + 3];
-
-                    uint32_t dataIndex = (h * xWidth * 3) + (w * 3);
-                    auto& dR = data[dataIndex];
-                    auto& dG = data[dataIndex + 1];
-                    auto& dB = data[dataIndex + 2];
-                    auto& dA = data[dataIndex + 3];
-
-                    rdR = dR; rdG = dG; rdB = dB;
-                    rdA = (stbi_uc)255;
-                }
-            }
-            memcpy(stagingBufferAllocInfo.pMappedData, readyData.data(), size);
-        } else {
-            ASSERT(false);
-        }
-        
-        stbi_image_free(data);
-
-        // Image
-        VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-        imageInfo.imageType = VK_IMAGE_TYPE_2D;
-        imageInfo.extent.width = xWidth;
-        imageInfo.extent.height = yHeight;
-        imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = 1;
-        imageInfo.arrayLayers = 1;
-        imageInfo.format = format;
-        imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-        imageInfo.flags = 0;
-
-        VmaAllocationCreateInfo imageAllocCreateInfo = {};
-        imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-
-        vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &Data.CombinedTextureSampler.Image,
-            &Data.CombinedTextureSampler.Allocation, &Data.CombinedTextureSampler.AllocationInfo);
-
-        // copy image from staging buffer to image buffer(gpu only memory)
-        renderer->CopyBufferToImage(stagingBuffer, Data.CombinedTextureSampler.Image, xWidth, yHeight);
-
-        // free staging buffer
-        vmaDestroyBuffer(renderer->m_Allocator, stagingBuffer, stagingBufferAlloc);
-
-        // create image view
-        VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-        textureImageViewInfo.image = Data.CombinedTextureSampler.Image;
-        textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        textureImageViewInfo.format = format;
-        textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        textureImageViewInfo.subresourceRange.baseMipLevel = 0;
-        textureImageViewInfo.subresourceRange.levelCount = 1;
-        textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
-        textureImageViewInfo.subresourceRange.layerCount = 1;
-        vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &Data.CombinedTextureSampler.ImageView);
-
-        VkSampler sampler = renderer->GetTextureSampler();
-
-        // Get descriptor set and point it to data.
-        Data.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture]);
-
-        VkDescriptorImageInfo descriptorImageInfo{};
-        descriptorImageInfo.sampler = sampler;
-        descriptorImageInfo.imageView = Data.CombinedTextureSampler.ImageView;
-        descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-        VkWriteDescriptorSet writeDescriptorSet{};
-        writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescriptorSet.dstSet = Data.DesctriptorSet;
-        writeDescriptorSet.dstBinding = 0;
-        writeDescriptorSet.descriptorCount = 1;
-        writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        writeDescriptorSet.pImageInfo = &descriptorImageInfo;
-
-        vkUpdateDescriptorSets(renderer->m_LogicalDevice, 1, &writeDescriptorSet, 0, nullptr);
-
-        s_TextureDataCache[path] = Data;
-    }
-
-    TextureComponent::~TextureComponent() {
-    }
-
-    void TextureComponent::Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout) {
-        auto renderer = VulkanRenderer::Get();
-
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-            0, 1, &Data.DesctriptorSet, 0, 0);
-    }
-
-    void TextureComponent::ClearTextureDataCache() {
-        auto renderer = VulkanRenderer::Get();
-
-        for (auto& [key, data] : s_TextureDataCache) {
-            renderer->FreeTextureDescriptorSet(data.DesctriptorSet);
-            vkDestroyImageView(renderer->m_LogicalDevice, data.CombinedTextureSampler.ImageView, nullptr);
-            vmaDestroyImage(renderer->m_Allocator, data.CombinedTextureSampler.Image, data.CombinedTextureSampler.Allocation);
-            //vkDestroySampler(renderer->m_LogicalDevice, data.CombinedTextureSampler.Sampler, nullptr);
-        }
-    }
-
-    MeshComponent::MeshComponent(const std::string& path) {
-        auto* renderer = VulkanRenderer::Get();
-
-        auto it = s_MeshDataCache.find(path);
-        if (it == s_MeshDataCache.end()) {
-            auto [vertexData, indexData] = ObjLoader(path).GetIndexedData();
-            Data.VertexBuffer = renderer->CreateVertexBuffer(vertexData);
-            Data.IndexBuffer = renderer->CreateIndexBuffer(indexData);
-            Data.VertexCount = vertexData.size();
-            Data.IndexCount = indexData.size();
-            Data.Path = path;
-            s_MeshDataCache[path] = Data;
-        }
-        else {
-            Data = it->second;
-        }
-        m_IsCachedMesh = true;
-    }
-
-    MeshComponent::MeshComponent(const std::vector<MeshVertex>& vertexData, const std::vector<uint32_t>& indexData) {
-        auto* renderer = VulkanRenderer::Get();
-
-        Data.VertexBuffer = renderer->CreateVertexBuffer(vertexData);
-        Data.IndexBuffer = renderer->CreateIndexBuffer(indexData);
-        Data.VertexCount = vertexData.size();
-        Data.IndexCount = indexData.size();
-    }
-
-    MeshComponent::MeshComponent(const std::vector<ColorNormalVertex>& vertexData, const std::vector<uint32_t>& indexData) {
-        auto* renderer = VulkanRenderer::Get();
-
-        Data.VertexBuffer = renderer->CreateVertexBuffer(vertexData);
-        Data.IndexBuffer = renderer->CreateIndexBuffer(indexData);
-        Data.VertexCount = vertexData.size();
-        Data.IndexCount = indexData.size();
-    }
-
-    MeshComponent::MeshComponent(const std::vector<MeshVertex>& vertexData) {
-        auto* renderer = VulkanRenderer::Get();
-
-        Data.VertexBuffer = renderer->CreateVertexBuffer(vertexData);
-        Data.VertexCount = vertexData.size();
-    }
-
-    MeshComponent::~MeshComponent() {
-        if (m_IsCachedMesh == false) {
-            auto* renderer = VulkanRenderer::Get();
-            vmaDestroyBuffer(renderer->m_Allocator, Data.IndexBuffer.Buffer, Data.IndexBuffer.Allocation);
-            vmaDestroyBuffer(renderer->m_Allocator, Data.VertexBuffer.Buffer, Data.VertexBuffer.Allocation);
-        }
-    }
-
-    void MeshComponent::Draw(VkCommandBuffer commandBuffer) {
-        VkDeviceSize offset{ 0 };
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &Data.VertexBuffer.Buffer, &offset);
-        if (Data.IndexBuffer.Buffer != VK_NULL_HANDLE) {
-            vkCmdBindIndexBuffer(commandBuffer, Data.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-            vkCmdDrawIndexed(commandBuffer, Data.IndexCount,
-                1, 0, 0, 0);
-        }
-        else {
-            vkCmdDraw(commandBuffer, Data.VertexCount, 1, 0, 0);
-        }
-    }
-
-    void MeshComponent::ClearMeshDataCache() {
-        auto* renderer = VulkanRenderer::Get();
-        for (auto& [key, data] : s_MeshDataCache) {
-            vmaDestroyBuffer(renderer->m_Allocator, data.IndexBuffer.Buffer, data.IndexBuffer.Allocation);
-            vmaDestroyBuffer(renderer->m_Allocator, data.VertexBuffer.Buffer, data.VertexBuffer.Allocation);
-        }
-    }
-
     LineMeshComponent::LineMeshComponent(const std::vector<ColorVertex>& vertexData) {
         auto renderer = VulkanRenderer::Get();
 
@@ -478,7 +256,7 @@ namespace FLOOF {
                 break;
             case CollisionPrimitive::ConvexHull :
                 assert("Pls give a convex shape file in constructor");
-                auto vertices = ModelManager::Get().LoadbtModel("Assets/LowPolySphere.fbx",scale);
+                auto vertices = ModelManager::LoadbtModel("Assets/LowPolySphere.fbx",scale);
                 std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
                 hullShape->optimizeConvexHull();
                 CollisionShape = hullShape;
@@ -493,7 +271,7 @@ namespace FLOOF {
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape)  :DefaultScale(scale), Primitive(bt::ConvexHull){
 
-        auto vertices = ModelManager::Get().LoadbtModel(convexShape,scale);
+        auto vertices = ModelManager::LoadbtModel(convexShape,scale);
         std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
         hullShape->optimizeConvexHull();
         CollisionShape = hullShape;
@@ -512,16 +290,16 @@ namespace FLOOF {
         } else {
             trans = RigidBody->getWorldTransform();
         }
-        RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
+        //RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
         trans.setOrigin(Utils::glmTobt(location));
         btQuaternion btquat;
         auto rot = Utils::glmTobt(rotation);
         btquat.setEulerZYX(rot.z(),rot.y(),rot.x());
         trans.setRotation(btquat);
         trans.setOrigin(Utils::glmTobt(location));
-        RigidBody->setCenterOfMassTransform(trans);
+        //RigidBody->setCenterOfMassTransform(trans);
 
-        CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
+        //CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
 
     }
 
@@ -619,8 +397,9 @@ namespace FLOOF {
         }
     }
 
-    SoundSourceComponent::SoundSourceComponent(std::string& path) {
+    SoundSourceComponent::SoundSourceComponent(const std::string& path) {
         m_Sound = SoundManager::LoadWav(path);
+        m_Path = path;
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
     }
@@ -633,6 +412,23 @@ namespace FLOOF {
         alec(alSourcef(m_Source, AL_GAIN, volume));
     }
 
+    void SoundSourceComponent::Pitch() {
+        alec(alSourcef(m_Source, AL_PITCH, m_Pitch));
+    }
+
+    void SoundSourceComponent::UpdateStatus() {
+
+    	ALint sourceState;
+        alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState))
+
+        if(sourceState == AL_PLAYING) {
+        	isPlaying = true;
+        }
+        else {
+            isPlaying = false;
+        }
+    }
+
     void SoundSourceComponent::Play() {
         alec(alSourcePlay(m_Source));
     }
@@ -642,15 +438,22 @@ namespace FLOOF {
 
     }
 
-    void SoundSourceComponent::Looping(bool isLooping) {
-	    if (isLooping)
+    void SoundSourceComponent::Looping(bool looping) {
+	    if (looping)
 	    {
             alec(alSourcei(m_Source, AL_LOOPING, AL_TRUE));
+            isLooping = true;
 	    }
 	    else
 	    {
             alec(alSourcei(m_Source, AL_LOOPING, AL_FALSE));
+            isLooping = false;
 	    }
+    }
+
+    void SoundSourceComponent::Update() {
+        Volume(m_Volume);
+
     }
 
     void ScriptComponent::ReloadScript() {
@@ -664,6 +467,10 @@ namespace FLOOF {
 
         Pname= PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
+
+    }
+
+    EngineComponent::EngineComponent() {
 
     }
 }

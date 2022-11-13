@@ -2,64 +2,20 @@
 
 #include "../Floof.h"
 #include "VulkanRenderer.h"
+#include "TextureManager.h"
+
+#include <string>
 
 namespace FLOOF {
-
-    /// <summary>
-    /// Each new definition of texture type below,
-    /// will add another texture to the material struct
-    /// </summary>
-    enum TextureType
-    {
-        Invalid = -1,
-        Ao, //Ambient Occlusion
-        Albedo,
-        Diffuse = Albedo, //Either albedo or diffuse
-        Specular,
-        Roughness,
-        Metallic,     
-        Heightmap,
-        Normals = Heightmap, //Usually Assimp confuses normals and heightmaps
-        Lightmap,
-        Size
-    };
-
-    struct Texture 
-    {
+    struct Texture {
         Texture() = default;
+        Texture(const std::string& path);
+        Texture(TextureColor color);
 
-        Texture(VkImage vkImage, TextureType type)
-        {
-            SetVkTexture(vkImage, type);
-        }
+        bool IsValid() { return VkTexture.DesctriptorSet != VK_NULL_HANDLE; }
 
-        /// <summary>
-        /// Checks if the texture is valid
-        /// </summary>
-        bool IsValid() const
-        {
-            return vkImage != VK_NULL_HANDLE;
-        }
-
-        void SetVkTexture(VkImage vkImage, TextureType type)
-        {
-            this->vkImage = vkImage;
-            this->type = type;
-        }
-
-        VkImage GetVkImage() const
-        {
-            return vkImage;
-        }
-
-        TextureType GetTextureType() const
-        {
-            return type;
-        }
-
-    private:
-        VkImage vkImage = VK_NULL_HANDLE;
-        TextureType type{ TextureType::Invalid };
-        int width{ 0 }, height{ 0 };
+        VulkanTexture VkTexture;
+        std::string Path;
+        TextureColor Color = TextureColor::None;
     };
 }

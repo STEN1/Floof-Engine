@@ -34,10 +34,10 @@ namespace FLOOF {
         glm::mat4 MVP;
     };
 
-    struct VulkanCombinedTextureSampler {
+    struct VulkanTexture {
         VkImage Image = VK_NULL_HANDLE;
         VkImageView ImageView = VK_NULL_HANDLE;
-        VkSampler Sampler = VK_NULL_HANDLE;
+        VkDescriptorSet DesctriptorSet = VK_NULL_HANDLE;
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
     };
@@ -49,10 +49,10 @@ namespace FLOOF {
         MSAA = 1 << 2,
     };
 
-    enum RenderPipelineKeys : uint32_t {
-        ForwardLit,
+    enum class RenderPipelineKeys : uint32_t {
         Wireframe,
         UnLit,
+        PBR,
         Basic,
         Line,
         LineStrip,
@@ -64,11 +64,12 @@ namespace FLOOF {
         LitColor,
     };
 
-    enum RenderSetLayouts : uint32_t {
+    enum class RenderSetLayouts : uint32_t {
         DiffuseTexture,
         SceneFrameUBO,
         LightSSBO,
         FontTexture,
+        Material,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {
@@ -139,14 +140,11 @@ namespace FLOOF {
     };
 
     class VulkanRenderer {
-        friend class TextureComponent;
-        friend class MeshComponent;
         friend class LineMeshComponent;
         friend class PointCloudComponent;
         friend class ModelManager;
         friend class TextureManager;
-        friend class ForwardSceneRenderer;
-        friend class DeferredSceneRenderer;
+        friend class SceneRenderer;
     public:
         VulkanRenderer(GLFWwindow* window);
         ~VulkanRenderer();
@@ -202,6 +200,12 @@ namespace FLOOF {
 
         // Frees a combined texture-sampler descriptor set.
         void FreeTextureDescriptorSet(VkDescriptorSet desctriptorSet);
+
+        // Allocates a combined texture-sampler descriptor set.
+        VkDescriptorSet AllocateMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
+
+        // Frees a combined texture-sampler descriptor set.
+        void FreeMaterialDescriptorSet(VkDescriptorSet desctriptorSet);
 
         // Allocates a shader storage descriptor set.
         VkDescriptorSet AllocateShaderStorageDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
@@ -328,6 +332,7 @@ namespace FLOOF {
         VkCommandPool m_CommandPool;
 
         VkDescriptorPool m_TextureDescriptorPool;
+        VkDescriptorPool m_MaterialDescriptorPool;
         VkDescriptorPool m_ShaderStorageDescriptorPool;
         VkDescriptorPool m_UBODescriptorPool;
 

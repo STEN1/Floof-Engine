@@ -58,13 +58,13 @@ namespace FLOOF {
             return;
 
         const bool simulate{true};
-        if(simulate)
+        if (simulate)
             mDynamicsWorld->stepSimulation(deltaTime);
 
         //rigid body
         {
-            auto view = mScene.view<RigidBodyComponent, TransformComponent>();
-            for (auto [entity, RigidBodyComponent, transform]: view.each()) {
+            auto view = mScene.view<RigidBodyComponent, TransformComponent, Relationship>();
+            for (auto [entity, RigidBodyComponent, transform, rel]: view.each()) {
 
 
                 btRigidBody *body = RigidBodyComponent.RigidBody.get();
@@ -77,12 +77,27 @@ namespace FLOOF {
                     trans = body->getWorldTransform();
                 }
 
-                float x, y, z;
-                trans.getRotation().getEulerZYX(z, y, x);
-                transform.Rotation = glm::vec3(x, y, z);
 
-                transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                                               trans.getOrigin().getZ());
+                //depends on parent transform
+                if (rel.Parent != entt::null) {
+                    auto *partrans = mScene.try_get<TransformComponent>(rel.Parent);
+
+                    float x, y, z;
+                    trans.getRotation().getEulerZYX(z, y, x);
+                    transform.Rotation = glm::vec3(x - partrans->Rotation.x, y - partrans->Rotation.y,
+                                                   z - partrans->Rotation.z);
+
+                    auto newloc = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                            trans.getOrigin().getZ());
+                    transform.Position = (newloc - partrans->Position) / partrans->Scale;
+                } else {
+                    float x, y, z;
+                    trans.getRotation().getEulerZYX(z, y, x);
+                    transform.Rotation = glm::vec3(x, y, z);
+                    transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                                   trans.getOrigin().getZ());
+                }
+
             }
         }
         //soft body
@@ -129,6 +144,7 @@ namespace FLOOF {
 
     void PhysicsSystem::clear() {
 
+
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
                 btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
@@ -137,84 +153,96 @@ namespace FLOOF {
                     delete body->getMotionState();
                 }
                 mDynamicsWorld->removeCollisionObject(obj);
+
+                if (mDynamicsWorld)
+                    for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
+                        btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
+                        btRigidBody *body = btRigidBody::upcast(obj);
+                        if (body && body->getMotionState()) {
+                            //delete body->getMotionState();
+                        }
+                    }
             }
     }
+        void PhysicsSystem::AddRigidBody(btRigidBody *body) {
+            if (mDynamicsWorld)
+                mDynamicsWorld->addRigidBody(body);
+        }
 
-    void PhysicsSystem::AddRigidBody(btRigidBody *body) {
-        if (mDynamicsWorld)
-            mDynamicsWorld->addRigidBody(body);
+        void PhysicsSystem::AddSoftBody(btSoftBody *body) {
+            if (mDynamicsWorld)
+                mDynamicsWorld->addSoftBody(body);
+        }
+
+
+        void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
+            //btIDebugDraw::drawLine(from,to,color);
+            ColorVertex vFrom;
+            vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
+            vFrom.Pos = glm::vec3(from.x(), from.y(), from.z());
+
+            ColorVertex vTo;
+            vTo.Color = glm::vec3(color.x(), color.y(), color.z());
+            vTo.Pos = glm::vec3(to.x(), to.y(), to.z());
+
+            m_VertexData.push_back(vFrom);
+            m_VertexData.push_back(vTo);
+        }
+
+        void
+        PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,
+                                           int lifeTime, const btVector3 &color) {
+            ColorVertex vFrom;
+            vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
+            vFrom.Pos = glm::vec3(PointOnB.x(), PointOnB.y(), PointOnB.z());
+
+            ColorVertex vTo;
+            vTo.Color = glm::vec3(color.x(), color.y(), color.z());
+            glm::vec3 endLine = glm::vec3(
+                    vFrom.Pos + (glm::vec3(normalOnB.x(), normalOnB.y(), normalOnB.z()) * distance));
+            vTo.Pos = glm::vec3(endLine);
+
+            m_VertexData.push_back(vFrom);
+            m_VertexData.push_back(vTo);
+        }
+
+        void PhysicsDebugDraw::reportErrorWarning(const char *warningString) {
+        }
+
+        void PhysicsDebugDraw::draw3dText(const btVector3 &location, const char *textString) {
+        }
+
+        void PhysicsDebugDraw::setDebugMode(int debugMode) {
+            mDebugMode = debugMode;
+        }
+
+        int PhysicsDebugDraw::getDebugMode() const {
+            return mDebugMode;
+        }
+
+        PhysicsDebugDraw::PhysicsDebugDraw()
+        {
+            m_VertexData.resize(1000000);
+            memset(m_VertexData.data(), 0, m_VertexData.size() * sizeof(ColorVertex));
+            m_LineMesh = new LineMeshComponent(m_VertexData);
+            m_VertexData.clear();
+            GetUpdatedLineMesh(); // Clears line buffer.
+        }
+
+        PhysicsDebugDraw::~PhysicsDebugDraw()
+        {
+            if (m_LineMesh)
+                delete m_LineMesh;
+        }
+
+        LineMeshComponent *PhysicsDebugDraw::GetUpdatedLineMesh() {
+            m_LineMesh->UpdateBuffer(m_VertexData);
+            m_VertexData.clear();
+            return m_LineMesh;
+        }
+
+        void PhysicsDebugDraw::ClearDebugLines() {
+            m_VertexData.clear();
+        }
+
     }
-
-    void PhysicsSystem::AddSoftBody(btSoftBody *body) {
-        if (mDynamicsWorld)
-            mDynamicsWorld->addSoftBody(body);
-    }
-
-
-    void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
-        //btIDebugDraw::drawLine(from,to,color);
-        ColorVertex vFrom;
-        vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
-        vFrom.Pos = glm::vec3(from.x(), from.y(), from.z());
-
-        ColorVertex vTo;
-        vTo.Color = glm::vec3(color.x(), color.y(), color.z());
-        vTo.Pos = glm::vec3(to.x(), to.y(), to.z());
-
-        m_VertexData.push_back(vFrom);
-        m_VertexData.push_back(vTo);
-    }
-
-    void PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,
-                                            int lifeTime, const btVector3 &color) {
-        ColorVertex vFrom;
-        vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
-        vFrom.Pos = glm::vec3(PointOnB.x(), PointOnB.y(), PointOnB.z());
-
-        ColorVertex vTo;
-        vTo.Color = glm::vec3(color.x(), color.y(), color.z());
-        glm::vec3 endLine = glm::vec3(vFrom.Pos + (glm::vec3(normalOnB.x(), normalOnB.y(), normalOnB.z()) * distance));
-        vTo.Pos = glm::vec3(endLine);
-
-        m_VertexData.push_back(vFrom);
-        m_VertexData.push_back(vTo);
-    }
-
-    void PhysicsDebugDraw::reportErrorWarning(const char *warningString) {
-    }
-
-    void PhysicsDebugDraw::draw3dText(const btVector3 &location, const char *textString) {
-    }
-
-    void PhysicsDebugDraw::setDebugMode(int debugMode) {
-        mDebugMode = debugMode;
-    }
-
-    int PhysicsDebugDraw::getDebugMode() const {
-        return mDebugMode;
-    }
-
-    PhysicsDebugDraw::PhysicsDebugDraw() {
-        m_VertexData.resize(1000000);
-        memset(m_VertexData.data(), 0, m_VertexData.size() * sizeof(ColorVertex));
-        m_LineMesh = new LineMeshComponent(m_VertexData);
-        m_VertexData.clear();
-        GetUpdatedLineMesh(); // Clears line buffer.
-    }
-
-    PhysicsDebugDraw::~PhysicsDebugDraw() {
-        if (m_LineMesh)
-            delete m_LineMesh;
-    }
-
-    LineMeshComponent *PhysicsDebugDraw::GetUpdatedLineMesh() {
-        m_LineMesh->UpdateBuffer(m_VertexData);
-        m_VertexData.clear();
-        return m_LineMesh;
-    }
-
-    void PhysicsDebugDraw::ClearDebugLines() {
-        m_VertexData.clear();
-    }
-
-}

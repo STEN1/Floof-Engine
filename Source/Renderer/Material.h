@@ -5,24 +5,18 @@ namespace FLOOF
 {
 	struct Material
 	{
-		bool HasTexture(TextureType type) const
-		{
-			return textures[type].IsValid();
-		}
+        Texture Diffuse;
+        Texture Normals;
+        Texture Metallic;
+        Texture Roughness;
+        Texture AO;
 
-		void SetTexture(const Texture& texture)
-		{
-			if (!texture.IsValid()) return;
+        std::string Name;
 
-			textures[texture.GetTextureType()];
-		}
+        VkDescriptorSet DescriptorSet = VK_NULL_HANDLE;
 
-		const Texture& GetTexture(TextureType type) const
-		{
-			return textures[type];
-		}
+        void UpdateDescriptorSet();
 
-	private:
-		Texture textures[TextureType::Size];
+        ~Material();
 	};
 }

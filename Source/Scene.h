@@ -6,9 +6,23 @@
 #include "PhysicsSystem.h"
 
 namespace FLOOF {
+
+    enum DebugScenes {
+        Physics,
+        Audio,
+        Landscape,
+        RenderingDemo,
+    };
+    static const char* DebugSceneNames[] = {
+        "Physics",
+        "Audio",
+        "Landscape",
+        "RenderingDemo",
+    };
+
     class Scene {
         friend class Application;
-        friend class ForwardSceneRenderer;
+        friend class SceneRenderer;
         friend class EditorLayer;
         friend class SceneGraphPanel;
         friend class ComponentsPanel;

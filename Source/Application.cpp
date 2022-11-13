@@ -9,15 +9,11 @@
 #include "LasLoader.h"
 #include "Renderer/ModelManager.h"
 #include "SoundManager.h"
-#include "Renderer/ForwardSceneRenderer.h"
-#include "Renderer/DeferredSceneRenderer.h"
-#include "GameMode/PhysicsGM.h"
-#include "GameMode/SponzaGM.h"
-#include "GameMode/AudioTestGM.h"
 #include "NativeScripts/TestScript.h"
 #include <filesystem>
 #include "Editor/EditorLayer.h"
 #include "NativeScripts/MonsterTruckScript.h"
+#include "Renderer/TextureManager.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -58,7 +54,7 @@ namespace FLOOF {
         m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        auto* imguiBackend = io.BackendRendererUserData;
+        m_SceneRenderer = std::make_unique<SceneRenderer>();
 
         // Upload icons for windows and taskbar
         GLFWimage images[3]{};
@@ -74,37 +70,33 @@ namespace FLOOF {
             stbi_image_free(images[i].pixels);
         }
 
-        m_Scene = std::make_unique<Scene>();
-
-        /*SceneRenderer*/
-        SetRendererType(SceneRendererType::Forward);
-        
-        /*GameMode*/
-        SetGameModeType(GameModeType::Physics);
+        SelectDebugScene(DebugScenes::Physics);
 
         m_ApplicationLayers.emplace_back(std::make_unique<EditorLayer>());
+
+        SoundManager::InitOpenAL();
+
     }
 
     void Application::CleanApplication() {
         m_Renderer->FinishAllFrames();
 
         m_Scene = nullptr;
-        m_GameMode = nullptr;
         m_SceneRenderer = nullptr;
 
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext(m_ImguiContext);
 
-        MeshComponent::ClearMeshDataCache();
-        ModelManager::Get().DestroyAll();
-        TextureComponent::ClearTextureDataCache();
-
+        ModelManager::DestroyAll();
+        TextureManager::DestroyAll();
 
         delete m_Renderer;
 
         glfwDestroyWindow(m_Window);
         glfwTerminate();
+
+        SoundManager::CleanOpenAL();
     }
 
     int Application::Run() {
@@ -197,7 +189,6 @@ namespace FLOOF {
     void Application::Update(double deltaTime) {
         UpdateCameraSystem(deltaTime);
         UpdateImGui(deltaTime);
-
         m_Scene->OnUpdate(deltaTime);
 
         //if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
@@ -292,60 +283,28 @@ namespace FLOOF {
         m_Renderer->Present();
     }
 
-    void Application::SetRendererType(SceneRendererType type)
-    {
-        if (type == m_SceneRendererType && m_SceneRenderer) return;
-
-        m_SceneRendererType = type;
-
-        switch (m_SceneRendererType) {
-            case SceneRendererType::Forward:
-            {
-                m_SceneRenderer = std::make_unique<ForwardSceneRenderer>();
-                break;
-            }
-            case SceneRendererType::Deferred:
-            {
-                m_SceneRenderer = std::make_unique<DeferredSceneRenderer>();
-                break;
-            }
-            default:
-            {
-                LOG("SceneRendererType is invalid\n");
-                break;
-            }
-        }
-    }
-
-    void Application::SetGameModeType(GameModeType type) {
-        if (type == m_GameModeType && m_GameMode) return;
-
-        m_GameModeType = type;
-
-        // TODO: Game mode should probably be chosen by the scene based
-        // on data from a stored scene in JSON format. 
-        // Then this function should be "LoadScene(string scenePath)".
-        // That way we can load scene from a file browser of some kind.
-        // 
-        // Eventually the scene gamemode is just a path to a python script.
-
-        switch (m_GameModeType) {
-            case GameModeType::Physics:
+    void Application::SelectDebugScene(DebugScenes type) {
+        m_CurrentDebugScene = type;
+        VulkanRenderer::Get()->FinishAllFrames();
+        switch (type) {
+            case DebugScenes::Physics:
             {
                 MakePhysicsScene();
-                m_GameMode = std::make_unique<PhysicsGM>(*m_Scene.get());
                 break;
             }
-            case GameModeType::Sponza:
+            case DebugScenes::RenderingDemo:
             {
-                MakeSponsaScene();
-                m_GameMode = std::make_unique<SponzaGM>(*m_Scene.get());
+                MakeRenderingDemoScene();
                 break;
             }
-            case GameModeType::Audio:
+            case DebugScenes::Audio:
             {
                 MakeAudioTestScene();
-                m_GameMode = std::make_unique<AudioTestGM>(*m_Scene.get());
+                break;
+            }
+            case DebugScenes::Landscape:
+            {
+                MakeLandscapeScene();
                 break;
             }
             default:
@@ -354,17 +313,8 @@ namespace FLOOF {
                 break;
             }
         }
-
-        /*if (m_GameMode)
-            m_GameMode->OnCreate();*/
-        // Sets up the bullet physics world based on whats in scene.
         if (m_Scene)
             m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
-    }
-
-    SceneRendererType Application::GetRendererType() const
-    {
-        return m_SceneRendererType;
     }
 
     void Application::SetRenderCamera(CameraComponent& cam)
@@ -375,10 +325,6 @@ namespace FLOOF {
     CameraComponent* Application::GetRenderCamera()
     {
         return m_RenderCamera;
-    }
-
-    GameModeType Application::GetGameModeType() const {
-        return m_GameModeType;
     }
 
     void Application::MakePhysicsScene() {
@@ -394,8 +340,9 @@ namespace FLOOF {
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
             auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass,bt::CollisionPrimitive::Box);
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, texture);
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
             auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
@@ -406,8 +353,10 @@ namespace FLOOF {
         }
         if(false){
             auto entity = m_Scene->CreateEntity("Ground Ball");
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/LightBlue.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),glm::vec3(75.f),0.f,bt::CollisionPrimitive::Sphere);
 
             auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
@@ -440,8 +389,10 @@ namespace FLOOF {
                         const float mass = radius*100.f;
 
                         auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
-                        m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
-                        m_Scene->AddComponent<TextureComponent>(Ball, "Assets/statue/textures/staue1Color.png");
+                        auto& ballMesh = m_Scene->AddComponent<StaticMeshComponent>(Ball, "Assets/Ball.obj");
+                        ballMesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Ball.obj");
+                        ballMesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
                         m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
                         m_Scene->AddComponent<PointLightComponent>(Ball);
                         //test python script
@@ -456,8 +407,9 @@ namespace FLOOF {
 
                         auto cube = m_Scene->CreateEntity("Simulated Cube " + std::to_string(x+y+z));
                         m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass,bt::CollisionPrimitive::Box);
-                        m_Scene->AddComponent<MeshComponent>(cube, "Assets/IdentityCube.obj");
-                        m_Scene->AddComponent<TextureComponent>(cube, "Assets/BallTexture.png");
+                        auto& cubeMesh = m_Scene->AddComponent<StaticMeshComponent>(cube, "Assets/IdentityCube.obj");
+                        cubeMesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/IdentityCube.obj");
+                        cubeMesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
                         auto & cubeTransform = m_Scene->GetComponent<TransformComponent>(cube);
                         cubeTransform.Position = location;
@@ -468,42 +420,38 @@ namespace FLOOF {
         }
     }
 
-    void Application::MakeSponsaScene() {
+    void Application::MakeRenderingDemoScene() {
         m_Scene = std::make_unique<Scene>();
 
         {
-            auto ent = m_Scene->CreateEntity("Sponza");
-            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent);
-            m_Scene->AddComponent<TextureComponent>(ent, "Assets/BallTexture.png");
-            sm.meshes = ModelManager::Get().LoadModelMesh("Assets/crytek-sponza-noflag/sponza.obj");
+            auto ent = m_Scene->CreateEntity("Cerberus");
+            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX");
+            sm.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
+            sm.meshes[0].MeshMaterial.Normals = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.tga");
+            sm.meshes[0].MeshMaterial.Metallic = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_M.tga");
+            sm.meshes[0].MeshMaterial.Roughness = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_R.tga");
+            sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
+            auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
+            transform.Position = glm::vec3(-20.f, 100.f, -24.f);
+            transform.Rotation.x = -1.f;
         }
 
-        {
-            auto rootEntity = m_Scene->CreateEntity("RootBall1");
-            m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
+        for (float x = 0.f; x < 20.f; x += 5.f) {
+            for (float y = 0.f; y < 20.f; y += 5.f) {
+                for (float z = 0.f; z < 20.f; z += 5.f) {
+                    auto entity = m_Scene->CreateEntity("PointLight ball");
+                    auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                    mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
+                    mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            auto leafEntity1 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity1, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity1, "Assets/BallTexture.png");
+                    m_Scene->AddComponent<PointLightComponent>(entity);
 
-            auto leafEntity2 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
-        }
-        {
-            auto rootEntity = m_Scene->CreateEntity("RootBall2");
-            m_Scene->AddComponent<MeshComponent>(rootEntity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(rootEntity, "Assets/BallTexture.png");
-
-            auto leafEntity1 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity1, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity1, "Assets/BallTexture.png");
-
-            auto leafEntity2 = m_Scene->CreateEntity("LeafBall1", rootEntity);
-            m_Scene->AddComponent<MeshComponent>(leafEntity2, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(leafEntity2, "Assets/BallTexture.png");
+                    auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                    transform.Position = glm::vec3(x, y, z);
+                }
+            }
         }
     }
     void Application::MakeAudioTestScene() {
@@ -518,8 +466,9 @@ namespace FLOOF {
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
             auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/IdentityCube.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, texture);
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture(texture);
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
@@ -530,8 +479,10 @@ namespace FLOOF {
         }
         {
             auto entity = m_Scene->CreateEntity("Ground Ball");
-            m_Scene->AddComponent<MeshComponent>(entity, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(entity, "Assets/LightBlue.png");
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/LightBlue.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, glm::vec3(0.f, -150.f, 0.f), glm::vec3(75.f), 0.f, bt::CollisionPrimitive::Sphere);
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
@@ -549,30 +500,32 @@ namespace FLOOF {
             const float mass = radius * 100.f;
 
             auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(location.x + location.y + location.z));
-            m_Scene->AddComponent<MeshComponent>(Ball, "Assets/Ball.obj");
-            m_Scene->AddComponent<TextureComponent>(Ball, "Assets/BallTexture.png");
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(Ball, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/BallTexture.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
             m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius), mass, bt::CollisionPrimitive::Sphere);
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(Ball);
             transform.Position = location;
             transform.Scale = extents;
 
-           
+			SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
 
-            //m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
-            //auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
-            //sound.Play();
+            m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
+            sound.Play();
         }
-        {
-            //m_SoundManager->loadAssets();
-        }
-        //SoundManager::InitOpenAL();
-        //SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-        //std::string path("TestSound_Stereo.wav");
-        //SoundSourceComponent test(path);
-        //test.Play();
 
+        
+
+
+
+    }
+    void Application::MakeLandscapeScene()
+    {
+        m_Scene = std::make_unique<Scene>();
 
     }
 }

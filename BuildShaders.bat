@@ -6,4 +6,6 @@ glslc Shaders/Wireframe.vert -o Shaders/Wireframe.vert.spv
 glslc Shaders/Wireframe.frag -o Shaders/Wireframe.frag.spv
 glslc Shaders/UnLit.vert -o Shaders/UnLit.vert.spv
 glslc Shaders/UnLit.frag -o Shaders/UnLit.frag.spv
+glslc Shaders/PBR.vert -o Shaders/PBR.vert.spv
+glslc Shaders/PBR.frag -o Shaders/PBR.frag.spv
 pause

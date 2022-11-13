@@ -44,6 +44,8 @@ namespace FLOOF {
 		static void CleanOpenAL();
 		static std::vector<std::string> GetAvailableDevices();
 		static void SetNewDevice(std::string device);
+
+		static void Update();
 	private:
 		static ALuint LoadWav(std::string sound);
 		static ALuint GenerateSource(SoundSourceComponent* source);
