@@ -31,10 +31,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Scale = glm::vec3(5.f);
         //transform.Rotation = glm::vec3(1.5f, 0.f, 0.f);
 
-        auto & body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale,transform.Rotation,500.f,"Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
+        auto & body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale,transform.Rotation,1000.f,"Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
     }
     {
-        Wheel_fr = scene->CreateEntity("Wheel Front left");
+        Wheel_fr = scene->CreateEntity("Wheel Front Right");
         auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/MonsterTruck/LPWheelFixed.fbx");
         for (auto& mesh : mesh.meshes) {
             mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
@@ -59,7 +59,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         RigidBody->setSpinningFriction(SpinningFriction);
     }
     {
-        Wheel_fl = scene->CreateEntity("Wheel Front right");
+        Wheel_fl = scene->CreateEntity("Wheel Front Left");
         auto& mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/MonsterTruck/LPWheelFixed.fbx");
         for (auto& mesh : mesh.meshes) {
             mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
@@ -151,7 +151,6 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         btVector3 parentAxis(0.f, 1.f, 0.f);
         btVector3 childAxis(0.f, 0.f, 1.f);
 
-        std::vector<btHinge2Constraint*> hinges;
 
         btVector3 anchor = WheelfrBody.RigidBody->getWorldTransform().getOrigin();
         btHinge2Constraint* Hinge1 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelfrBody.RigidBody.get(), anchor, parentAxis, childAxis);
@@ -171,34 +170,41 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
 
 
-        hinges.emplace_back(Hinge1);
-        hinges.emplace_back(Hinge2);
-        hinges.emplace_back(Hinge3);
-        hinges.emplace_back(Hinge4);
+        axles.emplace_back(Hinge1);
+        axles.emplace_back(Hinge2);
+        axles.emplace_back(Hinge3);
+        axles.emplace_back(Hinge4);
 
-        for(auto& hinge: hinges){
+        for(auto& hinge: axles){
 
             // Drive engine.
             hinge->enableMotor(3, true);
-            hinge->setMaxMotorForce(3, engine.maxEngineForce/2.f);
+            hinge->setMaxMotorForce(3, engine.maxEngineForce*2.f);
             hinge->setTargetVelocity(3, 0);
 
             // Steering engine.
             hinge->enableMotor(5, true);
-            hinge->setMaxMotorForce(5, engine.maxEngineForce/2.f);
+            hinge->setMaxMotorForce(5, engine.maxTurnForce);
             hinge->setTargetVelocity(5, 0);
 
-            hinge->setParam( BT_CONSTRAINT_CFM, 0.15f, 2);
-            hinge->setParam( BT_CONSTRAINT_ERP, 0.35f, 2);
+            hinge->setParam( BT_CONSTRAINT_CFM, 0.15f, 1);
+            hinge->setParam( BT_CONSTRAINT_ERP, 0.35f, 1);
 
-            hinge->setDamping( 2, 2.0 );
-            hinge->setStiffness( 2, 40.0 );
+            hinge->setLimit(2,0.f,5.f);
 
-            hinge->setLimit(0,0.f,0.f);
-            hinge->setLimit(1,0.f,1.f);
-            hinge->setLimit(2,0.f,0.f);
+            hinge->setDamping( 2, 500.0 );
+            hinge->setStiffness( 2, 1000.0 );
 
-            hinge->setDbgDrawSize(btScalar(5.f));
+            hinge->setLowerLimit(-SIMD_HALF_PI * 0.4f);
+            hinge->setUpperLimit(SIMD_HALF_PI * 0.4f);
+
+            //back wheels
+            if(hinge == Hinge3 || hinge == Hinge4){
+                hinge->setLowerLimit(-SIMD_HALF_PI * 0.01f);
+                hinge->setUpperLimit(SIMD_HALF_PI * 0.01f);
+            }
+
+            hinge->setDbgDrawSize(btScalar(10.f));
         }
     }
 }
@@ -209,16 +215,16 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     auto scene = Application::Get().m_Scene;
     auto& engine = scene->GetComponent<EngineComponent>(frame);
 
-    if (Input::Key(ImGuiKey_LeftArrow)) {
-        engine.TurnForce = -engine.MaxTurnForce;
-            engine.VehicleSteering += engine.steeringClamp;
+    if (Input::Key(ImGuiKey_RightArrow)) {
+        engine.TurnForce = -engine.maxTurnForce;
+            engine.VehicleSteering += engine.steeringIncrement;
             if(engine.VehicleSteering > engine.steeringClamp){
                 engine.VehicleSteering = engine.steeringClamp;
             }
     }
-    if (Input::Key(ImGuiKey_RightArrow)) {
-        engine.TurnForce = engine.MaxTurnForce;
-        engine.VehicleSteering -= engine.steeringClamp;
+    if (Input::Key(ImGuiKey_LeftArrow)) {
+        engine.TurnForce = engine.maxTurnForce;
+        engine.VehicleSteering -= engine.steeringIncrement;
         if(engine.VehicleSteering < -engine.steeringClamp){
             engine.VehicleSteering = -engine.steeringClamp;
         }
@@ -244,22 +250,22 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     wheels.emplace_back(wbl);
 
     //forward
-    for(auto wheel: wheels){
-        btVector3 torque(0.f,0.f,-1.f); // local direction
-        torque *= engine.EngineForce;
-        wheel->applyTorque(torque);
-
+    //for(auto wheel: wheels){
+     //   btVector3 torque(0.f,0.f,-1.f); // local direction
+     //   torque *= engine.EngineForce;
+    //    wheel->applyTorque(torque);
+   // }
+    for(auto &axle : axles){
+        axle->setTargetVelocity(3,engine.EngineForce);
     }
     //turning
     {
-        btVector3 torque(0.f,1.f,0.f); // local direction
-        torque *= engine.TurnForce;
-        wfl->applyTorque(torque);
-        wfr->applyTorque(torque);
+       axles[0]->setTargetVelocity(5,engine.TurnForce); // front right
+       axles[1]->setTargetVelocity(5,engine.TurnForce); // front left
 
     }
 
     //makes you need to hold button for power
     engine.EngineForce = 0.f;
-
+    engine.TurnForce = 0.f;
 }

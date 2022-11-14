@@ -109,7 +109,6 @@ namespace FLOOF {
                                                        trans.getOrigin().getZ());
                     }
 
-
                 }
             }
             //soft body

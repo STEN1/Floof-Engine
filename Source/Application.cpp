@@ -349,6 +349,7 @@ namespace FLOOF {
                                            collision.Transform.getOrigin().getY(),
                                            collision.Transform.getOrigin().getZ());
             transform.Scale = extents;
+            collision.RigidBody->setFriction(0.9f);
 
         }
         if(false){

@@ -18,6 +18,7 @@ namespace FLOOF {
         entt::entity Wheel_br;
         entt::entity Wheel_bl;
 
+        std::vector<btHinge2Constraint*> axles;
     };
 }
 

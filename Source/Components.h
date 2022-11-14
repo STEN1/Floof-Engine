@@ -240,26 +240,27 @@ namespace FLOOF {
         EngineComponent(){};
 
         float EngineForce = 0.f;
+        float TurnForce = 0.f;
 
-        float defaultBreakingForce = 10.f;
+        const float defaultBreakingForce = 10.f;
         float BreakingForce = 100.f;
 
-        float maxEngineForce = 5000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 9000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 100.f;
 
-        float MaxTurnForce = 4000.f;
-        float TurnForce = 0.f;
+        float maxTurnForce = 4000.f;
 
         float VehicleSteering = 0.f;
         float steeringIncrement = 0.04f;
         float steeringClamp = 0.3f;
-        float wheelRadius = 6.f;
-        float wheelWidth = 4.0f;
+
         float suspensionStiffness = 20.f;
         float suspensionDamping = 2.3f;
         float suspensionCompression = 4.4f;
+
         float rollInfluence = 0.1f;  //1.0f;
         float wheelFriction = 1000;
+
         btScalar suspensionRestLength = 0.6;
     };
 
