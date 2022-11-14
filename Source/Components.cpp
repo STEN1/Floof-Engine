@@ -290,7 +290,7 @@ namespace FLOOF {
         } else {
             trans = RigidBody->getWorldTransform();
         }
-        RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
+        //RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
         trans.setOrigin(Utils::glmTobt(location));
         btQuaternion btquat;
         auto rot = Utils::glmTobt(rotation);
@@ -299,7 +299,7 @@ namespace FLOOF {
         trans.setOrigin(Utils::glmTobt(location));
         RigidBody->setCenterOfMassTransform(trans);
 
-        CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
+        //CollisionShape->setLocalScaling(Utils::glmTobt(scale)/(Utils::glmTobt(DefaultScale)-btVector3(1.f,1.f,1.f)));
 
     }
 

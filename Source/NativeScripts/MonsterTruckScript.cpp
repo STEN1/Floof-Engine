@@ -34,6 +34,9 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Position = glm::vec3(-7.f, -4.f, 2.f);
         transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f, 0.f, -1.5f);
+
+        auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
+        scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front right", frame);

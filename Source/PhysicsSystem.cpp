@@ -90,7 +90,8 @@ namespace FLOOF {
 
                     auto newloc = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
                                             trans.getOrigin().getZ());
-                    transform.Position = (newloc - partrans->Position) / partrans->Scale;
+                    //transform.Position = newloc-((partrans->Position / partrans->Scale)*partrans->Rotation);
+                    transform.Position = newloc - partrans->Position;
                 } else {
                     float x, y, z;
                     trans.getRotation().getEulerZYX(z, y, x);
