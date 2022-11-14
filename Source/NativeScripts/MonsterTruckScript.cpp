@@ -5,6 +5,10 @@
 #include "../Input.h"
 #include "../Application.h"
 
+
+const float RollingFriction{0.5f};
+const float SpinningFriction{0.3f};
+const float WheelFriction{0.9f};
 void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
 
@@ -27,7 +31,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Scale = glm::vec3(5.f);
         //transform.Rotation = glm::vec3(1.5f, 0.f, 0.f);
 
-        auto & body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale,transform.Rotation,2000.f,"Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
+        auto & body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale,transform.Rotation,500.f,"Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
     }
     {
         Wheel_fr = scene->CreateEntity("Wheel Front left");
@@ -48,11 +52,11 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto& body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, transform.Scale,transform.Rotation,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto& body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, transform.Scale,transform.Rotation,50.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         auto& RigidBody = body.RigidBody;
-        RigidBody->setFriction(0.9f);
-        RigidBody->setRollingFriction(0.8f);
-        RigidBody->setSpinningFriction(0.5f);
+        RigidBody->setFriction(WheelFriction);
+        RigidBody->setRollingFriction(RollingFriction);
+        RigidBody->setSpinningFriction(SpinningFriction);
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front right");
@@ -73,11 +77,11 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto& body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, transform.Scale,transform.Rotation,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto& body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, transform.Scale,transform.Rotation,50.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         auto& RigidBody = body.RigidBody;
-        RigidBody->setFriction(0.9f);
-        RigidBody->setRollingFriction(0.8f);
-        RigidBody->setSpinningFriction(0.5f);
+        RigidBody->setFriction(WheelFriction);
+        RigidBody->setRollingFriction(RollingFriction);
+        RigidBody->setSpinningFriction(SpinningFriction);
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right");
@@ -98,7 +102,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto & body =scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, transform.Scale,transform.Rotation,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto & body =scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, transform.Scale,transform.Rotation,50.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         body.RigidBody->setFriction(1000.f);
     }
     {
@@ -120,11 +124,11 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto & body= scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale,transform.Rotation,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto & body= scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale,transform.Rotation,50.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         auto& RigidBody = body.RigidBody;
-        RigidBody->setFriction(0.9f);
-        RigidBody->setRollingFriction(0.8f);
-        RigidBody->setSpinningFriction(0.5f);
+        RigidBody->setFriction(WheelFriction);
+        RigidBody->setRollingFriction(RollingFriction);
+        RigidBody->setSpinningFriction(SpinningFriction);
     }
     //hinge car togheter
     {
@@ -190,9 +194,9 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             hinge->setDamping( 2, 2.0 );
             hinge->setStiffness( 2, 40.0 );
 
-            hinge->setLimit(0,0.f,0.1f);
+            hinge->setLimit(0,0.f,0.f);
             hinge->setLimit(1,0.f,1.f);
-            hinge->setLimit(2,0.f,0.01f);
+            hinge->setLimit(2,0.f,0.f);
 
             hinge->setDbgDrawSize(btScalar(5.f));
         }
@@ -241,16 +245,17 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
 
     //forward
     for(auto wheel: wheels){
-        btVector3 torque(0.f,0.f,1.f); // local direction
-        torque *= engine.EngineForce; // *2 for testing
+        btVector3 torque(0.f,0.f,-1.f); // local direction
+        torque *= engine.EngineForce;
         wheel->applyTorque(torque);
 
     }
-    //turn
-    for(auto wheel: wheels){
+    //turning
+    {
         btVector3 torque(0.f,1.f,0.f); // local direction
         torque *= engine.TurnForce;
-        wheel->applyTorque(torque);
+        wfl->applyTorque(torque);
+        wfr->applyTorque(torque);
 
     }
 

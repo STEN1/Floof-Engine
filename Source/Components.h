@@ -244,10 +244,10 @@ namespace FLOOF {
         float defaultBreakingForce = 10.f;
         float BreakingForce = 100.f;
 
-        float maxEngineForce = 100000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 5000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 100.f;
 
-        float MaxTurnForce = 100000.f;
+        float MaxTurnForce = 4000.f;
         float TurnForce = 0.f;
 
         float VehicleSteering = 0.f;
