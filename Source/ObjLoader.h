@@ -38,7 +38,7 @@ public:
     AssimpLoader() = delete;
     AssimpLoader(const std::string& path);
 private:
-    unsigned int aiFlags = aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_GenUVCoords | aiProcess_FlipUVs;
+    unsigned int aiFlags = aiProcess_Triangulate | aiProcess_GenUVCoords | aiProcess_FlipUVs;
     std::string path = "";
 
     struct AssimpMaterial
@@ -58,6 +58,7 @@ private:
         std::string name;
 
         AssimpMaterial material;
+        aiMatrix4x4 Transform;
     };
 
     struct AssimpCollisionMesh
@@ -70,8 +71,8 @@ private:
         std::vector<AssimpMesh> meshes;
     } staticMesh;
 
-    void ProcessNode(aiNode* node, const aiScene* scene);
-    bool LoadMesh(aiMesh* mesh, const aiScene* scene);
+    void ProcessNode(aiNode* node, const aiScene* scene, const aiMatrix4x4& nodeTransform);
+    bool LoadMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x4& nodeTransform);
     void LoadModel(const std::string& path);
 
     std::string LoadMaterialTexture(aiMaterial* mat, aiTextureType type);

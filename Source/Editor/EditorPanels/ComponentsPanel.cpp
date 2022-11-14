@@ -55,28 +55,42 @@ namespace FLOOF {
 				ImGui::Separator();
 				ImGui::Text("Soft body component");
 			}
-			if (auto* meshes = app.m_Scene->GetRegistry().try_get<StaticMeshComponent>(app.m_Scene->m_SelectedEntity)) {
+			if (auto* staticMesh = app.m_Scene->GetRegistry().try_get<StaticMeshComponent>(app.m_Scene->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Static mesh component");
 				if (ImGui::Button("Toggle all Wireframe off")) {
-					for (auto& mesh : meshes->meshes) {
-						meshes->mapDrawWireframeMeshes[mesh.MeshName] = false;
+					for (auto& mesh : staticMesh->meshes) {
+						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = false;
 					}
 				}
 				if (app.m_Scene->m_SelectedEntity != app.m_Scene->m_LastSelectedEntity) {
-					for (auto& mesh : meshes->meshes) {
-						meshes->mapDrawWireframeMeshes[mesh.MeshName] = true;
+					for (auto& mesh : staticMesh->meshes) {
+						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = true;
 					}
 				}
 				ImGui::Text("Internal Meshes list:");
-				for (auto& mesh : meshes->meshes) {
+				for (auto& mesh : staticMesh->meshes) {
 					std::string name = "\t";
 					name += mesh.MeshName;
-					if (ImGui::Selectable(name.c_str(), meshes->mapDrawWireframeMeshes[mesh.MeshName])) {
-						meshes->mapDrawWireframeMeshes[mesh.MeshName] = !meshes->mapDrawWireframeMeshes[mesh.MeshName];
+					if (ImGui::Selectable(name.c_str(), staticMesh->mapDrawWireframeMeshes[mesh.MeshName])) {
+						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = !staticMesh->mapDrawWireframeMeshes[mesh.MeshName];
 					}
 				}
-
+				ImGui::Text("Materials");
+				ImVec2 imageSize(200.f, 200.f);
+				for (auto& mesh : staticMesh->meshes) {
+					ImGui::Separator();
+					ImGui::Text("Diffuse");
+					ImGui::Image(mesh.MeshMaterial.Diffuse.VkTexture.DesctriptorSet, imageSize);
+					ImGui::Text("Normals");
+					ImGui::Image(mesh.MeshMaterial.Normals.VkTexture.DesctriptorSet, imageSize);
+					ImGui::Text("Metallic");
+					ImGui::Image(mesh.MeshMaterial.Metallic.VkTexture.DesctriptorSet, imageSize);
+					ImGui::Text("Roughness");
+					ImGui::Image(mesh.MeshMaterial.Roughness.VkTexture.DesctriptorSet, imageSize);
+					ImGui::Text("AO");
+					ImGui::Image(mesh.MeshMaterial.AO.VkTexture.DesctriptorSet, imageSize);
+				}
 			}
 			if (auto* soundComponent = app.m_Scene->GetRegistry().try_get<SoundSourceComponent>(
 				app.m_Scene->m_SelectedEntity)) {

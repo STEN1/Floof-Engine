@@ -28,7 +28,7 @@ namespace FLOOF {
         static void DestroyAll();
 
     private:
-        static VulkanTexture GetTextureFromPath(const std::string& path);
+        static VulkanTexture GetTextureFromPath(const std::string& path, bool flip = false, bool glNormal = false);
         static VulkanTexture GetTextureFromColor(TextureColor color);
 
     private:
