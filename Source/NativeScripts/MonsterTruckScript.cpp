@@ -28,7 +28,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto& engine = scene->AddComponent<EngineComponent>(frame);
 
         auto& transform = scene->GetComponent<TransformComponent>(frame);
-        transform.Scale = glm::vec3(5.f);
+        transform.Scale = glm::vec3(1.f);
         //transform.Rotation = glm::vec3(1.5f, 0.f, 0.f);
 
         auto & body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale,transform.Rotation,1000.f,"Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
@@ -46,8 +46,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto& transform = scene->GetComponent<TransformComponent>(Wheel_fr);
-        transform.Position = glm::vec3(35.f, -10.f, -20.f);
-        transform.Scale = glm::vec3(6.5f);
+        transform.Position = glm::vec3(35.f, -10.f, -20.f)/5.f;
+        transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f, 1.5f, 0.f);
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
@@ -71,8 +71,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto& transform = scene->GetComponent<TransformComponent>(Wheel_fl);
-        transform.Position = glm::vec3(35.f, -10.f, 20.f);
-        transform.Scale = glm::vec3(6.5f);
+        transform.Position = glm::vec3(35.f, -10.f, 20.f)/5.f;
+        transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f, -1.5f, 0.f);
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
@@ -96,8 +96,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto& transform = scene->GetComponent<TransformComponent>(Wheel_br);
-        transform.Position = glm::vec3(-35.f, -10.f, -20.f);
-        transform.Scale = glm::vec3(6.5f);
+        transform.Position = glm::vec3(-35.f, -10.f, -20.f)/5.f;
+        transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f, 1.5f, 0.f);
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
@@ -118,8 +118,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto& transform =scene->GetComponent<TransformComponent>(Wheel_bl);
-        transform.Position = glm::vec3(-35.f,-10.f,20.f);
-        transform.Scale = glm::vec3(6.5f);
+        transform.Position = glm::vec3(-35.f,-10.f,20.f)/5.f;
+        transform.Scale = glm::vec3(1.5f);
         transform.Rotation = glm::vec3(0.f,-1.5f,0.f);
 
         auto& frameTrans = scene->GetComponent<TransformComponent>(frame);
@@ -190,10 +190,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             hinge->setParam( BT_CONSTRAINT_CFM, 0.15f, 1);
             hinge->setParam( BT_CONSTRAINT_ERP, 0.35f, 1);
 
-            hinge->setLimit(2,0.f,5.f);
+            hinge->setLimit(2,0.f,1.f);
 
             hinge->setDamping( 2, 500.0 );
-            hinge->setStiffness( 2, 1000.0 );
+            hinge->setStiffness( 2, 500.0 );
 
             hinge->setLowerLimit(-SIMD_HALF_PI * 0.4f);
             hinge->setUpperLimit(SIMD_HALF_PI * 0.4f);
@@ -204,7 +204,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
                 hinge->setUpperLimit(SIMD_HALF_PI * 0.01f);
             }
 
-            hinge->setDbgDrawSize(btScalar(10.f));
+            hinge->setDbgDrawSize(btScalar(2.f));
         }
     }
 }
@@ -249,12 +249,7 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     wheels.emplace_back(wbr);
     wheels.emplace_back(wbl);
 
-    //forward
-    //for(auto wheel: wheels){
-     //   btVector3 torque(0.f,0.f,-1.f); // local direction
-     //   torque *= engine.EngineForce;
-    //    wheel->applyTorque(torque);
-   // }
+
     for(auto &axle : axles){
         axle->setTargetVelocity(3,engine.EngineForce);
     }

@@ -155,7 +155,6 @@ namespace FLOOF {
 
     void PhysicsSystem::clear() {
 
-
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
                 btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
@@ -164,15 +163,6 @@ namespace FLOOF {
                     delete body->getMotionState();
                 }
                 mDynamicsWorld->removeCollisionObject(obj);
-
-                if (mDynamicsWorld)
-                    for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
-                        btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
-                        btRigidBody *body = btRigidBody::upcast(obj);
-                        if (body && body->getMotionState()) {
-                            //delete body->getMotionState();
-                        }
-                    }
             }
     }
         void PhysicsSystem::AddRigidBody(btRigidBody *body) {

@@ -37,12 +37,6 @@ namespace FLOOF {
             ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                 app.m_Scene->m_SelectedEntity = entity;
-                if (app.m_Scene->m_LastSelectedEntity != app.m_Scene->m_SelectedEntity && app.m_Scene->m_LastSelectedEntity != entt::null) {
-                    auto* body = app.m_Scene->TryGetComponent<RigidBodyComponent>(app.m_Scene->m_LastSelectedEntity);
-                    if (body) {
-                        body->wakeup();
-                    }
-                }
             }
 
         } else {
@@ -50,12 +44,6 @@ namespace FLOOF {
             bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                 app.m_Scene->m_SelectedEntity = entity;
-                if (app.m_Scene->m_LastSelectedEntity != app.m_Scene->m_SelectedEntity && app.m_Scene->m_LastSelectedEntity != entt::null) {
-                    auto* body = app.m_Scene->TryGetComponent<RigidBodyComponent>(app.m_Scene->m_LastSelectedEntity);
-                    if (body) {
-                        body->wakeup();
-                    }
-                }
             }
 
             if (node_open) {

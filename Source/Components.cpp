@@ -288,13 +288,12 @@ namespace FLOOF {
 
     void RigidBodyComponent::transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale) {
         btTransform trans;
-        RigidBody->setActivationState(0);
+        //RigidBody->setActivationState(0);
         if (RigidBody && RigidBody->getMotionState()) {
             RigidBody->getMotionState()->getWorldTransform(trans);
         } else {
             trans = RigidBody->getWorldTransform();
         }
-        //RigidBody->translate(Utils::glmTobt(location)-trans.getOrigin());
         trans.setOrigin(Utils::glmTobt(location));
         btQuaternion btquat;
         auto rot = Utils::glmTobt(rotation);

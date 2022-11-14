@@ -245,10 +245,10 @@ namespace FLOOF {
         const float defaultBreakingForce = 10.f;
         float BreakingForce = 100.f;
 
-        float maxEngineForce = 9000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 1000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 100.f;
 
-        float maxTurnForce = 4000.f;
+        float maxTurnForce = 500.f;
 
         float VehicleSteering = 0.f;
         float steeringIncrement = 0.04f;
