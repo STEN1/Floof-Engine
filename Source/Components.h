@@ -30,19 +30,22 @@ namespace FLOOF {
     };
 
     struct LineMeshComponent {
-        LineMeshComponent(const std::vector<ColorVertex>& vertexData);
+        LineMeshComponent(const std::vector<ColorVertex> &vertexData);
+
         ~LineMeshComponent();
 
         void Draw(VkCommandBuffer commandBuffer);
 
-        void UpdateBuffer(const std::vector<ColorVertex>& vertexData);
+        void UpdateBuffer(const std::vector<ColorVertex> &vertexData);
+
         VulkanBufferData VertexBuffer{};
         uint32_t VertexCount{};
         uint32_t MaxVertexCount{};
     };
 
     struct PointCloudComponent {
-        PointCloudComponent(const std::vector<ColorVertex>& vertexData);
+        PointCloudComponent(const std::vector<ColorVertex> &vertexData);
+
         ~PointCloudComponent();
 
         void Draw(VkCommandBuffer commandBuffer);
@@ -53,12 +56,19 @@ namespace FLOOF {
 
     struct CameraComponent {
         CameraComponent(glm::vec3 position);
+
         glm::mat4 GetVP(float fov, float aspect, float near, float far);
+
         void MoveForward(float amount);
+
         void MoveRight(float amount);
+
         void MoveUp(float amount);
+
         void Pitch(float amount);
+
         void Yaw(float amount);
+
         glm::vec3 Position;
         glm::vec3 Forward;
         glm::vec3 Up;
@@ -71,22 +81,37 @@ namespace FLOOF {
 
     class BSplineComponent {
     public:
-        BSplineComponent(const std::vector<glm::vec3>& controllPoints);
+        BSplineComponent(const std::vector<glm::vec3> &controllPoints);
+
         BSplineComponent();
-        void Update(const std::vector<glm::vec3>& controllPoints);
-        void AddControllPoint(const glm::vec3& point);
+
+        void Update(const std::vector<glm::vec3> &controllPoints);
+
+        void AddControllPoint(const glm::vec3 &point);
+
         glm::vec3 EvaluateBSpline(float t);
+
         float TMin = 0.f;
         float TMax = 0.f;
         inline static constexpr int D = 2;
+
         bool empty() { return ControllPoints.empty(); }
-        void clear() { ControllPoints.clear(); KnotPoints.clear(); TMin = 0.f; TMax = 0.f; }
+
+        void clear() {
+            ControllPoints.clear();
+            KnotPoints.clear();
+            TMin = 0.f;
+            TMax = 0.f;
+        }
+
         unsigned long size() { return ControllPoints.size(); }
+
         bool Isvalid();
 
     private:
         std::vector<int> KnotPoints;
         std::vector<glm::vec3> ControllPoints;
+
         int FindKnotInterval(float t);
     };
     namespace bt {
@@ -99,69 +124,92 @@ namespace FLOOF {
             Cone,
         };
     }
-    struct RigidBodyComponent{
+    struct RigidBodyComponent {
         RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass, bt::CollisionPrimitive shape);
-        RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape);
+
+        RigidBodyComponent(glm::vec3 location, glm::vec3 scale,glm::vec3 rotation, const float mass, const std::string convexShape);
+
         std::shared_ptr<btRigidBody> RigidBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
 
-        void transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale);
+        void transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale);
 
         const bt::CollisionPrimitive Primitive;
+
         void wakeup();
+
     private:
         void InitializeBasicPhysics(const float mass);
+
         const glm::vec3 DefaultScale;
     };
-    struct SoftBodyComponent{
-        SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body);
+
+    struct SoftBodyComponent {
+        SoftBodyComponent(const float stiffness, const float conservation, const float mass, btSoftBody *body);
+
         ~SoftBodyComponent();
-        btSoftBody* SoftBody{nullptr}; // i dont have owernship
+
+        btSoftBody *SoftBody{nullptr}; // i dont have owernship
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
 
-    struct ScriptComponent{
+    struct ScriptComponent {
         ScriptComponent(const std::string PyScript);
+
         ~ScriptComponent();
+
         std::string Script;
         std::string ModuleName;
 
-        PyObject* Pname;
-        PyObject* Pmodule;
+        PyObject *Pname;
+        PyObject *Pmodule;
+
         void RunScript();
 
         void ReloadScript();
-       void OnCreate();
-       void OnUpdate(const float deltatime);
+
+        void OnCreate();
+
+        void OnUpdate(const float deltatime);
     };
 
-	struct SoundSourceComponent {
+    struct SoundSourceComponent {
         friend class SoundManager;
-	public:
-        SoundSourceComponent(const std::string& path);
+
+    public:
+        SoundSourceComponent(const std::string &path);
+
         ~SoundSourceComponent();
+
         void Volume(float volume);
+
         void Pitch();
+
         void UpdateStatus();
+
         void Play();
+
         void Stop();
+
         void Looping(bool looping);
+
         void Update();
+
         ALuint m_Source;
         ALuint m_Sound;
-		std::string m_Path;
+        std::string m_Path;
         float m_Volume{1.f};
-        float m_Pitch{ 1.f };
-        bool isPlaying{ false };
-        bool isLooping{ false };
+        float m_Pitch{1.f};
+        bool isPlaying{false};
+        bool isLooping{false};
 
 
-	};
+    };
 
     struct PointLightComponent {
-        glm::vec4 diffuse = { 1.0f, 0.7f, 0.5f, 0.f };
+        glm::vec4 diffuse = {1.0f, 0.7f, 0.5f, 0.f};
         glm::vec4 ambient = glm::vec4(0.4f, 0.4f, 0.4f, 0.f) * 0.1f;
 
         float lightRange = 50.f;
@@ -179,12 +227,41 @@ namespace FLOOF {
 
     struct NativeScriptComponent {
         NativeScriptComponent() = delete;
+
         NativeScriptComponent(std::unique_ptr<NativeScript> script, std::shared_ptr<Scene> scene, entt::entity entity)
-            : Script(std::move(script)) 
-        {
+                : Script(std::move(script)) {
             Script->OnCreate(scene, entity);
         }
+
         std::unique_ptr<NativeScript> Script;
     };
+
+    struct EngineComponent {
+        EngineComponent(){};
+
+        float EngineForce = 0.f;
+
+        float defaultBreakingForce = 10.f;
+        float BreakingForce = 100.f;
+
+        float maxEngineForce = 100000.f;  //this should be engine/velocity dependent
+        float maxBreakingForce = 100.f;
+
+        float MaxTurnForce = 100000.f;
+        float TurnForce = 0.f;
+
+        float VehicleSteering = 0.f;
+        float steeringIncrement = 0.04f;
+        float steeringClamp = 0.3f;
+        float wheelRadius = 6.f;
+        float wheelWidth = 4.0f;
+        float suspensionStiffness = 20.f;
+        float suspensionDamping = 2.3f;
+        float suspensionCompression = 4.4f;
+        float rollInfluence = 0.1f;  //1.0f;
+        float wheelFriction = 1000;
+        btScalar suspensionRestLength = 0.6;
+    };
+
 }
 

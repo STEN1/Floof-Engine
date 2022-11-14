@@ -269,7 +269,7 @@ namespace FLOOF {
 
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape)  :DefaultScale(scale), Primitive(bt::ConvexHull){
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation,const float mass,const std::string convexShape)  :DefaultScale(scale), Primitive(bt::ConvexHull){
 
         auto vertices = ModelManager::LoadbtModel(convexShape,scale);
         std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
@@ -278,6 +278,10 @@ namespace FLOOF {
 
         Transform.setIdentity();
         Transform.setOrigin(btVector3(location.x,location.y,location.z));
+        auto rot = Utils::glmTobt(glm::vec3(rotation));
+        btQuaternion btquat;
+        btquat.setEulerZYX(rot.z(),rot.y(),rot.x());
+       Transform.setRotation(btquat);
         InitializeBasicPhysics(mass);
 
     }

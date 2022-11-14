@@ -4,6 +4,8 @@
 #include "BulletSoftBody/btDefaultSoftBodySolver.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "Application.h"
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 
 #define GravitationalConstant -9.81
 
@@ -23,7 +25,12 @@ namespace FLOOF {
 
         mSoftBodyWorldInfo.m_broadphase = mBroadPhase;
 
-        mSolver = new btSequentialImpulseConstraintSolver();
+        //mSolver = new btSequentialImpulseConstraintSolver();
+
+        //mlcp solver
+        auto mlcp = new btDantzigSolver();
+        mSolver = new btMLCPSolver(mlcp);
+
         mSoftbodySolver = new btDefaultSoftBodySolver();
 
         mDynamicsWorld = new btSoftRigidDynamicsWorld(mDispatcher, mBroadPhase, mSolver, mCollisionConfiguration,
@@ -41,6 +48,7 @@ namespace FLOOF {
         mSoftBodyWorldInfo.water_normal = btVector3(0, 0, 0);
         mSoftBodyWorldInfo.m_gravity.setValue(0, GravitationalConstant, 0);
 
+        mVehicleRayCaster = new btDefaultVehicleRaycaster(mDynamicsWorld);
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -50,6 +58,8 @@ namespace FLOOF {
         delete mDispatcher;
         delete mCollisionConfiguration;
         delete mSoftbodySolver;
+
+        delete mVehicleRayCaster;
     }
 
     void PhysicsSystem::OnUpdate(float deltaTime) {
@@ -58,74 +68,73 @@ namespace FLOOF {
             return;
 
         const bool simulate{true};
-        if (simulate)
+        if (simulate) {
             mDynamicsWorld->stepSimulation(deltaTime);
 
-        //rigid body
-        {
+            //rigid body
+            {
 
-            auto view = mScene.view<RigidBodyComponent, TransformComponent, Relationship>();
-            for (auto [entity, RigidBodyComponent, transform, rel]: view.each()) {
+                auto view = mScene.view<RigidBodyComponent, TransformComponent, Relationship>();
+                for (auto [entity, RigidBodyComponent, transform, rel]: view.each()) {
 
 
+                    btRigidBody *body = RigidBodyComponent.RigidBody.get();
+                    btTransform trans;
+                    auto flags = body->getCollisionFlags();
 
-                btRigidBody *body = RigidBodyComponent.RigidBody.get();
-                btTransform trans;
-                auto flags = body->getCollisionFlags();
+                    if (body && body->getMotionState()) {
+                        body->getMotionState()->getWorldTransform(trans);
+                    } else {
+                        trans = body->getWorldTransform();
+                    }
 
-                if (body && body->getMotionState()) {
-                    body->getMotionState()->getWorldTransform(trans);
-                } else {
-                    trans = body->getWorldTransform();
+                    //depends on parent transform
+                    if (rel.Parent != entt::null) {
+                        auto *partrans = mScene.try_get<TransformComponent>(rel.Parent);
+
+                        float x, y, z;
+                        trans.getRotation().getEulerZYX(z, y, x);
+                        transform.Rotation = glm::vec3(x - partrans->Rotation.x, y - partrans->Rotation.y,
+                                                       z - partrans->Rotation.z);
+
+                        auto newloc = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                                trans.getOrigin().getZ());
+                        //transform.Position = newloc-((partrans->Position / partrans->Scale)*partrans->Rotation);
+                        transform.Position = newloc - partrans->Position;
+                    } else {
+                        float x, y, z;
+                        trans.getRotation().getEulerZYX(z, y, x);
+                        transform.Rotation = glm::vec3(x, y, z);
+                        transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                                       trans.getOrigin().getZ());
+                    }
+
+
                 }
+            }
+            //soft body
+            {
+                auto view = mScene.view<SoftBodyComponent, TransformComponent>();
+                for (auto [entity, SoftBodyComponent, transform]: view.each()) {
 
-                //depends on parent transform
-                if (rel.Parent != entt::null) {
-                    auto *partrans = mScene.try_get<TransformComponent>(rel.Parent);
+                    btSoftBody *body = SoftBodyComponent.SoftBody;
+                    btTransform trans;
 
-                    float x, y, z;
-                    trans.getRotation().getEulerZYX(z, y, x);
-                    transform.Rotation = glm::vec3(x - partrans->Rotation.x, y - partrans->Rotation.y,
-                                                   z - partrans->Rotation.z);
+                    if (!body)
+                        continue;
 
-                    auto newloc = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                                            trans.getOrigin().getZ());
-                    //transform.Position = newloc-((partrans->Position / partrans->Scale)*partrans->Rotation);
-                    transform.Position = newloc - partrans->Position;
-                } else {
+                    //draw soft body with debugger
+                    btSoftBodyHelpers::Draw(body, mDynamicsWorld->getDebugDrawer(), mDynamicsWorld->getDrawFlags());
+                    trans = body->getRigidTransform();
+
+                    transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                                                   trans.getOrigin().getZ());
                     float x, y, z;
                     trans.getRotation().getEulerZYX(z, y, x);
                     transform.Rotation = glm::vec3(x, y, z);
-                    transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                                                   trans.getOrigin().getZ());
                 }
-
-
             }
         }
-        //soft body
-        {
-            auto view = mScene.view<SoftBodyComponent, TransformComponent>();
-            for (auto [entity, SoftBodyComponent, transform]: view.each()) {
-
-                btSoftBody *body = SoftBodyComponent.SoftBody;
-                btTransform trans;
-
-                if (!body)
-                    continue;
-
-                //draw soft body with debugger
-                btSoftBodyHelpers::Draw(body, mDynamicsWorld->getDebugDrawer(), mDynamicsWorld->getDrawFlags());
-                trans = body->getRigidTransform();
-
-                transform.Position = glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                                               trans.getOrigin().getZ());
-                float x, y, z;
-                trans.getRotation().getEulerZYX(z, y, x);
-                transform.Rotation = glm::vec3(x, y, z);
-            }
-        }
-
         mDynamicsWorld->debugDrawWorld();
 
     }
@@ -177,8 +186,18 @@ namespace FLOOF {
                 mDynamicsWorld->addSoftBody(body);
         }
 
+    void PhysicsSystem::AddConstraint(btTypedConstraint* constraint, bool disableCollisionBetweenLinked) {
+        if (mDynamicsWorld)
+            mDynamicsWorld->addConstraint(constraint, disableCollisionBetweenLinked);
+    }
 
-        void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
+    void PhysicsSystem::AddVehicle(btActionInterface *vehicle) {
+        if (mDynamicsWorld)
+            mDynamicsWorld->addAction(vehicle);
+    }
+
+
+    void PhysicsDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
             //btIDebugDraw::drawLine(from,to,color);
             ColorVertex vFrom;
             vFrom.Color = glm::vec3(color.x(), color.y(), color.z());

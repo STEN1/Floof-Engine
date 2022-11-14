@@ -215,7 +215,7 @@ const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::
     const auto entity = m_Scene->CreateEntity("Rigid Mesh");
 
     if (shape == bt::CollisionPrimitive::ConvexHull)
-        auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, FilePath);
+        auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, glm::vec3(0.f),mass, FilePath); //todo add rotation on spawn
     else
         auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, shape);
 
