@@ -52,6 +52,8 @@ namespace FLOOF {
     }
 
     PhysicsSystem::~PhysicsSystem() {
+        clear();
+
         delete mDynamicsWorld;
         delete mSolver;
         delete mBroadPhase;
