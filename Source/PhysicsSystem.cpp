@@ -159,6 +159,9 @@ namespace FLOOF {
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
                 btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
                 btRigidBody *body = btRigidBody::upcast(obj);
+                for(int j {0}; j < body->getNumConstraintRefs(); j++){
+                    delete body->getConstraintRef(j);
+                }
                 if (body && body->getMotionState()) {
                     delete body->getMotionState();
                 }
