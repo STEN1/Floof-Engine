@@ -61,7 +61,7 @@ namespace FLOOF {
             return m_Registry.try_get<Type>(entity);
         }
 
-        std::shared_ptr<PhysicsSystem> GetPhysicSystem(){return m_PhysicSystem;}
+        PhysicsSystem* GetPhysicSystem(){return m_PhysicSystem.get();}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
     private:
         /// <summary>
@@ -72,7 +72,7 @@ namespace FLOOF {
         void OnCreate();
     private:
         entt::registry m_Registry;
-        std::shared_ptr<PhysicsSystem> m_PhysicSystem;       
+        std::unique_ptr<PhysicsSystem> m_PhysicSystem;       
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
