@@ -159,14 +159,6 @@ void FLOOF::PhysicsPanel::DrawPanel() {
             if (m_Scene->GetPhysicSystem())
                 m_Scene->GetPhysicSystem()->AddSoftBody(body.SoftBody);
         }
-        if (ImGui::Button("Soft Dense Ball")) {
-            auto *camera = Application::Get().GetRenderCamera();
-            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(10.f), 1000.f, "Assets/Ball.obj",
-                                     "Assets/BallTexture.png");
-            auto &body = m_Scene->GetComponent<SoftBodyComponent>(ent);
-            if (m_Scene->GetPhysicSystem())
-                m_Scene->GetPhysicSystem()->AddSoftBody(body.SoftBody);
-        }
     }
 
     ImGui::End();
@@ -192,11 +184,13 @@ const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::v
     //create softbody
     auto btvert = ModelManager::LoadbtModel(FilePath, Scale);
 
-    btSoftBody *psb = btSoftBodyHelpers::CreateFromTriMesh(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.GetVertices()[0], &btvert.btIndices[0], btvert.btIndices.size()/3);
+    //btSoftBody *psb = btSoftBodyHelpers::CreateFromTriMesh(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.GetVertices()[0], &btvert.btIndices[0], btvert.btIndices.size()/3);
+
+    btSoftBody * psb = btSoftBodyHelpers::CreateFromConvexHull(*m_Scene->GetPhysicSystem()->getSoftBodyWorldInfo(),&btvert.btVertices[0],btvert.VertCount,true);
 
     psb->translate(btVector3(Location.x, Location.y, Location.z));
 
-    auto &collision = m_Scene->AddComponent<SoftBodyComponent>(entity, 0.1, 0.7, mass, psb);
+    auto &collision = m_Scene->AddComponent<SoftBodyComponent>(entity, 0.2, 0.5, mass, psb);
 
     transform.Position = Location;
     transform.Scale = Scale;

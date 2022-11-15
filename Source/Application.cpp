@@ -31,7 +31,7 @@ namespace FLOOF {
         IMGUI_CHECKVERSION();
         m_ImguiContext = ImGui::CreateContext();
         ImGui::SetCurrentContext(m_ImguiContext);
-        ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO &io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
@@ -143,15 +143,13 @@ namespace FLOOF {
         return 0;
     }
 
-    void Application::UpdateImGui(float deltaTime)
-    {
-        for (auto& layer : m_ApplicationLayers) {
+    void Application::UpdateImGui(float deltaTime) {
+        for (auto &layer: m_ApplicationLayers) {
             layer->OnImGuiUpdate(deltaTime);
         }
     }
 
-    void Application::UpdateCameraSystem(float deltaTime)
-    {
+    void Application::UpdateCameraSystem(float deltaTime) {
         auto moveAmount = static_cast<float>(m_CameraSpeed * deltaTime);
         if (Input::Key(ImGuiKey_LeftShift)) {
             moveAmount *= 8;
@@ -195,9 +193,9 @@ namespace FLOOF {
     }
 
     void Application::Draw() {
-        auto* vulkanWindow = m_Renderer->GetVulkanWindow();
+        auto *vulkanWindow = m_Renderer->GetVulkanWindow();
         m_Renderer->NewFrame();
-        auto& currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
+        auto &currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
 
         VkSemaphore waitSemaphore = currentFrameData.MainPassEndSemaphore;
         VkSemaphore signalSemaphore = currentFrameData.RenderFinishedSemaphore;
@@ -214,7 +212,7 @@ namespace FLOOF {
         canvas_p1.x += canvasOffset.x;
         canvas_p1.y += canvasOffset.y;
 
-        glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
+        glm::vec2 sceneCanvasExtent{canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y};
         if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
             sceneCanvasExtent = glm::vec2(0.f);
 
@@ -228,7 +226,7 @@ namespace FLOOF {
         }
 
         if (sceneTexture != VK_NULL_HANDLE) {
-            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            ImDrawList *draw_list = ImGui::GetWindowDrawList();
             draw_list->AddImage(sceneTexture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
         } else {
             waitSemaphore = currentFrameData.ImageAvailableSemaphore;
@@ -242,20 +240,20 @@ namespace FLOOF {
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = m_Renderer->GetImguiRenderPass();
         renderPassInfo.framebuffer = vulkanWindow->FrameBuffers[vulkanWindow->ImageIndex];
-        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = vulkanWindow->Extent;
         VkClearValue clearColor[1]{};
-        clearColor[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+        clearColor[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = clearColor;
 
         m_Renderer->StartRenderPass(currentFrameData.ImGuiCommandBuffer, &renderPassInfo);
         // Render ImGui
         ImGui::Render();
-        ImDrawData* drawData = ImGui::GetDrawData();
+        ImDrawData *drawData = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(drawData, currentFrameData.ImGuiCommandBuffer);
 
-        auto& io = ImGui::GetIO();
+        auto &io = ImGui::GetIO();
         // Update and Render additional Platform Windows
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             ImGui::UpdatePlatformWindows();
@@ -265,7 +263,7 @@ namespace FLOOF {
         // End ImGui renderpass
         m_Renderer->EndRenderPass(currentFrameData.ImGuiCommandBuffer);
 
-        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -287,28 +285,23 @@ namespace FLOOF {
         m_CurrentDebugScene = type;
         VulkanRenderer::Get()->FinishAllFrames();
         switch (type) {
-            case DebugScenes::Physics:
-            {
+            case DebugScenes::Physics: {
                 MakePhysicsScene();
                 break;
             }
-            case DebugScenes::RenderingDemo:
-            {
+            case DebugScenes::RenderingDemo: {
                 MakeRenderingDemoScene();
                 break;
             }
-            case DebugScenes::Audio:
-            {
+            case DebugScenes::Audio: {
                 MakeAudioTestScene();
                 break;
             }
-            case DebugScenes::Landscape:
-            {
+            case DebugScenes::Landscape: {
                 MakeLandscapeScene();
                 break;
             }
-            default:
-            {
+            default: {
                 LOG("GameModeType is invalid\n");
                 break;
             }
@@ -317,13 +310,11 @@ namespace FLOOF {
             m_Scene->GetPhysicSystem()->UpdateDynamicWorld();
     }
 
-    void Application::SetRenderCamera(CameraComponent& cam)
-    {
+    void Application::SetRenderCamera(CameraComponent &cam) {
         m_RenderCamera = &cam;
     }
 
-    CameraComponent* Application::GetRenderCamera()
-    {
+    CameraComponent *Application::GetRenderCamera() {
         return m_RenderCamera;
     }
 
@@ -332,101 +323,94 @@ namespace FLOOF {
 
         // TODO: make physics scene.
 
+        //make flooring
         {
-            auto texture = "Assets/WaterTexture.png";
-            auto location = glm::vec3(0.f, -150.f, 0.f);
-            auto extents = glm::vec3(800.f, 10.f, 800.f);
+            auto location = glm::vec3(0.f, -50.f, 0.f);
+            auto extents = glm::vec3(100.f, 5.f, 100.f);
             auto mass = 0.f;
 
-            auto entity = m_Scene->CreateEntity("Ground Cube");
-            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity,location,extents,mass,bt::CollisionPrimitive::Box);
-            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
-            mesh.meshes[0].MeshMaterial.Diffuse = Texture(texture);
-            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            for (int i{-5}; i < 5.f; i++) {
+                for (int j{-5}; j < 5.f; j++) {
 
-            auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
-            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
-                                           collision.Transform.getOrigin().getY(),
-                                           collision.Transform.getOrigin().getZ());
-            transform.Scale = extents;
-            collision.RigidBody->setFriction(0.9f);
+                    location.x = i * extents.x;
+                    location.z = j * extents.z;
 
-        }
-        if(false){
-            auto entity = m_Scene->CreateEntity("Ground Ball");
-            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
-            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/LightBlue.png");
-            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+                    std::string name = "Ground Platform ";
+                    name += std::to_string(j + i);
 
-            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity,glm::vec3(0.f,-150.f,0.f),glm::vec3(75.f),0.f,bt::CollisionPrimitive::Sphere);
+                    auto entity = m_Scene->CreateEntity(name);
+                    auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
+                    auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
+                    mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
+                    mesh.meshes[0].MeshMaterial.AO = Texture("Assets/crisscross-foam1-ue/crisscross-foam_ao.png");
+                    mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/crisscross-foam1-ue/crisscross-foam_metallic.png");
+                    mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/crisscross-foam1-ue/crisscross-foam_normal-dx.png");
+                    mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/crisscross-foam1-ue/crisscross-foam_roughness.png");
+                    mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            auto & transform = m_Scene->GetComponent<TransformComponent>(entity);
-            transform.Position = glm::vec3(0.f,-150.f,0.f);
-            transform.Scale = glm::vec3(75.f);
+                    auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+                    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
+                                                   collision.Transform.getOrigin().getY(),
+                                                   collision.Transform.getOrigin().getZ());
+                    transform.Scale = extents;
+                    collision.RigidBody->setFriction(0.9f);
+
+                }
+            }
+            //place random ramps
+            {
+                auto mass = 0.f;
+
+                //blanket textures;
+                const char *albedos[4]{
+                        "Assets/soft-blanket-ue/soft-blanket_Blue_albedo.png",
+                        "Assets/soft-blanket-ue/soft-blanket_Pink_albedo.png",
+                        "Assets/soft-blanket-ue/soft-blanket_Red_albedo.png",
+                        "Assets/soft-blanket-ue/soft-blanket_Yellow_albedo.png",
+                };
+
+                for (int i{0}; i < 40.f; i++) {
+                    auto extents = glm::vec3(Math::RandFloat(5.f, 30.f), Math::RandFloat(2.f, 10.f), Math::RandFloat(5.f, 30.f));
+                    auto location = glm::vec3(Math::RandFloat(-500.f, 500.f), -43.f + extents.y, Math::RandFloat(-500.f, 500.f));
+                    auto rotation = glm::vec3(0.f, Math::RandFloat(0.f, 6.28f), 0.f);
+                    std::string name = "Random ramp ";
+                    name += std::to_string(i);
+
+                    auto entity = m_Scene->CreateEntity(name);
+                    auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/Primitives/IdentityRamp.fbx");
+                    auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityRamp.fbx");
+                    auto texture = Math::RandInt(0, 3);
+                    mesh.meshes[0].MeshMaterial.Diffuse = Texture(albedos[texture]);
+                    mesh.meshes[0].MeshMaterial.AO = Texture("Assets/soft-blanket-ue/soft-blanket_ao.png");
+                    mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/soft-blanket-ue/soft-blanket_metallic.png");
+                    mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/soft-blanket-ue/soft-blanket_normal-dx.png");
+                    mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/soft-blanket-ue/soft-blanket_roughness.png");
+
+                    mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+                    auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+                    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
+                    transform.Scale = extents;
+                    collision.RigidBody->setFriction(0.9f);
+                }
+            }
+
         }
         //make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
-        }
 
-        if (false){
-            int height = 5;
-            int width = 5;
-            float spacing = 5.f;
-
-            bool lightAdded = false;
-
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    for(int z = 0; z < width; z++){
-
-                        //spawning balls
-                        glm::vec3 location =glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing+(height*spacing), z * spacing - (float(width) * spacing * 0.5f));
-                        const float radius = spacing/2.5f;
-                        const glm::vec3 extents = glm::vec3(radius);
-                        const float mass = radius*100.f;
-
-                        auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(x+y+z));
-                        auto& ballMesh = m_Scene->AddComponent<StaticMeshComponent>(Ball, "Assets/Ball.obj");
-                        ballMesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Ball.obj");
-                        ballMesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
-
-                        m_Scene->AddComponent<RigidBodyComponent>(Ball,location,extents,mass,bt::CollisionPrimitive::Sphere);
-                        m_Scene->AddComponent<PointLightComponent>(Ball);
-                        //test python script
-                        auto &script = m_Scene->AddComponent<ScriptComponent>(Ball,"Scripts/example.py");
-
-                        auto & transform = m_Scene->GetComponent<TransformComponent>(Ball);
-                        transform.Position = location;
-                        transform.Scale = extents;
-
-                        //spawn cubes
-                        location = glm::vec3(x * spacing - (float(width) * spacing * 0.5f), y * spacing, z * spacing - (float(width) * spacing * 0.5f));
-
-                        auto cube = m_Scene->CreateEntity("Simulated Cube " + std::to_string(x+y+z));
-                        m_Scene->AddComponent<RigidBodyComponent>(cube,location,extents,mass,bt::CollisionPrimitive::Box);
-                        auto& cubeMesh = m_Scene->AddComponent<StaticMeshComponent>(cube, "Assets/IdentityCube.obj");
-                        cubeMesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/IdentityCube.obj");
-                        cubeMesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
-
-                        auto & cubeTransform = m_Scene->GetComponent<TransformComponent>(cube);
-                        cubeTransform.Position = location;
-                        cubeTransform.Scale = extents;
-                    }
-                }
-            }
         }
     }
+
 
     void Application::MakeRenderingDemoScene() {
         m_Scene = std::make_unique<Scene>();
 
         {
             auto ent = m_Scene->CreateEntity("Cerberus");
-            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX");
+            auto &sm = m_Scene->AddComponent<StaticMeshComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX");
             sm.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
             sm.meshes[0].MeshMaterial.Normals = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.tga");
             sm.meshes[0].MeshMaterial.Metallic = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_M.tga");
@@ -434,7 +418,7 @@ namespace FLOOF {
             sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
-            auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
+            auto &transform = m_Scene->GetComponent<TransformComponent>(ent);
             transform.Position = glm::vec3(-20.f, 100.f, -24.f);
             transform.Rotation.x = -1.f;
         }
@@ -443,18 +427,19 @@ namespace FLOOF {
             for (float y = 0.f; y < 20.f; y += 5.f) {
                 for (float z = 0.f; z < 20.f; z += 5.f) {
                     auto entity = m_Scene->CreateEntity("PointLight ball");
-                    auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                    auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
                     mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
                     mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
                     m_Scene->AddComponent<PointLightComponent>(entity);
 
-                    auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                    auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
                     transform.Position = glm::vec3(x, y, z);
                 }
             }
         }
     }
+
     void Application::MakeAudioTestScene() {
         m_Scene = std::make_unique<Scene>();
 
@@ -466,27 +451,30 @@ namespace FLOOF {
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
-            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
-            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass,
+                                                                        bt::CollisionPrimitive::Box);
+            auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture(texture);
             mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
-                collision.Transform.getOrigin().getY(),
-                collision.Transform.getOrigin().getZ());
+                                           collision.Transform.getOrigin().getY(),
+                                           collision.Transform.getOrigin().getZ());
             transform.Scale = extents;
 
         }
         {
             auto entity = m_Scene->CreateEntity("Ground Ball");
-            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+            auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/LightBlue.png");
             mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, glm::vec3(0.f, -150.f, 0.f), glm::vec3(75.f), 0.f, bt::CollisionPrimitive::Sphere);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, glm::vec3(0.f, -150.f, 0.f),
+                                                                        glm::vec3(75.f), 0.f,
+                                                                        bt::CollisionPrimitive::Sphere);
 
-            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(0.f, -150.f, 0.f);
             transform.Scale = glm::vec3(75.f);
 
@@ -495,38 +483,36 @@ namespace FLOOF {
 
         {
             //spawning balls
-            glm::vec3 location = glm::vec3(3.f,25.f,2.f);
+            glm::vec3 location = glm::vec3(3.f, 25.f, 2.f);
             const float radius = 2.f;
             const glm::vec3 extents = glm::vec3(radius);
             const float mass = radius * 100.f;
 
             auto Ball = m_Scene->CreateEntity("Simulated Ball " + std::to_string(location.x + location.y + location.z));
-            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(Ball, "Assets/Ball.obj");
+            auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(Ball, "Assets/Ball.obj");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/BallTexture.png");
             mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius), mass, bt::CollisionPrimitive::Sphere);
+            m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius), mass,
+                                                      bt::CollisionPrimitive::Sphere);
 
-            auto& transform = m_Scene->GetComponent<TransformComponent>(Ball);
+            auto &transform = m_Scene->GetComponent<TransformComponent>(Ball);
             transform.Position = location;
             transform.Scale = extents;
 
-			SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+            SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
 
-            m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
-            auto& sound = m_Scene->GetComponent<SoundSourceComponent>(Ball);
+            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
             sound.Play();
         }
 
-        
-
-
 
     }
-    void Application::MakeLandscapeScene()
-    {
+
+    void Application::MakeLandscapeScene() {
         m_Scene = std::make_unique<Scene>();
 
     }
+
 }

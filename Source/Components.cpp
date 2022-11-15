@@ -314,7 +314,7 @@ namespace FLOOF {
 
         SoftBody = body;
 
-        SoftBody->generateBendingConstraints(2);
+        SoftBody->generateBendingConstraints(16);
 
         SoftBody->m_cfg.kVC = conservation; //Konservation coefficient
         SoftBody->m_cfg.kPR = 0.1;
