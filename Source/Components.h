@@ -245,8 +245,9 @@ namespace FLOOF {
         const float defaultBreakingForce = 10.f;
         float BreakingForce = 100.f;
 
-        float maxEngineForce = 2000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 5000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 100.f;
+        float maxVelocity = 10.f;
 
         float maxTurnForce = 1000.f;
 
@@ -254,14 +255,16 @@ namespace FLOOF {
         float steeringIncrement = 0.04f;
         float steeringClamp = 0.3f;
 
-        float suspensionStiffness = 20.f;
-        float suspensionDamping = 2.3f;
+        float suspensionStiffness = 8000.f;
+        float suspensionDamping = 8000.f;
         float suspensionCompression = 4.4f;
 
         float rollInfluence = 0.1f;  //1.0f;
         float wheelFriction = 1000;
 
         btScalar suspensionRestLength = 0.6;
+
+        std::vector<btHinge2Constraint*> axles;
     };
 
 }

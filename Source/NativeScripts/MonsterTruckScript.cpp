@@ -33,7 +33,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto & body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale,transform.Rotation,2000.f,"Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
 
         //SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-        //auto& sound = m_Scene->AddComponent<SoundSourceComponent>(ent,"Vehicles_idle.wav");
+        //auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle.wav");
         //sound.Looping(true);
         //sound.Play();
 
@@ -197,11 +197,13 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         axles.emplace_back(Hinge3);
         axles.emplace_back(Hinge4);
 
+        engine.axles = axles;
+
         for(auto& hinge: axles){
 
             // Drive engine.
             hinge->enableMotor(3, true);
-            hinge->setMaxMotorForce(3, engine.maxEngineForce*2.f);
+            hinge->setMaxMotorForce(3, engine.maxEngineForce);
             hinge->setTargetVelocity(3, 0);
 
             // Steering engine.
@@ -214,8 +216,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
             hinge->setLimit(2,0.f,1.f);
 
-            hinge->setDamping( 2, 50.0 );
-            hinge->setStiffness( 2, 500.0 );
+            hinge->setDamping( 2, engine.suspensionDamping );
+            hinge->setStiffness( 2, engine.suspensionStiffness);
 
             hinge->setLowerLimit(-SIMD_HALF_PI * 0.4f);
             hinge->setUpperLimit(SIMD_HALF_PI * 0.4f);
@@ -252,11 +254,11 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         }
     }
     if (Input::Key(ImGuiKey_UpArrow)) {
-        engine.EngineForce = engine.maxEngineForce;
+        engine.EngineForce = engine.maxVelocity;
         engine.BreakingForce = 0.f;
     }
     if (Input::Key(ImGuiKey_DownArrow)) {
-        engine.EngineForce = -engine.maxEngineForce;
+        engine.EngineForce = -engine.maxVelocity;
         engine.BreakingForce = 0.f;
     }
 
