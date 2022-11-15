@@ -310,6 +310,9 @@ namespace FLOOF {
         RigidBody->activate(true);
     }
 
+    RigidBodyComponent::~RigidBodyComponent() {
+    }
+
     SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody*body) {
 
         SoftBody = body;

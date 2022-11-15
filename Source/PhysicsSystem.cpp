@@ -154,22 +154,29 @@ namespace FLOOF {
     }
 
     void PhysicsSystem::clear() {
-        auto view = mScene.view<EngineComponent>();
-        for (auto [entity, engine]: view.each()) {
-           for(auto& axle: engine.axles){
-               delete axle;
-           }
-        }
+
+
 
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
                 btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
                 btRigidBody *body = btRigidBody::upcast(obj);
+                for(int i = 0; i < body->getNumConstraintRefs(); i++){
+                    auto constraint = body->getConstraintRef(i);
+                    mDynamicsWorld->removeConstraint(constraint);
+                }
                 if (body && body->getMotionState()) {
                     delete body->getMotionState();
                 }
                 mDynamicsWorld->removeCollisionObject(obj);
             }
+        //clear constraint in engine
+        auto view = mScene.view<EngineComponent>();
+        for (auto [entity, engine]: view.each()) {
+            for(auto& axle: engine.axles){
+                delete axle;
+            }
+        }
     }
         void PhysicsSystem::AddRigidBody(btRigidBody *body) {
             if (mDynamicsWorld)
