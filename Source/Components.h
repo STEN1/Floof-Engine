@@ -129,8 +129,6 @@ namespace FLOOF {
 
         RigidBodyComponent(glm::vec3 location, glm::vec3 scale,glm::vec3 rotation, const float mass, const std::string convexShape);
 
-        ~RigidBodyComponent();
-
         std::shared_ptr<btRigidBody> RigidBody{nullptr};
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
