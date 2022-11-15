@@ -153,10 +153,7 @@ namespace FLOOF {
         }
     }
 
-    typedef <unknown> basic_view;
-
     void PhysicsSystem::clear() {
-
 
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
@@ -171,12 +168,6 @@ namespace FLOOF {
                 }
                 mDynamicsWorld->removeCollisionObject(obj);
             }
-        //clear constraint in engine
-        for (auto [entity, engine]: view.each()) {
-            for (auto &axle: engine.axles) {
-                delete axle;
-            }
-        }
     }
 
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {
