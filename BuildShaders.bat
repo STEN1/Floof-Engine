@@ -8,4 +8,6 @@ glslc Shaders/UnLit.vert -o Shaders/UnLit.vert.spv
 glslc Shaders/UnLit.frag -o Shaders/UnLit.frag.spv
 glslc Shaders/PBR.vert -o Shaders/PBR.vert.spv
 glslc Shaders/PBR.frag -o Shaders/PBR.frag.spv
+glslc Shaders/Skybox.vert -o Shaders/Skybox.vert.spv
+glslc Shaders/Skybox.frag -o Shaders/Skybox.frag.spv
 pause

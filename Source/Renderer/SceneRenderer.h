@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "VulkanBuffer.h"
 #include "../Components.h"
+#include "Skybox.h"
 
 namespace FLOOF {
     struct SceneFrameData {
@@ -59,5 +60,6 @@ namespace FLOOF {
         SceneFrameData m_SceneFrameData;
         VulkanUBO<SceneFrameData> m_SceneDataUBO{};
         VulkanSSBO<PointLightComponent::PointLight> m_LightSSBO{};
+        std::unique_ptr<Skybox> m_Skybox;
     };
 }

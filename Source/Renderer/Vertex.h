@@ -149,49 +149,4 @@ namespace FLOOF {
             return attributeDescriptions;
         }
     };
-
-    static constexpr SimpleVertex skyboxVertices[] = {
-        // positions          
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-
-        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{1.0f, -1.0f,  1.0}}
-    };
 }

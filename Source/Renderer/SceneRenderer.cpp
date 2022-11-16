@@ -7,6 +7,15 @@
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {
         CreateTextureRenderer();
+        std::array<std::string, 6> skyboxPaths = {
+            "Assets/Skybox/back.jpg",
+            "Assets/Skybox/front.jpg",
+            "Assets/Skybox/bottom.jpg",
+            "Assets/Skybox/top.jpg",
+            "Assets/Skybox/left.jpg",
+            "Assets/Skybox/right.jpg",
+        };
+        m_Skybox = std::make_unique<Skybox>(skyboxPaths);
     }
 
     SceneRenderer::~SceneRenderer() {
@@ -52,13 +61,28 @@ namespace FLOOF {
 
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
-        auto drawMode = app.GetDrawMode();
-        auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
-
         // Camera setup
         CameraComponent *camera = app.GetRenderCamera();
-        glm::mat4 vp = camera->GetVP(glm::radians(70.f), vkExtent.width / (float) vkExtent.height, 1.f, 1000000.f);
+        glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 0.5f, 1000000.f);
+        glm::mat4 cameraView = camera->GetView();
+        glm::mat4 vp = cameraProjection * cameraView;
 
+        if (m_Skybox) {
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Skybox);
+
+            MeshPushConstants constants;
+            glm::mat4 modelMat = glm::mat4(1.f);
+            constants.VP = cameraProjection * glm::mat4(glm::mat3(camera->GetView()));
+            constants.Model = modelMat;
+            constants.InvModelMat = glm::inverse(modelMat);
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                0, sizeof(MeshPushConstants), &constants);
+
+            m_Skybox->Draw(commandBuffer, pipelineLayout);
+        }
+
+        auto drawMode = app.GetDrawMode();
+        auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
 
         if (drawMode == RenderPipelineKeys::PBR) {
             std::vector<PointLightComponent::PointLight> pointLights;
@@ -205,6 +229,22 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
+        {    // Skybox shader
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend;
+            params.FragmentPath = "Shaders/Skybox.frag.spv";
+            params.VertexPath = "Shaders/Skybox.vert.spv";
+            params.Key = RenderPipelineKeys::Skybox;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = SimpleVertex::GetBindingDescription();
+            params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Skybox];
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
