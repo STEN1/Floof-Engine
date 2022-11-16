@@ -8,8 +8,8 @@ namespace FLOOF {
 	public:
 		HeightmapLoader();
 
-		bool readFile();
-		bool buildHeightmap();
+		void MakeBuffersFromData(const std::vector<MeshVertex>& meshData, const std::vector<uint32_t> indexData);
+		bool readMap();
 	private:
 		const char* filepath { "Assets/TerrainTextures/Terrain_Tough/heightmap.png" };
 
@@ -19,6 +19,6 @@ namespace FLOOF {
 		float zScale{ 1.0f };
 
 		int height, width, channels;
-		unsigned char* img{ nullptr };
+		unsigned char* img { nullptr };
 	};
 }

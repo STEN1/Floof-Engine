@@ -160,6 +160,7 @@ namespace FLOOF {
         std::vector<glm::vec3> ControllPoints;
         int FindKnotInterval(float t);
     };
+    
     namespace bt {
         enum CollisionPrimitive {
             ConvexHull = 0,
@@ -170,6 +171,7 @@ namespace FLOOF {
             Cone,
         };
     }
+
     struct RigidBodyComponent{
         RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass, bt::CollisionPrimitive shape);
         RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,const std::string convexShape);
@@ -186,6 +188,7 @@ namespace FLOOF {
         void InitializeBasicPhysics(const float mass);
         const glm::vec3 DefaultScale;
     };
+
     struct SoftBodyComponent{
         SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody* body);
         ~SoftBodyComponent();
@@ -257,10 +260,6 @@ namespace FLOOF {
 
     struct HeightmapComponent {
         HeightmapComponent(std::string filepath);
-
-        glm::vec3 postion{ 0 };
-
-
     };
 }
 
