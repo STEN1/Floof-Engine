@@ -96,7 +96,6 @@ namespace FLOOF {
 					if (!soundComponent->isPlaying) { if (ImGui::Button("Play")) { soundComponent->Play(); } }
 					if (soundComponent->isLooping) { if (ImGui::Button("Looping")) { soundComponent->Looping(false); } }
 					if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }
-				}
 
 				}
 
