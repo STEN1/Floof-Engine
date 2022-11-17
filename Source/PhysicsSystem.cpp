@@ -165,11 +165,16 @@ namespace FLOOF {
                     auto constraint = body->getConstraintRef(i);
                     mDynamicsWorld->removeConstraint(constraint);
                 }
-                if (body && body->getMotionState()) {
-                    //delete body->getMotionState();
-                }
                 mDynamicsWorld->removeCollisionObject(obj);
             }
+
+        auto view = mScene.view<EngineComponent>();
+        for(auto [ent, engine]: view.each()){
+            for(auto& hinge : engine.axles){
+                delete hinge;
+            }
+            engine.axles.clear();
+        }
     }
 
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {
