@@ -482,4 +482,9 @@ namespace FLOOF {
         Pmodule = PyImport_Import(Pname);
 
     }
+
+    LandscapeComponent::LandscapeComponent(){
+        landscape.readMap();
+        meshData = landscape.getMeshData();
+    }
 }
