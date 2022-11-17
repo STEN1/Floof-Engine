@@ -295,6 +295,10 @@ namespace FLOOF {
         void CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);
         void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, uint32_t sizeX, uint32_t sizeY);
 
+        // Generate mipmaps transitions layout to shader read optimal
+        void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+        void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
+
         uint32_t GetNextSwapchainImage(VulkanWindow& window);
         
         void WaitWhileMinimized();
