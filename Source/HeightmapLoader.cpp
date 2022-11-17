@@ -2,6 +2,7 @@
 #include <iostream>
 #include "glm/glm.hpp"
 #include "Renderer/VulkanRenderer.h"
+#include "Renderer/Mesh.h"
 
 namespace FLOOF {
 
@@ -18,7 +19,7 @@ namespace FLOOF {
 			for (int x = 0; x < height; x++) {
 				for (int y = 0; y < width; y++) {
 					float z = img[x * width + y] * zScale;
-					mVertices.emplace_back(glm::vec3(x, y, z));
+					mVertices.emplace_back(MeshVertex{ glm::vec3(x, y, z) });
 				}
 			}
 
@@ -77,9 +78,21 @@ namespace FLOOF {
 		return false;
 		}
 	}	
+	
 	void HeightmapLoader::MakeBuffersFromData(const std::vector<MeshVertex>& meshData, const std::vector<uint32_t> indexData) {
 		auto* renderer = VulkanRenderer::Get();
 		auto vertexBuffer = renderer->CreateVertexBuffer(meshData);
 		auto indexBuffer = renderer->CreateIndexBuffer(indexData);
+		auto vertexBuffffer = vertexBuffer.Buffer;
 	}
+	MeshData HeightmapLoader::getMeshData() {
+		MeshData retrn;
+		auto* renderer = VulkanRenderer::Get();
+		retrn.VertexBuffer = renderer->CreateVertexBuffer(mVertices);
+		retrn.IndexBuffer = renderer->CreateIndexBuffer(mIndices);
+		retrn.IndexCount = mIndices.size();
+		retrn.VertexCount = mVertices.size();
+		return retrn;
+	}
+
 }

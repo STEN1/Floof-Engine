@@ -515,9 +515,10 @@ namespace FLOOF {
         m_Scene = std::make_unique<Scene>();
         {
             HeightmapLoader* landscapeGround{ new HeightmapLoader() };
-            
+            std::string name = "Heightmap";
 
+            auto entity = m_Scene->CreateEntity(name);
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
         }
     }
-
 }
