@@ -108,13 +108,35 @@ namespace FLOOF {
             accumulator += 0.01f;
             float r = (sinf(accumulator) + 1.f) * 0.5f;
             float b = (cosf(accumulator) + 1.f) * 0.5f;
-            m_SceneFrameData.CameraPos = camera->Position;
+            m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
             m_SceneFrameData.LightCount = pointLights.size();
             m_SceneDataUBO.Update(m_SceneFrameData);
             auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
                                     &sceneDescriptor, 0, 0);
+        }
+
+        // Draw landscape
+        {
+            auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
+            for (auto [entity, transform, landscape] : view.each()) {
+                MeshPushConstants constants;
+                glm::mat4 modelMat = transform.GetTransform();
+                constants.VP = vp;
+                constants.Model = modelMat;
+                constants.InvModelMat = glm::inverse(modelMat);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                    0, sizeof(MeshPushConstants), &constants);
+                if (landscape.meshData.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        0, 1, &landscape.meshData.MeshMaterial.DescriptorSet, 0, nullptr);
+                }
+                VkDeviceSize offset{ 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
+                vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
+            }
         }
 
         // Draw models

@@ -113,8 +113,8 @@ namespace FLOOF {
                     auto& dR = data[dataIndex];
 
                     rdR = dR; 
-                    rdG = (stbi_uc)0;
-                    rdB = (stbi_uc)0;
+                    rdG = dR;
+                    rdB = dR;
                     rdA = (stbi_uc)255;
                 }
             }
@@ -125,6 +125,7 @@ namespace FLOOF {
 
         stbi_image_free(data);
 
+        uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(xWidth, yHeight)))) + 1;
 
         // Image
         VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
@@ -132,12 +133,12 @@ namespace FLOOF {
         imageInfo.extent.width = xWidth;
         imageInfo.extent.height = yHeight;
         imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = 1;
+        imageInfo.mipLevels = mipLevels;
         imageInfo.arrayLayers = 1;
         imageInfo.format = format;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0;
@@ -154,6 +155,11 @@ namespace FLOOF {
         // free staging buffer
         vmaDestroyBuffer(renderer->m_Allocator, stagingBuffer, stagingBufferAlloc);
 
+        renderer->TransitionImageLayout(texture.Image, format,
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
+        // Generate mipmaps transitions layout to shader read optimal
+        renderer->GenerateMipmaps(texture.Image, format, xWidth, yHeight, mipLevels);
+
         // create image view
         VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         textureImageViewInfo.image = texture.Image;
@@ -161,7 +167,7 @@ namespace FLOOF {
         textureImageViewInfo.format = format;
         textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         textureImageViewInfo.subresourceRange.baseMipLevel = 0;
-        textureImageViewInfo.subresourceRange.levelCount = 1;
+        textureImageViewInfo.subresourceRange.levelCount = mipLevels;
         textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
         textureImageViewInfo.subresourceRange.layerCount = 1;
         vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &texture.ImageView);

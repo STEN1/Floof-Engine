@@ -23,12 +23,11 @@ struct PointLight {
 };  
 
 layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
-    vec3 cameraPos;
+    vec4 cameraPos;
+    vec4 sunDirection;
+    vec4 sunColor;
+    float sunStrenght;
     int lightCount;
-    float roughness;
-    float metallic;
-    float ao;
-    float pad;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -44,26 +43,26 @@ vec3 getNormal();
 const float PI = 3.14159265359;
 
 void main() {
-    vec3 skyColor = vec3(1.0, 1.0, 1.0);
-    vec3 skyDir = normalize(vec3(0.0,1.0,2.0));
+    vec3 skyColor = sceneFrameUBO.sunColor.xyz;
+    vec3 skyDir = normalize(sceneFrameUBO.sunDirection.xyz);
 
     vec3 N = getNormal();
-    vec3 V = normalize(sceneFrameUBO.cameraPos - fragPos);
+    vec3 V = normalize(sceneFrameUBO.cameraPos.xyz - fragPos);
 
     vec3 albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
-    float roughness = texture(roughnessTexture, fragUv).r;
-    float metallic = texture(metallicTexture, fragUv).r;
+    float roughness = texture(roughnessTexture, fragUv).g;
+    float metallic = texture(metallicTexture, fragUv).b;
     float ao = texture(aoTexture, fragUv).r;
 
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, sceneFrameUBO.metallic);
+    F0 = mix(F0, albedo, metallic);
     vec3 Lo = vec3(0.0);
 
     // Skylight
     // calculate per-light radiance
     vec3 L = normalize(skyDir);
     vec3 H = normalize(V + L);
-    vec3 radiance     = skyColor;        
+    vec3 radiance     = skyColor * sceneFrameUBO.sunStrenght;        
         
     // cook-torrance brdf
     float NDF = DistributionGGX(N, H, roughness);        

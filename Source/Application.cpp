@@ -37,6 +37,8 @@ namespace FLOOF {
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
+        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
         //io.ConfigViewportsNoAutoMerge = true;
         //io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -503,8 +505,7 @@ namespace FLOOF {
 
             SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
-
-            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "Vehicles_idle.wav");
             sound.Play();
         }
 
@@ -515,9 +516,10 @@ namespace FLOOF {
         m_Scene = std::make_unique<Scene>();
         {
             HeightmapLoader* landscapeGround{ new HeightmapLoader() };
-            
+            std::string name = "Heightmap";
 
+            auto entity = m_Scene->CreateEntity(name);
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
         }
     }
-
 }

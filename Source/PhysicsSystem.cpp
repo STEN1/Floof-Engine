@@ -165,11 +165,16 @@ namespace FLOOF {
                     auto constraint = body->getConstraintRef(i);
                     mDynamicsWorld->removeConstraint(constraint);
                 }
-                if (body && body->getMotionState()) {
-                    //delete body->getMotionState();
-                }
                 mDynamicsWorld->removeCollisionObject(obj);
             }
+
+        auto view = mScene.view<EngineComponent>();
+        for(auto [ent, engine]: view.each()){
+            for(auto& hinge : engine.axles){
+                delete hinge;
+            }
+            engine.axles.clear();
+        }
     }
 
     void PhysicsSystem::AddRigidBody(btRigidBody *body) {
@@ -207,9 +212,7 @@ namespace FLOOF {
         m_VertexData.push_back(vTo);
     }
 
-    void
-    PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,
-                                       int lifeTime, const btVector3 &color) {
+    void PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,int lifeTime, const btVector3 &color) {
         ColorVertex vFrom;
         vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
         vFrom.Pos = glm::vec3(PointOnB.x(), PointOnB.y(), PointOnB.z());

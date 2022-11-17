@@ -13,6 +13,7 @@
 #include "BulletSoftBody/btSoftBody.h"
 #include "NativeScripts/NativeScript.h"
 #include "TransformComponent.h"
+#include "HeightmapLoader.h"
 
 #include <pytypedefs.h>
 
@@ -271,5 +272,13 @@ namespace FLOOF {
         std::vector<btHinge2Constraint*> axles;
     };
 
+    struct LandscapeComponent {
+        LandscapeComponent();
+        ~LandscapeComponent();
+        
+        MeshData meshData;
+
+        HeightmapLoader landscape;
+    };
 }
 

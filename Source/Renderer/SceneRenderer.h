@@ -7,12 +7,11 @@
 
 namespace FLOOF {
     struct SceneFrameData {
-        glm::vec3 CameraPos = glm::vec3(0.f);
+        glm::vec4 CameraPos = glm::vec4(0.f);
+        glm::vec4 SunDirection = glm::vec4(0.0f, 1.0f, 2.0f, 1.f);
+        glm::vec4 SunColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.f);
+        float sunStrenght = 15.f;
         int LightCount = 0;
-        float roughness = 0.2f;
-        float metallic = 0.f;
-        float ao = 1.f;
-        float pad = 0.f;
     };
 
     class SceneRenderer {
