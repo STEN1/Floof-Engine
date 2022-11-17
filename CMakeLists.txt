@@ -79,7 +79,7 @@ add_executable(Floof
     Source/Renderer/Skybox.cpp
     Source/Editor/EditorPanels/SoundSettingsPanel.h
     Source/Editor/EditorPanels/SoundSettingsPanel.cpp
-)
+        Source/HeightField.cpp Source/HeightField.h)
 
 
 find_package(Vulkan REQUIRED)
@@ -104,12 +104,15 @@ target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
         ${Bullet_Dir}/src/btBulletCollisionAll.cpp
-        ${Bullet_Dir}/src/btLinearMathAll.cpp)
+        ${Bullet_Dir}/src/btLinearMathAll.cpp
+        )
 target_link_libraries(Floof Bullet)
 
 #Add each submodule manually
 add_subdirectory(${Bullet_Dir}/src/BulletSoftBody)
-target_link_libraries(Floof BulletSoftBody)
+add_subdirectory(${Bullet_Dir}/src/Bullet3Common)
+add_subdirectory(${Bullet_Dir}/src/Bullet3Collision)
+target_link_libraries(Floof BulletSoftBody Bullet3Common Bullet3Collision)
 
 #pybinding
 find_package(Python)
