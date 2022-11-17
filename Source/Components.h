@@ -272,6 +272,7 @@ namespace FLOOF {
 
     struct LandscapeComponent {
         LandscapeComponent();
+        ~LandscapeComponent();
         
         MeshData meshData;
 
