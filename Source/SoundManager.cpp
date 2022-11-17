@@ -46,11 +46,30 @@ namespace FLOOF {
         alec(alListenerfv(AL_ORIENTATION, forwardAndUpVectors));
     }
 
-    void SoundManager::InitOpenAL() {
+    void SoundManager::InitOpenAL(std::string device) {
 
-    	// Find and set the default audio device
-        const ALCchar* defaultDeviceString = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER); 
-        s_Device = alcOpenDevice(defaultDeviceString); 
+
+
+        if (device != "DEFAULT")
+        {
+            std::vector<std::string> devices = GetAvailableDevices();
+            bool deviceExist{ false };
+            for (auto it : devices) {
+                if (it == device) { deviceExist = true; break; };
+            }
+
+            if (deviceExist) {
+				s_Device = alcOpenDevice(device.c_str());
+                needsReload = true;
+            }
+            else { device = "DEFAULT"; }
+        }
+
+        if (device == "DEFAULT") {
+            const ALCchar* defaultDeviceString = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+            s_Device = alcOpenDevice(defaultDeviceString);
+
+        }
 
     	if (!s_Device) { std::cerr << "Failed to get the default device for OpenAL" << std::endl; return; }
 
@@ -98,20 +117,8 @@ namespace FLOOF {
 
     void SoundManager::SetNewDevice(std::string device) {
 
-        std::vector<std::string> devices = GetAvailableDevices();
-        bool deviceExist{ false };
-        for (auto it : devices) {
-            if (it == device) { deviceExist = true; break; };
-        }
-        if (deviceExist) {
-            // Could probably add more error checking here, like in the init function
-            s_Device = alcOpenDevice(device.c_str());
-            s_Context = alcCreateContext(s_Device, nullptr);
-        }
-        else
-        {
-            std::cerr << "failed to make set new OpenAl device" << std::endl;
-        }
+        CleanOpenAL();
+        InitOpenAL(device);
     }
 
     void SoundManager::Update() {
@@ -122,10 +129,12 @@ namespace FLOOF {
 
         auto view = registry.view<TransformComponent, SoundSourceComponent>();
         for (auto [entity, transform, soundsource] : view.each()) {
+	        if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();
             alec(alSource3f(soundsource.m_Source, AL_POSITION, pos.x, pos.y, pos.z));
             soundsource.UpdateStatus();
         }
+        if (needsReload == true) { needsReload = false; }
 
     }
 

@@ -40,7 +40,7 @@ namespace FLOOF {
 		friend class SoundSourceComponent;
 	public:
 		static void SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
-		static void InitOpenAL();
+		static void InitOpenAL(std::string device = "DEFAULT");
 		static void CleanOpenAL();
 		static std::vector<std::string> GetAvailableDevices();
 		static void SetNewDevice(std::string device);
@@ -50,12 +50,12 @@ namespace FLOOF {
 		static ALuint LoadWav(std::string sound);
 		static ALuint GenerateSource(SoundSourceComponent* source);
 		static void DeleteSource(SoundSourceComponent* source);
-
+		inline static std::vector<std::string> s_DeviceList;
 		inline static std::unordered_map<std::string, ALuint> s_Sounds;
 		inline static std::vector<SoundSourceComponent*> s_Sources;
 		inline static ALCdevice* s_Device{ nullptr };
 		inline static ALCcontext* s_Context{ nullptr };
-		
+		inline static bool needsReload{ false };
 
 	};
 

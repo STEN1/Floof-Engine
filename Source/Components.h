@@ -182,6 +182,7 @@ namespace FLOOF {
 
     public:
         SoundSourceComponent(const std::string &path);
+        void NewDeviceReload();
 
         ~SoundSourceComponent();
 
@@ -202,6 +203,7 @@ namespace FLOOF {
         ALuint m_Source;
         ALuint m_Sound;
         std::string m_Path;
+        std::string m_Name;
         float m_Volume{1.f};
         float m_Pitch{1.f};
         bool isPlaying{false};

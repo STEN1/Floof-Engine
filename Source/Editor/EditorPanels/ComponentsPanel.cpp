@@ -97,6 +97,8 @@ namespace FLOOF {
 					if (soundComponent->isLooping) { if (ImGui::Button("Looping")) { soundComponent->Looping(false); } }
 					if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }
 
+				}
+
 				ImGui::Text("Materials");
 				ImVec2 imageSize(200.f, 200.f);
 				for (auto& mesh : staticMesh->meshes) {
@@ -112,7 +114,7 @@ namespace FLOOF {
 					ImGui::Text("AO");
 					ImGui::Image(mesh.MeshMaterial.AO.VkTexture.DesctriptorSet, imageSize);
 				}
-			}
+			
 
 			}
 			if (auto* scriptComponent = app.m_Scene->TryGetComponent<ScriptComponent>(

@@ -411,8 +411,16 @@ namespace FLOOF {
     }
 
     SoundSourceComponent::SoundSourceComponent(const std::string& path) {
-        m_Sound = SoundManager::LoadWav(path);
+        m_Name = path;
+    	m_Sound = SoundManager::LoadWav(path);
         m_Path = path;
+        m_Source = SoundManager::GenerateSource(this);
+        alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
+    }
+
+    void SoundSourceComponent::NewDeviceReload() {
+        // TODO Make sure previous source and buffer is deleted
+        m_Sound = SoundManager::LoadWav(m_Name);
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
     }
