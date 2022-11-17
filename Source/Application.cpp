@@ -503,8 +503,7 @@ namespace FLOOF {
 
             SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
-
-            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "Vehicles_idle.wav");
             sound.Play();
         }
 
