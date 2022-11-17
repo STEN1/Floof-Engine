@@ -6,9 +6,9 @@
 #include "../Application.h"
 
 
-const float RollingFriction{0.5f};
-const float SpinningFriction{0.3f};
-const float WheelFriction{0.9f};
+const float RollingFriction{1.0f};
+const float SpinningFriction{0.5f};
+const float WheelFriction{1.f};
 
 void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
@@ -31,7 +31,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Scale = glm::vec3(1.f);
         //transform.Rotation = glm::vec3(1.5f, 0.f, 0.f);
 
-        auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 2000.f, "Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
+        auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
 
         //SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
         //auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle.wav");
@@ -58,7 +58,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
         for (auto &mesh: mesh.meshes) {
             mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
             mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
@@ -70,12 +70,12 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fr);
         transform.Position = glm::vec3(35.f, -10.f, -20.f) / 5.f;
-        transform.Scale = glm::vec3(1.5f);
-        transform.Rotation = glm::vec3(0.f, 1.5f, 0.f);
+        transform.Scale = glm::vec3(5.f);
+        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, transform.Scale, transform.Rotation, 50.f, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
         auto &RigidBody = body.RigidBody;
         RigidBody->setFriction(WheelFriction);
         RigidBody->setRollingFriction(RollingFriction);
@@ -83,7 +83,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         for (auto &mesh: mesh.meshes) {
             mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
             mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
@@ -95,12 +95,12 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
         transform.Position = glm::vec3(35.f, -10.f, 20.f) / 5.f;
-        transform.Scale = glm::vec3(1.5f);
-        transform.Rotation = glm::vec3(0.f, -1.5f, 0.f);
+        transform.Scale = glm::vec3(5.f);
+        transform.Rotation = glm::vec3(0.f, 0.f,0.f );
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, transform.Scale, transform.Rotation, 50.f, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         auto &RigidBody = body.RigidBody;
         RigidBody->setFriction(WheelFriction);
         RigidBody->setRollingFriction(RollingFriction);
@@ -108,7 +108,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
         for (auto &mesh: mesh.meshes) {
             mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
             mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
@@ -120,17 +120,17 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_br);
         transform.Position = glm::vec3(-35.f, -10.f, -20.f) / 5.f;
-        transform.Scale = glm::vec3(1.5f);
-        transform.Rotation = glm::vec3(0.f, 1.5f, 0.f);
+        transform.Scale = glm::vec3(5.f);
+        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, transform.Scale, transform.Rotation, 50.f, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
         body.RigidBody->setFriction(1000.f);
     }
     {
         Wheel_bl = scene->CreateEntity("Wheel back left");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         for (auto &mesh: mesh.meshes) {
             mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
             mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
@@ -142,12 +142,12 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
         transform.Position = glm::vec3(-35.f, -10.f, 20.f) / 5.f;
-        transform.Scale = glm::vec3(1.5f);
-        transform.Rotation = glm::vec3(0.f, -1.5f, 0.f);
+        transform.Scale = glm::vec3(5.f);
+        transform.Rotation = glm::vec3(0.f, 0.f,0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 50.f, "Assets/MonsterTruck/LPWheelFixed.fbx");
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         auto &RigidBody = body.RigidBody;
         RigidBody->setFriction(WheelFriction);
         RigidBody->setRollingFriction(RollingFriction);
@@ -214,13 +214,13 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             hinge->setParam(BT_CONSTRAINT_CFM, 0.15f, 1);
             hinge->setParam(BT_CONSTRAINT_ERP, 0.35f, 1);
 
-            hinge->setLimit(2, 0.f, 1.f);
+            hinge->setLimit(2, 0.f, 0.5f);
 
             hinge->setDamping(2, engine.suspensionDamping);
             hinge->setStiffness(2, engine.suspensionStiffness);
 
-            hinge->setLowerLimit(-SIMD_HALF_PI * 0.4f);
-            hinge->setUpperLimit(SIMD_HALF_PI * 0.4f);
+            hinge->setLowerLimit(-SIMD_HALF_PI * 0.5f);
+            hinge->setUpperLimit(SIMD_HALF_PI * 0.5f);
 
             //back wheels
             if (hinge == Hinge3 || hinge == Hinge4) {
