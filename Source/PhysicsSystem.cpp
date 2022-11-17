@@ -166,7 +166,7 @@ namespace FLOOF {
                     mDynamicsWorld->removeConstraint(constraint);
                 }
                 if (body && body->getMotionState()) {
-                    delete body->getMotionState();
+                    //delete body->getMotionState();
                 }
                 mDynamicsWorld->removeCollisionObject(obj);
             }
