@@ -207,9 +207,7 @@ namespace FLOOF {
         m_VertexData.push_back(vTo);
     }
 
-    void
-    PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,
-                                       int lifeTime, const btVector3 &color) {
+    void PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,int lifeTime, const btVector3 &color) {
         ColorVertex vFrom;
         vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
         vFrom.Pos = glm::vec3(PointOnB.x(), PointOnB.y(), PointOnB.z());
