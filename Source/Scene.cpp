@@ -4,7 +4,7 @@
 
 namespace FLOOF {
     Scene::Scene() {
-        m_PhysicSystem = std::make_shared<PhysicsSystem>(m_Registry);
+        m_PhysicSystem = std::make_unique<PhysicsSystem>(m_Registry);
         m_PhysicsDebugDrawer = std::make_unique<PhysicsDebugDraw>();
 
         m_PhysicsDebugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);

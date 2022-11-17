@@ -58,6 +58,8 @@ namespace FLOOF {
         CameraComponent(glm::vec3 position);
 
         glm::mat4 GetVP(float fov, float aspect, float near, float far);
+        glm::mat4 GetView();
+        glm::mat4 GetPerspective(float fov, float aspect, float near, float far);
 
         void MoveForward(float amount);
 

@@ -81,13 +81,23 @@ namespace FLOOF {
     }
 
     glm::mat4 CameraComponent::GetVP(float fov, float aspect, float near, float far) {
+        glm::mat4 view = GetView();
+        glm::mat4 projection = GetPerspective(fov, aspect, near, far);
+        return projection * view;
+    }
+
+    glm::mat4 CameraComponent::GetView()
+    {
+        return glm::lookAt(Position, Position + Forward, Up);
+    }
+
+    glm::mat4 CameraComponent::GetPerspective(float fov, float aspect, float near, float far)
+    {
         FOV = fov;
         Aspect = aspect;
         Near = near;
         Far = far;
-        glm::mat4 view = glm::lookAt(Position, Position + Forward, Up);
-        glm::mat4 projection = glm::perspective(fov, aspect, near, far);
-        return projection * view;
+        return glm::perspective(fov, aspect, near, far);
     }
 
     void CameraComponent::MoveForward(float amount) {

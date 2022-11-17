@@ -7,6 +7,7 @@
 #include "stb_image/stb_image.h"
 #include "imgui_impl_glfw.h"
 #include "LasLoader.h"
+#include "HeightmapLoader.h"
 #include "Renderer/ModelManager.h"
 #include "SoundManager.h"
 #include "NativeScripts/TestScript.h"
@@ -512,7 +513,11 @@ namespace FLOOF {
 
     void Application::MakeLandscapeScene() {
         m_Scene = std::make_unique<Scene>();
+        {
+            HeightmapLoader* landscapeGround{ new HeightmapLoader() };
+            
 
+        }
     }
 
 }

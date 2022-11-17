@@ -53,6 +53,7 @@ namespace FLOOF {
         Wireframe,
         UnLit,
         PBR,
+        Skybox,
         Basic,
         Line,
         LineStrip,
@@ -70,6 +71,7 @@ namespace FLOOF {
         LightSSBO,
         FontTexture,
         Material,
+        Skybox,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {

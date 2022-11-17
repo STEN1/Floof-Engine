@@ -728,6 +728,21 @@ namespace FLOOF {
         {
             VkDescriptorSetLayoutBinding layoutBinding{};
             layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::Skybox]);
+        }
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
             layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             layoutBinding.descriptorCount = 1;
             layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -871,7 +886,7 @@ namespace FLOOF {
             depthStencilStateInfo.depthTestEnable = VK_FALSE;
             depthStencilStateInfo.depthWriteEnable = VK_FALSE;
         }
-        depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
         depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
         depthStencilStateInfo.stencilTestEnable = VK_FALSE;
 
