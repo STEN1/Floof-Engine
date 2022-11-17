@@ -48,13 +48,11 @@ namespace FLOOF {
 
     void SoundManager::InitOpenAL(std::string device) {
 
-
-
-        if (device != "DEFAULT")
+		UpdateDeviceList();
+		if (device != "DEFAULT")
         {
-            std::vector<std::string> devices = GetAvailableDevices();
             bool deviceExist{ false };
-            for (auto it : devices) {
+            for (auto it : s_DeviceList) {
                 if (it == device) { deviceExist = true; break; };
             }
 
@@ -90,6 +88,14 @@ namespace FLOOF {
         alec(alcDestroyContext(s_Context));
         alec(alcCloseDevice(s_Device));
     }
+
+    std::vector<std::string> SoundManager::GetDeviceList() {
+        return s_DeviceList;
+    }
+
+	void SoundManager::UpdateDeviceList() {
+        s_DeviceList = GetAvailableDevices();
+	}
 
     std::vector<std::string> SoundManager::GetAvailableDevices() {
         const ALCchar* devices;

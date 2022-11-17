@@ -8,7 +8,12 @@ namespace FLOOF {
 
         ImGui::Begin("Sounds Settings");
 
-		std::vector<std::string> devices = SoundManager::GetAvailableDevices();
+		ImGui::Text("Refresh Device List");
+
+		if (ImGui::SmallButton("Refresh Device List"))
+			SoundManager::UpdateDeviceList();
+
+		std::vector<std::string> devices = SoundManager::GetDeviceList();
 
 		static int item_current_idx = 0; // Here we store our selection data as an index.
 		const char* combo_preview_value = devices[item_current_idx].c_str();  // Pass in the preview value visible before opening the combo (it could be anything)

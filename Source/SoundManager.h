@@ -42,11 +42,13 @@ namespace FLOOF {
 		static void SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
 		static void InitOpenAL(std::string device = "DEFAULT");
 		static void CleanOpenAL();
-		static std::vector<std::string> GetAvailableDevices();
+		static std::vector<std::string> GetDeviceList();
+		static void UpdateDeviceList();
 		static void SetNewDevice(std::string device);
 
 		static void Update();
 	private:
+		static std::vector<std::string> GetAvailableDevices();
 		static ALuint LoadWav(std::string sound);
 		static ALuint GenerateSource(SoundSourceComponent* source);
 		static void DeleteSource(SoundSourceComponent* source);
