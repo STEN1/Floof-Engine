@@ -1,10 +1,9 @@
 #pragma once
 #include "../ApplicationLayer.h"
-#include "EditorPanels/ComponentsPanel.h"
-#include "EditorPanels/SceneGraphPanel.h"
 #include "entt/entt.hpp"
 #include <unordered_map>
 #include <string>
+#include "EditorPanels/EnginePanel.h"
 
 namespace FLOOF {
 	class EditorLayer : public ApplicationLayer {

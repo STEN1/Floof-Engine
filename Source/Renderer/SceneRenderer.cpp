@@ -128,9 +128,11 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
-                if (landscape.meshData.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
-                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                        0, 1, &landscape.meshData.MeshMaterial.DescriptorSet, 0, nullptr);
+                if (drawMode != RenderPipelineKeys::Wireframe) {
+                    if (landscape.meshData.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
+                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                            0, 1, &landscape.meshData.MeshMaterial.DescriptorSet, 0, nullptr);
+                    }
                 }
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
