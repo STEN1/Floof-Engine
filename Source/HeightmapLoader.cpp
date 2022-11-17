@@ -18,7 +18,7 @@ namespace FLOOF {
 			for (int x = 0; x < height; x++) {
 				for (int y = 0; y < width; y++) {
 					float z = img[x * width + y] * zScale;
-					mVertices.emplace_back(glm::vec3(x, y, z));
+					//mVertices.emplace_back(glm::vec3(x, y, z));
 				}
 			}
 

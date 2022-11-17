@@ -108,7 +108,7 @@ namespace FLOOF {
             accumulator += 0.01f;
             float r = (sinf(accumulator) + 1.f) * 0.5f;
             float b = (cosf(accumulator) + 1.f) * 0.5f;
-            m_SceneFrameData.CameraPos = camera->Position;
+            m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
             m_SceneFrameData.LightCount = pointLights.size();
             m_SceneDataUBO.Update(m_SceneFrameData);
             auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
