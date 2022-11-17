@@ -356,7 +356,7 @@ namespace FLOOF {
                                                    collision.Transform.getOrigin().getY(),
                                                    collision.Transform.getOrigin().getZ());
                     transform.Scale = extents;
-                    collision.RigidBody->setFriction(0.9f);
+                    collision.RigidBody->setFriction(2.0f);
 
                 }
             }
@@ -403,7 +403,6 @@ namespace FLOOF {
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
-
         }
     }
 
