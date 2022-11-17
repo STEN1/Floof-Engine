@@ -19,7 +19,7 @@ namespace FLOOF {
 			for (int x = 0; x < height; x++) {
 				for (int y = 0; y < width; y++) {
 					float z = img[x * width + y] * zScale;
-					mVertices.emplace_back(MeshVertex{ glm::vec3(x, y, z) });
+					mVertices.emplace_back(MeshVertex{ glm::vec3(x, z, y) });
 				}
 			}
 
@@ -33,12 +33,12 @@ namespace FLOOF {
 					auto d{ x * width + (y + 1) };
 
 					mIndices.emplace_back(a);
-					mIndices.emplace_back(b);
 					mIndices.emplace_back(c);
+					mIndices.emplace_back(b);
 
 					mIndices.emplace_back(a);
-					mIndices.emplace_back(c);
 					mIndices.emplace_back(d);
+					mIndices.emplace_back(c);
 				}
 			}
 

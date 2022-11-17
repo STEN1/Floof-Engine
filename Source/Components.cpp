@@ -494,9 +494,10 @@ namespace FLOOF {
     LandscapeComponent::LandscapeComponent(){
         landscape.readMap();
         meshData = landscape.getMeshData();
-        //meshData.MeshMaterial.Diffuse = Texture("Assets/YOUR_TEXTURE.png");
+        meshData.MeshMaterial.Diffuse = Texture("Assets/TerrainTextures/Terrain_Tough/texture.PNG");
         meshData.MeshMaterial.UpdateDescriptorSet();
     }
+
     LandscapeComponent::~LandscapeComponent()
     {
         auto* renderer = VulkanRenderer::Get();
