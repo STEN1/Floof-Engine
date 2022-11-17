@@ -13,21 +13,21 @@ namespace FLOOF {
 				app.m_Scene->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Transform component");
-                bool transformChanged {false};
-                transformChanged |= ImGui::DragFloat3("Position", &transform->Position[0], 0.1f);
-                transformChanged |= ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
+				bool transformChanged{ false };
+				transformChanged |= ImGui::DragFloat3("Position", &transform->Position[0], 0.1f);
+				transformChanged |= ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
 
 				if (auto* body = app.m_Scene->TryGetComponent<RigidBodyComponent>(app.m_Scene->m_SelectedEntity)) {
 					if (body->Primitive == bt::CollisionPrimitive::Sphere) {
-                        transformChanged |= ImGui::DragFloat("Scale", &transform->Scale[0], 0.1, 0.01, std::numeric_limits<float>::max());
+						transformChanged |= ImGui::DragFloat("Scale", &transform->Scale[0], 0.1, 0.01, std::numeric_limits<float>::max());
 						transform->Scale[1] = transform->Scale[2] = transform->Scale[0];
 					} else
 						transformChanged |= ImGui::DragFloat3("Scale", &transform->Scale[0], 0.1, 0.01, std::numeric_limits<float>::max());
 					//move physics body
-					if(transformChanged)
-                        body->transform(transform->Position, transform->Rotation, transform->Scale / 2.f);
+					if (transformChanged)
+						body->transform(transform->Position, transform->Rotation, transform->Scale / 2.f);
 				} else {
-                     ImGui::DragFloat3("Scale", &transform->Scale[0], 0.1, 0.01, std::numeric_limits<float>::max());
+					ImGui::DragFloat3("Scale", &transform->Scale[0], 0.1, 0.01, std::numeric_limits<float>::max());
 				}
 			}
 			if (auto* rigidBody = app.m_Scene->GetRegistry().try_get<RigidBodyComponent>(
@@ -96,6 +96,7 @@ namespace FLOOF {
 					if (!soundComponent->isPlaying) { if (ImGui::Button("Play")) { soundComponent->Play(); } }
 					if (soundComponent->isLooping) { if (ImGui::Button("Looping")) { soundComponent->Looping(false); } }
 					if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }
+				}
 
 				ImGui::Text("Materials");
 				ImVec2 imageSize(200.f, 200.f);
@@ -112,7 +113,6 @@ namespace FLOOF {
 					ImGui::Text("AO");
 					ImGui::Image(mesh.MeshMaterial.AO.VkTexture.DesctriptorSet, imageSize);
 				}
-			}
 
 			}
 			if (auto* scriptComponent = app.m_Scene->TryGetComponent<ScriptComponent>(

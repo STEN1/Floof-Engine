@@ -50,8 +50,8 @@ void main() {
     vec3 V = normalize(sceneFrameUBO.cameraPos.xyz - fragPos);
 
     vec3 albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
-    float roughness = texture(roughnessTexture, fragUv).r;
-    float metallic = texture(metallicTexture, fragUv).r;
+    float roughness = texture(roughnessTexture, fragUv).g;
+    float metallic = texture(metallicTexture, fragUv).b;
     float ao = texture(aoTexture, fragUv).r;
 
     vec3 F0 = vec3(0.04);
@@ -111,7 +111,7 @@ void main() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
     }   
   
-    vec3 ambient = vec3(0.01) * albedo * ao;
+    vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
 	
     color = color / (color + vec3(1.0));

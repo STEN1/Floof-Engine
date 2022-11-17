@@ -113,8 +113,8 @@ namespace FLOOF {
                     auto& dR = data[dataIndex];
 
                     rdR = dR; 
-                    rdG = (stbi_uc)0;
-                    rdB = (stbi_uc)0;
+                    rdG = dR;
+                    rdB = dR;
                     rdA = (stbi_uc)255;
                 }
             }
