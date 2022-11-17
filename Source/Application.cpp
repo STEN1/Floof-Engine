@@ -15,6 +15,7 @@
 #include "Editor/EditorLayer.h"
 #include "NativeScripts/MonsterTruckScript.h"
 #include "Renderer/TextureManager.h"
+#include "HeightField.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>

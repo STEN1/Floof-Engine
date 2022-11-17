@@ -496,6 +496,8 @@ namespace FLOOF {
         meshData = landscape.getMeshData();
         meshData.MeshMaterial.Diffuse = Texture("Assets/TerrainTextures/Terrain_Tough/texture.PNG");
         meshData.MeshMaterial.UpdateDescriptorSet();
+
+        HeightFieldShape = new HeightField(landscape.mVertices);
     }
 
     LandscapeComponent::~LandscapeComponent()
@@ -503,5 +505,8 @@ namespace FLOOF {
         auto* renderer = VulkanRenderer::Get();
         renderer->DestroyVulkanBuffer(&meshData.VertexBuffer);
         renderer->DestroyVulkanBuffer(&meshData.IndexBuffer);
+
+        delete HeightFieldShape;
     }
+
 }
