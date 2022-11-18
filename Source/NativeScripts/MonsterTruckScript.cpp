@@ -5,43 +5,12 @@
 #include "../Input.h"
 #include "../Application.h"
 
-
-const float RollingFriction{1.0f};
-const float SpinningFriction{0.5f};
-const float WheelFriction{1.f};
-
 void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
 
     {
         frame = entity;
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
-        for (auto &mesh: mesh.meshes) {
-            mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_albedo.jpg");
-            mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_metallic.jpg");
-            mesh.MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_AO.jpg");
-            mesh.MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_normal.jpg");
-            mesh.MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesFrame/HarmaaRunko_roughness.jpg");
-            mesh.MeshMaterial.UpdateDescriptorSet();
-        }
-
-        auto &engine = scene->AddComponent<EngineComponent>(frame);
-
-        auto &transform = scene->GetComponent<TransformComponent>(frame);
-        transform.Scale = glm::vec3(1.f);
-        //transform.Rotation = glm::vec3(1.5f, 0.f, 0.f);
-
-        auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
-
-        auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle.wav");
-        sound.Looping(true);
-        sound.Play();
-
-    }
-    //frame
-    {
-        auto ent = scene->CreateEntity("CyberTruck", frame);
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(ent, "Assets/cyber-truck/source/CybertruckNowheel.fbx");
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/cyber-truck/source/CybertruckNowheel_LowCenter.fbx");
         for (auto &mesh: mesh.meshes) {
             mesh.MeshMaterial.Diffuse = Texture("Assets/cyber-truck/textures/cyber_Albedo.tga.png");
             mesh.MeshMaterial.Metallic = Texture("Assets/cyber-truck/textures/cyber_Metallic.tga.png");
@@ -50,10 +19,20 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             mesh.MeshMaterial.UpdateDescriptorSet();
         }
 
-        auto &transform = scene->GetComponent<TransformComponent>(ent);
-        transform.Scale = glm::vec3(8.2f, 8.f, 9.5f);
-        transform.Position = glm::vec3(1.f, 3.f, 0.f);
-        transform.Rotation = glm::vec3(0.f, 3.14f, 0.f);
+        auto &engine = scene->AddComponent<EngineComponent>(frame);
+
+        auto &transform = scene->GetComponent<TransformComponent>(frame);
+        transform.Scale = glm::vec3(5.8f, 5.8f, 5.8f);
+        //transform.Position = glm::vec3(1.f, 3.f, 0.f);
+        //transform.Rotation = glm::vec3(0.f, 3.14f, 0.f);
+
+        auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/cyber-truck/source/CybertruckNowheel_LowCenter.fbx");
+
+        //sSoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+        auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle.wav");
+        sound.Looping(true);
+        sound.Play();
+
     }
     {
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
@@ -68,17 +47,18 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fr);
-        transform.Position = glm::vec3(35.f, -10.f, -20.f) / 5.f;
-        transform.Scale = glm::vec3(5.f);
+        transform.Position = glm::vec3(5.2f, -0.5f, -2.5f);
+        transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
         auto &RigidBody = body.RigidBody;
-        RigidBody->setFriction(WheelFriction);
-        RigidBody->setRollingFriction(RollingFriction);
-        RigidBody->setSpinningFriction(SpinningFriction);
+        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setFriction(engine.WheelFriction);
+        RigidBody->setRollingFriction(engine.RollingFriction);
+        RigidBody->setSpinningFriction(engine.SpinningFriction);
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
@@ -93,17 +73,18 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
-        transform.Position = glm::vec3(35.f, -10.f, 20.f) / 5.f;
-        transform.Scale = glm::vec3(5.f);
+        transform.Position = glm::vec3(5.2f, -0.5f, 2.5f);
+        transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(0.f, 0.f,0.f );
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         auto &RigidBody = body.RigidBody;
-        RigidBody->setFriction(WheelFriction);
-        RigidBody->setRollingFriction(RollingFriction);
-        RigidBody->setSpinningFriction(SpinningFriction);
+        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setFriction(engine.WheelFriction);
+        RigidBody->setRollingFriction(engine.RollingFriction);
+        RigidBody->setSpinningFriction(engine.SpinningFriction);
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right");
@@ -118,14 +99,18 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_br);
-        transform.Position = glm::vec3(-35.f, -10.f, -20.f) / 5.f;
-        transform.Scale = glm::vec3(5.f);
+        transform.Position = glm::vec3(-4.8f, -0.5f, -2.5f);
+        transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
-        body.RigidBody->setFriction(1000.f);
+        auto &RigidBody = body.RigidBody;
+        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setFriction(engine.WheelFriction);
+        RigidBody->setRollingFriction(engine.RollingFriction);
+        RigidBody->setSpinningFriction(engine.SpinningFriction);
     }
     {
         Wheel_bl = scene->CreateEntity("Wheel back left");
@@ -140,17 +125,18 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         }
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
-        transform.Position = glm::vec3(-35.f, -10.f, 20.f) / 5.f;
-        transform.Scale = glm::vec3(5.f);
+        transform.Position = glm::vec3(-4.8f, -0.5f, 2.5f);
+        transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(0.f, 0.f,0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         //scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position-frameTrans.Position, transform.Scale+frameTrans.Scale,500.f,"Assets/MonsterTruck/LPWheelFixed.fbx");
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         auto &RigidBody = body.RigidBody;
-        RigidBody->setFriction(WheelFriction);
-        RigidBody->setRollingFriction(RollingFriction);
-        RigidBody->setSpinningFriction(SpinningFriction);
+        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setFriction(engine.WheelFriction);
+        RigidBody->setRollingFriction(engine.RollingFriction);
+        RigidBody->setSpinningFriction(engine.SpinningFriction);
     }
     //hinge car togheter
     {
@@ -213,13 +199,13 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             hinge->setParam(BT_CONSTRAINT_CFM, 0.15f, 1);
             hinge->setParam(BT_CONSTRAINT_ERP, 0.35f, 1);
 
-            hinge->setLimit(2, 0.f, 0.5f);
+            hinge->setLimit(2, -engine.suspensionRestLength/2.f, engine.suspensionRestLength/2.f);
 
             hinge->setDamping(2, engine.suspensionDamping);
             hinge->setStiffness(2, engine.suspensionStiffness);
 
-            hinge->setLowerLimit(-SIMD_HALF_PI * 0.5f);
-            hinge->setUpperLimit(SIMD_HALF_PI * 0.5f);
+            hinge->setLowerLimit(-SIMD_HALF_PI * 0.4f);
+            hinge->setUpperLimit(SIMD_HALF_PI * 0.4f);
 
             //back wheels
             if (hinge == Hinge3 || hinge == Hinge4) {
@@ -227,7 +213,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
                 hinge->setUpperLimit(SIMD_HALF_PI * 0.01f);
             }
 
-            hinge->setDbgDrawSize(btScalar(2.f));
+            hinge->setDbgDrawSize(btScalar(1.5f));
         }
     }
 }
@@ -271,7 +257,6 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     wheels.emplace_back(wfl);
     wheels.emplace_back(wbr);
     wheels.emplace_back(wbl);
-
 
     for (auto &axle: axles) {
         axle->setTargetVelocity(3, engine.EngineForce);

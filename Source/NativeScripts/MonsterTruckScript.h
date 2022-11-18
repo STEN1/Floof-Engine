@@ -3,6 +3,8 @@
 #define FLOOF_MONSTERTRUCKSCRIPT_H
 
 #include "NativeScript.h"
+#include "../Components.h"
+
 namespace FLOOF {
     class MonsterTruckScript : public NativeScript {
     public:
