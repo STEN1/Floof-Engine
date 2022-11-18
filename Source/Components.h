@@ -281,6 +281,8 @@ namespace FLOOF {
         MeshData meshData;
 
         HeightmapLoader landscape;
+
+        TriangleCollector triangleCol;
         HeightField* HeightFieldShape;
     };
 

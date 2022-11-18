@@ -16,13 +16,13 @@ namespace FLOOF {
 
 		void MakeBuffersFromData(const std::vector<MeshVertex>& meshData, const std::vector<uint32_t> indexData);
 
-		
+        int height, width;
 	private:
 		const char* filepath { "Assets/TerrainTextures/Terrain_Tough/heightmap.png" };
 
 		float zScale{ 1.0f };
 
-		int height, width, channels;
+        int channels;
 		unsigned char* img { nullptr };
 
 	public:
