@@ -430,6 +430,7 @@ namespace FLOOF {
     }
 
     void SoundSourceComponent::Volume(float volume) {
+        m_Volume = volume;
         alec(alSourcef(m_Source, AL_GAIN, volume));
     }
 
