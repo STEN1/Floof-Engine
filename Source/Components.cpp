@@ -492,7 +492,7 @@ namespace FLOOF {
     LandscapeComponent::LandscapeComponent() {
         landscape.readMap();
 
-        HeightFieldShape = new HeightField(landscape.mVertices,landscape.height,landscape.width,100.f,0.f);
+        HeightFieldShape = new HeightField(landscape.mVertices,landscape.height,landscape.width,200.f,0.f);
 
         //landscape
         {

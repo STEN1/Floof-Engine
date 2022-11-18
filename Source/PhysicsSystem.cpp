@@ -18,7 +18,7 @@ namespace FLOOF {
         mSoftBodyWorldInfo.m_dispatcher = mDispatcher;
 
         const int maxProxies = 32766; // defined in documentation
-        const int AabbSize = 99999999;
+        const int AabbSize = 90000;
         btVector3 worldAabbMin(-AabbSize, -AabbSize, -AabbSize);
         btVector3 worldAabbMax(AabbSize, AabbSize, AabbSize);
         mBroadPhase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);

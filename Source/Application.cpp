@@ -337,6 +337,18 @@ namespace FLOOF {
 
             auto entity = m_Scene->CreateEntity(name);
             auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
+
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position.y -= 25.f;
+
+            btTransform tf;
+            tf.setIdentity();
+            auto state = new btDefaultMotionState(tf);
+            btRigidBody::btRigidBodyConstructionInfo info(0,state,mesh.HeightFieldShape->mHeightfieldShape,btVector3(0.f,0.f,0.f));
+            btRigidBody* body = new btRigidBody(info);
+            body->setFriction(1.f);
+            m_Scene->GetPhysicSystem()->AddRigidBody(body);
+
         }
         //make flooring
         {

@@ -4,8 +4,8 @@
 FLOOF::HeightField::HeightField(std::vector<glm::vec3> vertices, int height, int width, float maxy, float miny) {
 
     auto vertheight = getHeightData(vertices);
-    mHeightfieldShape = new btHeightfieldTerrainShape(height+1, width+1, &vertheight[0], miny, maxy, 1, false);
-    mHeightfieldShape->buildAccelerator(16);
+    mHeightfieldShape = new btHeightfieldTerrainShape(height, width, &vertheight[0], miny, maxy, 1, false);
+    //mHeightfieldShape->buildAccelerator(16);
     mHeightfieldShape->setLocalScaling(btVector3(1.0, 1.0, 1.0));
 
 }
@@ -55,8 +55,6 @@ void FLOOF::TriangleCollector::processTriangle(btVector3 *tris, int partId, int 
         MeshVertex v;
         v.Pos = glm::vec3(0.f);
         v.UV = glm::vec2(0.5f);
-
-
 
         btVector3 normal = (tris[0] - tris[1]).cross(tris[0] - tris[2]);
         normal.safeNormalize();
