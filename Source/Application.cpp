@@ -405,7 +405,16 @@ namespace FLOOF {
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
 
         }
+        {
+            auto music = m_Scene->CreateEntity("Background Music");
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music, "pinchcliffe.wav");
+            sound.Looping(true);
+            sound.Volume(0.1f);
+            sound.Play();
+        }
     }
+
+
 
 
     void Application::MakeRenderingDemoScene() {
@@ -480,6 +489,8 @@ namespace FLOOF {
             auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(0.f, -150.f, 0.f);
             transform.Scale = glm::vec3(75.f);
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(entity, "TestSound_Stereo.wav");
+
 
         }
 
@@ -503,9 +514,7 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-
-            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Mono.wav");
             sound.Play();
         }
 
