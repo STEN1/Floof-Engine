@@ -79,6 +79,10 @@ namespace FLOOF {
         if (!alcMakeContextCurrent(s_Context)) { std::cerr << "failed to make the OpenAl context the current context" << std::endl; return; }
 
         OpenAL_ErrorCheck("Make context current");
+
+        alec(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
+
+        )
     }
 
     void SoundManager::CleanOpenAL() {
@@ -141,6 +145,11 @@ namespace FLOOF {
     }
 
     void SoundManager::Update() {
+
+        float globalRefDistance = 125.0f;
+        float globalMaxDistance = 1250.0f;
+
+
         auto& app = Application::Get();
         auto& registry = app.m_Scene->GetRegistry();
         auto camera = app.m_EditorCamera;
@@ -151,6 +160,8 @@ namespace FLOOF {
 	        if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();
             alec(alSource3f(soundsource.m_Source, AL_POSITION, pos.x, pos.y, pos.z));
+            alSourcef(soundsource.m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
+            alSourcef(soundsource.m_Source, AL_MAX_DISTANCE, globalMaxDistance);
             soundsource.UpdateStatus();
         }
         if (needsReload == true) { needsReload = false; }
