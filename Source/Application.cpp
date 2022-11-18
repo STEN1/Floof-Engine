@@ -330,6 +330,14 @@ namespace FLOOF {
 
         // TODO: make physics scene.
 
+        //terrain
+        {
+            HeightmapLoader *landscapeGround{new HeightmapLoader()};
+            std::string name = "Heightmap";
+
+            auto entity = m_Scene->CreateEntity(name);
+            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
+        }
         //make flooring
         {
             auto location = glm::vec3(0.f, -50.f, 0.f);
@@ -365,7 +373,7 @@ namespace FLOOF {
                         "Assets/soft-blanket-ue/soft-blanket_Yellow_albedo.png",
                 };
 
-                for (int i{0}; i < 10.f; i++) {
+                for (int i{0}; i < 0.f; i++) {
                     auto extents = glm::vec3(Math::RandFloat(5.f, 30.f), Math::RandFloat(2.f, 10.f), Math::RandFloat(5.f, 30.f));
                     auto location = glm::vec3(Math::RandFloat(-200.f, 200.f), -43.f + extents.y, Math::RandFloat(-200.f, 200.f));
                     auto rotation = glm::vec3(0.f, Math::RandFloat(0.f, 6.28f), 0.f);
