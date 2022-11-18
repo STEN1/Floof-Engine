@@ -25,7 +25,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/cyber-truck/source/CybertruckNowheel_LowCenter.fbx");
 
-        auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle.wav");
+        auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle2.wav");
         sound.Looping(true);
         //sound.Play();
 
