@@ -265,10 +265,11 @@ namespace FLOOF {
         float suspensionDamping = 8000.f;
         float suspensionCompression = 4.4f;
 
-        float rollInfluence = 0.1f;  //1.0f;
-        float wheelFriction = 1000;
+        float RollingFriction{2.0f};
+        float SpinningFriction{1.f};
+        float WheelFriction{2.f};
 
-        btScalar suspensionRestLength = 0.6;
+        float suspensionRestLength = 0.8;
 
         std::vector<btHinge2Constraint*> axles;
     };

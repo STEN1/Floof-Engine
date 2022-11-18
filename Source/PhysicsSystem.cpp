@@ -74,7 +74,7 @@ namespace FLOOF {
             mDynamicsWorld->stepSimulation(deltaTime);
 
             //landscape
-            {
+            if (false){
                 auto view = mScene.view<LandscapeComponent>();
                 for(auto[ent, landscape]: view.each()){
 
@@ -99,7 +99,7 @@ namespace FLOOF {
 
                     btRigidBody *body = RigidBodyComponent.RigidBody.get();
                     btTransform trans;
-                    auto flags = body->getCollisionFlags();
+                    //auto flags = body->getCollisionFlags();
 
                     if (body && body->getMotionState()) {
                         body->getMotionState()->getWorldTransform(trans);

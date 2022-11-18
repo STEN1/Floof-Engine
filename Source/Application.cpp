@@ -38,8 +38,11 @@ namespace FLOOF {
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+#ifdef WIN32
         io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
         io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
+#endif
+
         //io.ConfigViewportsNoAutoMerge = true;
         //io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -330,37 +333,26 @@ namespace FLOOF {
         //make flooring
         {
             auto location = glm::vec3(0.f, -50.f, 0.f);
-            auto extents = glm::vec3(100.f, 5.f, 100.f);
+            auto extents = glm::vec3(1000.f, 5.f, 1000.f);
             auto mass = 0.f;
 
-            for (int i{-5}; i < 5.f; i++) {
-                for (int j{-5}; j < 5.f; j++) {
+            auto entity = m_Scene->CreateEntity("flooring");
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
+            auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
+            mesh.meshes[0].MeshMaterial.AO = Texture("Assets/crisscross-foam1-ue/crisscross-foam_ao.png");
+            mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/crisscross-foam1-ue/crisscross-foam_metallic.png");
+            mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/crisscross-foam1-ue/crisscross-foam_normal-dx.png");
+            mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/crisscross-foam1-ue/crisscross-foam_roughness.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-                    location.x = i * extents.x;
-                    location.z = j * extents.z;
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
+                                           collision.Transform.getOrigin().getY(),
+                                           collision.Transform.getOrigin().getZ());
+            transform.Scale = extents;
+            collision.RigidBody->setFriction(1.0f);
 
-                    std::string name = "Ground Platform ";
-                    name += std::to_string(j + i);
-
-                    auto entity = m_Scene->CreateEntity(name);
-                    auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
-                    auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
-                    mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
-                    mesh.meshes[0].MeshMaterial.AO = Texture("Assets/crisscross-foam1-ue/crisscross-foam_ao.png");
-                    mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/crisscross-foam1-ue/crisscross-foam_metallic.png");
-                    mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/crisscross-foam1-ue/crisscross-foam_normal-dx.png");
-                    mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/crisscross-foam1-ue/crisscross-foam_roughness.png");
-                    mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
-
-                    auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-                    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
-                                                   collision.Transform.getOrigin().getY(),
-                                                   collision.Transform.getOrigin().getZ());
-                    transform.Scale = extents;
-                    collision.RigidBody->setFriction(2.0f);
-
-                }
-            }
             //place random ramps
             {
                 auto mass = 0.f;
@@ -393,7 +385,7 @@ namespace FLOOF {
                     mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
                     auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-                    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),collision.Transform.getOrigin().getY(),collision.Transform.getOrigin().getZ());
+                    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
                     transform.Scale = extents;
                     collision.RigidBody->setFriction(0.9f);
                 }
@@ -515,11 +507,11 @@ namespace FLOOF {
     void Application::MakeLandscapeScene() {
         m_Scene = std::make_unique<Scene>();
         {
-            HeightmapLoader* landscapeGround{ new HeightmapLoader() };
+            HeightmapLoader *landscapeGround{new HeightmapLoader()};
             std::string name = "Heightmap";
 
             auto entity = m_Scene->CreateEntity(name);
-            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
+            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
         }
     }
 }
