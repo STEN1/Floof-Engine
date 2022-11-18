@@ -251,11 +251,11 @@ namespace FLOOF {
         const float defaultBreakingForce = 10.f;
         float BreakingForce = 100.f;
 
-        float maxEngineForce = 15000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 20000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 100.f;
         float maxVelocity = 20.f;
 
-        float maxTurnForce = 4000.f;
+        float maxTurnForce = 8000.f;
 
         float VehicleSteering = 0.f;
         float steeringIncrement = 0.04f;
@@ -275,12 +275,14 @@ namespace FLOOF {
     };
 
     struct LandscapeComponent {
-        LandscapeComponent();
+        LandscapeComponent(const char* map, const char* texture);
         ~LandscapeComponent();
         
         MeshData meshData;
 
-        HeightmapLoader landscape;
+        HeightmapLoader* landscape;
+
+        TriangleCollector triangleCol;
         HeightField* HeightFieldShape;
     };
 

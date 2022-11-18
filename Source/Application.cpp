@@ -332,14 +332,21 @@ namespace FLOOF {
 
         //terrain
         {
-            HeightmapLoader *landscapeGround{new HeightmapLoader()};
-            std::string name = "Heightmap";
+            auto entity = m_Scene->CreateEntity("Terrain");
+            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
 
-            auto entity = m_Scene->CreateEntity(name);
-            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+            //transform.Position = glm::vec3(mesh.landscape->width/2.f,-100,-mesh.landscape->height/2.f);
+            //transform.Rotation = glm::vec3(0.f,glm::pi<float>()*1.5f,0.f);
+
+            auto* state = new btDefaultMotionState();
+            btRigidBody::btRigidBodyConstructionInfo info(0,state,mesh.HeightFieldShape->mHeightfieldShape);
+            auto* body = new btRigidBody(info);
+            body->setFriction(1.f);
+            m_Scene->GetPhysicSystem()->AddRigidBody(body);
         }
         //make flooring
-        {
+        if(false){
             auto location = glm::vec3(0.f, -50.f, 0.f);
             auto extents = glm::vec3(1000.f, 5.f, 1000.f);
             auto mass = 0.f;
@@ -524,11 +531,11 @@ namespace FLOOF {
     void Application::MakeLandscapeScene() {
         m_Scene = std::make_unique<Scene>();
         {
-            HeightmapLoader *landscapeGround{new HeightmapLoader()};
             std::string name = "Heightmap";
 
             auto entity = m_Scene->CreateEntity(name);
-            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
+            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity,"Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
+
         }
     }
 }

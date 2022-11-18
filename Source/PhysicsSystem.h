@@ -25,7 +25,8 @@ namespace FLOOF {
         void AddSoftBody(btSoftBody* body);
         void AddConstraint(btTypedConstraint* constraint, bool disableCollisionBetweenLinked);
         void AddVehicle(btActionInterface* vehicle);
-        
+        void AddCollisonShape(btCollisionObject* obj);
+
         btSoftRigidDynamicsWorld* GetWorld(){return mDynamicsWorld;}
 
         btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return &mSoftBodyWorldInfo;}

@@ -9,20 +9,20 @@ struct MeshData;
 namespace FLOOF {
 	class HeightmapLoader {
 	public:
-		HeightmapLoader();
+		HeightmapLoader(const char* mapstr);
 
 
 		bool readMap();
 
 		void MakeBuffersFromData(const std::vector<MeshVertex>& meshData, const std::vector<uint32_t> indexData);
 
-		
+        int height, width;
 	private:
-		const char* filepath { "Assets/TerrainTextures/Terrain_Tough/heightmap.png" };
+		const char* filepath;
 
 		float zScale{ 1.0f };
 
-		int height, width, channels;
+        int channels;
 		unsigned char* img { nullptr };
 
 	public:

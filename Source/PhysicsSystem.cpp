@@ -18,7 +18,7 @@ namespace FLOOF {
         mSoftBodyWorldInfo.m_dispatcher = mDispatcher;
 
         const int maxProxies = 32766; // defined in documentation
-        const int AabbSize = 99999999;
+        const int AabbSize = 90000;
         btVector3 worldAabbMin(-AabbSize, -AabbSize, -AabbSize);
         btVector3 worldAabbMax(AabbSize, AabbSize, AabbSize);
         mBroadPhase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
@@ -38,7 +38,6 @@ namespace FLOOF {
 
         mDynamicsWorld->setGravity(btVector3(0, GravitationalConstant, 0));
 
-
         mSoftBodyWorldInfo.m_gravity = mDynamicsWorld->getGravity();
         mSoftBodyWorldInfo.m_sparsesdf.Initialize();
         mDynamicsWorld->getDispatchInfo().m_enableSPU = true;
@@ -49,6 +48,7 @@ namespace FLOOF {
         mSoftBodyWorldInfo.m_gravity.setValue(0, GravitationalConstant, 0);
 
         mVehicleRayCaster = new btDefaultVehicleRaycaster(mDynamicsWorld);
+
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -73,23 +73,6 @@ namespace FLOOF {
         if (simulate) {
             mDynamicsWorld->stepSimulation(deltaTime);
 
-            //landscape
-            if (false){
-                auto view = mScene.view<LandscapeComponent>();
-                for(auto[ent, landscape]: view.each()){
-
-                    //MyTriangleCollector3  col;
-                    //col.m_pVerticesOut = &landscape.;
-                    //col.m_pIndicesOut = &indices;
-                    btVector3 aabbMin, aabbMax;
-                    for (int k = 0; k < 3; k++)
-                    {
-                        aabbMin[k] = -BT_LARGE_FLOAT;
-                        aabbMax[k] = BT_LARGE_FLOAT;
-                    }
-                    //landscape.HeightFieldShape->mHeightfieldShape->processAllTriangles(&col,aabbMin,aabbMax);
-                }
-            }
             //rigid body
             {
 
@@ -212,6 +195,11 @@ namespace FLOOF {
     void PhysicsSystem::AddVehicle(btActionInterface *vehicle) {
         if (mDynamicsWorld)
             mDynamicsWorld->addAction(vehicle);
+    }
+
+    void PhysicsSystem::AddCollisonShape(btCollisionObject *obj) {
+        if (mDynamicsWorld)
+            mDynamicsWorld->addCollisionObject(obj);
     }
 
 
