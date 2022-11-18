@@ -4,6 +4,7 @@
 #include "VulkanBuffer.h"
 #include "../Components.h"
 #include "Skybox.h"
+#include "IBL.h"
 
 namespace FLOOF {
     struct SceneFrameData {
