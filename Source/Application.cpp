@@ -25,6 +25,7 @@
 namespace FLOOF {
     Application::Application() : m_EditorCamera(glm::vec3(0.f, 30.f, -30.f)) {
         // Init glfw and create window
+        SoundManager::InitOpenAL();
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         m_Window = glfwCreateWindow(1600, 900, "Floof    FPS: 0.0", nullptr, nullptr);
@@ -77,7 +78,6 @@ namespace FLOOF {
 
         m_ApplicationLayers.emplace_back(std::make_unique<EditorLayer>());
 
-        SoundManager::InitOpenAL();
 
     }
 
@@ -399,7 +399,7 @@ namespace FLOOF {
             }
 
         }
-        //make monstertruck
+        // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
@@ -505,7 +505,7 @@ namespace FLOOF {
 
             SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
-            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "Vehicles_idle.wav");
+            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
             sound.Play();
         }
 
