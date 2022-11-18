@@ -6,7 +6,7 @@
 
 namespace FLOOF {
 
-	HeightmapLoader::HeightmapLoader() {
+	HeightmapLoader::HeightmapLoader(const char* mapstr):filepath(mapstr) {
 		if (readMap())
 			std::cout << "building heightmap sucsses\n";
 	}

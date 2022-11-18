@@ -4,6 +4,7 @@
 #include "Math.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "Renderer/Mesh.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 
 namespace FLOOF {
     class HeightField {
@@ -13,7 +14,9 @@ namespace FLOOF {
         ~HeightField();
 
         btHeightfieldTerrainShape* mHeightfieldShape;
+        btBvhTriangleMeshShape* TriangleMesh;
 
+        std::vector<double> heightdata;
         std::vector<double> getHeightData(std::vector<glm::vec3> vertices);
         std::vector<glm::vec3> meshVertToGlm(std::vector<MeshVertex> meshvert);
     };

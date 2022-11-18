@@ -38,7 +38,6 @@ namespace FLOOF {
 
         mDynamicsWorld->setGravity(btVector3(0, GravitationalConstant, 0));
 
-
         mSoftBodyWorldInfo.m_gravity = mDynamicsWorld->getGravity();
         mSoftBodyWorldInfo.m_sparsesdf.Initialize();
         mDynamicsWorld->getDispatchInfo().m_enableSPU = true;
@@ -49,6 +48,7 @@ namespace FLOOF {
         mSoftBodyWorldInfo.m_gravity.setValue(0, GravitationalConstant, 0);
 
         mVehicleRayCaster = new btDefaultVehicleRaycaster(mDynamicsWorld);
+
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -195,6 +195,11 @@ namespace FLOOF {
     void PhysicsSystem::AddVehicle(btActionInterface *vehicle) {
         if (mDynamicsWorld)
             mDynamicsWorld->addAction(vehicle);
+    }
+
+    void PhysicsSystem::AddCollisonShape(btCollisionObject *obj) {
+        if (mDynamicsWorld)
+            mDynamicsWorld->addCollisionObject(obj);
     }
 
 

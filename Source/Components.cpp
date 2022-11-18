@@ -489,10 +489,11 @@ namespace FLOOF {
 
     }
 
-    LandscapeComponent::LandscapeComponent() {
-        landscape.readMap();
+    LandscapeComponent::LandscapeComponent(const char* map, const char* texture) {
+        landscape = new HeightmapLoader(map);
+        landscape->readMap();
 
-        HeightFieldShape = new HeightField(landscape.mVertices,landscape.height,landscape.width,200.f,0.f);
+        HeightFieldShape = new HeightField(landscape->mVertices,landscape->height,landscape->width,200.f,0.f);
 
         //landscape
         {
@@ -505,12 +506,12 @@ namespace FLOOF {
             }
             HeightFieldShape->mHeightfieldShape->processAllTriangles(&triangleCol, aabbMin, aabbMax);
         }
-        landscape.mVertices = triangleCol.vertOut;
-        landscape.mIndices = triangleCol.indicesOut;
+        landscape->mVertices = triangleCol.vertOut;
+        landscape->mIndices = triangleCol.indicesOut;
 
         //vulkan data
-        meshData = landscape.getMeshData();
-        meshData.MeshMaterial.Diffuse = Texture("Assets/TerrainTextures/Terrain_Tough/texture.PNG");
+        meshData = landscape->getMeshData();
+        meshData.MeshMaterial.Diffuse = Texture(texture);
         meshData.MeshMaterial.UpdateDescriptorSet();
     }
 
@@ -520,6 +521,7 @@ namespace FLOOF {
         renderer->DestroyVulkanBuffer(&meshData.IndexBuffer);
 
         delete HeightFieldShape;
+        delete landscape;
     }
 
 }
