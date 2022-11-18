@@ -8,8 +8,6 @@ namespace FLOOF {
 
         ImGui::Begin("Sounds Settings");
 
-		ImGui::Text("Refresh Device List");
-
 		if (ImGui::SmallButton("Refresh Device List"))
 			SoundManager::UpdateDeviceList();
 

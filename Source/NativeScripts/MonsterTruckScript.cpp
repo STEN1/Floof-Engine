@@ -33,10 +33,9 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/MonsterTruck/MonstertruckFrameRotated.fbx");
 
-        //SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-        //auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle.wav");
-        //sound.Looping(true);
-        //sound.Play();
+        auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle.wav");
+        sound.Looping(true);
+        sound.Play();
 
     }
     //frame

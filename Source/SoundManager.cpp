@@ -82,6 +82,19 @@ namespace FLOOF {
     }
 
     void SoundManager::CleanOpenAL() {
+
+        //auto& app = Application::Get();
+        //auto& registry = app.m_Scene->GetRegistry();
+
+        //auto view = registry.view<SoundSourceComponent>();
+        //for (auto [entity, soundsource] : view.each()) {
+	       // if (soundsource.isPlaying)
+        //    {
+        //        soundsource.Stop();
+		      //  
+	       // }
+        //}
+
         // Make the current context null
         alec(alcMakeContextCurrent(nullptr));
         // Destroy the current context

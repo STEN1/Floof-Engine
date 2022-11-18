@@ -1,4 +1,6 @@
 #include "Scene.h"
+
+#include "Application.h"
 #include "Components.h"
 #include "SoundManager.h"
 
@@ -10,7 +12,7 @@ namespace FLOOF {
         m_PhysicsDebugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);
         auto world = m_PhysicSystem->GetWorld();
         world->setDebugDrawer(m_PhysicsDebugDrawer.get());
-
+        
     }
 
     Scene::~Scene() {
