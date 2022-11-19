@@ -7,15 +7,15 @@
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {
         CreateTextureRenderer();
-        std::array<std::string, 6> skyboxPaths = {
+        /*std::array<std::string, 6> skyboxPaths = {
             "Assets/Skybox/back.jpg",
             "Assets/Skybox/front.jpg",
             "Assets/Skybox/bottom.jpg",
             "Assets/Skybox/top.jpg",
             "Assets/Skybox/left.jpg",
             "Assets/Skybox/right.jpg",
-        };
-        m_Skybox = std::make_unique<Skybox>(skyboxPaths);
+        };*/
+        m_Skybox = std::make_unique<Skybox>("Assets/Skybox/GCanyon_C_YumaPoint_3k.hdr");
     }
 
     SceneRenderer::~SceneRenderer() {

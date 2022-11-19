@@ -51,6 +51,9 @@ namespace FLOOF {
                 vmaDestroyBuffer(renderer->m_Allocator, mesh.VertexBuffer.Buffer, mesh.VertexBuffer.Allocation);
             }
         }
+        if (s_SkyboxCube.Buffer != VK_NULL_HANDLE) {
+            vmaDestroyBuffer(renderer->GetAllocator(), s_SkyboxCube.Buffer, s_SkyboxCube.Allocation);
+        }
     }
 
     btModelData ModelManager::LoadbtModel(const std::string &path,const glm::vec3 scale) {
@@ -82,6 +85,58 @@ namespace FLOOF {
            return meshData;
         }
 
+    }
+    static const std::vector<SimpleVertex> cubemapVertices = {
+        // positions          
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{1.0f,  1.0f, -1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
+        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
+
+        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{1.0f, -1.0f, -1.0f}},
+        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
+        SimpleVertex{{1.0f, -1.0f,  1.0}}
+    };
+    VulkanBufferData ModelManager::GetSkyboxCube()
+    {
+        if (s_SkyboxCube.Buffer == VK_NULL_HANDLE) {
+            auto* renderer = VulkanRenderer::Get();
+            s_SkyboxCube = renderer->CreateVertexBuffer(cubemapVertices);
+        }
+        return s_SkyboxCube;
     }
 
 

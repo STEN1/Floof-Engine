@@ -1,53 +1,14 @@
 #include "Skybox.h"
 
 namespace FLOOF {
-    static const std::vector<SimpleVertex> skyboxVertices = {
-        // positions          
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{1.0f,  1.0f, -1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{-1.0f,  1.0f,  1.0f}},
-        SimpleVertex{{-1.0f,  1.0f, -1.0f}},
-
-        SimpleVertex{{-1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{1.0f, -1.0f, -1.0f}},
-        SimpleVertex{{-1.0f, -1.0f,  1.0f}},
-        SimpleVertex{{1.0f, -1.0f,  1.0}}
-    };
-
     Skybox::Skybox(const std::array<std::string, 6> paths)
         :m_Cubemap(paths)
+    {
+        auto* renderer = VulkanRenderer::Get();
+        m_VertexBuffer = renderer->CreateVertexBuffer(skyboxVertices);
+    }
+    Skybox::Skybox(const std::string& path)
+        :m_Cubemap(path)
     {
         auto* renderer = VulkanRenderer::Get();
         m_VertexBuffer = renderer->CreateVertexBuffer(skyboxVertices);

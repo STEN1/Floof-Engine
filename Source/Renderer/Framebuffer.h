@@ -8,6 +8,9 @@ namespace FLOOF {
 		~Framebuffer();
 
 		void Resize(uint32_t width, uint32_t height);
+		VkRenderPass GetRenderPass() { return m_RenderPass; }
+		VkFramebuffer GetFramebuffer() { return m_Framebuffer; }
+		VulkanTexture GetTexture() { return m_Texture; }
 	private:
 		void Create();
 		void CreateFramebufferTexture();
