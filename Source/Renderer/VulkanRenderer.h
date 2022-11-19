@@ -223,6 +223,8 @@ namespace FLOOF {
         // Frees a shader storage descriptor set.
         void FreeUBODescriptorSet(VkDescriptorSet desctriptorSet);
 
+        void ResetAndBeginCommandBuffer(VkCommandBuffer commandBuffer);
+
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer BeginSingleUseCommandBuffer();
 

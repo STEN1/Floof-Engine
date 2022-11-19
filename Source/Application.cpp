@@ -255,6 +255,7 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = clearColor;
 
+        m_Renderer->ResetAndBeginCommandBuffer(currentFrameData.ImGuiCommandBuffer);
         m_Renderer->StartRenderPass(currentFrameData.ImGuiCommandBuffer, &renderPassInfo);
         // Render ImGui
         ImGui::Render();

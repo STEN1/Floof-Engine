@@ -13,7 +13,7 @@ namespace FLOOF {
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void* pUserData) {
 
-        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl <<std::endl;
 
         return VK_FALSE;
     }
@@ -114,16 +114,6 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPassBeginInfo* renderPassInfo) {
-        vkResetCommandBuffer(commandBuffer, 0);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // Optional
-        beginInfo.pInheritanceInfo = nullptr; // Optional
-
-        VkResult beginResult = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-        ASSERT(beginResult == VK_SUCCESS);
-
         vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         VkViewport viewport{};
@@ -760,7 +750,7 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateSwapChain(VulkanWindow& window) {
         window.SurfaceFormat = GetSurfaceFormat(VK_FORMAT_B8G8R8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR);
-        window.PresentMode = GetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
+        window.PresentMode = GetPresentMode(VK_PRESENT_MODE_FIFO_KHR);
         window.Extent = GetWindowExtent();
         std::cout << "m_SwapChainExtent: x = " << window.Extent.width << " y = " << window.Extent.height << std::endl;
 
@@ -1224,8 +1214,8 @@ namespace FLOOF {
         info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        info.minLod = -1000;
-        info.maxLod = 1000;
+        info.minLod = 0.f;
+        info.maxLod = VK_LOD_CLAMP_NONE;
         info.maxAnisotropy = 1.0f;
         VkResult err = vkCreateSampler(m_LogicalDevice, &info, nullptr, &m_FontSampler);
         ASSERT(err == VK_SUCCESS);
@@ -1247,7 +1237,7 @@ namespace FLOOF {
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         samplerInfo.mipLodBias = 0.f;
         samplerInfo.minLod = 0.f;
-        samplerInfo.maxLod = FLT_MAX;
+        samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
 
         VkResult err = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_TextureSampler);
         ASSERT(err == VK_SUCCESS);
@@ -1558,6 +1548,19 @@ namespace FLOOF {
 
     void VulkanRenderer::FreeUBODescriptorSet(VkDescriptorSet desctriptorSet) {
         vkFreeDescriptorSets(m_LogicalDevice, m_UBODescriptorPool, 1, &desctriptorSet);
+    }
+
+    void VulkanRenderer::ResetAndBeginCommandBuffer(VkCommandBuffer commandBuffer)
+    {
+        vkResetCommandBuffer(commandBuffer, 0);
+
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0; // Optional
+        beginInfo.pInheritanceInfo = nullptr; // Optional
+
+        VkResult beginResult = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        ASSERT(beginResult == VK_SUCCESS);
     }
 
     void VulkanRenderer::PopulateQueueFamilyIndices(QueueFamilyIndices& QFI) {

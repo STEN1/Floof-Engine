@@ -60,6 +60,7 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColors;
 
+        renderer->ResetAndBeginCommandBuffer(commandBuffer);
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         // Camera setup
@@ -367,7 +368,7 @@ namespace FLOOF {
         colorAttachments[1].format = m_DepthFormat;
         colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
