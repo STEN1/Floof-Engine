@@ -11,6 +11,5 @@ namespace FLOOF {
         VulkanTexture GetIrradienceMap();
         ~Cubemap();
         VulkanTexture CubemapTexture{};
-        VkSampler m_Sampler = VK_NULL_HANDLE;
     };
 }

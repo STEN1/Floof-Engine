@@ -190,23 +190,6 @@ namespace FLOOF {
 
         renderer->EndSingleUseCommandBuffer(commandBuffer);
 
-        VkSamplerCreateInfo samplerCreateInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-        samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.mipLodBias = 0.0f;
-        samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
-        samplerCreateInfo.minLod = 0.0f;
-        samplerCreateInfo.maxLod = 1.f;
-        samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-        samplerCreateInfo.maxAnisotropy = 1.0f;
-
-        VkResult result = vkCreateSampler(renderer->GetDevice(), &samplerCreateInfo, nullptr, &m_Sampler);
-        ASSERT(result == VK_SUCCESS);
-
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
         imageViewCreateInfo.format = format;
@@ -218,13 +201,15 @@ namespace FLOOF {
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.image = CubemapTexture.Image;
 
-        result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &CubemapTexture.ImageView);
+        VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &CubemapTexture.ImageView);
         ASSERT(result == VK_SUCCESS);
+
+        auto sampler = renderer->GetTextureSampler();
 
         VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         descriptorImageInfo.imageView = CubemapTexture.ImageView;
-        descriptorImageInfo.sampler = m_Sampler;
+        descriptorImageInfo.sampler = sampler;
 
         CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
 
@@ -465,23 +450,6 @@ namespace FLOOF {
         vkDestroyImageView(renderer->GetDevice(), hdrTexture.ImageView, nullptr);
         vmaDestroyImage(renderer->GetAllocator(), hdrTexture.Image, hdrTexture.Allocation);
 
-        // create sampler
-        VkSamplerCreateInfo samplerCreateInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-        samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.mipLodBias = 0.0f;
-        samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
-        samplerCreateInfo.minLod = 0.0f;
-        samplerCreateInfo.maxLod = 1.f;
-        samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-        samplerCreateInfo.maxAnisotropy = 1.0f;
-
-        VkResult result = vkCreateSampler(renderer->GetDevice(), &samplerCreateInfo, nullptr, &m_Sampler);
-        ASSERT(result == VK_SUCCESS);
 
         // Create cubemap image view
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
@@ -495,14 +463,16 @@ namespace FLOOF {
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.image = CubemapTexture.Image;
 
-        result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &CubemapTexture.ImageView);
+        VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &CubemapTexture.ImageView);
         ASSERT(result == VK_SUCCESS);
+
+        auto sampler = renderer->GetTextureSampler();
 
         // Create cubemap descriptor
         VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         descriptorImageInfo.imageView = CubemapTexture.ImageView;
-        descriptorImageInfo.sampler = m_Sampler;
+        descriptorImageInfo.sampler = sampler;
 
         CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
 
@@ -660,11 +630,13 @@ namespace FLOOF {
         VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &irradienceTexture.ImageView);
         ASSERT(result == VK_SUCCESS);
 
+        auto sampler = renderer->GetTextureSampler();
+
         // Create cubemap descriptor
         VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         descriptorImageInfo.imageView = irradienceTexture.ImageView;
-        descriptorImageInfo.sampler = m_Sampler;
+        descriptorImageInfo.sampler = sampler;
 
         irradienceTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
 
@@ -686,7 +658,6 @@ namespace FLOOF {
         renderer->FinishAllFrames();
         vkDestroyImageView(renderer->GetDevice(), CubemapTexture.ImageView, nullptr);
         vmaDestroyImage(renderer->GetAllocator(), CubemapTexture.Image, CubemapTexture.Allocation);
-        vkDestroySampler(renderer->GetDevice(), m_Sampler, nullptr);
         renderer->FreeTextureDescriptorSet(CubemapTexture.DesctriptorSet);
     }
 }
