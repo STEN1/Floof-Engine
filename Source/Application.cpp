@@ -64,6 +64,7 @@ namespace FLOOF {
 
         m_SceneRenderer = std::make_unique<SceneRenderer>();
 
+        stbi_set_flip_vertically_on_load(false);
         // Upload icons for windows and taskbar
         GLFWimage images[3]{};
         int channels{};
