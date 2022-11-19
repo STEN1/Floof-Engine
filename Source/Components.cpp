@@ -24,27 +24,29 @@
 #include <Python.h>
 #endif
 #else
+
 #include <python.h>
+
 #endif
 
 
 namespace FLOOF {
-    LineMeshComponent::LineMeshComponent(const std::vector<ColorVertex>& vertexData) {
+    LineMeshComponent::LineMeshComponent(const std::vector<ColorVertex> &vertexData) {
         auto renderer = VulkanRenderer::Get();
 
         VertexCount = vertexData.size();
         MaxVertexCount = VertexCount;
-        VkBufferCreateInfo bufCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+        VkBufferCreateInfo bufCreateInfo = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
         bufCreateInfo.size = sizeof(ColorVertex) * VertexCount;
         bufCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
         VmaAllocationCreateInfo allocCreateInfo = {};
         allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-            VMA_ALLOCATION_CREATE_MAPPED_BIT;
+                                VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
         vmaCreateBuffer(renderer->m_Allocator, &bufCreateInfo, &allocCreateInfo, &VertexBuffer.Buffer,
-            &VertexBuffer.Allocation, &VertexBuffer.AllocationInfo);
+                        &VertexBuffer.Allocation, &VertexBuffer.AllocationInfo);
 
         // Buffer is already mapped. You can access its memory.
         memcpy(VertexBuffer.AllocationInfo.pMappedData, vertexData.data(), sizeof(ColorVertex) * VertexCount);
@@ -60,12 +62,12 @@ namespace FLOOF {
         if (VertexCount == 0)
             return;
 
-        VkDeviceSize offset{ 0 };
+        VkDeviceSize offset{0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &VertexBuffer.Buffer, &offset);
         vkCmdDraw(commandBuffer, VertexCount, 1, 0, 0);
     }
 
-    void LineMeshComponent::UpdateBuffer(const std::vector<ColorVertex>& vertexData) {
+    void LineMeshComponent::UpdateBuffer(const std::vector<ColorVertex> &vertexData) {
         VertexCount = vertexData.size();
         if (VertexCount > MaxVertexCount) {
             VertexCount = MaxVertexCount;
@@ -74,7 +76,7 @@ namespace FLOOF {
         memcpy(VertexBuffer.AllocationInfo.pMappedData, vertexData.data(), sizeof(ColorVertex) * VertexCount);
     }
 
-    CameraComponent::CameraComponent(glm::vec3 position) : Position{ position } {
+    CameraComponent::CameraComponent(glm::vec3 position) : Position{position} {
         Up = glm::vec3(0.f, -1.f, 0.f);
         Forward = glm::vec3(0.f, 0.f, 1.f);
         Right = glm::normalize(glm::cross(Forward, Up));
@@ -86,13 +88,11 @@ namespace FLOOF {
         return projection * view;
     }
 
-    glm::mat4 CameraComponent::GetView()
-    {
+    glm::mat4 CameraComponent::GetView() {
         return glm::lookAt(Position, Position + Forward, Up);
     }
 
-    glm::mat4 CameraComponent::GetPerspective(float fov, float aspect, float near, float far)
-    {
+    glm::mat4 CameraComponent::GetPerspective(float fov, float aspect, float near, float far) {
         FOV = fov;
         Aspect = aspect;
         Near = near;
@@ -128,7 +128,7 @@ namespace FLOOF {
 
     }
 
-    PointCloudComponent::PointCloudComponent(const std::vector<ColorVertex>& vertexData) {
+    PointCloudComponent::PointCloudComponent(const std::vector<ColorVertex> &vertexData) {
         auto renderer = VulkanRenderer::Get();
 
         VertexBuffer = renderer->CreateVertexBuffer(vertexData);
@@ -144,16 +144,16 @@ namespace FLOOF {
     void PointCloudComponent::Draw(VkCommandBuffer commandBuffer) {
         auto renderer = VulkanRenderer::Get();
 
-        VkDeviceSize offset{ 0 };
+        VkDeviceSize offset{0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &VertexBuffer.Buffer, &offset);
         vkCmdDraw(commandBuffer, VertexCount, 1, 0, 0);
     }
 
-    BSplineComponent::BSplineComponent(const std::vector<glm::vec3>& controllPoints) {
+    BSplineComponent::BSplineComponent(const std::vector<glm::vec3> &controllPoints) {
         Update(controllPoints);
     }
 
-    void BSplineComponent::Update(const std::vector<glm::vec3>& controllPoints) {
+    void BSplineComponent::Update(const std::vector<glm::vec3> &controllPoints) {
         ASSERT(controllPoints.size() >= D + 1);
         ControllPoints = controllPoints;
 
@@ -177,7 +177,7 @@ namespace FLOOF {
         TMax = static_cast<float>(tValue);
     }
 
-    void BSplineComponent::AddControllPoint(const glm::vec3& point) {
+    void BSplineComponent::AddControllPoint(const glm::vec3 &point) {
         ASSERT(ControllPoints.size() >= D + 1);
         ControllPoints.push_back(point);
         KnotPoints.push_back(KnotPoints[KnotPoints.size() - 1]);
@@ -241,12 +241,12 @@ namespace FLOOF {
     }
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
-                                           bt::CollisionPrimitive shape) : DefaultScale(scale), Primitive(shape){
+                                           bt::CollisionPrimitive shape) : DefaultScale(scale), Primitive(shape) {
 
         using namespace bt;
-        switch (shape){
+        switch (shape) {
             case CollisionPrimitive::Box:
-                CollisionShape = std::make_shared<btBoxShape>(btVector3(scale.x,scale.y,scale.z));
+                CollisionShape = std::make_shared<btBoxShape>(btVector3(scale.x, scale.y, scale.z));
                 break;
 
             case CollisionPrimitive::Sphere:
@@ -254,49 +254,51 @@ namespace FLOOF {
                 break;
 
             case CollisionPrimitive::Capsule:
-                CollisionShape = std::make_shared<btCapsuleShape>(scale.x,scale.y);
+                CollisionShape = std::make_shared<btCapsuleShape>(scale.x, scale.y);
                 break;
 
             case CollisionPrimitive::Cylinder:
-                CollisionShape = std::make_shared<btCylinderShape>(btVector3(scale.x,scale.y,scale.z));
+                CollisionShape = std::make_shared<btCylinderShape>(btVector3(scale.x, scale.y, scale.z));
                 break;
 
             case CollisionPrimitive::Cone:
-                CollisionShape = std::make_shared<btConeShape>(scale.x,scale.y*2.f);
+                CollisionShape = std::make_shared<btConeShape>(scale.x, scale.y * 2.f);
                 break;
             case CollisionPrimitive::ConvexHull :
                 assert("Pls give a convex shape file in constructor");
-                auto vertices = ModelManager::LoadbtModel("Assets/LowPolySphere.fbx",scale);
-                std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
+                auto vertices = ModelManager::LoadbtModel("Assets/LowPolySphere.fbx", scale);
+                std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof(btVector3));
                 hullShape->optimizeConvexHull();
                 CollisionShape = hullShape;
                 break;
 
         }
         Transform.setIdentity();
-        Transform.setOrigin(btVector3(location.x,location.y,location.z));
+        Transform.setOrigin(btVector3(location.x, location.y, location.z));
         InitializeBasicPhysics(mass);
 
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation,const float mass,const std::string convexShape)  :DefaultScale(scale), Primitive(bt::ConvexHull){
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,
+                                           const std::string convexShape)
+            : DefaultScale(scale), Primitive(bt::ConvexHull) {
 
-        auto vertices = ModelManager::LoadbtModel(convexShape,scale);
-        std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof (btVector3));
+        auto vertices = ModelManager::LoadbtModel(convexShape, scale);
+        std::shared_ptr<btConvexHullShape> hullShape = std::make_shared<btConvexHullShape>(&vertices.btVertices[0].x(), vertices.VertCount, sizeof(btVector3));
         hullShape->optimizeConvexHull();
         CollisionShape = hullShape;
 
         Transform.setIdentity();
-        Transform.setOrigin(btVector3(location.x,location.y,location.z));
+        Transform.setOrigin(btVector3(location.x, location.y, location.z));
         auto rot = Utils::glmTobt(glm::vec3(rotation));
         btQuaternion btquat;
-        btquat.setEulerZYX(rot.z(),rot.y(),rot.x());
-       Transform.setRotation(btquat);
+        btquat.setEulerZYX(rot.z(), rot.y(), rot.x());
+        Transform.setRotation(btquat);
         InitializeBasicPhysics(mass);
 
     }
 
-    void RigidBodyComponent::transform(const glm::vec3 location, const glm::vec3 rotation,const glm::vec3 scale) {
+    void RigidBodyComponent::transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale) {
         btTransform trans;
         //RigidBody->setActivationState(0);
         if (RigidBody && RigidBody->getMotionState()) {
@@ -307,7 +309,7 @@ namespace FLOOF {
         trans.setOrigin(Utils::glmTobt(location));
         btQuaternion btquat;
         auto rot = Utils::glmTobt(rotation);
-        btquat.setEulerZYX(rot.z(),rot.y(),rot.x());
+        btquat.setEulerZYX(rot.z(), rot.y(), rot.x());
         trans.setRotation(btquat);
         trans.setOrigin(Utils::glmTobt(location));
         RigidBody->setCenterOfMassTransform(trans);
@@ -320,7 +322,8 @@ namespace FLOOF {
         RigidBody->activate(true);
     }
 
-    SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation,const float mass,btSoftBody*body) {
+    SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation, const float mass,
+                                         btSoftBody *body) {
 
         SoftBody = body;
 
@@ -351,22 +354,21 @@ namespace FLOOF {
 
     }
 
-    ScriptComponent::ScriptComponent(const std::string PyScript) :Script(PyScript){
+    ScriptComponent::ScriptComponent(const std::string PyScript) : Script(PyScript) {
 
 
-
-        #if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
-            _putenv_s("PYTHONPATH", "Scripts");
-        #else
-            setenv("PYTHONPATH","Scripts",1);
-        #endif
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+        _putenv_s("PYTHONPATH", "Scripts");
+#else
+        setenv("PYTHONPATH", "Scripts", 1);
+#endif
 
         Py_Initialize();
 
         ModuleName = Script.substr(8, Script.size());
-        ModuleName = ModuleName.substr(0,ModuleName.size()-3);
+        ModuleName = ModuleName.substr(0, ModuleName.size() - 3);
 
-        Pname= PyUnicode_FromString(ModuleName.c_str());
+        Pname = PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
 
         OnCreate();
@@ -379,40 +381,40 @@ namespace FLOOF {
     }
 
     void ScriptComponent::RunScript() {
-        auto Fp = fopen(Script.c_str(),"r");
-        PyRun_SimpleFile(Fp,Script.c_str());
+        auto Fp = fopen(Script.c_str(), "r");
+        PyRun_SimpleFile(Fp, Script.c_str());
         fclose(Fp);
 
     }
 
     void ScriptComponent::OnCreate() {
 
-        if(Pmodule){
+        if (Pmodule) {
             auto pfunc = PyObject_GetAttrString(Pmodule, "create");
-            if(PyCallable_Check(pfunc)){
-                auto ans =  PyObject_CallObject(pfunc, NULL);
+            if (PyCallable_Check(pfunc)) {
+                auto ans = PyObject_CallObject(pfunc, NULL);
             }
         }
     }
 
     void ScriptComponent::OnUpdate(const float deltatime) {
 
-        if(Pmodule){
+        if (Pmodule) {
             auto pfunc = PyObject_GetAttrString(Pmodule, "update");
-            if(PyCallable_Check(pfunc)){
-                PyObject *args = PyTuple_New(1);
-                PyObject* dt = PyFloat_FromDouble(deltatime);
+            if (PyCallable_Check(pfunc)) {
+                PyObject * args = PyTuple_New(1);
+                PyObject * dt = PyFloat_FromDouble(deltatime);
                 PyTuple_SetItem(args, 0, dt);
 
-                 auto ans =  PyObject_CallObject(pfunc, args);
+                auto ans = PyObject_CallObject(pfunc, args);
             }
 
         }
     }
 
-    SoundSourceComponent::SoundSourceComponent(const std::string& path) {
+    SoundSourceComponent::SoundSourceComponent(const std::string &path) {
         m_Name = path;
-    	m_Sound = SoundManager::LoadWav(path);
+        m_Sound = SoundManager::LoadWav(path);
         m_Path = path;
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
@@ -430,6 +432,7 @@ namespace FLOOF {
     }
 
     void SoundSourceComponent::Volume(float volume) {
+        m_Volume = volume;
         alec(alSourcef(m_Source, AL_GAIN, volume));
     }
 
@@ -439,13 +442,12 @@ namespace FLOOF {
 
     void SoundSourceComponent::UpdateStatus() {
 
-    	ALint sourceState;
+        ALint sourceState;
         alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState))
 
-        if(sourceState == AL_PLAYING) {
-        	isPlaying = true;
-        }
-        else {
+        if (sourceState == AL_PLAYING) {
+            isPlaying = true;
+        } else {
             isPlaying = false;
         }
     }
@@ -460,16 +462,13 @@ namespace FLOOF {
     }
 
     void SoundSourceComponent::Looping(bool looping) {
-	    if (looping)
-	    {
+        if (looping) {
             alec(alSourcei(m_Source, AL_LOOPING, AL_TRUE));
             isLooping = true;
-	    }
-	    else
-	    {
+        } else {
             alec(alSourcei(m_Source, AL_LOOPING, AL_FALSE));
             isLooping = false;
-	    }
+        }
     }
 
     void SoundSourceComponent::Update() {
@@ -484,29 +483,46 @@ namespace FLOOF {
         Pmodule = NULL;
 
         ModuleName = Script.substr(8, Script.size());
-        ModuleName = ModuleName.substr(0,ModuleName.size()-3);
+        ModuleName = ModuleName.substr(0, ModuleName.size() - 3);
 
-        Pname= PyUnicode_FromString(ModuleName.c_str());
+        Pname = PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
 
     }
 
-    LandscapeComponent::LandscapeComponent(){
-        landscape.readMap();
-        meshData = landscape.getMeshData();
-        meshData.MeshMaterial.Diffuse = Texture("Assets/TerrainTextures/Terrain_Tough/texture.PNG");
-        meshData.MeshMaterial.UpdateDescriptorSet();
+    LandscapeComponent::LandscapeComponent(const char* map, const char* texture) {
+        landscape = new HeightmapLoader(map);
+        landscape->readMap();
 
-        HeightFieldShape = new HeightField(landscape.mVertices);
+        HeightFieldShape = new HeightField(landscape->mVertices,landscape->height,landscape->width,200.f,0.f);
+
+        //landscape
+        {
+            //triangleCol.vertOut = landscape.mVertices;
+            //triangleCol.indicesOut = landscape.mIndices;
+            btVector3 aabbMin, aabbMax;
+            for (int k = 0; k < 3; k++) {
+                aabbMin[k] = -BT_LARGE_FLOAT;
+                aabbMax[k] = BT_LARGE_FLOAT;
+            }
+            HeightFieldShape->mHeightfieldShape->processAllTriangles(&triangleCol, aabbMin, aabbMax);
+        }
+        landscape->mVertices = triangleCol.vertOut;
+        landscape->mIndices = triangleCol.indicesOut;
+
+        //vulkan data
+        meshData = landscape->getMeshData();
+        meshData.MeshMaterial.Diffuse = Texture(texture);
+        meshData.MeshMaterial.UpdateDescriptorSet();
     }
 
-    LandscapeComponent::~LandscapeComponent()
-    {
-        auto* renderer = VulkanRenderer::Get();
+    LandscapeComponent::~LandscapeComponent() {
+        auto *renderer = VulkanRenderer::Get();
         renderer->DestroyVulkanBuffer(&meshData.VertexBuffer);
         renderer->DestroyVulkanBuffer(&meshData.IndexBuffer);
 
         delete HeightFieldShape;
+        delete landscape;
     }
 
 }

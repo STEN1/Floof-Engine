@@ -331,8 +331,23 @@ namespace FLOOF {
 
         // TODO: make physics scene.
 
-        //make flooring
+        //terrain
         {
+            auto entity = m_Scene->CreateEntity("Terrain");
+            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
+
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+            //transform.Position = glm::vec3(mesh.landscape->width/2.f,-100,-mesh.landscape->height/2.f);
+            //transform.Rotation = glm::vec3(0.f,glm::pi<float>()*1.5f,0.f);
+
+            auto* state = new btDefaultMotionState();
+            btRigidBody::btRigidBodyConstructionInfo info(0,state,mesh.HeightFieldShape->mHeightfieldShape);
+            auto* body = new btRigidBody(info);
+            body->setFriction(1.f);
+            m_Scene->GetPhysicSystem()->AddRigidBody(body);
+        }
+        //make flooring
+        if(false){
             auto location = glm::vec3(0.f, -50.f, 0.f);
             auto extents = glm::vec3(1000.f, 5.f, 1000.f);
             auto mass = 0.f;
@@ -366,7 +381,7 @@ namespace FLOOF {
                         "Assets/soft-blanket-ue/soft-blanket_Yellow_albedo.png",
                 };
 
-                for (int i{0}; i < 10.f; i++) {
+                for (int i{0}; i < 0.f; i++) {
                     auto extents = glm::vec3(Math::RandFloat(5.f, 30.f), Math::RandFloat(2.f, 10.f), Math::RandFloat(5.f, 30.f));
                     auto location = glm::vec3(Math::RandFloat(-200.f, 200.f), -43.f + extents.y, Math::RandFloat(-200.f, 200.f));
                     auto rotation = glm::vec3(0.f, Math::RandFloat(0.f, 6.28f), 0.f);
@@ -398,7 +413,16 @@ namespace FLOOF {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
         }
+        {
+            auto music = m_Scene->CreateEntity("Background Music");
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music, "pinchcliffe.wav");
+            sound.Looping(true);
+            sound.Volume(0.1f);
+            sound.Play();
+        }
     }
+
+
 
 
     void Application::MakeRenderingDemoScene() {
@@ -473,6 +497,8 @@ namespace FLOOF {
             auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position = glm::vec3(0.f, -150.f, 0.f);
             transform.Scale = glm::vec3(75.f);
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(entity, "TestSound_Stereo.wav");
+
 
         }
 
@@ -496,9 +522,7 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            SoundManager::SetListener(glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-
-            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Stereo.wav");
+            auto &sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Mono.wav");
             sound.Play();
         }
 
@@ -508,11 +532,11 @@ namespace FLOOF {
     void Application::MakeLandscapeScene() {
         m_Scene = std::make_unique<Scene>();
         {
-            HeightmapLoader *landscapeGround{new HeightmapLoader()};
             std::string name = "Heightmap";
 
             auto entity = m_Scene->CreateEntity(name);
-            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity);
+            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity,"Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
+
         }
     }
 }

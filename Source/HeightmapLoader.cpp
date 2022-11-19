@@ -6,7 +6,7 @@
 
 namespace FLOOF {
 
-	HeightmapLoader::HeightmapLoader() {
+	HeightmapLoader::HeightmapLoader(const char* mapstr):filepath(mapstr) {
 		if (readMap())
 			std::cout << "building heightmap sucsses\n";
 	}
@@ -61,7 +61,7 @@ namespace FLOOF {
 					auto a5 = glm::cross(g - a, f - a);
 
 					glm::vec3 normal = glm::normalize(a0 + a1 + a2 + a3 + a4 + a5);
-					mVertices[(x * height) + y].Normal = normal;
+					mVertices[(x * height) + y].Normal = normal * glm::vec3 {-1,-1,-1};
 
 					//uv
 					auto UVx = (1.f / height) * y;
