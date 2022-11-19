@@ -38,6 +38,7 @@ namespace FLOOF {
     struct VulkanTexture {
         VkImage Image = VK_NULL_HANDLE;
         VkImageView ImageView = VK_NULL_HANDLE;
+        VkSampler Sampler = VK_NULL_HANDLE;
         VkDescriptorSet DesctriptorSet = VK_NULL_HANDLE;
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
@@ -65,6 +66,7 @@ namespace FLOOF {
         LineStripWithDepth,
         LitColor,
         EquiToCube,
+        IrradianceConv,
     };
 
     enum class RenderSetLayouts : uint32_t {

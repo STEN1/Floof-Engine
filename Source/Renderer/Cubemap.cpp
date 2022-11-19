@@ -339,7 +339,7 @@ namespace FLOOF {
         std::cout << "Loaded hdr texture: " << equirectangularMap << std::endl;
 
         // Create cubemap image
-        uint32_t cubemapRes = 512;
+        uint32_t cubemapRes = 1024;
         VkImageCreateInfo cubeImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         cubeImageInfo.imageType = VK_IMAGE_TYPE_2D;
         cubeImageInfo.extent.width = cubemapRes;
@@ -515,6 +515,187 @@ namespace FLOOF {
 
         renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
+    }
+    VulkanTexture Cubemap::GetIrradienceMap()
+    {
+        auto* renderer = VulkanRenderer::Get();
+
+        VulkanTexture irradienceTexture{};
+
+        // Create cubemap image
+        VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+        uint32_t cubemapRes = 64;
+
+        VkImageCreateInfo cubeImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+        cubeImageInfo.imageType = VK_IMAGE_TYPE_2D;
+        cubeImageInfo.extent.width = cubemapRes;
+        cubeImageInfo.extent.height = cubemapRes;
+        cubeImageInfo.extent.depth = 1;
+        cubeImageInfo.mipLevels = 1;
+        cubeImageInfo.arrayLayers = 6;
+        cubeImageInfo.format = format;
+        cubeImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        cubeImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        cubeImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        cubeImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        cubeImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        cubeImageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+
+        VmaAllocationCreateInfo cubeImageAllocCreateInfo = {};
+        cubeImageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+
+        vmaCreateImage(renderer->GetAllocator(), &cubeImageInfo, &cubeImageAllocCreateInfo, &irradienceTexture.Image,
+            &irradienceTexture.Allocation, &irradienceTexture.AllocationInfo);
+
+        {
+            // init shader with compatible renderpass
+            Framebuffer fb(cubemapRes, cubemapRes, format);
+            auto renderPass = fb.GetRenderPass();
+
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend;
+            params.FragmentPath = "Shaders/IrradianceConv.frag.spv";
+            params.VertexPath = "Shaders/Cubemap.vert.spv";
+            params.Key = RenderPipelineKeys::IrradianceConv;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = SimpleVertex::GetBindingDescription();
+            params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::Skybox);
+            params.Renderpass = renderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
+
+        // Cubemap view directions
+        glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+        glm::mat4 captureViews[] =
+        {
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+        };
+
+        for (uint32_t i = 0; i < 6; i++) {
+            Framebuffer fb(cubemapRes, cubemapRes, format);
+
+            auto renderPass = fb.GetRenderPass();
+            auto frameBuffer = fb.GetFramebuffer();
+
+            VkRenderPassBeginInfo renderPassInfo{};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = frameBuffer;
+            renderPassInfo.renderArea.offset = { 0, 0 };
+
+            VkExtent2D vkExtent;
+            vkExtent.width = cubemapRes;
+            vkExtent.height = cubemapRes;
+
+            renderPassInfo.renderArea.extent = vkExtent;
+
+            VkClearValue clearColors[1]{};
+            clearColors[0].color = {};
+            clearColors[0].color.float32[0] = 0.f;
+            clearColors[0].color.float32[1] = 0.f;
+            clearColors[0].color.float32[2] = 0.f;
+            clearColors[0].color.float32[3] = 1.f;
+
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = clearColors;
+
+            auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+            renderer->StartRenderPass(commandBuffer, &renderPassInfo);
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::IrradianceConv);
+            auto cubeBuffer = ModelManager::GetSkyboxCube();
+            MeshPushConstants constants{};
+            constants.VP = captureProjection * captureViews[i];
+            constants.Model = glm::mat4(1.f);
+            constants.InvModelMat = glm::inverse(constants.Model);
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                &constants);
+            VkDeviceSize offset{ 0 };
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                0, 1, &CubemapTexture.DesctriptorSet, 0, nullptr);
+            vkCmdDraw(commandBuffer, 36, 1, 0, 0);
+            vkCmdEndRenderPass(commandBuffer);
+            renderer->EndSingleUseCommandBuffer(commandBuffer);
+
+            // Transfer framebuffer images to cubemap face
+            VkImageCopy region{};
+            region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            region.dstSubresource.baseArrayLayer = i;
+            region.dstSubresource.layerCount = 1;
+            region.dstSubresource.mipLevel = 0;
+
+            region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            region.srcSubresource.baseArrayLayer = 0;
+            region.srcSubresource.layerCount = 1;
+            region.srcSubresource.mipLevel = 0;
+
+            region.extent.width = cubemapRes;
+            region.extent.height = cubemapRes;
+            region.extent.depth = 1;
+
+            renderer->CopyImage(fb.GetTexture().Image, irradienceTexture.Image, region);
+        }
+        // create sampler
+        VkSamplerCreateInfo samplerCreateInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+        samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+        samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerCreateInfo.mipLodBias = 0.0f;
+        samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
+        samplerCreateInfo.minLod = 0.0f;
+        samplerCreateInfo.maxLod = 1.f;
+        samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        samplerCreateInfo.maxAnisotropy = 1.0f;
+
+        VkResult result = vkCreateSampler(renderer->GetDevice(), &samplerCreateInfo, nullptr, &irradienceTexture.Sampler);
+        ASSERT(result == VK_SUCCESS);
+
+        // Create cubemap image view
+        VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+        imageViewCreateInfo.format = format;
+        imageViewCreateInfo.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+        imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        // 6 array layers (faces)
+        imageViewCreateInfo.subresourceRange.layerCount = 6;
+        // Set number of mip levels
+        imageViewCreateInfo.subresourceRange.levelCount = 1;
+        imageViewCreateInfo.image = irradienceTexture.Image;
+
+        result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &irradienceTexture.ImageView);
+        ASSERT(result == VK_SUCCESS);
+
+        // Create cubemap descriptor
+        VkDescriptorImageInfo descriptorImageInfo{};
+        descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        descriptorImageInfo.imageView = irradienceTexture.ImageView;
+        descriptorImageInfo.sampler = m_Sampler;
+
+        irradienceTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::Skybox));
+
+        VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+        writeSet.pImageInfo = &descriptorImageInfo;
+        writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeSet.dstSet = irradienceTexture.DesctriptorSet;
+        writeSet.dstBinding = 0;
+        writeSet.descriptorCount = 1;
+
+        renderer->FinishAllFrames();
+        vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
+
+        return irradienceTexture;
     }
     Cubemap::~Cubemap()
     {

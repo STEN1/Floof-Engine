@@ -8,6 +8,7 @@ namespace FLOOF {
     public:
         Cubemap(const std::array<std::string, 6>& paths);
         Cubemap(const std::string& equirectangularMap);
+        VulkanTexture GetIrradienceMap();
         ~Cubemap();
         VulkanTexture CubemapTexture{};
         VkSampler m_Sampler = VK_NULL_HANDLE;
