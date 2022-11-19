@@ -1310,14 +1310,21 @@ namespace FLOOF {
     }
 
     void VulkanRenderer::EndSingleUseCommandBuffer(VkCommandBuffer commandBuffer) {
+        vkEndCommandBuffer(commandBuffer);
+
+        VkFence fence;
+        VkFenceCreateInfo fenceInfo = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+        vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &fence);
+
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
+        vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, fence);
 
-        vkEndCommandBuffer(commandBuffer);
-        vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(m_GraphicsQueue);
+        vkWaitForFences(m_LogicalDevice, 1, &fence, VK_TRUE, UINT64_MAX);
+        vkDestroyFence(m_LogicalDevice, fence, nullptr);
+
         vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
     }
 
