@@ -257,7 +257,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Skybox];
+            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -273,7 +273,7 @@ namespace FLOOF {
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Skybox];
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -332,7 +332,6 @@ namespace FLOOF {
         renderer->FreeTextureDescriptorSet(m_IrradienceMap.DesctriptorSet);
         vkDestroyImageView(renderer->GetDevice(), m_IrradienceMap.ImageView, nullptr);
         vmaDestroyImage(renderer->GetAllocator(), m_IrradienceMap.Image, m_IrradienceMap.Allocation);
-        vkDestroySampler(renderer->GetDevice(), m_IrradienceMap.Sampler, nullptr);
     }
 
     void SceneRenderer::ResizeBuffers(glm::vec2 extent) {
