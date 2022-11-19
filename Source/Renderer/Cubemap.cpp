@@ -226,7 +226,7 @@ namespace FLOOF {
         descriptorImageInfo.imageView = CubemapTexture.ImageView;
         descriptorImageInfo.sampler = m_Sampler;
 
-        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::Skybox));
+        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
 
         VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.pImageInfo = &descriptorImageInfo;
@@ -389,7 +389,7 @@ namespace FLOOF {
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::Skybox);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
             params.Renderpass = renderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -504,7 +504,7 @@ namespace FLOOF {
         descriptorImageInfo.imageView = CubemapTexture.ImageView;
         descriptorImageInfo.sampler = m_Sampler;
 
-        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::Skybox));
+        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
 
         VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.pImageInfo = &descriptorImageInfo;
@@ -563,7 +563,7 @@ namespace FLOOF {
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::Skybox);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
             params.Renderpass = renderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -644,23 +644,6 @@ namespace FLOOF {
 
             renderer->CopyImage(fb.GetTexture().Image, irradienceTexture.Image, region);
         }
-        // create sampler
-        VkSamplerCreateInfo samplerCreateInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-        samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.mipLodBias = 0.0f;
-        samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
-        samplerCreateInfo.minLod = 0.0f;
-        samplerCreateInfo.maxLod = 1.f;
-        samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-        samplerCreateInfo.maxAnisotropy = 1.0f;
-
-        VkResult result = vkCreateSampler(renderer->GetDevice(), &samplerCreateInfo, nullptr, &irradienceTexture.Sampler);
-        ASSERT(result == VK_SUCCESS);
 
         // Create cubemap image view
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
@@ -674,7 +657,7 @@ namespace FLOOF {
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.image = irradienceTexture.Image;
 
-        result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &irradienceTexture.ImageView);
+        VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &irradienceTexture.ImageView);
         ASSERT(result == VK_SUCCESS);
 
         // Create cubemap descriptor
@@ -683,7 +666,7 @@ namespace FLOOF {
         descriptorImageInfo.imageView = irradienceTexture.ImageView;
         descriptorImageInfo.sampler = m_Sampler;
 
-        irradienceTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::Skybox));
+        irradienceTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
 
         VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.pImageInfo = &descriptorImageInfo;

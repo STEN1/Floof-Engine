@@ -194,16 +194,16 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x
     }
 
     internalMesh.name = mesh->mName.data;
-    std::cout << "Mesh name: " << internalMesh.name << std::endl;
+    //std::cout << "Mesh name: " << internalMesh.name << std::endl;
     aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
-    std::cout << "Material name: " << mat->GetName().C_Str() << std::endl;
+    //std::cout << "Material name: " << mat->GetName().C_Str() << std::endl;
 
-    for (uint32_t i = 0; i <= AI_TEXTURE_TYPE_MAX; i++) {
+    /*for (uint32_t i = 0; i <= AI_TEXTURE_TYPE_MAX; i++) {
         auto textureCount = mat->GetTextureCount(static_cast<aiTextureType>(i));
         if (textureCount > 0) {
             std::cout << "Has " << textureCount << " texture of type: " << i << std::endl;
         }
-    }
+    }*/
 
     internalMesh.material.DiffusePath = LoadMaterialTexture(mat, aiTextureType_BASE_COLOR);
     if (internalMesh.material.DiffusePath.empty())
