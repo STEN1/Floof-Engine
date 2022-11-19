@@ -6,6 +6,7 @@
 #include <array>
 
 #include "../Math.h"
+#include "../Floof.h"
 
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
@@ -37,6 +38,7 @@ namespace FLOOF {
     struct VulkanTexture {
         VkImage Image = VK_NULL_HANDLE;
         VkImageView ImageView = VK_NULL_HANDLE;
+        VkSampler Sampler = VK_NULL_HANDLE;
         VkDescriptorSet DesctriptorSet = VK_NULL_HANDLE;
         VmaAllocation Allocation = VK_NULL_HANDLE;
         VmaAllocationInfo AllocationInfo{};
@@ -63,6 +65,8 @@ namespace FLOOF {
         LineWithDepth,
         LineStripWithDepth,
         LitColor,
+        EquiToCube,
+        IrradianceConv,
     };
 
     enum class RenderSetLayouts : uint32_t {
@@ -246,6 +250,12 @@ namespace FLOOF {
 
         void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
+        void CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);
+
+        void CopyImage(VkImage srcImage, VkImage dstImage, VkImageCopy region);
+
+        void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, uint32_t sizeX, uint32_t sizeY);
+
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
         GLFWwindow* m_Window;
@@ -292,8 +302,6 @@ namespace FLOOF {
         void RecreateSwapChain(VulkanWindow& window);
 
 
-        void CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);
-        void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, uint32_t sizeX, uint32_t sizeY);
 
         // Generate mipmaps transitions layout to shader read optimal
         void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);

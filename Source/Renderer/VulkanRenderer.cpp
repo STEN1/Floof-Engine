@@ -257,6 +257,84 @@ namespace FLOOF {
         EndSingleUseCommandBuffer(commandBuffer);
     }
 
+    void VulkanRenderer::CopyImage(VkImage srcImage, VkImage dstImage, VkImageCopy region)
+    {
+        VkCommandBuffer commandBuffer = BeginSingleUseCommandBuffer();
+
+        VkImageMemoryBarrier dstImageBarrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        dstImageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        dstImageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        dstImageBarrier.subresourceRange.aspectMask = region.dstSubresource.aspectMask;
+        dstImageBarrier.subresourceRange.baseMipLevel = 0;
+        dstImageBarrier.subresourceRange.levelCount = 1;
+        dstImageBarrier.subresourceRange.baseArrayLayer = region.dstSubresource.baseArrayLayer;
+        dstImageBarrier.subresourceRange.layerCount = region.dstSubresource.layerCount;
+        dstImageBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        dstImageBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dstImageBarrier.image = dstImage;
+        dstImageBarrier.srcAccessMask = VK_ACCESS_NONE;
+        dstImageBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        VkImageMemoryBarrier srcImageBarrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        srcImageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        srcImageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        srcImageBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        srcImageBarrier.subresourceRange.baseMipLevel = 0;
+        srcImageBarrier.subresourceRange.levelCount = 1;
+        srcImageBarrier.subresourceRange.baseArrayLayer = region.srcSubresource.baseArrayLayer;
+        srcImageBarrier.subresourceRange.layerCount = region.srcSubresource.layerCount;
+        srcImageBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        srcImageBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        srcImageBarrier.image = srcImage;
+        srcImageBarrier.srcAccessMask = VK_ACCESS_NONE;
+        srcImageBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+        VkImageMemoryBarrier startImageBarriers[] = {
+            dstImageBarrier,
+            srcImageBarrier
+        };
+
+        vkCmdPipelineBarrier(
+            commandBuffer,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            std::size(startImageBarriers), startImageBarriers);
+
+        vkCmdCopyImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+        dstImageBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dstImageBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        dstImageBarrier.image = dstImage;
+        dstImageBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        dstImageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        srcImageBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        srcImageBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        srcImageBarrier.image = srcImage;
+        srcImageBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        srcImageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        VkImageMemoryBarrier endImageBarriers[] = {
+            dstImageBarrier,
+            srcImageBarrier
+        };
+
+        vkCmdPipelineBarrier(
+            commandBuffer,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            std::size(endImageBarriers), endImageBarriers);
+
+        EndSingleUseCommandBuffer(commandBuffer);
+    }
+
     void VulkanRenderer::CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, uint32_t sizeX, uint32_t sizeY) {
         VkCommandBuffer commandBuffer = BeginSingleUseCommandBuffer();
 
@@ -271,7 +349,7 @@ namespace FLOOF {
         imgMemBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imgMemBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         imgMemBarrier.image = dstImage;
-        imgMemBarrier.srcAccessMask = 0;
+        imgMemBarrier.srcAccessMask = VK_ACCESS_NONE;
         imgMemBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
         vkCmdPipelineBarrier(
@@ -286,6 +364,7 @@ namespace FLOOF {
         VkBufferImageCopy region = {};
         region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         region.imageSubresource.layerCount = 1;
+        region.imageSubresource.baseArrayLayer = 0;
         region.imageExtent.width = sizeX;
         region.imageExtent.height = sizeY;
         region.imageExtent.depth = 1;
