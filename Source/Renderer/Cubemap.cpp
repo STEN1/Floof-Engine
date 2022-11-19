@@ -220,7 +220,6 @@ namespace FLOOF {
         writeSet.dstBinding = 0;
         writeSet.descriptorCount = 1;
 
-        renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
 
         vmaDestroyBuffer(renderer->GetAllocator(), stagingBuffer, stagingBufferAlloc);
@@ -319,7 +318,24 @@ namespace FLOOF {
         hdrImageViewCreateInfo.subresourceRange.layerCount = 1;
 
         vkCreateImageView(renderer->GetDevice(), &hdrImageViewCreateInfo, nullptr, &hdrTexture.ImageView);
-        hdrTexture.DesctriptorSet = ImGui_ImplVulkan_AddTexture(renderer->GetTextureSampler(), hdrTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        hdrTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+
+        auto sampler = renderer->GetTextureSampler();
+
+        VkDescriptorImageInfo descriptorImageInfo{};
+        descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        descriptorImageInfo.imageView = hdrTexture.ImageView;
+        descriptorImageInfo.sampler = sampler;
+
+        VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+        writeSet.pImageInfo = &descriptorImageInfo;
+        writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeSet.dstSet = hdrTexture.DesctriptorSet;
+        writeSet.dstBinding = 0;
+        writeSet.descriptorCount = 1;
+
+        vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
 
         std::cout << "Loaded hdr texture: " << equirectangularMap << std::endl;
 
@@ -466,24 +482,19 @@ namespace FLOOF {
         VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &CubemapTexture.ImageView);
         ASSERT(result == VK_SUCCESS);
 
-        auto sampler = renderer->GetTextureSampler();
-
         // Create cubemap descriptor
-        VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         descriptorImageInfo.imageView = CubemapTexture.ImageView;
         descriptorImageInfo.sampler = sampler;
 
         CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
 
-        VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.pImageInfo = &descriptorImageInfo;
         writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         writeSet.dstSet = CubemapTexture.DesctriptorSet;
         writeSet.dstBinding = 0;
         writeSet.descriptorCount = 1;
 
-        renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
     }
     VulkanTexture Cubemap::GetIrradienceMap()
@@ -647,7 +658,6 @@ namespace FLOOF {
         writeSet.dstBinding = 0;
         writeSet.descriptorCount = 1;
 
-        renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
 
         return irradienceTexture;
@@ -655,7 +665,6 @@ namespace FLOOF {
     Cubemap::~Cubemap()
     {
         auto* renderer = VulkanRenderer::Get();
-        renderer->FinishAllFrames();
         vkDestroyImageView(renderer->GetDevice(), CubemapTexture.ImageView, nullptr);
         vmaDestroyImage(renderer->GetAllocator(), CubemapTexture.Image, CubemapTexture.Allocation);
         renderer->FreeTextureDescriptorSet(CubemapTexture.DesctriptorSet);
