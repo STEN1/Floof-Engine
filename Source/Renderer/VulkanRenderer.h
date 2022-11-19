@@ -140,7 +140,6 @@ namespace FLOOF {
         std::vector<VkImageView>        SwapChainImageViews;
         std::vector<VkFramebuffer>      FrameBuffers;
         std::array<VulkanFrame, VulkanGlobals::MAX_FRAMES_IN_FLIGHT> Frames;
-        std::vector<VulkanSubmitInfo>   SubmitInfos;
     };
 
     class VulkanRenderer {
