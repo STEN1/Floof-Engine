@@ -495,11 +495,11 @@ namespace FLOOF {
         landscape->readMap();
 
         HeightFieldShape = new HeightField(landscape->mVertices,landscape->height,landscape->width,200.f,0.f);
+        triangleCol.height = landscape->height;
+        triangleCol.width = landscape->width;
 
         //landscape
         {
-            //triangleCol.vertOut = landscape.mVertices;
-            //triangleCol.indicesOut = landscape.mIndices;
             btVector3 aabbMin, aabbMax;
             for (int k = 0; k < 3; k++) {
                 aabbMin[k] = -BT_LARGE_FLOAT;
@@ -507,6 +507,7 @@ namespace FLOOF {
             }
             HeightFieldShape->mHeightfieldShape->processAllTriangles(&triangleCol, aabbMin, aabbMax);
         }
+
         landscape->mVertices = triangleCol.vertOut;
         landscape->mIndices = triangleCol.indicesOut;
 

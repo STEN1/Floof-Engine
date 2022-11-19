@@ -261,7 +261,7 @@ namespace FLOOF {
         float steeringIncrement = 0.04f;
         float steeringClamp = 0.3f;
 
-        float suspensionStiffness = 8000.f;
+        float suspensionStiffness = 15000.f;
         float suspensionDamping = 8000.f;
         float suspensionCompression = 4.4f;
 

@@ -28,6 +28,9 @@ namespace FLOOF {
         std::vector<MeshVertex> vertOut;
         std::vector<uint32_t> indicesOut;
         virtual void processTriangle(btVector3* tris, int partId, int triangleIndex) override;
+
+        int height,width;
+
     };
 }
 

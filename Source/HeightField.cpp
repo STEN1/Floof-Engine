@@ -5,9 +5,8 @@ FLOOF::HeightField::HeightField(std::vector<glm::vec3> vertices, int height, int
 
     heightdata = getHeightData(vertices);
     mHeightfieldShape = new btHeightfieldTerrainShape(height, width, &heightdata[0], miny, maxy, 1, false);
-    mHeightfieldShape->buildAccelerator(8);
+    mHeightfieldShape->buildAccelerator(16);
     mHeightfieldShape->setLocalScaling(btVector3(1.0, 1.0, 1.0));
-
 }
 
 FLOOF::HeightField::~HeightField() {
@@ -26,7 +25,7 @@ std::vector<double> FLOOF::HeightField::getHeightData(std::vector<glm::vec3> ver
 }
 
 FLOOF::HeightField::HeightField(std::vector<MeshVertex> meshVertex, int height, int width, float maxy, float miny)
-    : HeightField(meshVertToGlm(meshVertex),height,width,maxy,miny) {
+        : HeightField(meshVertToGlm(meshVertex), height, width, maxy, miny) {
 }
 
 std::vector<glm::vec3> FLOOF::HeightField::meshVertToGlm(std::vector<MeshVertex> meshvert) {
@@ -65,10 +64,19 @@ void FLOOF::TriangleCollector::processTriangle(btVector3 *tris, int partId, int 
         v.Normal.y = normal[1];
         v.Normal.z = normal[2];
 
-        v.UV.x = (1.f / 1025)/ v.Pos.y;
-        v.UV.y = (1.f / 1025)/ v.Pos.x;
+
+        if(v.Pos.z < 0)
+            v.UV.y = (1.f / height) * (v.Pos.z+(height/2.f));
+        else
+            v.UV.y = (1.f / height) * (v.Pos.z-(height/2.f));
+
+        if(v.Pos.x < 0)
+            v.UV.x = (1.f / width) * (v.Pos.x+(width/2.f));
+        else
+            v.UV.x = (1.f / width) * (v.Pos.x-(width/2.f));
 
         indicesOut.emplace_back(vertOut.size());
         vertOut.emplace_back(v);
     }
 }
+

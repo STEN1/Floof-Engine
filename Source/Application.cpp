@@ -336,8 +336,8 @@ namespace FLOOF {
             auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
 
             auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-            //transform.Position = glm::vec3(mesh.landscape->width/2.f,-100,-mesh.landscape->height/2.f);
-            //transform.Rotation = glm::vec3(0.f,glm::pi<float>()*1.5f,0.f);
+            //transform.Position = glm::vec3(mesh.landscape->width/2.f,-100,mesh.landscape->height/2.f);
+            //transform.Rotation = glm::vec3(0.f,glm::pi<float>(),0.f);
 
             auto* state = new btDefaultMotionState();
             btRigidBody::btRigidBodyConstructionInfo info(0,state,mesh.HeightFieldShape->mHeightfieldShape);
@@ -417,7 +417,7 @@ namespace FLOOF {
             auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music, "pinchcliffe.wav");
             sound.Looping(true);
             sound.Volume(0.1f);
-            sound.Play();
+           // sound.Play();
         }
     }
 

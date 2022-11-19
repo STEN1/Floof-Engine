@@ -41,7 +41,7 @@ void FLOOF::EnginePanel::DrawPanel() {
                 //suspension
                 hinge->setDamping(2, Engine.suspensionDamping);
                 hinge->setStiffness(2, Engine.suspensionStiffness);
-                hinge->setLimit(2, -Engine.suspensionRestLength/2.f, Engine.suspensionRestLength/2.f);
+                hinge->setLimit(2, 0, Engine.suspensionRestLength);
 
                 hinge->getRigidBodyB().setFriction(Engine.WheelFriction);
                 hinge->getRigidBodyB().setRollingFriction(Engine.RollingFriction);

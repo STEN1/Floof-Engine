@@ -191,7 +191,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             hinge->setParam(BT_CONSTRAINT_CFM, 0.15f, 1);
             hinge->setParam(BT_CONSTRAINT_ERP, 0.35f, 1);
 
-            hinge->setLimit(2, -engine.suspensionRestLength/2.f, engine.suspensionRestLength/2.f);
+            hinge->setLimit(2, 0, engine.suspensionRestLength);
 
             hinge->setDamping(2, engine.suspensionDamping);
             hinge->setStiffness(2, engine.suspensionStiffness);
