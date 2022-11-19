@@ -400,66 +400,82 @@ namespace FLOOF {
             // Create framebuffer
             Framebuffer fb(cubemapRes, cubemapRes, format);
 
-            // Render Spherical map to framebuffer
-            auto renderPass = fb.GetRenderPass();
-            auto frameBuffer = fb.GetFramebuffer();
-            VkRenderPassBeginInfo renderPassInfo{};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = renderPass;
-            renderPassInfo.framebuffer = frameBuffer;
-            renderPassInfo.renderArea.offset = { 0, 0 };
+            {
+                // Render Spherical map to framebuffer
+                auto renderPass = fb.GetRenderPass();
+                auto frameBuffer = fb.GetFramebuffer();
+                VkRenderPassBeginInfo renderPassInfo{};
+                renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+                renderPassInfo.renderPass = renderPass;
+                renderPassInfo.framebuffer = frameBuffer;
+                renderPassInfo.renderArea.offset = { 0, 0 };
 
-            VkExtent2D vkExtent;
-            vkExtent.width = cubemapRes;
-            vkExtent.height = cubemapRes;
+                VkExtent2D vkExtent;
+                vkExtent.width = cubemapRes;
+                vkExtent.height = cubemapRes;
 
-            renderPassInfo.renderArea.extent = vkExtent;
+                renderPassInfo.renderArea.extent = vkExtent;
 
-            VkClearValue clearColors[1]{};
-            clearColors[0].color = {};
-            clearColors[0].color.float32[0] = 0.f;
-            clearColors[0].color.float32[1] = 0.f;
-            clearColors[0].color.float32[2] = 0.f;
-            clearColors[0].color.float32[3] = 1.f;
+                VkClearValue clearColors[1]{};
+                clearColors[0].color = {};
+                clearColors[0].color.float32[0] = 0.f;
+                clearColors[0].color.float32[1] = 0.f;
+                clearColors[0].color.float32[2] = 0.f;
+                clearColors[0].color.float32[3] = 1.f;
 
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = clearColors;
+                renderPassInfo.clearValueCount = 1;
+                renderPassInfo.pClearValues = clearColors;
 
-            auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-            renderer->StartRenderPass(commandBuffer, &renderPassInfo);
-            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::EquiToCube);
-            auto cubeBuffer = ModelManager::GetSkyboxCube();
-            MeshPushConstants constants{};
-            constants.VP = captureProjection * captureViews[i];
-            constants.Model = glm::mat4(1.f);
-            constants.InvModelMat = glm::inverse(constants.Model);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
-                &constants);
-            VkDeviceSize offset{ 0 };
-            vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                0, 1, &hdrTexture.DesctriptorSet, 0, nullptr);
-            vkCmdDraw(commandBuffer, 36, 1, 0, 0);
-            vkCmdEndRenderPass(commandBuffer);
-            renderer->EndSingleUseCommandBuffer(commandBuffer);
+                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+                renderer->StartRenderPass(commandBuffer, &renderPassInfo);
+                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::EquiToCube);
+                auto cubeBuffer = ModelManager::GetSkyboxCube();
+                MeshPushConstants constants{};
+                constants.VP = captureProjection * captureViews[i];
+                constants.Model = glm::mat4(1.f);
+                constants.InvModelMat = glm::inverse(constants.Model);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                    &constants);
+                VkDeviceSize offset{ 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                    0, 1, &hdrTexture.DesctriptorSet, 0, nullptr);
+                vkCmdDraw(commandBuffer, 36, 1, 0, 0);
+                vkCmdEndRenderPass(commandBuffer);
+                renderer->EndSingleUseCommandBuffer(commandBuffer);
+            }
+            {
+                // Transfer framebuffer images to cubemap face
+                VkImageCopy region{};
+                region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.dstSubresource.baseArrayLayer = i;
+                region.dstSubresource.layerCount = 1;
+                region.dstSubresource.mipLevel = 0;
 
-            // Transfer framebuffer images to cubemap face
-            VkImageCopy region{};
-            region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            region.dstSubresource.baseArrayLayer = i;
-            region.dstSubresource.layerCount = 1;
-            region.dstSubresource.mipLevel = 0;
+                region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.srcSubresource.baseArrayLayer = 0;
+                region.srcSubresource.layerCount = 1;
+                region.srcSubresource.mipLevel = 0;
 
-            region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            region.srcSubresource.baseArrayLayer = 0;
-            region.srcSubresource.layerCount = 1;
-            region.srcSubresource.mipLevel = 0;
+                region.extent.width = cubemapRes;
+                region.extent.height = cubemapRes;
+                region.extent.depth = 1;
 
-            region.extent.width = cubemapRes;
-            region.extent.height = cubemapRes;
-            region.extent.depth = 1;
+                renderer->TransitionImageLayout(fb.GetTexture().Image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+                renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
 
-            renderer->CopyImage(fb.GetTexture().Image, CubemapTexture.Image, region);
+                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                renderer->EndSingleUseCommandBuffer(commandBuffer);
+
+                renderer->TransitionImageLayout(fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
+            }
         }
         // Destroy hdr spherical texture
         renderer->FreeTextureDescriptorSet(hdrTexture.DesctriptorSet);
@@ -564,66 +580,83 @@ namespace FLOOF {
         for (uint32_t i = 0; i < 6; i++) {
             Framebuffer fb(cubemapRes, cubemapRes, format);
 
-            auto renderPass = fb.GetRenderPass();
-            auto frameBuffer = fb.GetFramebuffer();
+            {
+                auto renderPass = fb.GetRenderPass();
+                auto frameBuffer = fb.GetFramebuffer();
 
-            VkRenderPassBeginInfo renderPassInfo{};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = renderPass;
-            renderPassInfo.framebuffer = frameBuffer;
-            renderPassInfo.renderArea.offset = { 0, 0 };
+                VkRenderPassBeginInfo renderPassInfo{};
+                renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+                renderPassInfo.renderPass = renderPass;
+                renderPassInfo.framebuffer = frameBuffer;
+                renderPassInfo.renderArea.offset = { 0, 0 };
 
-            VkExtent2D vkExtent;
-            vkExtent.width = cubemapRes;
-            vkExtent.height = cubemapRes;
+                VkExtent2D vkExtent;
+                vkExtent.width = cubemapRes;
+                vkExtent.height = cubemapRes;
 
-            renderPassInfo.renderArea.extent = vkExtent;
+                renderPassInfo.renderArea.extent = vkExtent;
 
-            VkClearValue clearColors[1]{};
-            clearColors[0].color = {};
-            clearColors[0].color.float32[0] = 0.f;
-            clearColors[0].color.float32[1] = 0.f;
-            clearColors[0].color.float32[2] = 0.f;
-            clearColors[0].color.float32[3] = 1.f;
+                VkClearValue clearColors[1]{};
+                clearColors[0].color = {};
+                clearColors[0].color.float32[0] = 0.f;
+                clearColors[0].color.float32[1] = 0.f;
+                clearColors[0].color.float32[2] = 0.f;
+                clearColors[0].color.float32[3] = 1.f;
 
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = clearColors;
+                renderPassInfo.clearValueCount = 1;
+                renderPassInfo.pClearValues = clearColors;
 
-            auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-            renderer->StartRenderPass(commandBuffer, &renderPassInfo);
-            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::IrradianceConv);
-            auto cubeBuffer = ModelManager::GetSkyboxCube();
-            MeshPushConstants constants{};
-            constants.VP = captureProjection * captureViews[i];
-            constants.Model = glm::mat4(1.f);
-            constants.InvModelMat = glm::inverse(constants.Model);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
-                &constants);
-            VkDeviceSize offset{ 0 };
-            vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                0, 1, &CubemapTexture.DesctriptorSet, 0, nullptr);
-            vkCmdDraw(commandBuffer, 36, 1, 0, 0);
-            vkCmdEndRenderPass(commandBuffer);
-            renderer->EndSingleUseCommandBuffer(commandBuffer);
+                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+                renderer->StartRenderPass(commandBuffer, &renderPassInfo);
+                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::IrradianceConv);
+                auto cubeBuffer = ModelManager::GetSkyboxCube();
+                MeshPushConstants constants{};
+                constants.VP = captureProjection * captureViews[i];
+                constants.Model = glm::mat4(1.f);
+                constants.InvModelMat = glm::inverse(constants.Model);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                    &constants);
+                VkDeviceSize offset{ 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                    0, 1, &CubemapTexture.DesctriptorSet, 0, nullptr);
+                vkCmdDraw(commandBuffer, 36, 1, 0, 0);
+                vkCmdEndRenderPass(commandBuffer);
+                renderer->EndSingleUseCommandBuffer(commandBuffer);
+            }
 
-            // Transfer framebuffer images to cubemap face
-            VkImageCopy region{};
-            region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            region.dstSubresource.baseArrayLayer = i;
-            region.dstSubresource.layerCount = 1;
-            region.dstSubresource.mipLevel = 0;
+            {
+                // Transfer framebuffer images to cubemap face
+                VkImageCopy region{};
+                region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.dstSubresource.baseArrayLayer = i;
+                region.dstSubresource.layerCount = 1;
+                region.dstSubresource.mipLevel = 0;
 
-            region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            region.srcSubresource.baseArrayLayer = 0;
-            region.srcSubresource.layerCount = 1;
-            region.srcSubresource.mipLevel = 0;
+                region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.srcSubresource.baseArrayLayer = 0;
+                region.srcSubresource.layerCount = 1;
+                region.srcSubresource.mipLevel = 0;
 
-            region.extent.width = cubemapRes;
-            region.extent.height = cubemapRes;
-            region.extent.depth = 1;
+                region.extent.width = cubemapRes;
+                region.extent.height = cubemapRes;
+                region.extent.depth = 1;
 
-            renderer->CopyImage(fb.GetTexture().Image, irradienceTexture.Image, region);
+                renderer->TransitionImageLayout(fb.GetTexture().Image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+                renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
+
+                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                renderer->EndSingleUseCommandBuffer(commandBuffer);
+
+                renderer->TransitionImageLayout(fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
+            }
         }
 
         // Create cubemap image view

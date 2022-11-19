@@ -155,7 +155,7 @@ namespace FLOOF {
         // free staging buffer
         vmaDestroyBuffer(renderer->m_Allocator, stagingBuffer, stagingBufferAlloc);
 
-        renderer->TransitionImageLayout(texture.Image, format,
+        renderer->TransitionImageLayout(texture.Image,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
         // Generate mipmaps transitions layout to shader read optimal
         renderer->GenerateMipmaps(texture.Image, format, xWidth, yHeight, mipLevels);
