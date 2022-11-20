@@ -1159,14 +1159,14 @@ namespace FLOOF {
         {
             VkDescriptorPoolSize poolSize{};
             poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            poolSize.descriptorCount = 2048;
+            poolSize.descriptorCount = 1;
 
             // Create texture descriptor pool.
             VkDescriptorPoolCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
                 //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-            createInfo.maxSets = 2048;
+            createInfo.maxSets = 4096;
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_TextureDescriptorPool);
@@ -1175,14 +1175,14 @@ namespace FLOOF {
         {
             VkDescriptorPoolSize poolSize{};
             poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            poolSize.descriptorCount = 1024;
+            poolSize.descriptorCount = 1;
 
             // Create texture descriptor pool.
             VkDescriptorPoolCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
             //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-            createInfo.maxSets = 1024;
+            createInfo.maxSets = 1000000;
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_MaterialDescriptorPool);
@@ -1191,14 +1191,14 @@ namespace FLOOF {
         {
             VkDescriptorPoolSize poolSize{};
             poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            poolSize.descriptorCount = 256;
+            poolSize.descriptorCount = 1;
 
             // Create UBO descriptor pool.
             VkDescriptorPoolCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
                 //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-            createInfo.maxSets = 256;
+            createInfo.maxSets = 10;
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_UBODescriptorPool);
@@ -1207,14 +1207,14 @@ namespace FLOOF {
         {
             VkDescriptorPoolSize poolSize{};
             poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-            poolSize.descriptorCount = 256;
+            poolSize.descriptorCount = 1;
 
             // Create SSBO descriptor pool.
             VkDescriptorPoolCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
                 //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-            createInfo.maxSets = 256;
+            createInfo.maxSets = 10;
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_ShaderStorageDescriptorPool);

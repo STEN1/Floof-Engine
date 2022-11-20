@@ -413,6 +413,7 @@ namespace FLOOF {
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
+            m_Scene->AddComponent<PointLightComponent>(ent);
         }
         {
             auto music = m_Scene->CreateEntity("Background Music");
@@ -440,13 +441,15 @@ namespace FLOOF {
 
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
             auto &transform = m_Scene->GetComponent<TransformComponent>(ent);
-            transform.Position = glm::vec3(-20.f, 100.f, -24.f);
             transform.Rotation.x = -1.f;
         }
 
-        for (float x = 0.f; x < 20.f; x += 5.f) {
-            for (float y = 0.f; y < 20.f; y += 5.f) {
-                for (float z = 0.f; z < 20.f; z += 5.f) {
+        float extent = 150.f;
+        float step = 40.f;
+
+        for (float x = -extent; x < extent; x += step) {
+            for (float y = -extent; y < extent; y += step) {
+                for (float z = -extent; z < extent; z += step) {
                     auto entity = m_Scene->CreateEntity("PointLight ball");
                     auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
                     mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
