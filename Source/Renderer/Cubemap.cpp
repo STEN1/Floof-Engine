@@ -9,6 +9,7 @@ namespace FLOOF {
 
     Cubemap::Cubemap(const std::array<std::string, 6>& paths)
     {
+        Format = VK_FORMAT_R8G8B8A8_UNORM;
         auto renderer = VulkanRenderer::Get();
         // Load texture
         stbi_set_flip_vertically_on_load(false);
@@ -85,7 +86,6 @@ namespace FLOOF {
             readyData.insert(readyData.begin(), data.begin(), data.end());
         }
 
-        VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
         // staging buffer
         VkBufferCreateInfo stagingCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -115,7 +115,7 @@ namespace FLOOF {
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 6;
-        imageInfo.format = format;
+        imageInfo.format = Format;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -192,7 +192,7 @@ namespace FLOOF {
 
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
-        imageViewCreateInfo.format = format;
+        imageViewCreateInfo.format = Format;
         imageViewCreateInfo.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
         imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
         // 6 array layers (faces)
@@ -281,7 +281,7 @@ namespace FLOOF {
         stbi_image_free(data);
 
         VulkanTexture hdrTexture{};
-        VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        Format = VK_FORMAT_R32G32B32A32_SFLOAT;
 
         // Image
         VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
@@ -291,7 +291,7 @@ namespace FLOOF {
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 1;
-        imageInfo.format = format;
+        imageInfo.format = Format;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -310,7 +310,7 @@ namespace FLOOF {
         VkImageViewCreateInfo hdrImageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         hdrImageViewCreateInfo.image = hdrTexture.Image;
         hdrImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        hdrImageViewCreateInfo.format = format;
+        hdrImageViewCreateInfo.format = Format;
         hdrImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         hdrImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
         hdrImageViewCreateInfo.subresourceRange.levelCount = 1;
@@ -348,7 +348,7 @@ namespace FLOOF {
         cubeImageInfo.extent.depth = 1;
         cubeImageInfo.mipLevels = 1;
         cubeImageInfo.arrayLayers = 6;
-        cubeImageInfo.format = format;
+        cubeImageInfo.format = Format;
         cubeImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         cubeImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         cubeImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -376,7 +376,7 @@ namespace FLOOF {
 
         {
             // init shader with compatible renderpass
-            Framebuffer fb(cubemapRes, cubemapRes, format);
+            Framebuffer fb(cubemapRes, cubemapRes, Format);
             auto renderPass = fb.GetRenderPass();
 
             RenderPipelineParams params;
@@ -398,7 +398,7 @@ namespace FLOOF {
         // Render spherical map to cubemap
         for (uint32_t i = 0; i < 6; i++) {
             // Create framebuffer
-            Framebuffer fb(cubemapRes, cubemapRes, format);
+            Framebuffer fb(cubemapRes, cubemapRes, Format);
 
             {
                 // Render Spherical map to framebuffer
@@ -480,7 +480,7 @@ namespace FLOOF {
         // Create cubemap image view
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
-        imageViewCreateInfo.format = format;
+        imageViewCreateInfo.format = Format;
         imageViewCreateInfo.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
         imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
         // 6 array layers (faces)
@@ -513,8 +513,6 @@ namespace FLOOF {
 
         VulkanTexture irradienceTexture{};
 
-        // Create cubemap image
-        VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
         uint32_t cubemapRes = 64;
 
         VkImageCreateInfo cubeImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
@@ -524,7 +522,7 @@ namespace FLOOF {
         cubeImageInfo.extent.depth = 1;
         cubeImageInfo.mipLevels = 1;
         cubeImageInfo.arrayLayers = 6;
-        cubeImageInfo.format = format;
+        cubeImageInfo.format = Format;
         cubeImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         cubeImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         cubeImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -540,7 +538,7 @@ namespace FLOOF {
 
         {
             // init shader with compatible renderpass
-            Framebuffer fb(cubemapRes, cubemapRes, format);
+            Framebuffer fb(cubemapRes, cubemapRes, Format);
             auto renderPass = fb.GetRenderPass();
 
             RenderPipelineParams params;
@@ -572,7 +570,7 @@ namespace FLOOF {
         };
 
         for (uint32_t i = 0; i < 6; i++) {
-            Framebuffer fb(cubemapRes, cubemapRes, format);
+            Framebuffer fb(cubemapRes, cubemapRes, Format);
 
             {
                 auto renderPass = fb.GetRenderPass();
@@ -651,7 +649,7 @@ namespace FLOOF {
         // Create cubemap image view
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
-        imageViewCreateInfo.format = format;
+        imageViewCreateInfo.format = Format;
         imageViewCreateInfo.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
         imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
         // 6 array layers (faces)
