@@ -395,6 +395,7 @@ namespace FLOOF {
             renderer->CreateGraphicsPipeline(params);
         }
 
+        renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
         // Render spherical map to cubemap
         for (uint32_t i = 0; i < 6; i++) {
             // Create framebuffer
@@ -461,16 +462,16 @@ namespace FLOOF {
                 region.extent.height = cubemapRes;
                 region.extent.depth = 1;
 
-                renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
 
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                 vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                     CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                 renderer->EndSingleUseCommandBuffer(commandBuffer);
 
-                renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
             }
         }
+        renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
+
         // Destroy hdr spherical texture
         renderer->FreeTextureDescriptorSet(hdrTexture.DesctriptorSet);
         vkDestroyImageView(renderer->GetDevice(), hdrTexture.ImageView, nullptr);
@@ -569,6 +570,7 @@ namespace FLOOF {
            glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
         };
 
+        renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
         for (uint32_t i = 0; i < 6; i++) {
             Framebuffer fb(cubemapRes, cubemapRes, Format);
 
@@ -634,17 +636,16 @@ namespace FLOOF {
                 region.extent.height = cubemapRes;
                 region.extent.depth = 1;
 
-                renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
 
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                 vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                     irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                 renderer->EndSingleUseCommandBuffer(commandBuffer);
 
-                renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
             }
         }
+        renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
 
         // Create cubemap image view
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
