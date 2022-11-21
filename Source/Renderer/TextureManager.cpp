@@ -335,7 +335,7 @@ namespace FLOOF {
         imageInfo.format = format;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0;
@@ -369,8 +369,21 @@ namespace FLOOF {
         }
 
         {
+            VkImageViewCreateInfo imageViewInfo{};
+            imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewInfo.image = brdfLut.Image;
+            imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewInfo.format = format;
+            imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewInfo.subresourceRange.baseMipLevel = 0;
+            imageViewInfo.subresourceRange.levelCount = 1;
+            imageViewInfo.subresourceRange.baseArrayLayer = 0;
+            imageViewInfo.subresourceRange.layerCount = 1;
+
+            VkImageView lutImageView;
+            vkCreateImageView(renderer->GetDevice(), &imageViewInfo, nullptr, &lutImageView);
             // render lut
-            Framebuffer fb(lutRes, lutRes, format);
+            Framebuffer fb(lutRes, lutRes, lutImageView, format);
 
             auto renderpass = fb.GetRenderPass();
             auto framebuffer = fb.GetFramebuffer();
@@ -390,21 +403,12 @@ namespace FLOOF {
 
             renderPassInfo.renderArea.extent = vkExtent;
 
-            VkClearValue clearColors[1]{};
-            clearColors[0].color = {};
-            clearColors[0].color.float32[0] = 0.f;
-            clearColors[0].color.float32[1] = 0.f;
-            clearColors[0].color.float32[2] = 0.f;
-            clearColors[0].color.float32[3] = 1.f;
-
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = clearColors;
+            auto ndcRect = ModelManager::GetNDCRect();
 
             auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
             renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::BRDF);
-            auto ndcRect = ModelManager::GetNDCRect();
 
             VkDeviceSize offset{ 0 };
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, &ndcRect.Buffer, &offset);
@@ -414,35 +418,8 @@ namespace FLOOF {
             vkCmdEndRenderPass(commandBuffer);
 
             renderer->EndSingleUseCommandBuffer(commandBuffer);
-            {
-                // copy lut from framebuffer to lut image
-                renderer->TransitionImageLayout(brdfLut.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-
-                VkImageCopy region{};
-                region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                region.dstSubresource.baseArrayLayer = 0;
-                region.dstSubresource.layerCount = 1;
-                region.dstSubresource.mipLevel = 0;
-
-                region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                region.srcSubresource.baseArrayLayer = 0;
-                region.srcSubresource.layerCount = 1;
-                region.srcSubresource.mipLevel = 0;
-
-                region.extent.width = lutRes;
-                region.extent.height = lutRes;
-                region.extent.depth = 1;
-
-                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    brdfLut.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    1, &region);
-
-                renderer->EndSingleUseCommandBuffer(commandBuffer);
-
-                renderer->TransitionImageLayout(brdfLut.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            }
+            vkDestroyImageView(renderer->GetDevice(), lutImageView, nullptr);
         }
 
         // create image view

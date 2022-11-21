@@ -9,6 +9,14 @@ namespace FLOOF {
 		CreateRenderPass();
 		Create();
 	}
+	Framebuffer::Framebuffer(uint32_t width, uint32_t height, VkImageView imageView, VkFormat format)
+		: m_Format(format)
+	{
+		m_Extent.width = width;
+		m_Extent.height = height;
+		CreateRenderPass();
+		CreateFramebufferObject(imageView);
+	}
 	Framebuffer::~Framebuffer()
 	{
 		Destroy();
@@ -16,6 +24,9 @@ namespace FLOOF {
 	}
 	void Framebuffer::Resize(uint32_t width, uint32_t height)
 	{
+		// using external image view. do nothing.
+		if (m_ImageView != VK_NULL_HANDLE)
+			return;
 		m_Extent.width = width;
 		m_Extent.height = height;
 		Destroy();
@@ -24,7 +35,7 @@ namespace FLOOF {
 	void Framebuffer::Create()
 	{
 		CreateFramebufferTexture();
-		CreateFramebufferObject();
+		CreateFramebufferObject(m_Texture.ImageView);
 	}
 	void Framebuffer::CreateFramebufferTexture()
 	{
@@ -78,12 +89,12 @@ namespace FLOOF {
 		m_Texture.DesctriptorSet = ImGui_ImplVulkan_AddTexture(sampler, m_Texture.ImageView,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
-	void Framebuffer::CreateFramebufferObject()
+	void Framebuffer::CreateFramebufferObject(VkImageView imageView)
 	{
 		auto* renderer = VulkanRenderer::Get();
 
 		VkImageView attachments[] = {
-					m_Texture.ImageView,
+					imageView,
 		};
 
 		VkFramebufferCreateInfo framebufferInfo{};
@@ -127,7 +138,7 @@ namespace FLOOF {
 		colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
@@ -152,9 +163,9 @@ namespace FLOOF {
 		dependencies[1].srcSubpass = 0;
 		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
 		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[1].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		VkRenderPassCreateInfo renderPassInfo{};
