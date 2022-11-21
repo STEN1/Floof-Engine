@@ -71,7 +71,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
                 switch (textureorder[i]) {
                     case CyberTruckTexture::metal:
-                        mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::White);
+                        mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::LightGrey);
                         mesh.meshes[i].MeshMaterial.Metallic = Texture(TextureColor::White);
                         mesh.meshes[i].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
                         break;
@@ -82,7 +82,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
                         mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::White);
                         break;
                     case CyberTruckTexture::glassblack:
-                        mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::White);
+                        mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::LightGrey);
                         mesh.meshes[i].MeshMaterial.Metallic = Texture(TextureColor::White);
                         mesh.meshes[i].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
 
