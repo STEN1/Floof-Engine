@@ -298,6 +298,10 @@ namespace FLOOF {
                 MakePhysicsScene();
                 break;
             }
+            case DebugScenes::PhysicsPlayground:{
+                MakePhysicsPlayGround();
+                break;
+            }
             case DebugScenes::RenderingDemo: {
                 MakeRenderingDemoScene();
                 break;
@@ -481,5 +485,9 @@ namespace FLOOF {
             auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity,"Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
 
         }
+    }
+
+    void Application::MakePhysicsPlayGround() {
+
     }
 }
