@@ -418,16 +418,6 @@ namespace FLOOF {
 
                 renderPassInfo.renderArea.extent = vkExtent;
 
-                VkClearValue clearColors[1]{};
-                clearColors[0].color = {};
-                clearColors[0].color.float32[0] = 0.f;
-                clearColors[0].color.float32[1] = 0.f;
-                clearColors[0].color.float32[2] = 0.f;
-                clearColors[0].color.float32[3] = 1.f;
-
-                renderPassInfo.clearValueCount = 1;
-                renderPassInfo.pClearValues = clearColors;
-
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                 renderer->StartRenderPass(commandBuffer, &renderPassInfo);
                 auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::EquiToCube);
@@ -591,16 +581,6 @@ namespace FLOOF {
 
                 renderPassInfo.renderArea.extent = vkExtent;
 
-                VkClearValue clearColors[1]{};
-                clearColors[0].color = {};
-                clearColors[0].color.float32[0] = 0.f;
-                clearColors[0].color.float32[1] = 0.f;
-                clearColors[0].color.float32[2] = 0.f;
-                clearColors[0].color.float32[3] = 1.f;
-
-                renderPassInfo.clearValueCount = 1;
-                renderPassInfo.pClearValues = clearColors;
-
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                 renderer->StartRenderPass(commandBuffer, &renderPassInfo);
                 auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::IrradianceConv);
@@ -639,6 +619,35 @@ namespace FLOOF {
 
 
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+
+                VkImageMemoryBarrier barrier{};
+                barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barrier.image = fb.GetTexture().Image;
+                barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                barrier.subresourceRange.baseMipLevel = 0;
+                barrier.subresourceRange.levelCount = 1;
+                barrier.subresourceRange.baseArrayLayer = 0;
+                barrier.subresourceRange.layerCount = 1;
+
+                barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+                VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+                vkCmdPipelineBarrier(
+                    commandBuffer,
+                    sourceStage, destinationStage,
+                    0,
+                    0, nullptr,
+                    0, nullptr,
+                    1, &barrier
+                );
+
                 vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                     irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                 renderer->EndSingleUseCommandBuffer(commandBuffer);
@@ -647,6 +656,8 @@ namespace FLOOF {
         }
         renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
+
+        std::cout << "Irradiance map loaded.\n";
 
         // Create cubemap image view
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
@@ -769,16 +780,6 @@ namespace FLOOF {
                     vkExtent.height = mipRes;
 
                     renderPassInfo.renderArea.extent = vkExtent;
-
-                    VkClearValue clearColors[1]{};
-                    clearColors[0].color = {};
-                    clearColors[0].color.float32[0] = 0.f;
-                    clearColors[0].color.float32[1] = 0.f;
-                    clearColors[0].color.float32[2] = 0.f;
-                    clearColors[0].color.float32[3] = 1.f;
-
-                    renderPassInfo.clearValueCount = 1;
-                    renderPassInfo.pClearValues = clearColors;
 
                     auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                     renderer->StartRenderPass(commandBuffer, &renderPassInfo);

@@ -122,7 +122,7 @@ namespace FLOOF {
 		VkAttachmentDescription colorAttachments[1]{};
 		colorAttachments[0].format = m_Format;
 		colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -147,7 +147,7 @@ namespace FLOOF {
 		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependencies[0].srcAccessMask = VK_ACCESS_NONE;
 		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[0].dependencyFlags = 0;
+		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		dependencies[1].srcSubpass = 0;
 		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
@@ -155,7 +155,7 @@ namespace FLOOF {
 		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		dependencies[1].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-		dependencies[1].dependencyFlags = 0;
+		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
