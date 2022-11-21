@@ -9,12 +9,14 @@ namespace FLOOF {
 
     enum DebugScenes {
         Physics,
+        PhysicsPlayground,
         Audio,
         Landscape,
         RenderingDemo,
     };
     static const char* DebugSceneNames[] = {
         "Physics",
+        "Physics Playground",
         "Audio",
         "Landscape",
         "RenderingDemo",
