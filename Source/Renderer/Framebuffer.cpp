@@ -46,10 +46,17 @@ namespace FLOOF {
 		imageInfo.format = format;
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+		imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.flags = 0;
+
+		uint32_t queueFamilies[] = { renderer->GetGraphicsQueueIndex(), renderer->GetPresentQueueIndex() };
+		if (queueFamilies[0] != queueFamilies[1]) {
+			imageInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+			imageInfo.queueFamilyIndexCount = std::size(queueFamilies);
+			imageInfo.pQueueFamilyIndices = queueFamilies;
+		}
 
 		VmaAllocationCreateInfo imageAllocCreateInfo = {};
 		imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -72,11 +79,6 @@ namespace FLOOF {
 		textureImageViewInfo.subresourceRange.layerCount = 1;
 		result = vkCreateImageView(renderer->GetDevice(), &textureImageViewInfo, nullptr, &m_Texture.ImageView);
 		ASSERT(result == VK_SUCCESS);
-
-		// Allocate and update descriptor
-		VkSampler sampler = renderer->GetFontSampler();
-		m_Texture.DesctriptorSet = ImGui_ImplVulkan_AddTexture(sampler, m_Texture.ImageView,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 	void Framebuffer::CreateFramebufferObject()
 	{

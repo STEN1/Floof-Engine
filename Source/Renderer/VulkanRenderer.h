@@ -229,6 +229,9 @@ namespace FLOOF {
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer BeginSingleUseCommandBuffer();
 
+        uint32_t GetGraphicsQueueIndex() { return m_QueueFamilyIndices.Graphics; }
+        uint32_t GetPresentQueueIndex() { return m_QueueFamilyIndices.PresentIndex; }
+
         // End one time command buffer.
         void EndSingleUseCommandBuffer(VkCommandBuffer);
 
