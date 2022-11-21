@@ -66,6 +66,7 @@ namespace FLOOF {
         PhysicsDebugDraw* GetPhysicsSystemDrawer() { return m_Scene->GetPhysicsDebugDrawer(); }
 
         void MakePhysicsScene();
+        void MakePhysicsPlayGround();
         void MakeRenderingDemoScene();
         void MakeAudioTestScene();
         void MakeLandscapeScene();

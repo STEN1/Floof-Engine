@@ -16,6 +16,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             mesh.MeshMaterial.Metallic = Texture("Assets/cyber-truck/textures/cyber_Metallic.tga.png");
             mesh.MeshMaterial.AO = Texture("Assets/cyber-truck/textures/cyber_Occlusion.tga.png");
             mesh.MeshMaterial.Normals = Texture("Assets/cyber-truck/textures/cyber_Normal.tga.png");
+            mesh.MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
             mesh.MeshMaterial.UpdateDescriptorSet();
         }
         auto &engine = scene->AddComponent<EngineComponent>(frame);
