@@ -119,7 +119,7 @@ namespace FLOOF {
         imageInfo.format = Format;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
@@ -352,7 +352,7 @@ namespace FLOOF {
         cubeImageInfo.format = Format;
         cubeImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         cubeImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        cubeImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        cubeImageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         cubeImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         cubeImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         cubeImageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
@@ -396,11 +396,24 @@ namespace FLOOF {
             renderer->CreateGraphicsPipeline(params);
         }
 
-        renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
         // Render spherical map to cubemap
         for (uint32_t i = 0; i < 6; i++) {
+            VkImageViewCreateInfo imageViewInfo{};
+            imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewInfo.image = CubemapTexture.Image;
+            imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewInfo.format = Format;
+            imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewInfo.subresourceRange.baseMipLevel = 0;
+            imageViewInfo.subresourceRange.levelCount = 1;
+            imageViewInfo.subresourceRange.baseArrayLayer = i;
+            imageViewInfo.subresourceRange.layerCount = 1;
+
+            VkImageView cubeFaceImageView;
+            vkCreateImageView(renderer->GetDevice(), &imageViewInfo, nullptr, &cubeFaceImageView);
+
             // Create framebuffer
-            Framebuffer fb(cubemapRes, cubemapRes, Format);
+            Framebuffer fb(cubemapRes, cubemapRes, cubeFaceImageView, Format);
 
             {
                 // Render Spherical map to framebuffer
@@ -437,32 +450,9 @@ namespace FLOOF {
                 vkCmdEndRenderPass(commandBuffer);
                 renderer->EndSingleUseCommandBuffer(commandBuffer);
             }
-            {
-                // Transfer framebuffer images to cubemap face
-                VkImageCopy region{};
-                region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                region.dstSubresource.baseArrayLayer = i;
-                region.dstSubresource.layerCount = 1;
-                region.dstSubresource.mipLevel = 0;
 
-                region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                region.srcSubresource.baseArrayLayer = 0;
-                region.srcSubresource.layerCount = 1;
-                region.srcSubresource.mipLevel = 0;
-
-                region.extent.width = cubemapRes;
-                region.extent.height = cubemapRes;
-                region.extent.depth = 1;
-
-
-                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-                renderer->EndSingleUseCommandBuffer(commandBuffer);
-
-            }
+            vkDestroyImageView(renderer->GetDevice(), cubeFaceImageView, nullptr);
         }
-        renderer->TransitionImageLayout(CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
 
         // Destroy hdr spherical texture
         renderer->FreeTextureDescriptorSet(hdrTexture.DesctriptorSet);
@@ -518,7 +508,7 @@ namespace FLOOF {
         cubeImageInfo.format = Format;
         cubeImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         cubeImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        cubeImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        cubeImageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         cubeImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         cubeImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         cubeImageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
@@ -562,9 +552,23 @@ namespace FLOOF {
            glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
         };
 
-        renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 6);
+
         for (uint32_t i = 0; i < 6; i++) {
-            Framebuffer fb(cubemapRes, cubemapRes, Format);
+            VkImageViewCreateInfo imageViewInfo{};
+            imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewInfo.image = irradienceTexture.Image;
+            imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewInfo.format = Format;
+            imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewInfo.subresourceRange.baseMipLevel = 0;
+            imageViewInfo.subresourceRange.levelCount = 1;
+            imageViewInfo.subresourceRange.baseArrayLayer = i;
+            imageViewInfo.subresourceRange.layerCount = 1;
+
+            VkImageView cubeFaceImageView;
+            vkCreateImageView(renderer->GetDevice(), &imageViewInfo, nullptr, &cubeFaceImageView);
+
+            Framebuffer fb(cubemapRes, cubemapRes, cubeFaceImageView, Format);
 
             {
                 auto renderPass = fb.GetRenderPass();
@@ -601,62 +605,8 @@ namespace FLOOF {
                 renderer->EndSingleUseCommandBuffer(commandBuffer);
             }
 
-            {
-                // Transfer framebuffer images to cubemap face
-                VkImageCopy region{};
-                region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                region.dstSubresource.baseArrayLayer = i;
-                region.dstSubresource.layerCount = 1;
-                region.dstSubresource.mipLevel = 0;
-
-                region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                region.srcSubresource.baseArrayLayer = 0;
-                region.srcSubresource.layerCount = 1;
-                region.srcSubresource.mipLevel = 0;
-
-                region.extent.width = cubemapRes;
-                region.extent.height = cubemapRes;
-                region.extent.depth = 1;
-
-
-                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-
-                VkImageMemoryBarrier barrier{};
-                barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                barrier.image = fb.GetTexture().Image;
-                barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                barrier.subresourceRange.baseMipLevel = 0;
-                barrier.subresourceRange.levelCount = 1;
-                barrier.subresourceRange.baseArrayLayer = 0;
-                barrier.subresourceRange.layerCount = 1;
-
-                barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-                VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-                vkCmdPipelineBarrier(
-                    commandBuffer,
-                    sourceStage, destinationStage,
-                    0,
-                    0, nullptr,
-                    0, nullptr,
-                    1, &barrier
-                );
-
-                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-                renderer->EndSingleUseCommandBuffer(commandBuffer);
-
-            }
+            vkDestroyImageView(renderer->GetDevice(), cubeFaceImageView, nullptr);
         }
-        renderer->TransitionImageLayout(irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, 6);
 
         std::cout << "Irradiance map loaded.\n";
 
@@ -716,7 +666,7 @@ namespace FLOOF {
         cubeImageInfo.format = Format;
         cubeImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         cubeImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        cubeImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        cubeImageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         cubeImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         cubeImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         cubeImageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
@@ -761,11 +711,26 @@ namespace FLOOF {
            glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
         };
 
-        renderer->TransitionImageLayout(prefilterMap.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels, 6);
         for (uint32_t i = 0; i < 6; i++) {
             for (uint32_t mip = 0; mip < mipLevels; mip++) {
                 uint32_t mipRes = cubemapRes * std::pow(0.5, mip);
-                Framebuffer fb(mipRes, mipRes, Format);
+
+                VkImageViewCreateInfo imageViewInfo{};
+                imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+                imageViewInfo.image = prefilterMap.Image;
+                imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+                imageViewInfo.format = Format;
+                imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                imageViewInfo.subresourceRange.baseMipLevel = mip;
+                imageViewInfo.subresourceRange.levelCount = 1;
+                imageViewInfo.subresourceRange.baseArrayLayer = i;
+                imageViewInfo.subresourceRange.layerCount = 1;
+
+                VkImageView cubeFaceImageView;
+                vkCreateImageView(renderer->GetDevice(), &imageViewInfo, nullptr, &cubeFaceImageView);
+
+                Framebuffer fb(mipRes, mipRes, cubeFaceImageView, Format);
+
                 {
                     auto renderPass = fb.GetRenderPass();
                     auto frameBuffer = fb.GetFramebuffer();
@@ -807,34 +772,9 @@ namespace FLOOF {
                     vkCmdEndRenderPass(commandBuffer);
                     renderer->EndSingleUseCommandBuffer(commandBuffer);
                 }
-
-                {
-                    // Transfer framebuffer images to cubemap face
-                    VkImageCopy region{};
-                    region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                    region.dstSubresource.baseArrayLayer = i;
-                    region.dstSubresource.layerCount = 1;
-                    region.dstSubresource.mipLevel = mip;
-
-                    region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                    region.srcSubresource.baseArrayLayer = 0;
-                    region.srcSubresource.layerCount = 1;
-                    region.srcSubresource.mipLevel = 0;
-
-                    region.extent.width = mipRes;
-                    region.extent.height = mipRes;
-                    region.extent.depth = 1;
-
-
-                    auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-                    vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        prefilterMap.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-                    renderer->EndSingleUseCommandBuffer(commandBuffer);
-                }
+                vkDestroyImageView(renderer->GetDevice(), cubeFaceImageView, nullptr);
             }
         }
-        renderer->TransitionImageLayout(prefilterMap.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels, 6);
 
         // Create cubemap image view
         VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
