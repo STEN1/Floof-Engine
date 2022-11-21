@@ -25,9 +25,67 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/cyber-truck/source/CybertruckNowheel_LowCenter.fbx");
 
-        auto& sound = scene->AddComponent<SoundSourceComponent>(frame,"Vehicles_idle2.wav");
+        auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.Looping(true);
         //sound.Play();
+
+        //ledbar
+        {
+            Ledbar = scene->CreateEntity("Ledbar", frame);
+            auto &light = scene->AddComponent<PointLightComponent>(Ledbar);
+            //auto & mesh = scene->AddComponent<StaticMeshComponent>(Ledbar,"Assets/LowPolySphere.fbx");
+            //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
+            //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+            light.lightRange = 10.f;
+
+            auto &transform = scene->GetComponent<TransformComponent>(Ledbar);
+            transform.Position = glm::vec3(0.25f, 0.7f, 0.f);
+            transform.Scale = glm::vec3(0.1f);
+        }
+        //Breaklight
+        {
+            BreakLight = scene->CreateEntity("BreakLight", frame);
+            auto &light = scene->AddComponent<PointLightComponent>(BreakLight);
+            //auto & mesh = scene->AddComponent<StaticMeshComponent>(BreakLight,"Assets/LowPolySphere.fbx");
+            //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
+            //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+            light.lightRange = 20.f;
+            light.diffuse = glm::vec4(1.f, 0.f, 0.f, 1.f);
+
+            auto &transform = scene->GetComponent<TransformComponent>(BreakLight);
+            transform.Position = glm::vec3(-1.4f, 0.4f, 0.f);
+            transform.Scale = glm::vec3(0.1f);
+        }
+        //Headlight Right
+        {
+            HeadLightR = scene->CreateEntity("Right Headlight", frame);
+            auto &light = scene->AddComponent<PointLightComponent>(HeadLightR);
+            //auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightR,"Assets/LowPolySphere.fbx");
+            //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
+            //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+            light.lightRange = 10.f;
+
+            auto &transform = scene->GetComponent<TransformComponent>(HeadLightR);
+            transform.Position = glm::vec3(1.3f, 0.35f, -0.4f);
+            transform.Scale = glm::vec3(0.1f);
+        }
+        //Headlight Left
+        {
+            HeadLightL = scene->CreateEntity("Left Headlight", frame);
+            auto &light = scene->AddComponent<PointLightComponent>(HeadLightL);
+            //auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightL,"Assets/LowPolySphere.fbx");
+            //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
+            //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+            light.lightRange = 10.f;
+
+            auto &transform = scene->GetComponent<TransformComponent>(HeadLightL);
+            transform.Position = glm::vec3(1.3f, 0.35f, 0.4f);
+            transform.Scale = glm::vec3(0.1f);
+        }
 
     }
     {
@@ -50,7 +108,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
         auto &RigidBody = body.RigidBody;
-        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
@@ -70,12 +128,12 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
         transform.Position = glm::vec3(5.2f, -0.5f, 2.5f);
         transform.Scale = glm::vec3(2.5f);
-        transform.Rotation = glm::vec3(0.f, 0.f,0.f );
+        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         auto &RigidBody = body.RigidBody;
-        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
@@ -100,7 +158,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
         auto &RigidBody = body.RigidBody;
-        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
@@ -120,12 +178,12 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
         transform.Position = glm::vec3(-4.8f, -0.5f, 2.5f);
         transform.Scale = glm::vec3(2.5f);
-        transform.Rotation = glm::vec3(0.f, 0.f,0.f);
+        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
         auto &RigidBody = body.RigidBody;
-        auto& engine = scene->GetComponent<EngineComponent>(frame);
+        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
@@ -238,11 +296,36 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         engine.EngineForce = -engine.maxVelocity;
         engine.BreakingForce = 0.f;
     }
+    if (Input::Key(ImGuiKey_Space)) {
+        auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
+        bl.lightRange = 100.f;
+        //todo brake
+    } else {
+        //reset lights
+        auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
 
-    auto wfr = scene->GetComponent<RigidBodyComponent>(Wheel_fr).RigidBody;
-    auto wfl = scene->GetComponent<RigidBodyComponent>(Wheel_fl).RigidBody;
-    auto wbr = scene->GetComponent<RigidBodyComponent>(Wheel_br).RigidBody;
-    auto wbl = scene->GetComponent<RigidBodyComponent>(Wheel_bl).RigidBody;
+        bl.lightRange = 20.f;
+    }
+    if(ImGui::IsKeyPressed(ImGuiKey_F,false)){
+        auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
+        auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
+        auto &led = scene->GetComponent<PointLightComponent>(Ledbar);
+        if(fhr.lightRange > 50){
+            fhr.lightRange = 10.f;
+            fhl.lightRange = 10.f;
+            led.lightRange = 10.f;
+        }
+        else{
+            fhr.lightRange = 100.f;
+            fhl.lightRange = 100.f;
+            led.lightRange = 100.f;
+        }
+    }
+
+    auto &wfr = scene->GetComponent<RigidBodyComponent>(Wheel_fr).RigidBody;
+    auto &wfl = scene->GetComponent<RigidBodyComponent>(Wheel_fl).RigidBody;
+    auto &wbr = scene->GetComponent<RigidBodyComponent>(Wheel_br).RigidBody;
+    auto &wbl = scene->GetComponent<RigidBodyComponent>(Wheel_bl).RigidBody;
 
     std::vector<std::shared_ptr<btRigidBody>> wheels;
     wheels.emplace_back(wfr);
