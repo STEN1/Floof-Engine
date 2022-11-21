@@ -15,7 +15,7 @@ namespace FLOOF {
             "Assets/Skybox/left.jpg",
             "Assets/Skybox/right.jpg",
         };*/
-        m_Skybox = std::make_unique<Skybox>("Assets/Skybox/GCanyon_C_YumaPoint_3k.hdr");
+        m_Skybox = std::make_unique<Skybox>("Assets/Skybox/belfast_sunset_puresky_4k.hdr");
         m_IrradienceMap = m_Skybox->m_Cubemap.GetIrradienceMap();
         m_PrefilterMap = m_Skybox->m_Cubemap.GetPrefilterMap();
         m_BRDFLut = TextureManager::GetBRDFLut();
