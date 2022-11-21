@@ -445,7 +445,7 @@ namespace FLOOF {
         }
 
         float extent = 150.f;
-        float step = 40.f;
+        float step = 80.f;
 
         for (float x = -extent; x < extent; x += step) {
             for (float y = -extent; y < extent; y += step) {
@@ -453,6 +453,8 @@ namespace FLOOF {
                     auto entity = m_Scene->CreateEntity("PointLight ball");
                     auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
                     mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
+                    mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
+                    mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
                     mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
                     m_Scene->AddComponent<PointLightComponent>(entity);

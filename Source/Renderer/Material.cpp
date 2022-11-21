@@ -17,7 +17,7 @@ namespace FLOOF {
             Metallic = Texture(TextureColor::Black);
 
         if (!Roughness.IsValid())
-            Roughness = Texture(TextureColor::DarkGrey);
+            Roughness = Texture(TextureColor::White);
 
         if (!AO.IsValid())
             AO = Texture(TextureColor::White);

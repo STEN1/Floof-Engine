@@ -54,6 +54,9 @@ namespace FLOOF {
         if (s_SkyboxCube.Buffer != VK_NULL_HANDLE) {
             vmaDestroyBuffer(renderer->GetAllocator(), s_SkyboxCube.Buffer, s_SkyboxCube.Allocation);
         }
+        if (s_NDCRect.Buffer != VK_NULL_HANDLE) {
+            vmaDestroyBuffer(renderer->GetAllocator(), s_NDCRect.Buffer, s_NDCRect.Allocation);
+        }
     }
 
     btModelData ModelManager::LoadbtModel(const std::string &path,const glm::vec3 scale) {
@@ -137,6 +140,22 @@ namespace FLOOF {
             s_SkyboxCube = renderer->CreateVertexBuffer(cubemapVertices);
         }
         return s_SkyboxCube;
+    }
+
+    static const std::vector<MeshVertex> ndcRectVertexData = {
+        MeshVertex{glm::vec3{-1.f, 1.f, 0.f}, glm::vec3{0.f, 0.f, 1.f}, glm::vec2{0.f, 0.f,}},
+        MeshVertex{glm::vec3{-1.f, -1.f, 0.f}, glm::vec3{0.f, 0.f, 1.f}, glm::vec2{0.f, 1.f}},
+        MeshVertex{glm::vec3{1.f, 1.f, 0.f}, glm::vec3{0.f, 0.f, 1.f}, glm::vec2{1.f, 0.f}},
+        MeshVertex{glm::vec3{1.f, -1.f, 0.f}, glm::vec3{0.f, 0.f, 1.f}, glm::vec2{1.f, 1.f}},
+    };
+
+    VulkanBufferData ModelManager::GetNDCRect()
+    {
+        if (s_NDCRect.Buffer == VK_NULL_HANDLE) {
+            auto* renderer = VulkanRenderer::Get();
+            s_NDCRect = renderer->CreateVertexBuffer(ndcRectVertexData);
+        }
+        return s_NDCRect;
     }
 
 

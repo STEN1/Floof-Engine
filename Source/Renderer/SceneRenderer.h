@@ -62,5 +62,7 @@ namespace FLOOF {
         VulkanSSBO<PointLightComponent::PointLight> m_LightSSBO{};
         std::unique_ptr<Skybox> m_Skybox;
         VulkanTexture m_IrradienceMap;
+        VulkanTexture m_PrefilterMap;
+        VulkanTexture m_BRDFLut;
     };
 }

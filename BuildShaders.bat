@@ -13,4 +13,7 @@ glslc Shaders/Skybox.frag -o Shaders/Skybox.frag.spv
 glslc Shaders/Cubemap.vert -o Shaders/Cubemap.vert.spv
 glslc Shaders/EquiToCube.frag -o Shaders/EquiToCube.frag.spv
 glslc Shaders/IrradianceConv.frag -o Shaders/IrradianceConv.frag.spv
+glslc Shaders/Prefilter.frag -o Shaders/Prefilter.frag.spv
+glslc Shaders/BRDF.vert -o Shaders/BRDF.vert.spv
+glslc Shaders/BRDF.frag -o Shaders/BRDF.frag.spv
 pause
