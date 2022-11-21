@@ -4,6 +4,7 @@
 #include "../Floof.h"
 #include "Framebuffer.h"
 #include "ModelManager.h"
+#include "VulkanBuffer.h"
 
 namespace FLOOF {
 
@@ -682,6 +683,192 @@ namespace FLOOF {
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
 
         return irradienceTexture;
+    }
+    VulkanTexture Cubemap::GetPrefilterMap()
+    {
+        auto* renderer = VulkanRenderer::Get();
+
+        VulkanTexture prefilterMap{};
+
+        uint32_t cubemapRes = 512;
+
+        uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(cubemapRes))) + 1;
+
+        VkImageCreateInfo cubeImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+        cubeImageInfo.imageType = VK_IMAGE_TYPE_2D;
+        cubeImageInfo.extent.width = cubemapRes;
+        cubeImageInfo.extent.height = cubemapRes;
+        cubeImageInfo.extent.depth = 1;
+        cubeImageInfo.mipLevels = mipLevels;
+        cubeImageInfo.arrayLayers = 6;
+        cubeImageInfo.format = Format;
+        cubeImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        cubeImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        cubeImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        cubeImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        cubeImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        cubeImageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+
+        VmaAllocationCreateInfo cubeImageAllocCreateInfo = {};
+        cubeImageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+
+        vmaCreateImage(renderer->GetAllocator(), &cubeImageInfo, &cubeImageAllocCreateInfo, &prefilterMap.Image,
+            &prefilterMap.Allocation, &prefilterMap.AllocationInfo);
+        
+        {
+            // init shader with compatible renderpass
+            Framebuffer fb(cubemapRes, cubemapRes, Format);
+            auto renderPass = fb.GetRenderPass();
+
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend;
+            params.FragmentPath = "Shaders/Prefilter.frag.spv";
+            params.VertexPath = "Shaders/Cubemap.vert.spv";
+            params.Key = RenderPipelineKeys::Prefilter;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = SimpleVertex::GetBindingDescription();
+            params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.DescriptorSetLayoutBindings.resize(2);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
+            params.DescriptorSetLayoutBindings[1] = renderer->GetDescriptorSetLayout(RenderSetLayouts::SceneFrameUBO);
+            params.Renderpass = renderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
+
+        // Cubemap view directions
+        glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+        glm::mat4 captureViews[] =
+        {
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+           glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+        };
+
+        renderer->TransitionImageLayout(prefilterMap.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels, 6);
+        for (uint32_t i = 0; i < 6; i++) {
+            for (uint32_t mip = 0; mip < mipLevels; mip++) {
+                uint32_t mipRes = cubemapRes * std::pow(0.5, mip);
+                Framebuffer fb(mipRes, mipRes, Format);
+                {
+                    auto renderPass = fb.GetRenderPass();
+                    auto frameBuffer = fb.GetFramebuffer();
+
+                    VkRenderPassBeginInfo renderPassInfo{};
+                    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+                    renderPassInfo.renderPass = renderPass;
+                    renderPassInfo.framebuffer = frameBuffer;
+                    renderPassInfo.renderArea.offset = { 0, 0 };
+
+                    VkExtent2D vkExtent;
+                    vkExtent.width = mipRes;
+                    vkExtent.height = mipRes;
+
+                    renderPassInfo.renderArea.extent = vkExtent;
+
+                    VkClearValue clearColors[1]{};
+                    clearColors[0].color = {};
+                    clearColors[0].color.float32[0] = 0.f;
+                    clearColors[0].color.float32[1] = 0.f;
+                    clearColors[0].color.float32[2] = 0.f;
+                    clearColors[0].color.float32[3] = 1.f;
+
+                    renderPassInfo.clearValueCount = 1;
+                    renderPassInfo.pClearValues = clearColors;
+
+                    auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+                    renderer->StartRenderPass(commandBuffer, &renderPassInfo);
+                    auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Prefilter);
+                    auto cubeBuffer = ModelManager::GetSkyboxCube();
+                    MeshPushConstants constants{};
+                    constants.VP = captureProjection * captureViews[i];
+                    constants.Model = glm::mat4(1.f);
+                    constants.InvModelMat = glm::inverse(constants.Model);
+                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                        &constants);
+                    VkDeviceSize offset{ 0 };
+
+                    float roughness = (float)mip / (float)(mipLevels - 1);
+                    VulkanUBO<float> ubo(roughness, RenderSetLayouts::SceneFrameUBO);
+                    auto uboDescriptor = ubo.GetDescriptorSet();
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        1, 1, &uboDescriptor, 0, nullptr);
+
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        0, 1, &CubemapTexture.DesctriptorSet, 0, nullptr);
+                    vkCmdDraw(commandBuffer, 36, 1, 0, 0);
+                    vkCmdEndRenderPass(commandBuffer);
+                    renderer->EndSingleUseCommandBuffer(commandBuffer);
+                }
+
+                {
+                    // Transfer framebuffer images to cubemap face
+                    VkImageCopy region{};
+                    region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                    region.dstSubresource.baseArrayLayer = i;
+                    region.dstSubresource.layerCount = 1;
+                    region.dstSubresource.mipLevel = mip;
+
+                    region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                    region.srcSubresource.baseArrayLayer = 0;
+                    region.srcSubresource.layerCount = 1;
+                    region.srcSubresource.mipLevel = 0;
+
+                    region.extent.width = mipRes;
+                    region.extent.height = mipRes;
+                    region.extent.depth = 1;
+
+
+                    auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+                    vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        prefilterMap.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                    renderer->EndSingleUseCommandBuffer(commandBuffer);
+                }
+            }
+        }
+        renderer->TransitionImageLayout(prefilterMap.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels, 6);
+
+        // Create cubemap image view
+        VkImageViewCreateInfo imageViewCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+        imageViewCreateInfo.format = Format;
+        imageViewCreateInfo.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+        imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        // 6 array layers (faces)
+        imageViewCreateInfo.subresourceRange.layerCount = 6;
+        // Set number of mip levels
+        imageViewCreateInfo.subresourceRange.levelCount = mipLevels;
+        imageViewCreateInfo.image = prefilterMap.Image;
+
+        VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &prefilterMap.ImageView);
+        ASSERT(result == VK_SUCCESS);
+
+        auto sampler = renderer->GetTextureSampler();
+
+        // Create cubemap descriptor
+        VkDescriptorImageInfo descriptorImageInfo{};
+        descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        descriptorImageInfo.imageView = prefilterMap.ImageView;
+        descriptorImageInfo.sampler = sampler;
+
+        prefilterMap.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+
+        VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+        writeSet.pImageInfo = &descriptorImageInfo;
+        writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeSet.dstSet = prefilterMap.DesctriptorSet;
+        writeSet.dstBinding = 0;
+        writeSet.descriptorCount = 1;
+
+        vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
+
+        return prefilterMap;
     }
     Cubemap::~Cubemap()
     {

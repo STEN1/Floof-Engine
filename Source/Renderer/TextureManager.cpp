@@ -1,6 +1,8 @@
 #include "TextureManager.h"
 #include "stb_image/stb_image.h"
 #include "imgui_impl_vulkan.h"
+#include "Framebuffer.h"
+#include "ModelManager.h"
 
 namespace FLOOF {
     void TextureManager::DestroyAll()
@@ -313,5 +315,167 @@ namespace FLOOF {
         s_ColorTextureCache[color] = texture;
 
         return texture;
+    }
+    VulkanTexture TextureManager::GetBRDFLut()
+    {
+        auto* renderer = VulkanRenderer::Get();
+
+        VulkanTexture brdfLut;
+
+        VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        uint32_t lutRes = 512;
+
+        VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+        imageInfo.imageType = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width = lutRes;
+        imageInfo.extent.height = lutRes;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
+        imageInfo.format = format;
+        imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.flags = 0;
+
+        VmaAllocationCreateInfo imageAllocCreateInfo = {};
+        imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+
+        vmaCreateImage(renderer->GetAllocator(), &imageInfo, &imageAllocCreateInfo, &brdfLut.Image,
+            &brdfLut.Allocation, &brdfLut.AllocationInfo);
+
+        {
+            // init shader with compatible renderpass
+            Framebuffer fb(lutRes, lutRes, format);
+            auto renderPass = fb.GetRenderPass();
+
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend;
+            params.FragmentPath = "Shaders/BRDF.frag.spv";
+            params.VertexPath = "Shaders/BRDF.vert.spv";
+            params.Key = RenderPipelineKeys::BRDF;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.DescriptorSetLayoutBindings.resize(2);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
+            params.DescriptorSetLayoutBindings[1] = renderer->GetDescriptorSetLayout(RenderSetLayouts::SceneFrameUBO);
+            params.Renderpass = renderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
+
+        {
+            // render lut
+            Framebuffer fb(lutRes, lutRes, format);
+
+            auto renderpass = fb.GetRenderPass();
+            auto framebuffer = fb.GetFramebuffer();
+
+            auto renderPass = fb.GetRenderPass();
+            auto frameBuffer = fb.GetFramebuffer();
+
+            VkRenderPassBeginInfo renderPassInfo{};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = frameBuffer;
+            renderPassInfo.renderArea.offset = { 0, 0 };
+
+            VkExtent2D vkExtent;
+            vkExtent.width = lutRes;
+            vkExtent.height = lutRes;
+
+            renderPassInfo.renderArea.extent = vkExtent;
+
+            VkClearValue clearColors[1]{};
+            clearColors[0].color = {};
+            clearColors[0].color.float32[0] = 0.f;
+            clearColors[0].color.float32[1] = 0.f;
+            clearColors[0].color.float32[2] = 0.f;
+            clearColors[0].color.float32[3] = 1.f;
+
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = clearColors;
+
+            auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+            renderer->StartRenderPass(commandBuffer, &renderPassInfo);
+
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::BRDF);
+            auto ndcRect = ModelManager::GetNDCRect();
+
+            VkDeviceSize offset{ 0 };
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, &ndcRect.Buffer, &offset);
+
+            vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+
+            vkCmdEndRenderPass(commandBuffer);
+
+            renderer->EndSingleUseCommandBuffer(commandBuffer);
+            {
+                // copy lut from framebuffer to lut image
+                renderer->TransitionImageLayout(brdfLut.Image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+                auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
+
+                VkImageCopy region{};
+                region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.dstSubresource.baseArrayLayer = 0;
+                region.dstSubresource.layerCount = 1;
+                region.dstSubresource.mipLevel = 0;
+
+                region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.srcSubresource.baseArrayLayer = 0;
+                region.srcSubresource.layerCount = 1;
+                region.srcSubresource.mipLevel = 0;
+
+                region.extent.width = lutRes;
+                region.extent.height = lutRes;
+                region.extent.depth = 1;
+
+                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    brdfLut.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    1, &region);
+
+                renderer->EndSingleUseCommandBuffer(commandBuffer);
+
+                renderer->TransitionImageLayout(brdfLut.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            }
+        }
+
+        // create image view
+        VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+        textureImageViewInfo.image = brdfLut.Image;
+        textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        textureImageViewInfo.format = format;
+        textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        textureImageViewInfo.subresourceRange.baseMipLevel = 0;
+        textureImageViewInfo.subresourceRange.levelCount = 1;
+        textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
+        textureImageViewInfo.subresourceRange.layerCount = 1;
+        vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &brdfLut.ImageView);
+
+        VkSampler sampler = renderer->GetTextureSampler();
+
+        brdfLut.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+        
+        VkDescriptorImageInfo lutImageInfo{};
+        lutImageInfo.sampler = sampler;
+        lutImageInfo.imageView = brdfLut.ImageView;
+        lutImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkWriteDescriptorSet writeSet{};
+        writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeSet.descriptorCount = 1;
+        writeSet.dstSet = brdfLut.DesctriptorSet;
+        writeSet.dstBinding = 0;
+        writeSet.pImageInfo = &lutImageInfo;
+
+        vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
+
+        return brdfLut;
     }
 }

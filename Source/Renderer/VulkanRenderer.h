@@ -66,6 +66,8 @@ namespace FLOOF {
         LitColor,
         EquiToCube,
         IrradianceConv,
+        Prefilter,
+        BRDF,
     };
 
     enum class RenderSetLayouts : uint32_t {

@@ -22,6 +22,7 @@ namespace FLOOF {
         static std::vector<MeshData> LoadModelMesh(const std::string& path);
         static btModelData LoadbtModel(const std::string& path, const glm::vec3 scale);
         static VulkanBufferData GetSkyboxCube();
+        static VulkanBufferData GetNDCRect();
 
         static void ModelMeshDestroyed(const std::string& path);
         static void DestroyAll();
@@ -31,5 +32,6 @@ namespace FLOOF {
         inline static std::unordered_map<std::string, btModelData> s_btMeshCache;
 
         inline static VulkanBufferData s_SkyboxCube{};
+        inline static VulkanBufferData s_NDCRect{};
     };
 }

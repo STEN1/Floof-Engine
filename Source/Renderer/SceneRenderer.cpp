@@ -17,6 +17,8 @@ namespace FLOOF {
         };*/
         m_Skybox = std::make_unique<Skybox>("Assets/Skybox/GCanyon_C_YumaPoint_3k.hdr");
         m_IrradienceMap = m_Skybox->m_Cubemap.GetIrradienceMap();
+        m_PrefilterMap = m_Skybox->m_Cubemap.GetPrefilterMap();
+        m_BRDFLut = TextureManager::GetBRDFLut();
     }
 
     SceneRenderer::~SceneRenderer() {
@@ -120,6 +122,12 @@ namespace FLOOF {
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
                 &m_IrradienceMap.DesctriptorSet, 0, nullptr);
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
+                &m_PrefilterMap.DesctriptorSet, 0, nullptr);
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
+                &m_BRDFLut.DesctriptorSet, 0, nullptr);
         }
 
         // Draw landscape
@@ -254,11 +262,13 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(4);
+            params.DescriptorSetLayoutBindings.resize(6);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -330,9 +340,18 @@ namespace FLOOF {
         DestoryFrameBuffers();
         DestoryDepthBuffer();
         DestroyRenderPass();
+
         renderer->FreeTextureDescriptorSet(m_IrradienceMap.DesctriptorSet);
         vkDestroyImageView(renderer->GetDevice(), m_IrradienceMap.ImageView, nullptr);
         vmaDestroyImage(renderer->GetAllocator(), m_IrradienceMap.Image, m_IrradienceMap.Allocation);
+
+        renderer->FreeTextureDescriptorSet(m_PrefilterMap.DesctriptorSet);
+        vkDestroyImageView(renderer->GetDevice(), m_PrefilterMap.ImageView, nullptr);
+        vmaDestroyImage(renderer->GetAllocator(), m_PrefilterMap.Image, m_PrefilterMap.Allocation);
+
+        renderer->FreeTextureDescriptorSet(m_BRDFLut.DesctriptorSet);
+        vkDestroyImageView(renderer->GetDevice(), m_BRDFLut.ImageView, nullptr);
+        vmaDestroyImage(renderer->GetAllocator(), m_BRDFLut.Image, m_BRDFLut.Allocation);
     }
 
     void SceneRenderer::ResizeBuffers(glm::vec2 extent) {
