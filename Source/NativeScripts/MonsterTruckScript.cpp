@@ -25,7 +25,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Scale = glm::vec3(5.8f, 5.8f, 5.8f);
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/cyber-truck/source/CybertruckNowheel_LowCenter.fbx");
-
+        body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.Looping(true);
         //sound.Play();
@@ -253,7 +253,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         Hinge7->setDbgDrawSize(btScalar(1.5f));
 
         //frame to back axle
-        btHingeConstraint* Hinge8 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *frameBody.RigidBody.get(),btVector3(0.f,0.f,0.f),btVector3(-4.8f, -1.f, 0.f),parentAxis,parentAxis);
+        //btHingeConstraint* Hinge8 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *frameBody.RigidBody.get(),btVector3(0.f,0.f,0.f),btVector3(-4.8f, -0.5f, 0.f),parentAxis,childAxis);
+        btHingeConstraint* Hinge8 = new btHingeConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(),btVector3(-4.8f, -0.5f, 0.f),btVector3(0.f,0.f,0.f),childAxis,parentAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge8, true);
         Hinge8->setDbgDrawSize(btScalar(1.5f));
 
@@ -268,8 +269,12 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         // Drive engine.
         Hinge8->enableMotor(true);
-        Hinge8->setMaxMotorImpulse(engine.maxEngineForce);
+        Hinge8->setMaxMotorImpulse(engine.maxEngineForce/100.f);
         Hinge8->setMotorTargetVelocity(0);
+
+        //lock hinge wheel towards axle
+        Hinge6->setLimit(0,0);
+        Hinge7->setLimit(0,0);
 
         engine.axles = axles;
 
