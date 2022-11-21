@@ -516,7 +516,7 @@ namespace FLOOF {
 
         //vulkan data
         meshData = landscape->getMeshData();
-        meshData.MeshMaterial.Diffuse = Texture(texture);
+        meshData.MeshMaterial.Diffuse = Texture(texture, true);
         meshData.MeshMaterial.UpdateDescriptorSet();
     }
 
