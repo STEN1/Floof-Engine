@@ -240,7 +240,7 @@ namespace FLOOF {
         RigidBody->setSpinningFriction(0.3f);
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation,const float mass,
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,
                                            bt::CollisionPrimitive shape) : DefaultScale(scale), Primitive(shape) {
 
         using namespace bt;
@@ -283,8 +283,7 @@ namespace FLOOF {
 
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,
-                                           const std::string convexShape)
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,const std::string convexShape)
             : DefaultScale(scale), Primitive(bt::ConvexHull) {
 
         auto vertices = ModelManager::LoadbtModel(convexShape, scale);
@@ -494,11 +493,11 @@ namespace FLOOF {
 
     }
 
-    LandscapeComponent::LandscapeComponent(const char* map, const char* texture) {
+    LandscapeComponent::LandscapeComponent(const char *map, const char *texture) {
         landscape = new HeightmapLoader(map);
         landscape->readMap();
 
-        HeightFieldShape = new HeightField(landscape->mVertices,landscape->height,landscape->width,200.f,0.f);
+        HeightFieldShape = new HeightField(landscape->mVertices, landscape->height, landscape->width, 200.f, 0.f);
         triangleCol.height = landscape->height;
         triangleCol.width = landscape->width;
 

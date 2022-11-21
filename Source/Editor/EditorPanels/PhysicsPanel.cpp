@@ -211,7 +211,7 @@ const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::
     if (shape == bt::CollisionPrimitive::ConvexHull)
         auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, glm::vec3(0.f),mass, FilePath); //todo add rotation on spawn
     else
-        auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale, mass, shape);
+        auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, Location, Scale,glm::vec3(0.f), mass, shape);
 
     auto &sm = m_Scene->AddComponent<StaticMeshComponent>(entity, FilePath);
     sm.meshes[0].MeshMaterial.Diffuse = Texture(texture);

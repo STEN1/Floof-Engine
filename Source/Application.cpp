@@ -418,7 +418,7 @@ namespace FLOOF {
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("Ground Cube");
-            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass,
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents,glm::vec3(0.f), mass,
                                                                         bt::CollisionPrimitive::Box);
             auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/IdentityCube.obj");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture(texture);
@@ -438,7 +438,7 @@ namespace FLOOF {
             mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
             auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, glm::vec3(0.f, -150.f, 0.f),
-                                                                        glm::vec3(75.f), 0.f,
+                                                                        glm::vec3(75.f), glm::vec3(0.f),0.f,
                                                                         bt::CollisionPrimitive::Sphere);
 
             auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
@@ -462,7 +462,7 @@ namespace FLOOF {
             mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/BallTexture.png");
             mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius), mass,
+            m_Scene->AddComponent<RigidBodyComponent>(Ball, location, glm::vec3(radius),glm::vec3(0.f), mass,
                                                       bt::CollisionPrimitive::Sphere);
 
             auto &transform = m_Scene->GetComponent<TransformComponent>(Ball);
@@ -497,7 +497,7 @@ namespace FLOOF {
             auto mass = 0.f;
 
             auto entity = m_Scene->CreateEntity("flooring");
-            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, mass, bt::CollisionPrimitive::Box);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents,glm::vec3(0.f), mass, bt::CollisionPrimitive::Box);
             auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
             mesh.meshes[0].MeshMaterial.AO = Texture("Assets/crisscross-foam1-ue/crisscross-foam_ao.png");
