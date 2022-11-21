@@ -29,4 +29,11 @@ namespace FLOOF {
             mesh.MeshMaterial.UpdateDescriptorSet();
         }
     }
+
+    StaticMeshComponent::StaticMeshComponent(const std::string &path, bool textureFromPath) {
+        if(textureFromPath)
+            StaticMeshComponent(path);
+        else
+            meshes = ModelManager::LoadModelMesh(path);
+    }
 }
