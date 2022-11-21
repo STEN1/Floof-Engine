@@ -9,6 +9,8 @@ void FLOOF::EnginePanel::DrawPanel() {
     auto view = scene->GetCulledScene().view<EngineComponent>();
 
     ImGui::Begin("Engine Panel");
+    ImGui::Text("Press 'F' to Toggle Headlights");
+    ImGui::Text("Press 'Space' to Break");
 
     for (auto [entity, Engine]: view.each()) {
         bool transformChanged{false};

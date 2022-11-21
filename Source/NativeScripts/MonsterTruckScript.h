@@ -20,6 +20,12 @@ namespace FLOOF {
         entt::entity Wheel_br;
         entt::entity Wheel_bl;
 
+        entt::entity BreakLight;
+        entt::entity HeadLightR;
+        entt::entity HeadLightL;
+        entt::entity Ledbar;
+
+
         std::vector<btHinge2Constraint*> axles;
     };
 }
