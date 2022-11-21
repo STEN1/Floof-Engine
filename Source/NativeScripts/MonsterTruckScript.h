@@ -25,6 +25,7 @@ namespace FLOOF {
         entt::entity HeadLightL;
         entt::entity Ledbar;
 
+        entt::entity BackDif;
 
         std::vector<btHinge2Constraint*> axles;
     };

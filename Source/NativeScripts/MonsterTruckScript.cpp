@@ -104,10 +104,9 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fr);
         transform.Position = glm::vec3(5.2f, -0.5f, -2.5f);
         transform.Scale = glm::vec3(2.5f);
-        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
-
-        auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
+        transform.Rotation = glm::vec3(glm::pi<float>()/2.f,0.f,0.f);
+        glm::vec3 scale = glm::vec3(1.3f,0.7f,1.3f);
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
@@ -129,10 +128,9 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
         transform.Position = glm::vec3(5.2f, -0.5f, 2.5f);
         transform.Scale = glm::vec3(2.5f);
-        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
-
-        auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
+        transform.Rotation = glm::vec3(glm::pi<float>()/2.f,0.f,0.f);
+        glm::vec3 scale = glm::vec3(1.3f,0.7f,1.3f);
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
@@ -154,10 +152,9 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_br);
         transform.Position = glm::vec3(-4.8f, -0.5f, -2.5f);
         transform.Scale = glm::vec3(2.5f);
-        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
-
-        auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
+        transform.Rotation = glm::vec3(glm::pi<float>()/2.f,0.f,0.f);
+        glm::vec3 scale = glm::vec3(1.3f,0.7f,1.3f);
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
@@ -179,15 +176,25 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
         transform.Position = glm::vec3(-4.8f, -0.5f, 2.5f);
         transform.Scale = glm::vec3(2.5f);
-        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
-
-        auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
+        transform.Rotation = glm::vec3(glm::pi<float>()/2.f,0.f,0.f);
+        glm::vec3 scale = glm::vec3(1.3f,0.7f,1.3f);
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
+    }
+   //back dif
+    {
+        BackDif = scene->CreateEntity("BackDif",frame);
+        auto& mesh = scene->AddComponent<StaticMeshComponent>(BackDif,"Assets/LowPolyCylinder.fbx");
+
+
+        auto &transform = scene->GetComponent<TransformComponent>(BackDif);
+        transform.Position = glm::vec3(-0.830f, 0.f, 0.f);
+        transform.Scale = glm::vec3(0.01f,0.45f,0.01f);
+        transform.Rotation = glm::vec3(glm::pi<float>()/2.f, 0.f, 0.f);
     }
     //hinge car togheter
     {

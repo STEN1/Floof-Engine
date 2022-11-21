@@ -129,7 +129,7 @@ namespace FLOOF {
         };
     }
     struct RigidBodyComponent {
-        RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass, bt::CollisionPrimitive shape);
+        RigidBodyComponent(glm::vec3 location, glm::vec3 scale,glm::vec3 rotation, const float mass, bt::CollisionPrimitive shape);
 
         RigidBodyComponent(glm::vec3 location, glm::vec3 scale,glm::vec3 rotation, const float mass, const std::string convexShape);
 
@@ -272,6 +272,9 @@ namespace FLOOF {
         float suspensionRestLength = 0.8;
 
         std::vector<btHinge2Constraint*> axles;
+
+        bool DifLock{false};
+
     };
 
     struct LandscapeComponent {
