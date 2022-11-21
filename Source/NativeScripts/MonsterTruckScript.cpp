@@ -254,7 +254,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         //frame to back axle
         //btHingeConstraint* Hinge8 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *frameBody.RigidBody.get(),btVector3(0.f,0.f,0.f),btVector3(-4.8f, -0.5f, 0.f),parentAxis,childAxis);
-        btHingeConstraint* Hinge8 = new btHingeConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(),btVector3(-4.8f, -0.5f, 0.f),btVector3(0.f,0.f,0.f),childAxis,parentAxis);
+        btHingeConstraint* Hinge8 = new btHingeConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(),btVector3(-4.8f, -0.0f, 0.f),btVector3(0.f,0.f,0.f),childAxis,parentAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge8, true);
         Hinge8->setDbgDrawSize(btScalar(1.5f));
 
@@ -273,8 +273,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         Hinge8->setMotorTargetVelocity(0);
 
         //lock hinge wheel towards axle
-        Hinge6->setLimit(0,0);
-        Hinge7->setLimit(0,0);
+        Hinge6->setLimit(0,0.1); // a tiny bit of slack
+        Hinge7->setLimit(0,0.1);
 
         engine.axles = axles;
 
