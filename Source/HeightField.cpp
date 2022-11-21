@@ -64,7 +64,6 @@ void FLOOF::TriangleCollector::processTriangle(btVector3 *tris, int partId, int 
         v.Normal.y = normal[1];
         v.Normal.z = normal[2];
 
-
         if(v.Pos.z < 0)
             v.UV.y = (1.f / height) * (v.Pos.z+(height/2.f));
         else
