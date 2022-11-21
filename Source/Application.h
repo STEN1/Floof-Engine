@@ -20,6 +20,7 @@ namespace FLOOF {
         "Wireframe",
         "UnLit",
         "PBR",
+        "Normals",
     };
     class Application {
         friend class SoundManager;

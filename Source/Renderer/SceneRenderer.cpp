@@ -141,7 +141,7 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
-                if (drawMode != RenderPipelineKeys::Wireframe) {
+                if (drawMode == RenderPipelineKeys::PBR || drawMode == RenderPipelineKeys::UnLit || drawMode == RenderPipelineKeys::Normals) {
                     if (landscape.meshData.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
                         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                             0, 1, &landscape.meshData.MeshMaterial.DescriptorSet, 0, nullptr);
@@ -166,7 +166,7 @@ namespace FLOOF {
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                                    0, sizeof(MeshPushConstants), &constants);
                 for (auto &mesh: staticMesh.meshes) {
-                    if (drawMode != RenderPipelineKeys::Wireframe) {
+                    if (drawMode == RenderPipelineKeys::PBR || drawMode == RenderPipelineKeys::UnLit || drawMode == RenderPipelineKeys::Normals) {
                         if (mesh.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
                             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                                 0, 1, &mesh.MeshMaterial.DescriptorSet, 0, nullptr);
@@ -300,6 +300,22 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
+        {    // Normals
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.FragmentPath = "Shaders/Normals.frag.spv";
+            params.VertexPath = "Shaders/Normals.vert.spv";
+            params.Key = RenderPipelineKeys::Normals;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.Renderpass = m_RenderPass;
+            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             renderer->CreateGraphicsPipeline(params);
         }
         {    // UnLit
