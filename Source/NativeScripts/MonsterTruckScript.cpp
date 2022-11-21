@@ -187,13 +187,13 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
    //back dif
     {
-        BackDif = scene->CreateEntity("BackDif",frame);
+        BackDif = scene->CreateEntity("BackDif");
         auto& mesh = scene->AddComponent<StaticMeshComponent>(BackDif,"Assets/LowPolyCylinder.fbx");
 
 
         auto &transform = scene->GetComponent<TransformComponent>(BackDif);
         transform.Position = glm::vec3(-0.830f, 0.f, 0.f);
-        transform.Scale = glm::vec3(0.01f,0.45f,0.01f);
+        transform.Scale = glm::vec3(0.1f,1.f,0.1f);
         transform.Rotation = glm::vec3(glm::pi<float>()/2.f, 0.f, 0.f);
 
 
@@ -209,6 +209,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         auto &WheelflBody = scene->GetComponent<RigidBodyComponent>(Wheel_fl);
         auto &WheelbrBody = scene->GetComponent<RigidBodyComponent>(Wheel_br);
         auto &WheelblBody = scene->GetComponent<RigidBodyComponent>(Wheel_bl);
+        auto &BackDifBody = scene->GetComponent<RigidBodyComponent>(BackDif);
 
         auto &engine = scene->GetComponent<EngineComponent>(frame);
 
@@ -217,6 +218,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         WheelflBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
         WheelbrBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
         WheelblBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
+        BackDifBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
 
 
         btVector3 parentAxis(0.f, 1.f, 0.f);
@@ -235,15 +237,27 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         btHinge2Constraint *Hinge3 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), anchor, parentAxis, childAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge3, true);
 
-        anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
-        btHinge2Constraint *Hinge4 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
-        scene->GetPhysicSystem()->AddConstraint(Hinge4, true);
+        //anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
+        //btHinge2Constraint *Hinge4 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
+        //scene->GetPhysicSystem()->AddConstraint(Hinge4, true);
 
+       // anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
+        //btHinge2Constraint *Hinge5 = new btHinge2Constraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
+        //scene->GetPhysicSystem()->AddConstraint(Hinge5, true);
+
+        btHingeConstraint* Hinge6 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(),BackDifBody.RigidBody->getWorldTransform().getOrigin(),WheelblBody.RigidBody->getWorldTransform().getOrigin(),parentAxis,parentAxis);
+        //btHinge2Constraint *Hinge6 = new btHinge2Constraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
+        scene->GetPhysicSystem()->AddConstraint(Hinge6, true);
+        Hinge6->setDbgDrawSize(btScalar(1.5f));
 
         axles.emplace_back(Hinge1);
         axles.emplace_back(Hinge2);
         axles.emplace_back(Hinge3);
-        axles.emplace_back(Hinge4);
+        //axles.emplace_back(Hinge4);
+
+        //back dif
+        //axles.emplace_back(Hinge5);
+        //axles.emplace_back(Hinge6);
 
         engine.axles = axles;
 
@@ -271,10 +285,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             hinge->setUpperLimit(SIMD_PI * 0.2f);
 
             //back wheels
-            if (hinge == Hinge3 || hinge == Hinge4) {
-                hinge->setLowerLimit(-SIMD_HALF_PI * 0.01f);
-                hinge->setUpperLimit(SIMD_HALF_PI * 0.01f);
-            }
+           // if (hinge == Hinge3 || hinge == Hinge4) {
+            //    hinge->setLowerLimit(-SIMD_HALF_PI * 0.01f);
+             //   hinge->setUpperLimit(SIMD_HALF_PI * 0.01f);
+            //}
 
             hinge->setDbgDrawSize(btScalar(1.5f));
         }
