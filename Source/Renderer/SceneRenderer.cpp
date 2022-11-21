@@ -91,7 +91,7 @@ namespace FLOOF {
             auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
             for (auto [entity, transform, lightComp]: lightView.each()) {
                 PointLightComponent::PointLight light;
-                light.position = glm::vec4(transform.Position, 1.f);
+                light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
                 light.diffuse = lightComp.diffuse;
                 light.ambient = lightComp.ambient;
                 light.lightRange = lightComp.lightRange;
