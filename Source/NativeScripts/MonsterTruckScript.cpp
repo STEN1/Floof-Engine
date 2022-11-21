@@ -195,6 +195,11 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Position = glm::vec3(-0.830f, 0.f, 0.f);
         transform.Scale = glm::vec3(0.01f,0.45f,0.01f);
         transform.Rotation = glm::vec3(glm::pi<float>()/2.f, 0.f, 0.f);
+
+
+        auto &body = scene->AddComponent<RigidBodyComponent>(BackDif, transform.Position, transform.Scale, transform.Rotation, 100.f, bt::CollisionPrimitive::Cylinder);
+        auto &RigidBody = body.RigidBody;
+        RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
     //hinge car togheter
     {
