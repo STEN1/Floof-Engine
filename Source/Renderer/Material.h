@@ -10,6 +10,7 @@ namespace FLOOF
         Texture Metallic;
         Texture Roughness;
         Texture AO;
+        Texture Opacity;
 
         std::string Name;
 

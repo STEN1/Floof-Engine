@@ -22,12 +22,16 @@ namespace FLOOF {
         if (!AO.IsValid())
             AO = Texture(TextureColor::White);
 
+        if (!Opacity.IsValid())
+            Opacity = Texture(TextureColor::Black);
+
         std::vector<VkDescriptorImageInfo> imageInfos{
             { sampler, Diffuse.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
             { sampler, Normals.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
             { sampler, Metallic.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
             { sampler, Roughness.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
             { sampler, AO.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+            { sampler, Opacity.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
         };
 
         if (DescriptorSet == VK_NULL_HANDLE) {
@@ -35,7 +39,7 @@ namespace FLOOF {
             DescriptorSet = renderer->AllocateMaterialDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::Material));
         }
 
-        std::array<VkWriteDescriptorSet, 5> writeDescriptorSets{};
+        std::array<VkWriteDescriptorSet, 6> writeDescriptorSets{};
         for (size_t i = 0; i < imageInfos.size(); i++) {
             writeDescriptorSets[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             writeDescriptorSets[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;

@@ -113,6 +113,8 @@ namespace FLOOF {
 					ImGui::Image(mesh.MeshMaterial.Roughness.VkTexture.DesctriptorSet, imageSize);
 					ImGui::Text("AO");
 					ImGui::Image(mesh.MeshMaterial.AO.VkTexture.DesctriptorSet, imageSize);
+					ImGui::Text("Opacity");
+					ImGui::Image(mesh.MeshMaterial.Opacity.VkTexture.DesctriptorSet, imageSize);
 				}
 			
 

@@ -11,6 +11,7 @@ layout (set = 0, binding = 1) uniform sampler2D normalsTexture;
 layout (set = 0, binding = 2) uniform sampler2D metallicTexture;
 layout (set = 0, binding = 3) uniform sampler2D roughnessTexture;
 layout (set = 0, binding = 4) uniform sampler2D aoTexture;
+layout (set = 0, binding = 5) uniform sampler2D opacityTexture;
 
 struct PointLight {    
     vec4 position;
@@ -120,7 +121,7 @@ void main() {
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
-    outColor = vec4(color, 1.0);
+    outColor = vec4(color, texture(diffuseTexture, fragUv).a * (1.0 - texture(opacityTexture, fragUv).r));
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
