@@ -586,10 +586,11 @@ namespace FLOOF {
 
                 renderPassInfo.renderArea.extent = vkExtent;
 
+                auto cubeBuffer = ModelManager::GetSkyboxCube();
+
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                 renderer->StartRenderPass(commandBuffer, &renderPassInfo);
                 auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::IrradianceConv);
-                auto cubeBuffer = ModelManager::GetSkyboxCube();
                 MeshPushConstants constants{};
                 constants.VP = captureProjection * captureViews[i];
                 constants.Model = glm::mat4(1.f);

@@ -7,6 +7,7 @@ layout(location = 0) in vec3 WorldPos;
 layout (set = 0, binding = 0) uniform samplerCube environmentMap;
 
 const float PI = 3.14159265359;
+const float Epsilon = 0.01;
 
 void main()
 {		
@@ -21,6 +22,11 @@ void main()
     
     // tangent space calculation from origin point
     vec3 up    = vec3(0.0, 1.0, 0.0);
+
+    if (N.y > 1.0 - Epsilon) {
+        up += vec3(Epsilon, 0.0, Epsilon);
+    }
+
     vec3 right = normalize(cross(up, N));
     up         = normalize(cross(N, right));
        
