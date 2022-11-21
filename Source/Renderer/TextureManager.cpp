@@ -390,16 +390,6 @@ namespace FLOOF {
 
             renderPassInfo.renderArea.extent = vkExtent;
 
-            VkClearValue clearColors[1]{};
-            clearColors[0].color = {};
-            clearColors[0].color.float32[0] = 0.f;
-            clearColors[0].color.float32[1] = 0.f;
-            clearColors[0].color.float32[2] = 0.f;
-            clearColors[0].color.float32[3] = 1.f;
-
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = clearColors;
-
             auto ndcRect = ModelManager::GetNDCRect();
 
             auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
