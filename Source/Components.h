@@ -272,6 +272,9 @@ namespace FLOOF {
         float suspensionRestLength = 0.8;
 
         std::vector<btHinge2Constraint*> axles;
+
+        bool DifLock{false};
+
     };
 
     struct LandscapeComponent {

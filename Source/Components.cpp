@@ -274,7 +274,10 @@ namespace FLOOF {
 
         }
         Transform.setIdentity();
-        //Transform.setRotation();
+        auto rot = Utils::glmTobt(glm::vec3(rotation));
+        btQuaternion btquat;
+        btquat.setEulerZYX(rot.z(), rot.y(), rot.x());
+        Transform.setRotation(btquat);
         Transform.setOrigin(btVector3(location.x, location.y, location.z));
         InitializeBasicPhysics(mass);
 

@@ -190,6 +190,17 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
     }
+   //back dif
+    {
+        BackDif = scene->CreateEntity("BackDif",frame);
+        auto& mesh = scene->AddComponent<StaticMeshComponent>(BackDif,"Assets/LowPolyCylinder.fbx");
+
+
+        auto &transform = scene->GetComponent<TransformComponent>(BackDif);
+        transform.Position = glm::vec3(-5.f, 0.f, 0.f);
+        transform.Scale = glm::vec3(3.f,1.f,1.f);
+        transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
+    }
     //hinge car togheter
     {
 
