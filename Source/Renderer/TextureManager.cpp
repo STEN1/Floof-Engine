@@ -400,11 +400,12 @@ namespace FLOOF {
             renderPassInfo.clearValueCount = 1;
             renderPassInfo.pClearValues = clearColors;
 
+            auto ndcRect = ModelManager::GetNDCRect();
+
             auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
             renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::BRDF);
-            auto ndcRect = ModelManager::GetNDCRect();
 
             VkDeviceSize offset{ 0 };
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, &ndcRect.Buffer, &offset);

@@ -1163,6 +1163,8 @@ namespace FLOOF {
             ASSERT(result == VK_SUCCESS);
             result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.ImGuiCommandBuffer);
             ASSERT(result == VK_SUCCESS);
+            result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &m_OneTimeCommandBuffer);
+            ASSERT(result == VK_SUCCESS);
         }
         LOG("Command buffers created.\n");
     }
@@ -1324,22 +1326,13 @@ namespace FLOOF {
     }
 
     VkCommandBuffer VulkanRenderer::BeginSingleUseCommandBuffer() {
-        VkCommandBufferAllocateInfo commandAllocInfo{};
-        commandAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        commandAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        commandAllocInfo.commandPool = m_CommandPool;
-        commandAllocInfo.commandBufferCount = 1;
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(m_LogicalDevice, &commandAllocInfo, &commandBuffer);
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-        return commandBuffer;
+        ResetAndBeginCommandBuffer(m_OneTimeCommandBuffer);
+        m_SingleUseCommandBufferCount++;
+        return m_OneTimeCommandBuffer;
     }
 
     void VulkanRenderer::EndSingleUseCommandBuffer(VkCommandBuffer commandBuffer) {
+        ASSERT(m_SingleUseCommandBufferCount == 1);
         vkEndCommandBuffer(commandBuffer);
 
         VkFence fence;
@@ -1354,8 +1347,7 @@ namespace FLOOF {
 
         vkWaitForFences(m_LogicalDevice, 1, &fence, VK_TRUE, UINT64_MAX);
         vkDestroyFence(m_LogicalDevice, fence, nullptr);
-
-        vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
+        m_SingleUseCommandBufferCount--;
     }
 
     void VulkanRenderer::RecreateSwapChain(VulkanWindow& window) {
