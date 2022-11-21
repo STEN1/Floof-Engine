@@ -193,7 +193,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
 
         auto &transform = scene->GetComponent<TransformComponent>(BackDif);
         transform.Position = glm::vec3(-0.830f, 0.f, 0.f);
-        transform.Scale = glm::vec3(0.1f,1.f,0.1f);
+        transform.Scale = glm::vec3(0.1f,3.f,0.1f);
         transform.Rotation = glm::vec3(glm::pi<float>()/2.f, 0.f, 0.f);
 
 
@@ -233,9 +233,9 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         btHinge2Constraint *Hinge2 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelflBody.RigidBody.get(), anchor, parentAxis, childAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge2, true);
 
-        anchor = WheelbrBody.RigidBody->getWorldTransform().getOrigin();
-        btHinge2Constraint *Hinge3 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), anchor, parentAxis, childAxis);
-        scene->GetPhysicSystem()->AddConstraint(Hinge3, true);
+        //anchor = WheelbrBody.RigidBody->getWorldTransform().getOrigin();
+        //btHinge2Constraint *Hinge3 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), anchor, parentAxis, childAxis);
+        //scene->GetPhysicSystem()->AddConstraint(Hinge3, true);
 
         //anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
         //btHinge2Constraint *Hinge4 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
@@ -245,19 +245,31 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         //btHinge2Constraint *Hinge5 = new btHinge2Constraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
         //scene->GetPhysicSystem()->AddConstraint(Hinge5, true);
 
-        btHingeConstraint* Hinge6 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(),BackDifBody.RigidBody->getWorldTransform().getOrigin(),WheelblBody.RigidBody->getWorldTransform().getOrigin(),parentAxis,parentAxis);
-        //btHinge2Constraint *Hinge6 = new btHinge2Constraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
+        btHingeConstraint* Hinge6 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(),btVector3(0.f,3.f,0.f),btVector3(0.f,0.f,0.f),parentAxis,parentAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge6, true);
         Hinge6->setDbgDrawSize(btScalar(1.5f));
+        btHingeConstraint* Hinge7 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelbrBody.RigidBody.get(),btVector3(0.f,-3.f,0.f),btVector3(0.f,0.f,0.f),parentAxis,parentAxis);
+        scene->GetPhysicSystem()->AddConstraint(Hinge7, true);
+        Hinge7->setDbgDrawSize(btScalar(1.5f));
+
+        //frame to back axle
+        btHingeConstraint* Hinge8 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *frameBody.RigidBody.get(),btVector3(0.f,0.f,0.f),btVector3(-4.8f, -1.f, 0.f),parentAxis,parentAxis);
+        scene->GetPhysicSystem()->AddConstraint(Hinge8, true);
+        Hinge8->setDbgDrawSize(btScalar(1.5f));
+
 
         axles.emplace_back(Hinge1);
         axles.emplace_back(Hinge2);
-        axles.emplace_back(Hinge3);
+        //axles.emplace_back(Hinge3);
         //axles.emplace_back(Hinge4);
 
         //back dif
-        //axles.emplace_back(Hinge5);
-        //axles.emplace_back(Hinge6);
+        singleAxles.emplace_back(Hinge8);
+
+        // Drive engine.
+        Hinge8->enableMotor(true);
+        Hinge8->setMaxMotorImpulse(engine.maxEngineForce);
+        Hinge8->setMotorTargetVelocity(0);
 
         engine.axles = axles;
 
@@ -362,6 +374,9 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
 
     for (auto &axle: axles) {
         axle->setTargetVelocity(3, engine.EngineForce);
+    }
+    for (auto &axle: singleAxles) {
+        axle->setMotorTargetVelocity(engine.EngineForce);
     }
     //turning
     {

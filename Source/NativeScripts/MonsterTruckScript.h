@@ -28,6 +28,7 @@ namespace FLOOF {
         entt::entity BackDif;
 
         std::vector<btHinge2Constraint*> axles;
+        std::vector<btHingeConstraint*> singleAxles;
     };
 }
 
