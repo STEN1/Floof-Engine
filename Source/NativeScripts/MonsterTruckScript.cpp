@@ -73,7 +73,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
                     case CyberTruckTexture::metal:
                         mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::LightGrey);
                         mesh.meshes[i].MeshMaterial.Metallic = Texture(TextureColor::White);
-                        mesh.meshes[i].MeshMaterial.Roughness = Texture(TextureColor::LightGrey);
+                        mesh.meshes[i].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
                         break;
                     case CyberTruckTexture::red:
                         mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::Red);
@@ -82,7 +82,7 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
                         mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::White);
                         break;
                     case CyberTruckTexture::glassblack:
-                        mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::LightGrey);
+                        mesh.meshes[i].MeshMaterial.Diffuse = Texture(TextureColor::DarkGrey);
                         mesh.meshes[i].MeshMaterial.Metallic = Texture(TextureColor::White);
                         mesh.meshes[i].MeshMaterial.Roughness = Texture(TextureColor::LightGrey);
 
@@ -124,20 +124,6 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         sound.Looping(true);
         //sound.Play();
 
-        //ledbar
-        {
-            Ledbar = scene->CreateEntity("Ledbar", frame);
-            auto &light = scene->AddComponent<PointLightComponent>(Ledbar);
-            //auto & mesh = scene->AddComponent<StaticMeshComponent>(Ledbar,"Assets/LowPolySphere.fbx");
-            //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
-            //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
-
-            light.lightRange = 10.f;
-
-            auto &transform = scene->GetComponent<TransformComponent>(Ledbar);
-            transform.Position = glm::vec3(0.25f, 0.7f, 0.f);
-            transform.Scale = glm::vec3(0.1f);
-        }
         //Breaklight
         {
             BreakLight = scene->CreateEntity("BreakLight", frame);
@@ -447,15 +433,13 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     if (ImGui::IsKeyPressed(ImGuiKey_F, false)) {
         auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
         auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
-        auto &led = scene->GetComponent<PointLightComponent>(Ledbar);
+
         if (fhr.lightRange > 50) {
             fhr.lightRange = 10.f;
             fhl.lightRange = 10.f;
-            led.lightRange = 10.f;
         } else {
             fhr.lightRange = 100.f;
             fhl.lightRange = 100.f;
-            led.lightRange = 100.f;
         }
     }
 
