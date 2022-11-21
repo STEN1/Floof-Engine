@@ -318,6 +318,20 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             renderer->CreateGraphicsPipeline(params);
         }
+        {    // UV
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.FragmentPath = "Shaders/UV.frag.spv";
+            params.VertexPath = "Shaders/UV.vert.spv";
+            params.Key = RenderPipelineKeys::UV;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.Renderpass = m_RenderPass;
+            renderer->CreateGraphicsPipeline(params);
+        }
         {    // UnLit
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;

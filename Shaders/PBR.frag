@@ -53,7 +53,6 @@ void main() {
 
     vec3 N = getNormal();
     vec3 V = normalize(sceneFrameUBO.cameraPos.xyz - fragPos);
-    vec3 R = reflect(-V, N);
 
     vec3 albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
     float roughness = texture(roughnessTexture, fragUv).g;
@@ -106,8 +105,9 @@ void main() {
     vec3 diffuse      = irradiance * albedo;
     
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    vec3 R = reflect(-V, N);
     const float MAX_REFLECTION_LOD = 9.0;
-    vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+    vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;
     vec2 brdf = texture(brdfLut, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 

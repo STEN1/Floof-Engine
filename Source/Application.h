@@ -21,6 +21,7 @@ namespace FLOOF {
         "UnLit",
         "PBR",
         "Normals",
+        "UV",
     };
     class Application {
         friend class SoundManager;

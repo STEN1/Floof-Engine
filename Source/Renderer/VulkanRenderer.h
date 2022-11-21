@@ -55,6 +55,7 @@ namespace FLOOF {
         UnLit,
         PBR,
         Normals,
+        UV,
         Skybox,
         Basic,
         Line,
