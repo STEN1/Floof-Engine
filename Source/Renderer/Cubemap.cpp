@@ -448,26 +448,25 @@ namespace FLOOF {
             }
             {
                 // Transfer framebuffer images to cubemap face
-                VkImageBlit region{};
+                VkImageCopy region{};
                 region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 region.dstSubresource.baseArrayLayer = i;
                 region.dstSubresource.layerCount = 1;
                 region.dstSubresource.mipLevel = 0;
-                region.dstOffsets[1].x = cubemapRes;
-                region.dstOffsets[1].y = cubemapRes;
-                region.dstOffsets[1].z = 1;
 
                 region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 region.srcSubresource.baseArrayLayer = 0;
                 region.srcSubresource.layerCount = 1;
                 region.srcSubresource.mipLevel = 0;
-                region.srcOffsets[1].x = cubemapRes;
-                region.srcOffsets[1].y = cubemapRes;
-                region.srcOffsets[1].z = 1;
+
+                region.extent.width = cubemapRes;
+                region.extent.height = cubemapRes;
+                region.extent.depth = 1;
+
 
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-                vkCmdBlitImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region, VK_FILTER_LINEAR);
+                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    CubemapTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                 renderer->EndSingleUseCommandBuffer(commandBuffer);
 
             }
@@ -623,26 +622,25 @@ namespace FLOOF {
 
             {
                 // Transfer framebuffer images to cubemap face
-                VkImageBlit region{};
+                VkImageCopy region{};
                 region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 region.dstSubresource.baseArrayLayer = i;
                 region.dstSubresource.layerCount = 1;
                 region.dstSubresource.mipLevel = 0;
-                region.dstOffsets[1].x = cubemapRes;
-                region.dstOffsets[1].y = cubemapRes;
-                region.dstOffsets[1].z = 1;
 
                 region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 region.srcSubresource.baseArrayLayer = 0;
                 region.srcSubresource.layerCount = 1;
                 region.srcSubresource.mipLevel = 0;
-                region.srcOffsets[1].x = cubemapRes;
-                region.srcOffsets[1].y = cubemapRes;
-                region.srcOffsets[1].z = 1;
+
+                region.extent.width = cubemapRes;
+                region.extent.height = cubemapRes;
+                region.extent.depth = 1;
+
 
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-                vkCmdBlitImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region, VK_FILTER_LINEAR);
+                vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    irradienceTexture.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                 renderer->EndSingleUseCommandBuffer(commandBuffer);
 
             }
@@ -810,26 +808,25 @@ namespace FLOOF {
 
                 {
                     // Transfer framebuffer images to cubemap face
-                    VkImageBlit region{};
+                    VkImageCopy region{};
                     region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                     region.dstSubresource.baseArrayLayer = i;
                     region.dstSubresource.layerCount = 1;
                     region.dstSubresource.mipLevel = mip;
-                    region.dstOffsets[1].x = mipRes;
-                    region.dstOffsets[1].y = mipRes;
-                    region.dstOffsets[1].z = 1;
 
                     region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                     region.srcSubresource.baseArrayLayer = 0;
                     region.srcSubresource.layerCount = 1;
                     region.srcSubresource.mipLevel = 0;
-                    region.srcOffsets[1].x = mipRes;
-                    region.srcOffsets[1].y = mipRes;
-                    region.srcOffsets[1].z = 1;
+
+                    region.extent.width = mipRes;
+                    region.extent.height = mipRes;
+                    region.extent.depth = 1;
+
 
                     auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
-                    vkCmdBlitImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        prefilterMap.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region, VK_FILTER_LINEAR);
+                    vkCmdCopyImage(commandBuffer, fb.GetTexture().Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        prefilterMap.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                     renderer->EndSingleUseCommandBuffer(commandBuffer);
                 }
             }
