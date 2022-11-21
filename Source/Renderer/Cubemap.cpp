@@ -496,7 +496,7 @@ namespace FLOOF {
 
         VulkanTexture irradienceTexture{};
 
-        uint32_t cubemapRes = 128;
+        uint32_t cubemapRes = 32;
 
         VkImageCreateInfo cubeImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         cubeImageInfo.imageType = VK_IMAGE_TYPE_2D;
