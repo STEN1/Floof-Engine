@@ -462,6 +462,8 @@ namespace FLOOF {
 
         VmaAllocationCreateInfo depthImageAllocCreateInfo = {};
         depthImageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        depthImageAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        depthImageAllocCreateInfo.priority = 1.f;
 
         VkImageViewCreateInfo depthImageViewInfo = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
         depthImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -539,6 +541,8 @@ namespace FLOOF {
 
             VmaAllocationCreateInfo imageAllocCreateInfo = {};
             imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+            imageAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+            imageAllocCreateInfo.priority = 1.f;
 
             vmaCreateImage(renderer->m_Allocator, &imageInfo, &imageAllocCreateInfo, &fbTexture.VKTexture.Image,
                            &fbTexture.VKTexture.Allocation, &fbTexture.VKTexture.AllocationInfo);

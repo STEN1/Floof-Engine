@@ -53,6 +53,8 @@ namespace FLOOF {
 
 		VmaAllocationCreateInfo imageAllocCreateInfo = {};
 		imageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+		imageAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+		imageAllocCreateInfo.priority = 1.f;
 
 		VkResult result = vmaCreateImage(renderer->GetAllocator(), &imageInfo, &imageAllocCreateInfo, &m_Texture.Image,
 			&m_Texture.Allocation, &m_Texture.AllocationInfo);
