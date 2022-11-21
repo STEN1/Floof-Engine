@@ -182,7 +182,8 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         transform.Rotation = glm::vec3(0.f, 0.f, 0.f);
 
         auto &frameTrans = scene->GetComponent<TransformComponent>(frame);
-        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
+        //auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 300.f, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
+        auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, transform.Scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setFriction(engine.WheelFriction);

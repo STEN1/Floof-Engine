@@ -240,7 +240,7 @@ namespace FLOOF {
         RigidBody->setSpinningFriction(0.3f);
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, const float mass,
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation,const float mass,
                                            bt::CollisionPrimitive shape) : DefaultScale(scale), Primitive(shape) {
 
         using namespace bt;
@@ -274,6 +274,7 @@ namespace FLOOF {
 
         }
         Transform.setIdentity();
+        //Transform.setRotation();
         Transform.setOrigin(btVector3(location.x, location.y, location.z));
         InitializeBasicPhysics(mass);
 
