@@ -385,24 +385,106 @@ namespace FLOOF {
             transform.Rotation.x = -1.f;
         }
 
-        float extent = 150.f;
-        float step = 80.f;
-
-        for (float x = -extent; x < extent; x += step) {
-            for (float y = -extent; y < extent; y += step) {
-                for (float z = -extent; z < extent; z += step) {
-                    auto entity = m_Scene->CreateEntity("PointLight ball");
-                    auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
-                    mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
-                    mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
-                    mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
-                    mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
-
-                    m_Scene->AddComponent<PointLightComponent>(entity);
-
-                    auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-                    transform.Position = glm::vec3(x, y, z);
-                }
+        for (uint32_t i = 1; i < static_cast<uint32_t>(TextureColor::Size); i++) {
+            auto color = static_cast<TextureColor>(i);
+            static constexpr uint32_t yOffsetAmount = 3;
+            static constexpr float xOffsetAmount = 3.f;
+            float xOffset = 10.f;
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            }
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            }
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::LightGrey);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            }
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::White);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            }
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            }
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            }
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::LightGrey);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            }
+            {
+                const auto entity = m_Scene->CreateEntity();
+                auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                xOffset += xOffsetAmount;
+                transform.Position.y = i * yOffsetAmount;
+                transform.Position.x = xOffset;
+                mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
+                mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::White);
+                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             }
         }
     }

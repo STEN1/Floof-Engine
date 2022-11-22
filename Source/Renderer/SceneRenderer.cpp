@@ -266,9 +266,9 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
-            params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
-            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -284,7 +284,7 @@ namespace FLOOF {
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.Renderpass = m_RenderPass;
             renderer->CreateGraphicsPipeline(params);
         }

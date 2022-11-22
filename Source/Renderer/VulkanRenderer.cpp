@@ -50,6 +50,7 @@ namespace FLOOF {
         CreateCommandPool();
         CreateFontSampler();
         CreateTextureSampler();
+        CreateTextureSamplerClamped();
         CreateDescriptorSetLayouts();
 
         AllocateCommandBuffers(m_VulkanWindow);
@@ -81,6 +82,7 @@ namespace FLOOF {
 
         DestroyFontSampler();
         DestroyTextureSampler();
+        DestroyTextureSamplerClamped();
 
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
         vkDestroyDevice(m_LogicalDevice, nullptr);
@@ -945,6 +947,22 @@ namespace FLOOF {
         {
             VkDescriptorSetLayoutBinding layoutBinding{};
             layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layoutBinding.pImmutableSamplers = &m_TextureSamplerClamped;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped]);
+        }
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
             layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             layoutBinding.descriptorCount = 1;
             layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -1275,8 +1293,34 @@ namespace FLOOF {
         ASSERT(err == VK_SUCCESS);
     }
 
+    void VulkanRenderer::CreateTextureSamplerClamped() {
+        VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = 16;
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipLodBias = 0.f;
+        samplerInfo.minLod = 0.f;
+        samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
+
+        VkResult err = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_TextureSamplerClamped);
+        ASSERT(err == VK_SUCCESS);
+    }
+
     void VulkanRenderer::DestroyTextureSampler() {
         vkDestroySampler(m_LogicalDevice, m_TextureSampler, nullptr);
+    }
+
+    void VulkanRenderer::DestroyTextureSamplerClamped() {
+        vkDestroySampler(m_LogicalDevice, m_TextureSamplerClamped, nullptr);
     }
 
     void VulkanRenderer::DestroyFontSampler() {

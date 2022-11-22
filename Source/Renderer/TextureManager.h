@@ -13,10 +13,11 @@ namespace FLOOF {
         Green,
         Blue,
         White,
-        Black,
-        DarkGrey,
         LightGrey,
+        DarkGrey,
+        Black,
         FlatNormal,
+        Size,
     };
 
     class TextureManager {

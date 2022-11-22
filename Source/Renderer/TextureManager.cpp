@@ -368,7 +368,7 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(2);
-            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.DescriptorSetLayoutBindings[1] = renderer->GetDescriptorSetLayout(RenderSetLayouts::SceneFrameUBO);
             params.Renderpass = renderPass;
             renderer->CreateGraphicsPipeline(params);
@@ -440,9 +440,9 @@ namespace FLOOF {
         textureImageViewInfo.subresourceRange.layerCount = 1;
         vkCreateImageView(renderer->m_LogicalDevice, &textureImageViewInfo, nullptr, &brdfLut.ImageView);
 
-        VkSampler sampler = renderer->GetTextureSampler();
+        VkSampler sampler = renderer->GetTextureSamplerClamped();
 
-        brdfLut.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+        brdfLut.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped));
 
         VkDescriptorImageInfo lutImageInfo{};
         lutImageInfo.sampler = sampler;

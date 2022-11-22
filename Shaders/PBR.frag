@@ -121,6 +121,7 @@ void main() {
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
+    //outColor = vec4(brdf, 0.0, 1.0);
     outColor = vec4(color, texture(diffuseTexture, fragUv).a * (1.0 - texture(opacityTexture, fragUv).r));
 }
 

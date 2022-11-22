@@ -77,6 +77,7 @@ namespace FLOOF {
         LightSSBO,
         FontTexture,
         Material,
+        DiffuseTextureClamped,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {
@@ -244,6 +245,8 @@ namespace FLOOF {
 
         VkSampler GetTextureSampler() { return m_TextureSampler; }
 
+        VkSampler GetTextureSamplerClamped() { return m_TextureSamplerClamped; }
+
         VkDescriptorSetLayout GetDescriptorSetLayout(RenderSetLayouts layout) { return m_DescriptorSetLayouts[layout]; }
 
         VkDevice GetDevice() { return m_LogicalDevice; }
@@ -299,8 +302,10 @@ namespace FLOOF {
 
         void CreateFontSampler();
         void CreateTextureSampler();
+        void CreateTextureSamplerClamped();
 
         void DestroyTextureSampler();
+        void DestroyTextureSamplerClamped();
         void DestroyFontSampler();
 
         void InitGlfwCallbacks();
@@ -354,6 +359,7 @@ namespace FLOOF {
         VkDescriptorPool m_UBODescriptorPool;
 
         VkSampler m_TextureSampler;
+        VkSampler m_TextureSamplerClamped;
         VkSampler m_FontSampler;
 
         const std::vector<const char*> m_RequiredDeviceExtentions = {

@@ -205,14 +205,14 @@ namespace FLOOF {
         VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &CubemapTexture.ImageView);
         ASSERT(result == VK_SUCCESS);
 
-        auto sampler = renderer->GetTextureSampler();
+        auto sampler = renderer->GetTextureSamplerClamped();
 
         VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         descriptorImageInfo.imageView = CubemapTexture.ImageView;
         descriptorImageInfo.sampler = sampler;
 
-        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped));
 
         VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.pImageInfo = &descriptorImageInfo;
@@ -320,9 +320,9 @@ namespace FLOOF {
 
         vkCreateImageView(renderer->GetDevice(), &hdrImageViewCreateInfo, nullptr, &hdrTexture.ImageView);
 
-        hdrTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+        hdrTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped));
 
-        auto sampler = renderer->GetTextureSampler();
+        auto sampler = renderer->GetTextureSamplerClamped();
 
         VkDescriptorImageInfo descriptorImageInfo{};
         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -391,7 +391,7 @@ namespace FLOOF {
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.Renderpass = renderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -480,7 +480,7 @@ namespace FLOOF {
         descriptorImageInfo.imageView = CubemapTexture.ImageView;
         descriptorImageInfo.sampler = sampler;
 
-        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+        CubemapTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped));
 
         writeSet.pImageInfo = &descriptorImageInfo;
         writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -535,7 +535,7 @@ namespace FLOOF {
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
-            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.Renderpass = renderPass;
             renderer->CreateGraphicsPipeline(params);
         }
@@ -626,7 +626,7 @@ namespace FLOOF {
         VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &irradienceTexture.ImageView);
         ASSERT(result == VK_SUCCESS);
 
-        auto sampler = renderer->GetTextureSampler();
+        auto sampler = renderer->GetTextureSamplerClamped();
 
         // Create cubemap descriptor
         VkDescriptorImageInfo descriptorImageInfo{};
@@ -634,7 +634,7 @@ namespace FLOOF {
         descriptorImageInfo.imageView = irradienceTexture.ImageView;
         descriptorImageInfo.sampler = sampler;
 
-        irradienceTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+        irradienceTexture.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped));
 
         VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.pImageInfo = &descriptorImageInfo;
@@ -694,7 +694,7 @@ namespace FLOOF {
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.DescriptorSetLayoutBindings.resize(2);
-            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture);
+            params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.DescriptorSetLayoutBindings[1] = renderer->GetDescriptorSetLayout(RenderSetLayouts::SceneFrameUBO);
             params.Renderpass = renderPass;
             renderer->CreateGraphicsPipeline(params);
@@ -792,7 +792,7 @@ namespace FLOOF {
         VkResult result = vkCreateImageView(renderer->GetDevice(), &imageViewCreateInfo, nullptr, &prefilterMap.ImageView);
         ASSERT(result == VK_SUCCESS);
 
-        auto sampler = renderer->GetTextureSampler();
+        auto sampler = renderer->GetTextureSamplerClamped();
 
         // Create cubemap descriptor
         VkDescriptorImageInfo descriptorImageInfo{};
@@ -800,7 +800,7 @@ namespace FLOOF {
         descriptorImageInfo.imageView = prefilterMap.ImageView;
         descriptorImageInfo.sampler = sampler;
 
-        prefilterMap.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTexture));
+        prefilterMap.DesctriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped));
 
         VkWriteDescriptorSet writeSet = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         writeSet.pImageInfo = &descriptorImageInfo;
