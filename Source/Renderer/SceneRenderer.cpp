@@ -369,6 +369,7 @@ namespace FLOOF {
 
         DestoryFrameBuffers();
         DestoryDepthBuffer();
+        DestroyResolveBuffer();
         DestroyRenderPass();
 
         renderer->FreeTextureDescriptorSet(m_IrradienceMap.DesctriptorSet);
@@ -394,7 +395,9 @@ namespace FLOOF {
 
         DestoryFrameBuffers();
         DestoryDepthBuffer();
+        DestroyResolveBuffer();
 
+        CreateResolveBuffer();
         CreateDepthBuffer();
         CreateFrameBuffers();
     }
@@ -404,24 +407,33 @@ namespace FLOOF {
         auto *window = renderer->GetVulkanWindow();
         m_DepthFormat = renderer->FindDepthFormat();
 
-        VkAttachmentDescription colorAttachments[2]{};
+        VkAttachmentDescription colorAttachments[3]{};
         colorAttachments[0].format = window->SurfaceFormat.format;
-        colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachments[0].samples = renderer->GetMsaaSampleCount();
         colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         colorAttachments[1].format = m_DepthFormat;
-        colorAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachments[1].samples = renderer->GetMsaaSampleCount();;
         colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        colorAttachments[2].format = window->SurfaceFormat.format;;
+        colorAttachments[2].samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachments[2].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachments[2].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachments[2].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachments[2].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;
@@ -431,34 +443,45 @@ namespace FLOOF {
         depthStencilAttachmentRef.attachment = 1;
         depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+        VkAttachmentReference resolveAttachmentRef{};
+        resolveAttachmentRef.attachment = 2;
+        resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
         subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
+        subpass.pResolveAttachments = &resolveAttachmentRef;
 
         // Use subpass dependencies for layout transitions
         std::array<VkSubpassDependency, 2> dependencies;
 
         dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
         dependencies[0].dstSubpass = 0;
-        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
         dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
         dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
         dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         dependencies[1].srcSubpass = 0;
         dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-        dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
         dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
         dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
         dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 2;
+        renderPassInfo.attachmentCount = std::size(colorAttachments);
         renderPassInfo.pAttachments = colorAttachments;
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
@@ -487,7 +510,7 @@ namespace FLOOF {
         depthImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         depthImageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         depthImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        depthImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        depthImageInfo.samples = renderer->GetMsaaSampleCount();
         depthImageInfo.flags = 0;
 
         VmaAllocationCreateInfo depthImageAllocCreateInfo = {};
@@ -516,6 +539,54 @@ namespace FLOOF {
         ASSERT(result == VK_SUCCESS);
     }
 
+    void SceneRenderer::CreateResolveBuffer()
+    {
+        auto* renderer = VulkanRenderer::Get();
+        auto* window = renderer->GetVulkanWindow();
+
+        VkFormat format = window->SurfaceFormat.format;
+
+        VkImageCreateInfo resolveImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+        resolveImageInfo.imageType = VK_IMAGE_TYPE_2D;
+        resolveImageInfo.extent.width = m_Extent.x;
+        resolveImageInfo.extent.height = m_Extent.y;
+        resolveImageInfo.extent.depth = 1;
+        resolveImageInfo.mipLevels = 1;
+        resolveImageInfo.arrayLayers = 1;
+        resolveImageInfo.format = format;
+        resolveImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        resolveImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        resolveImageInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        resolveImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        resolveImageInfo.samples = renderer->GetMsaaSampleCount();
+        resolveImageInfo.flags = 0;
+
+        VmaAllocationCreateInfo resolveImageAllocCreateInfo = {};
+        resolveImageAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        resolveImageAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        resolveImageAllocCreateInfo.priority = 1.f;
+
+        VkImageViewCreateInfo resolveImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+        resolveImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        resolveImageViewInfo.format = format;
+        resolveImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        resolveImageViewInfo.subresourceRange.baseMipLevel = 0;
+        resolveImageViewInfo.subresourceRange.levelCount = 1;
+        resolveImageViewInfo.subresourceRange.baseArrayLayer = 0;
+        resolveImageViewInfo.subresourceRange.layerCount = 1;
+
+        vmaCreateImage(renderer->m_Allocator, &resolveImageInfo, &resolveImageAllocCreateInfo,
+            &m_ResolveBuffer.Image,
+            &m_ResolveBuffer.Allocation,
+            &m_ResolveBuffer.AllocationInfo);
+
+        resolveImageViewInfo.image = m_ResolveBuffer.Image;
+
+        auto result = vkCreateImageView(renderer->m_LogicalDevice, &resolveImageViewInfo, nullptr,
+            &m_ResolveImageView);
+        ASSERT(result == VK_SUCCESS);
+    }
+
     void SceneRenderer::CreateFrameBuffers() {
         auto *renderer = VulkanRenderer::Get();
 
@@ -523,14 +594,15 @@ namespace FLOOF {
 
         for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
             VkImageView attachments[] = {
-                    textureFrameBuffer.VKTexture.ImageView,
+                    m_ResolveImageView,
                     m_DepthBufferImageView,
+                    textureFrameBuffer.VKTexture.ImageView,
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferInfo.renderPass = m_RenderPass;
-            framebufferInfo.attachmentCount = 2;
+            framebufferInfo.attachmentCount = std::size(attachments);
             framebufferInfo.pAttachments = attachments;
             framebufferInfo.width = m_Extent.x;
             framebufferInfo.height = m_Extent.y;
@@ -642,5 +714,14 @@ namespace FLOOF {
         m_DepthBufferImageView = VK_NULL_HANDLE;
         vmaDestroyImage(renderer->m_Allocator, m_DepthBuffer.Image, m_DepthBuffer.Allocation);
         m_DepthBuffer.Image = VK_NULL_HANDLE;
+    }
+    void SceneRenderer::DestroyResolveBuffer()
+    {
+        auto* renderer = VulkanRenderer::Get();
+
+        vkDestroyImageView(renderer->m_LogicalDevice, m_ResolveImageView, nullptr);
+        m_ResolveImageView = VK_NULL_HANDLE;
+        vmaDestroyImage(renderer->m_Allocator, m_ResolveBuffer.Image, m_ResolveBuffer.Allocation);
+        m_ResolveBuffer.Image = VK_NULL_HANDLE;
     }
 }

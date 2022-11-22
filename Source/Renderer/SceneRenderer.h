@@ -30,6 +30,7 @@ namespace FLOOF {
 
         void CreateRenderPass();
         void CreateDepthBuffer();
+        void CreateResolveBuffer();
         void CreateFrameBufferTextures();
         void CreateFrameBuffers();
         void CreateCommandPool();
@@ -38,6 +39,7 @@ namespace FLOOF {
 
         void DestroyRenderPass();
         void DestoryDepthBuffer();
+        void DestroyResolveBuffer();
         void DestoryFrameBuffers();
         void DestoryRenderPipeline();
         void DestoryCommandPool();
@@ -51,6 +53,8 @@ namespace FLOOF {
         };
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
+        VulkanImageData m_ResolveBuffer{};
+        VkImageView m_ResolveImageView = VK_NULL_HANDLE;
         VkFormat m_DepthFormat{};
         VulkanImageData m_DepthBuffer{};
         VkImageView m_DepthBufferImageView = VK_NULL_HANDLE;

@@ -44,6 +44,7 @@ namespace FLOOF {
 #endif
         CreateSurface();
         CreateDevice();
+        FindUsableSampleCount();
         CreateVulkanAllocator();
         CreateWindow(m_VulkanWindow);
         CreateDescriptorPools();
@@ -745,6 +746,17 @@ namespace FLOOF {
         vkGetDeviceQueue(m_LogicalDevice, m_QueueFamilyIndices.Compute, 0, &m_ComputeQueue);
     }
 
+    void VulkanRenderer::FindUsableSampleCount()
+    {
+        VkPhysicalDeviceProperties physicalDeviceProperties;
+        vkGetPhysicalDeviceProperties(m_PhysicalDevice, &physicalDeviceProperties);
+
+        VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+        if (counts & VK_SAMPLE_COUNT_4_BIT) { m_MsaaSamples = VK_SAMPLE_COUNT_4_BIT; }
+        else if (counts & VK_SAMPLE_COUNT_2_BIT) { m_MsaaSamples = VK_SAMPLE_COUNT_2_BIT; }
+        else { m_MsaaSamples = VK_SAMPLE_COUNT_1_BIT; }
+    }
+
     void VulkanRenderer::CreateVulkanAllocator() {
         VmaVulkanFunctions vulkanFunctions = {};
         vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
@@ -1056,7 +1068,9 @@ namespace FLOOF {
 
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        multisampling.rasterizationSamples = GetMsaaSampleCount();
+        multisampling.sampleShadingEnable = VK_TRUE;
+        multisampling.minSampleShading = .2f;
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;

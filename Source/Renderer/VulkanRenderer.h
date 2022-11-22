@@ -253,6 +253,8 @@ namespace FLOOF {
 
         VmaAllocator GetAllocator() { return m_Allocator; }
 
+        VkSampleCountFlagBits GetMsaaSampleCount() { return m_MsaaSamples; }
+
         void CreateGraphicsPipeline(const RenderPipelineParams& params);
 
         void CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size);
@@ -280,6 +282,8 @@ namespace FLOOF {
 
         void CreatePhysicalDevice();
         void CreateLogicalDevice();
+
+        void FindUsableSampleCount();
 
         void CreateVulkanAllocator();
 
@@ -345,6 +349,8 @@ namespace FLOOF {
         VkQueue m_ComputeQueue;
 
         VkSurfaceKHR m_Surface;
+
+        VkSampleCountFlagBits m_MsaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
         VkRenderPass m_ImGuiRenderPass;
         std::unordered_map<RenderPipelineKeys, VkPipelineLayout> m_PipelineLayouts;
