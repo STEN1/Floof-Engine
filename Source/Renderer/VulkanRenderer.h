@@ -100,6 +100,7 @@ namespace FLOOF {
         uint32_t PushConstantSize;
         std::vector<VkDescriptorSetLayout> DescriptorSetLayoutBindings;
         VkRenderPass Renderpass;
+        VkSampleCountFlagBits MsaaSampleCount = VK_SAMPLE_COUNT_1_BIT;
     };
 
     struct VulkanImageData {

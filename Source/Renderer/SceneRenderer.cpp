@@ -270,6 +270,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.Renderpass = m_RenderPass;
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
         {    // Skybox shader
@@ -286,6 +287,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.Renderpass = m_RenderPass;
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
         {    // Wireframe
@@ -300,6 +302,7 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
         {    // Normals
@@ -316,6 +319,7 @@ namespace FLOOF {
             params.Renderpass = m_RenderPass;
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
         {    // UV
@@ -330,6 +334,7 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
         {    // UnLit
@@ -346,6 +351,7 @@ namespace FLOOF {
             params.Renderpass = m_RenderPass;
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
         {    // Line drawing shader
@@ -360,6 +366,7 @@ namespace FLOOF {
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
     }
@@ -408,17 +415,17 @@ namespace FLOOF {
         m_DepthFormat = renderer->FindDepthFormat();
 
         VkAttachmentDescription colorAttachments[3]{};
-        colorAttachments[0].format = window->SurfaceFormat.format;
-        colorAttachments[0].samples = renderer->GetMsaaSampleCount();
+        colorAttachments[0].format = window->SurfaceFormat.format;;
+        colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         colorAttachments[1].format = m_DepthFormat;
-        colorAttachments[1].samples = renderer->GetMsaaSampleCount();;
+        colorAttachments[1].samples = renderer->GetMsaaSampleCount();
         colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -426,17 +433,17 @@ namespace FLOOF {
         colorAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        colorAttachments[2].format = window->SurfaceFormat.format;;
-        colorAttachments[2].samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachments[2].format = window->SurfaceFormat.format;
+        colorAttachments[2].samples = renderer->GetMsaaSampleCount();
+        colorAttachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[2].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachments[2].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachments[2].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachments[2].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        colorAttachments[2].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference colorAttachmentRef{};
-        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.attachment = 2;
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depthStencilAttachmentRef{};
@@ -444,7 +451,7 @@ namespace FLOOF {
         depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference resolveAttachmentRef{};
-        resolveAttachmentRef.attachment = 2;
+        resolveAttachmentRef.attachment = 0;
         resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkSubpassDescription subpass{};
@@ -594,9 +601,9 @@ namespace FLOOF {
 
         for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
             VkImageView attachments[] = {
-                    m_ResolveImageView,
-                    m_DepthBufferImageView,
                     textureFrameBuffer.VKTexture.ImageView,
+                    m_DepthBufferImageView,
+                    m_ResolveImageView,
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
