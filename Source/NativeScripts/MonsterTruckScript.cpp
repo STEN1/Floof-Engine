@@ -171,21 +171,29 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
-        for (auto &mesh: mesh.meshes) {
-            mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
-            mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
-            mesh.MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
-            mesh.MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png", false, true);
-            mesh.MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
-            mesh.MeshMaterial.UpdateDescriptorSet();
-        }
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/Wheels/tuner-wheel/source/tunerWheelRight.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
+        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
+
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fr);
         transform.Position = glm::vec3(5.5f, -0.5f, -2.5f);
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
-        glm::vec3 scale = glm::vec3(1.3f, 0.7f, 1.3f);
+        glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
@@ -195,21 +203,28 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
-        for (auto &mesh: mesh.meshes) {
-            mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
-            mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
-            mesh.MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
-            mesh.MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png", false, true);
-            mesh.MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
-            mesh.MeshMaterial.UpdateDescriptorSet();
-        }
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/Wheels/tuner-wheel/source/tunerWheelLeft.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
+        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
         transform.Position = glm::vec3(5.5f, -0.5f, 2.5f);
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
-        glm::vec3 scale = glm::vec3(1.3f, 0.7f, 1.3f);
+        glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
@@ -219,21 +234,28 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/MonsterTruck/LPWheelFixed_right.fbx");
-        for (auto &mesh: mesh.meshes) {
-            mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
-            mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
-            mesh.MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
-            mesh.MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png", false, true);
-            mesh.MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
-            mesh.MeshMaterial.UpdateDescriptorSet();
-        }
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/Wheels/tuner-wheel/source/tunerWheelRight.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
+        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_br);
-        transform.Position = glm::vec3(-4.5f, -0.5f, -2.5f);
+        transform.Position = glm::vec3(-5.0f, -0.5f, -2.5f);
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
-        glm::vec3 scale = glm::vec3(1.3f, 0.7f, 1.3f);
+        glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
@@ -243,21 +265,28 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
     }
     {
         Wheel_bl = scene->CreateEntity("Wheel back left");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/MonsterTruck/LPWheelFixed_Left.fbx");
-        for (auto &mesh: mesh.meshes) {
-            mesh.MeshMaterial.Diffuse = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Base_Color.png");
-            mesh.MeshMaterial.Metallic = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Metallic.png");
-            mesh.MeshMaterial.AO = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Mixed_AO.png");
-            mesh.MeshMaterial.Normals = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Normal_OpenGL.png", false, true);
-            mesh.MeshMaterial.Roughness = Texture("Assets/MonsterTruck/texturesWheel/lambert1_Roughness.png");
-            mesh.MeshMaterial.UpdateDescriptorSet();
-        }
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/Wheels/tuner-wheel/source/tunerWheelLeft.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
+        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
-        transform.Position = glm::vec3(-4.5f, -0.5f, 2.5f);
+        transform.Position = glm::vec3(-5.0f, -0.5f, 2.5f);
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
-        glm::vec3 scale = glm::vec3(1.3f, 0.7f, 1.3f);
+        glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
@@ -313,48 +342,95 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
         btHinge2Constraint *Hinge2 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelflBody.RigidBody.get(), anchor, parentAxis, childAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge2, true);
 
-        //anchor = WheelbrBody.RigidBody->getWorldTransform().getOrigin();
-        //btHinge2Constraint *Hinge3 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), anchor, parentAxis, childAxis);
-        //scene->GetPhysicSystem()->AddConstraint(Hinge3, true);
+        anchor = WheelbrBody.RigidBody->getWorldTransform().getOrigin();
+        btHinge2Constraint *Hinge3 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), anchor, parentAxis, childAxis);
+        scene->GetPhysicSystem()->AddConstraint(Hinge3, true);
 
-        //anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
-        //btHinge2Constraint *Hinge4 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
-        //scene->GetPhysicSystem()->AddConstraint(Hinge4, true);
+        anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
+        btHinge2Constraint *Hinge4 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
+        scene->GetPhysicSystem()->AddConstraint(Hinge4, true);
 
         // anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
         //btHinge2Constraint *Hinge5 = new btHinge2Constraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
         //scene->GetPhysicSystem()->AddConstraint(Hinge5, true);
 
-        btHingeConstraint *Hinge6 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), btVector3(0.f, 2.5f, 0.f), btVector3(0.f, 0.f, 0.f), parentAxis, parentAxis);
-        scene->GetPhysicSystem()->AddConstraint(Hinge6, true);
-        Hinge6->setDbgDrawSize(btScalar(1.5f));
-        btHingeConstraint *Hinge7 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), btVector3(0.f, -2.5f, 0.f), btVector3(0.f, 0.f, 0.f), parentAxis, parentAxis);
-        scene->GetPhysicSystem()->AddConstraint(Hinge7, true);
-        Hinge7->setDbgDrawSize(btScalar(1.5f));
+        //btHingeConstraint *Hinge6 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), btVector3(0.f, 2.5f, 0.f), btVector3(0.f, 0.f, 0.f), parentAxis, parentAxis);
+        //scene->GetPhysicSystem()->AddConstraint(Hinge6, true);
+        //Hinge6->setDbgDrawSize(btScalar(1.5f));
+        //btHingeConstraint *Hinge7 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), btVector3(0.f, -2.5f, 0.f), btVector3(0.f, 0.f, 0.f), parentAxis, parentAxis);
+        //scene->GetPhysicSystem()->AddConstraint(Hinge7, true);
+        //Hinge7->setDbgDrawSize(btScalar(1.5f));
+
+        if (false){
+            auto vec = btVector3(-4.5,-0.5,-2.0);
+            btHinge2Constraint *spring = new btHinge2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), vec, parentAxis, childAxis);
+            //auto *spring = new btGeneric6DofSpring2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), btTransform(btQuaternion::getIdentity(), {-5.5f, -0.5f, -2.f}), btTransform(btQuaternion::getIdentity(), { 0.0f, 2.f, 0.0f }), RO_XYZ);
+            //btGeneric6DofSpringConstraint *spring = new btGeneric6DofSpringConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(),btTransform(btQuaternion::getIdentity(), { WheelbrBody.RigidBody->getWorldTransform().getOrigin()}),btTransform(btQuaternion::getIdentity(), { 0.0f, -2.5f, 0.0f }),true);
+            // Removing any restrictions on the y-coordinate of the hanging box
+            // by setting the lower limit above the upper one.
+
+            spring->setLimit(2, 0, engine.suspensionRestLength);
+
+            spring->setDamping(2, engine.suspensionDamping);
+            spring->setStiffness(2, engine.suspensionStiffness);
+            // Enabling the spring behavior for they y-coordinate (index = 1)
+            //spring->enableSpring(2, true);
+            spring->setLowerLimit(-SIMD_PI * 0.05f);
+            spring->setUpperLimit(SIMD_PI * 0.05f);
+            //spring->setLimit(2, 0, engine.suspensionRestLength);
+            //spring->setDamping(2, engine.suspensionDamping);
+            //spring->setStiffness(2, engine.suspensionStiffness);
+            spring->setEquilibriumPoint();
+            scene->GetPhysicSystem()->AddConstraint(spring, true);
+            spring->setDbgDrawSize(btScalar(1.5f));
+        }
+        if(false){
+            auto vec = btVector3(-4.5,-0.5,2.0);
+            btHinge2Constraint *spring = new btHinge2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), vec, parentAxis, childAxis);
+            //auto *spring = new btGeneric6DofSpring2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), btTransform(btQuaternion::getIdentity(), {-5.5f, -0.5f, -2.f}), btTransform(btQuaternion::getIdentity(), { 0.0f, 2.f, 0.0f }), RO_XYZ);
+            //btGeneric6DofSpringConstraint *spring = new btGeneric6DofSpringConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(),btTransform(btQuaternion::getIdentity(), { WheelbrBody.RigidBody->getWorldTransform().getOrigin()}),btTransform(btQuaternion::getIdentity(), { 0.0f, -2.5f, 0.0f }),true);
+            // Removing any restrictions on the y-coordinate of the hanging box
+            // by setting the lower limit above the upper one.
+
+            spring->setLimit(2, 0, engine.suspensionRestLength);
+
+            spring->setDamping(2, engine.suspensionDamping);
+            spring->setStiffness(2, engine.suspensionStiffness);
+            // Enabling the spring behavior for they y-coordinate (index = 1)
+            //spring->enableSpring(2, true);
+            spring->setLowerLimit(SIMD_PI * 0.05f);
+            spring->setUpperLimit(-SIMD_PI * 0.05f);
+            //spring->setLimit(2, 0, engine.suspensionRestLength);
+            //spring->setDamping(2, engine.suspensionDamping);
+            //spring->setStiffness(2, engine.suspensionStiffness);
+            spring->setEquilibriumPoint();
+            scene->GetPhysicSystem()->AddConstraint(spring, true);
+            spring->setDbgDrawSize(btScalar(1.5f));
+        }
 
         //frame to back axle
         //btHingeConstraint* Hinge8 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *frameBody.RigidBody.get(),btVector3(0.f,0.f,0.f),btVector3(-4.8f, -0.5f, 0.f),parentAxis,childAxis);
-        btHingeConstraint *Hinge8 = new btHingeConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), btVector3(-4.8f, -0.0f, 0.f), btVector3(0.f, 0.f, 0.f), childAxis, parentAxis);
-        scene->GetPhysicSystem()->AddConstraint(Hinge8, true);
-        Hinge8->setDbgDrawSize(btScalar(1.5f));
+        //btHingeConstraint *Hinge8 = new btHingeConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), btVector3(-4.8f, -0.0f, 0.f), btVector3(0.f, 0.f, 0.f), childAxis, parentAxis);
+        //scene->GetPhysicSystem()->AddConstraint(Hinge8, true);
+        //Hinge8->setDbgDrawSize(btScalar(1.5f));
 
 
         axles.emplace_back(Hinge1);
         axles.emplace_back(Hinge2);
-        //axles.emplace_back(Hinge3);
-        //axles.emplace_back(Hinge4);
+        axles.emplace_back(Hinge3);
+        axles.emplace_back(Hinge4);
 
         //back dif
-        singleAxles.emplace_back(Hinge8);
+        //singleAxles.emplace_back(Hinge8);
 
         // Drive engine.
-        Hinge8->enableMotor(true);
-        Hinge8->setMaxMotorImpulse(engine.maxEngineForce / 100.f);
-        Hinge8->setMotorTargetVelocity(0);
+        //Hinge8->enableMotor(true);
+        //Hinge8->setMaxMotorImpulse(engine.maxEngineForce / 10.f);
+        //Hinge8->setMotorTargetVelocity(0);
 
         //lock hinge wheel towards axle
-        Hinge6->setLimit(0, 0.1); // a tiny bit of slack
-        Hinge7->setLimit(0, 0.1);
+        //Hinge6->setLimit(0, 0.1); // a tiny bit of slack
+        //Hinge7->setLimit(0, 0.1);
 
         engine.axles = axles;
 
@@ -382,10 +458,10 @@ void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::ent
             hinge->setUpperLimit(SIMD_PI * 0.2f);
 
             //back wheels
-            // if (hinge == Hinge3 || hinge == Hinge4) {
-            //    hinge->setLowerLimit(-SIMD_HALF_PI * 0.01f);
-            //   hinge->setUpperLimit(SIMD_HALF_PI * 0.01f);
-            //}
+             if (hinge == Hinge3 || hinge == Hinge4) {
+                hinge->setLowerLimit(-SIMD_HALF_PI * 0.1f);
+               hinge->setUpperLimit(SIMD_HALF_PI * 0.1f);
+            }
 
             hinge->setDbgDrawSize(btScalar(1.5f));
         }
@@ -464,6 +540,8 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     {
         axles[0]->setTargetVelocity(5, engine.TurnForce); // front right
         axles[1]->setTargetVelocity(5, engine.TurnForce); // front left
+        axles[2]->setTargetVelocity(5, engine.TurnForce); // front left
+        axles[3]->setTargetVelocity(5, engine.TurnForce); // front left
 
     }
 
