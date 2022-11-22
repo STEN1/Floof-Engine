@@ -23,7 +23,6 @@ namespace FLOOF {
         entt::entity BreakLight;
         entt::entity HeadLightR;
         entt::entity HeadLightL;
-        entt::entity Ledbar;
 
         entt::entity BackDif;
 

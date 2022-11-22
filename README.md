@@ -1,5 +1,5 @@
 # Floof, en multiplatform Vulkan Spillmotor
-![Floof example image](Assets/Floofheader21.11.22.png)
+![Floof example image](Assets/FloofHeaderCybertruck.png)
 
 ### Testet på Windows, Linux og macOS
  * Apple Silicon
