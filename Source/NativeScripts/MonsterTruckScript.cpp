@@ -457,8 +457,10 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
         axle->setTargetVelocity(3, engine.targetVelocity);
 
-        if(axle->getRigidBodyB().getLinearVelocity().length() > 10.f)
+        if(axle->getRigidBodyB().getLinearVelocity().length() > 10.f && axle->getRigidBodyB().getFriction() != engine.WheelFriction/2.f)
             axle->getRigidBodyB().setFriction(engine.WheelFriction/2.f);
+        else if (axle->getRigidBodyB().getFriction() != engine.WheelFriction)
+            axle->getRigidBodyB().setFriction(engine.WheelFriction);
     }
     for (auto &axle: singleAxles) {
         axle->setMotorTargetVelocity(engine.targetVelocity);
