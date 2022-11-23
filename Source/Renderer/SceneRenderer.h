@@ -2,9 +2,9 @@
 
 #include <unordered_map>
 #include "VulkanBuffer.h"
-#include "../Components.h"
 #include "Skybox.h"
 #include "IBL.h"
+#include "../Components.h"
 
 namespace FLOOF {
     struct SceneFrameData {
@@ -14,13 +14,24 @@ namespace FLOOF {
         float sunStrenght = 15.f;
         int LightCount = 0;
     };
+    
+    struct SceneRenderFinishedData {
+        VkDescriptorSet Texture = VK_NULL_HANDLE;
+        VkSemaphore SceneRenderFinishedSemaphore = VK_NULL_HANDLE;
+    };
 
+    struct TextureFrameBuffer {
+        VulkanTexture VKTexture;
+        VkFramebuffer FrameBuffer = VK_NULL_HANDLE;
+    };
+
+    class Scene;
     class SceneRenderer {
         friend class RendererPanel;
     public:
         SceneRenderer();
         ~SceneRenderer();
-        VkDescriptorSet RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent);
+        SceneRenderFinishedData RenderToTexture(Scene* scene, glm::vec2 extent);
 
     private:
         void CreateTextureRenderer();
@@ -33,26 +44,20 @@ namespace FLOOF {
         void CreateResolveBuffer();
         void CreateFrameBufferTextures();
         void CreateFrameBuffers();
-        void CreateCommandPool();
-        void AllocateCommandBuffers();
         void CreateSyncObjects();
 
         void DestroyRenderPass();
         void DestoryDepthBuffer();
         void DestroyResolveBuffer();
         void DestoryFrameBuffers();
-        void DestoryRenderPipeline();
-        void DestoryCommandPool();
         void DestroySyncObjects();
 
         VkRenderPass m_RenderPass;
 
-        struct TextureFrameBuffer {
-            VulkanTexture VKTexture;
-            VkFramebuffer FrameBuffer = VK_NULL_HANDLE;
-        };
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
+        std::vector<VkSemaphore> m_SignalSemaphores;
+
         VulkanImageData m_ResolveBuffer{};
         VkImageView m_ResolveImageView = VK_NULL_HANDLE;
         VkFormat m_DepthFormat{};

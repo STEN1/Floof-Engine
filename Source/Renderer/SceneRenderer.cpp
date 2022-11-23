@@ -1,6 +1,5 @@
 #include "SceneRenderer.h"
 #include "VulkanRenderer.h"
-#include "../Components.h"
 #include "../Application.h"
 #include <iostream>
 
@@ -25,9 +24,9 @@ namespace FLOOF {
         DestroyTextureRenderer();
     }
 
-    VkDescriptorSet SceneRenderer::RenderToTexture(std::shared_ptr<Scene> scene, glm::vec2 extent) {
+    SceneRenderFinishedData SceneRenderer::RenderToTexture(Scene* scene, glm::vec2 extent) {
         if (extent == glm::vec2(0.f))
-            return VK_NULL_HANDLE;
+            return SceneRenderFinishedData();
         if (extent != m_Extent)
             ResizeBuffers(extent);
 
@@ -37,8 +36,9 @@ namespace FLOOF {
         auto frameIndex = window->FrameIndex;
         auto &frameData = window->Frames[frameIndex];
         auto waitSemaphore = frameData.ImageAvailableSemaphore;
-        auto signalSemaphore = frameData.MainPassEndSemaphore;
-        auto commandBuffer = frameData.MainCommandBuffer;
+        auto signalSemaphore = m_SignalSemaphores[frameIndex];
+        auto commandBuffer = renderer->AllocateCommandBuffer();
+        renderer->BeginSingleUseCommandBuffer(commandBuffer);
 
         VkExtent2D vkExtent;
         vkExtent.width = m_Extent.x;
@@ -244,11 +244,19 @@ namespace FLOOF {
 
         renderer->QueueSubmitGraphics(1, &submitInfo);
 
-        return m_TextureFrameBuffers[frameIndex].VKTexture.DesctriptorSet;
+        SceneRenderFinishedData renderFinishedData{};
+        renderFinishedData.Texture = m_TextureFrameBuffers[frameIndex].VKTexture.DesctriptorSet;
+        renderFinishedData.SceneRenderFinishedSemaphore = signalSemaphore;
+
+        return renderFinishedData;
     }
 
     void SceneRenderer::CreateTextureRenderer() {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_SignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+
+        CreateSyncObjects();
+
         CreateRenderPass();
         auto *renderer = VulkanRenderer::Get();
         {    // PBR shader
@@ -378,6 +386,7 @@ namespace FLOOF {
         DestoryDepthBuffer();
         DestroyResolveBuffer();
         DestroyRenderPass();
+        DestroySyncObjects();
 
         renderer->FreeTextureDescriptorSet(m_IrradienceMap.DesctriptorSet);
         vkDestroyImageView(renderer->GetDevice(), m_IrradienceMap.ImageView, nullptr);
@@ -674,13 +683,17 @@ namespace FLOOF {
         }
     }
 
-    void SceneRenderer::CreateCommandPool() {
-    }
-
-    void SceneRenderer::AllocateCommandBuffers() {
-    }
-
     void SceneRenderer::CreateSyncObjects() {
+        auto* renderer = VulkanRenderer::Get();
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        for (auto& semaphore : m_SignalSemaphores) {
+            VkResult result = vkCreateSemaphore(renderer->GetDevice(),
+                &semaphoreInfo, nullptr, &semaphore);
+            ASSERT(result == VK_SUCCESS);
+        }
     }
 
     void SceneRenderer::DestroyRenderPass() {
@@ -705,13 +718,11 @@ namespace FLOOF {
         }
     }
 
-    void SceneRenderer::DestoryRenderPipeline() {
-    }
-
-    void SceneRenderer::DestoryCommandPool() {
-    }
-
     void SceneRenderer::DestroySyncObjects() {
+        auto* renderer = VulkanRenderer::Get();
+        for (auto& semaphore : m_SignalSemaphores) {
+            vkDestroySemaphore(renderer->GetDevice(), semaphore, nullptr);
+        }
     }
 
     void SceneRenderer::DestoryDepthBuffer() {

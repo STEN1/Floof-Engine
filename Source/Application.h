@@ -16,13 +16,6 @@
 #include "ApplicationLayer.h"
 
 namespace FLOOF {
-    static const char* ApplicationDrawModes[] = {
-        "Wireframe",
-        "UnLit",
-        "PBR",
-        "Normals",
-        "UV",
-    };
     class Application {
         friend class SoundManager;
         friend class ForwardSceneRenderer;
@@ -42,16 +35,16 @@ namespace FLOOF {
         /**
          * @brief Updates GUI for application
         */
-        void UpdateImGui(float deltaTime);
+        void UpdateImGui(double deltaTime);
         
         /**
          * @brief Updates all cameras
         */
-        void UpdateCameraSystem(float deltaTime);
+        void UpdateCameraSystem(double deltaTime);
 
         void Update(double deltaTime);
 
-        void Draw();
+        void Draw(double deltaTime);
 
         void CleanApplication();
         

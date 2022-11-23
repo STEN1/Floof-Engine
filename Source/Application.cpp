@@ -115,29 +115,29 @@ namespace FLOOF {
         SetRenderCamera(m_EditorCamera);
 
         Timer timer;
-        float titleBarUpdateTimer{};
-        float titlebarUpdateRate = 0.1f;
-        float frameCounter{};
+        double titleBarUpdateTimer{};
+        double titlebarUpdateRate = 0.1f;
+        double frameCounter{};
 
         while (!glfwWindowShouldClose(m_Window)) {
             glfwPollEvents();
 
             double deltaTime = timer.Delta();
             frameCounter++;
-            titleBarUpdateTimer += static_cast<float>(deltaTime);
+            titleBarUpdateTimer += deltaTime;
 
             if (titleBarUpdateTimer > titlebarUpdateRate) {
-                float avgDeltaTime = titleBarUpdateTimer / frameCounter;
-                float fps;
-                fps = 1.0f / avgDeltaTime;
+                double avgDeltaTime = titleBarUpdateTimer / frameCounter;
+                double fps;
+                fps = 1.0 / avgDeltaTime;
                 std::string title = "Floof FPS: " + std::to_string(fps);
                 glfwSetWindowTitle(m_Window, title.c_str());
                 titleBarUpdateTimer = 0.f;
                 frameCounter = 0.f;
             }
 
-            if (deltaTime > 0.1f) {
-                deltaTime = 0.1f;
+            if (deltaTime > 0.1) {
+                deltaTime = 0.1;
             }
 
             ImGui_ImplVulkan_NewFrame();
@@ -145,19 +145,19 @@ namespace FLOOF {
             ImGui::NewFrame();
 
             Update(deltaTime);
-            Draw();
+            Draw(deltaTime);
         }
         CleanApplication();
         return 0;
     }
 
-    void Application::UpdateImGui(float deltaTime) {
+    void Application::UpdateImGui(double deltaTime) {
         for (auto &layer: m_ApplicationLayers) {
             layer->OnImGuiUpdate(deltaTime);
         }
     }
 
-    void Application::UpdateCameraSystem(float deltaTime) {
+    void Application::UpdateCameraSystem(double deltaTime) {
         auto moveAmount = static_cast<float>(m_CameraSpeed * deltaTime);
         if (Input::Key(ImGuiKey_LeftShift)) {
             moveAmount *= 8;
@@ -196,52 +196,24 @@ namespace FLOOF {
         UpdateCameraSystem(deltaTime);
         UpdateImGui(deltaTime);
         m_Scene->OnUpdate(deltaTime);
-
-        //if (m_GameMode) m_GameMode->OnUpdateEditor(deltaTime);
     }
 
-    void Application::Draw() {
-        auto *vulkanWindow = m_Renderer->GetVulkanWindow();
+    void Application::Draw(double deltaTime) {
         m_Renderer->NewFrame();
+
+        auto *vulkanWindow = m_Renderer->GetVulkanWindow();
         auto &currentFrameData = vulkanWindow->Frames[vulkanWindow->FrameIndex];
 
-        VkSemaphore waitSemaphore = currentFrameData.MainPassEndSemaphore;
+        // Draw all scenes
+        std::vector<VkSemaphore> waitSemaphores;
         VkSemaphore signalSemaphore = currentFrameData.RenderFinishedSemaphore;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-        ImGui::Begin("Scene renderer");
-        ImGui::PopStyleVar();
-
-        ImVec2 canvasOffset = ImGui::GetWindowPos();
-        ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
-        ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
-        canvas_p0.x += canvasOffset.x;
-        canvas_p0.y += canvasOffset.y;
-        canvas_p1.x += canvasOffset.x;
-        canvas_p1.y += canvasOffset.y;
-
-        glm::vec2 sceneCanvasExtent{canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y};
-        if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
-            sceneCanvasExtent = glm::vec2(0.f);
-
-        VkDescriptorSet sceneTexture = VK_NULL_HANDLE;
-
-        if (m_SceneRenderer) {
-            sceneTexture = m_SceneRenderer->RenderToTexture(m_Scene, sceneCanvasExtent);
-        } else {
-            waitSemaphore = currentFrameData.ImageAvailableSemaphore;
-            signalSemaphore = currentFrameData.RenderFinishedSemaphore;
+        auto sceneSignalSemaphore = m_Scene->OnDraw(deltaTime);
+        if (sceneSignalSemaphore != VK_NULL_HANDLE) {
+            waitSemaphores.push_back(sceneSignalSemaphore);
         }
-
-        if (sceneTexture != VK_NULL_HANDLE) {
-            ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddImage(sceneTexture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
-        } else {
-            waitSemaphore = currentFrameData.ImageAvailableSemaphore;
-            signalSemaphore = currentFrameData.RenderFinishedSemaphore;
+        if (waitSemaphores.empty()) {
+            waitSemaphores.push_back(currentFrameData.ImageAvailableSemaphore);
         }
-
-        ImGui::End();
 
         // Start ImGui renderpass and draw ImGui
         VkRenderPassBeginInfo renderPassInfo{};
@@ -255,12 +227,14 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = clearColor;
 
-        m_Renderer->ResetAndBeginCommandBuffer(currentFrameData.ImGuiCommandBuffer);
-        m_Renderer->StartRenderPass(currentFrameData.ImGuiCommandBuffer, &renderPassInfo);
+        auto imGuiCommandBuffer = m_Renderer->AllocateCommandBuffer();
+        m_Renderer->BeginSingleUseCommandBuffer(imGuiCommandBuffer);
+
+        m_Renderer->StartRenderPass(imGuiCommandBuffer, &renderPassInfo);
         // Render ImGui
         ImGui::Render();
         ImDrawData *drawData = ImGui::GetDrawData();
-        ImGui_ImplVulkan_RenderDrawData(drawData, currentFrameData.ImGuiCommandBuffer);
+        ImGui_ImplVulkan_RenderDrawData(drawData, imGuiCommandBuffer);
 
         auto &io = ImGui::GetIO();
         // Update and Render additional Platform Windows
@@ -270,17 +244,17 @@ namespace FLOOF {
         }
 
         // End ImGui renderpass
-        m_Renderer->EndRenderPass(currentFrameData.ImGuiCommandBuffer);
+        m_Renderer->EndRenderPass(imGuiCommandBuffer);
 
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &waitSemaphore;
+        submitInfo.waitSemaphoreCount = waitSemaphores.size();
+        submitInfo.pWaitSemaphores = waitSemaphores.data();
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &currentFrameData.ImGuiCommandBuffer;
+        submitInfo.pCommandBuffers = &imGuiCommandBuffer;
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &signalSemaphore;
 
@@ -354,7 +328,7 @@ namespace FLOOF {
         // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene.get(), ent);
         }
         {
             auto music = m_Scene->CreateEntity("Background Music");
@@ -380,7 +354,7 @@ namespace FLOOF {
             sm.meshes[0].MeshMaterial.Roughness = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_R.tga");
             sm.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene, ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<TestScript>(), m_Scene.get(), ent);
             auto &transform = m_Scene->GetComponent<TransformComponent>(ent);
             transform.Rotation.x = -1.f;
         }
@@ -637,7 +611,7 @@ namespace FLOOF {
         // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene, ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene.get(), ent);
         }
     }
 }

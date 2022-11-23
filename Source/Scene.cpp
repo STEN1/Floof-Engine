@@ -6,13 +6,17 @@
 
 namespace FLOOF {
     Scene::Scene() {
+        static uint32_t sceneID = 0;
+        m_SceneID = sceneID++;
+
+        m_SceneRenderer = std::make_unique<SceneRenderer>();
+
         m_PhysicSystem = std::make_unique<PhysicsSystem>(m_Registry);
         m_PhysicsDebugDrawer = std::make_unique<PhysicsDebugDraw>();
 
         m_PhysicsDebugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);
         auto world = m_PhysicSystem->GetWorld();
         world->setDebugDrawer(m_PhysicsDebugDrawer.get());
-        
     }
 
     Scene::~Scene() {
@@ -46,6 +50,35 @@ namespace FLOOF {
 
     entt::registry& Scene::GetRegistry() {
         return m_Registry;
+    }
+
+    VkSemaphore Scene::OnDraw(float deltaTime)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
+        ImGui::Begin((std::string("Scene renderer") + std::to_string(m_SceneID)).c_str());
+        ImGui::PopStyleVar();
+
+        ImVec2 canvasOffset = ImGui::GetWindowPos();
+        ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
+        ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
+        canvas_p0.x += canvasOffset.x;
+        canvas_p0.y += canvasOffset.y;
+        canvas_p1.x += canvasOffset.x;
+        canvas_p1.y += canvasOffset.y;
+
+        glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
+        if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
+            sceneCanvasExtent = glm::vec2(0.f);
+
+        auto sceneRenderData = m_SceneRenderer->RenderToTexture(this, sceneCanvasExtent);
+
+        if (sceneRenderData.Texture != VK_NULL_HANDLE) {
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            draw_list->AddImage(sceneRenderData.Texture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
+        }
+        ImGui::End();
+
+        return sceneRenderData.SceneRenderFinishedSemaphore;
     }
 
     void Scene::OnUpdate(float deltaTime) {

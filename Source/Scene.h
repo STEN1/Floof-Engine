@@ -2,8 +2,8 @@
 
 #include "Floof.h"
 #include <entt/entt.hpp>
-// #include <physx.h> <3
 #include "PhysicsSystem.h"
+#include "Renderer/SceneRenderer.h"
 
 namespace FLOOF {
 
@@ -66,10 +66,7 @@ namespace FLOOF {
         PhysicsSystem* GetPhysicSystem(){return m_PhysicSystem.get();}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
     private:
-        /// <summary>
-        /// Clears entt registry, has no vulkan safety. 
-        /// Make sure no registry resource is being used on the gpu
-        /// </summary>
+        VkSemaphore OnDraw(float deltaTime);
         void OnUpdate(float deltaTime);
         void OnCreate();
     private:
@@ -79,5 +76,8 @@ namespace FLOOF {
 
         entt::entity m_SelectedEntity = entt::null;
         entt::entity m_LastSelectedEntity = entt::null;
+
+        std::unique_ptr<SceneRenderer> m_SceneRenderer;
+        uint32_t m_SceneID;
     };
 }

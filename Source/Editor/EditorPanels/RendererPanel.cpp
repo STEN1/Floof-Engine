@@ -3,6 +3,14 @@
 #include "../../Renderer/SceneRenderer.h"
 
 namespace FLOOF {
+	// Matches indices from RenderPipelineKeys in VulkanRenderer.h
+	static const char* ApplicationDrawModes[] = {
+	"Wireframe",
+	"UnLit",
+	"PBR",
+	"Normals",
+	"UV",
+	};
 	void RendererPanel::DrawPanel()
 	{
 		auto& app = Application::Get();
@@ -19,17 +27,6 @@ namespace FLOOF {
 		{
 			app.SetDrawMode(static_cast<RenderPipelineKeys>(selectedDrawMode));
 		}
-
-		ImGui::NewLine();
-		ImGui::Separator();
-		ImGui::DragFloat("SunStrenght", &sceneRenderer.m_SceneFrameData.sunStrenght, 0.01f, 0.f, 100.f);
-		ImGui::NewLine();
-		ImGui::Separator();
-		ImGui::DragFloat3("SunDirection", &sceneRenderer.m_SceneFrameData.SunDirection[0], 0.01f);
-		ImGui::NewLine();
-		ImGui::Separator();
-		ImGui::ColorPicker3("SunColor", &sceneRenderer.m_SceneFrameData.SunColor[0], ImGuiColorEditFlags_DisplayRGB);
-		ImGui::NewLine();
 
 		ImGui::End();
 	}

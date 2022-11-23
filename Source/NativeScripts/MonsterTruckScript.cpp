@@ -5,7 +5,7 @@
 #include "../Input.h"
 #include "../Application.h"
 
-void FLOOF::MonsterTruckScript::OnCreate(std::shared_ptr<Scene> scene, entt::entity entity) {
+void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
 
     {

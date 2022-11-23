@@ -234,7 +234,7 @@ namespace FLOOF {
     struct NativeScriptComponent {
         NativeScriptComponent() = delete;
 
-        NativeScriptComponent(std::unique_ptr<NativeScript> script, std::shared_ptr<Scene> scene, entt::entity entity)
+        NativeScriptComponent(std::unique_ptr<NativeScript> script, Scene* scene, entt::entity entity)
                 : Script(std::move(script)) {
             Script->OnCreate(scene, entity);
         }

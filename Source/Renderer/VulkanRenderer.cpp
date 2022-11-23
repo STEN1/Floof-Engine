@@ -54,8 +54,6 @@ namespace FLOOF {
         CreateTextureSamplerClamped();
         CreateDescriptorSetLayouts();
 
-        AllocateCommandBuffers(m_VulkanWindow);
-
         InitGlfwCallbacks();
     }
 
@@ -70,6 +68,9 @@ namespace FLOOF {
         vkDestroyDescriptorPool(m_LogicalDevice, m_UBODescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_MaterialDescriptorPool, nullptr);
         vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
+        for (auto& frameData : m_VulkanWindow.Frames) {
+            vkDestroyCommandPool(m_LogicalDevice, frameData.CommandPool, nullptr);
+        }
         for (auto& [key, val] : m_DescriptorSetLayouts) {
             vkDestroyDescriptorSetLayout(m_LogicalDevice, val, nullptr);
         }
@@ -113,6 +114,7 @@ namespace FLOOF {
 
     void VulkanRenderer::NewFrame() {
         m_VulkanWindow.ImageIndex = GetNextSwapchainImage(m_VulkanWindow);
+        vkResetCommandPool(m_LogicalDevice, m_VulkanWindow.Frames[m_VulkanWindow.FrameIndex].CommandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
     }
 
     void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPassBeginInfo* renderPassInfo) {
@@ -169,6 +171,15 @@ namespace FLOOF {
             result == VK_SUBOPTIMAL_KHR);
 
         m_VulkanWindow.FrameIndex = (m_VulkanWindow.FrameIndex + 1) % VulkanGlobals::MAX_FRAMES_IN_FLIGHT;
+    }
+
+    void VulkanRenderer::BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer)
+    {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        ASSERT(result == VK_SUCCESS);
     }
 
     ImGui_ImplVulkan_InitInfo VulkanRenderer::GetImguiInitInfo() {
@@ -784,7 +795,6 @@ namespace FLOOF {
         CleanupSwapChain(window);
         for (int i = 0; i < window.Frames.size(); i++) {
             vkDestroySemaphore(m_LogicalDevice, window.Frames[i].ImageAvailableSemaphore, nullptr);
-            vkDestroySemaphore(m_LogicalDevice, window.Frames[i].MainPassEndSemaphore, nullptr);
             vkDestroySemaphore(m_LogicalDevice, window.Frames[i].RenderFinishedSemaphore, nullptr);
             vkDestroyFence(m_LogicalDevice, window.Frames[i].Fence, nullptr);
         }
@@ -1181,23 +1191,12 @@ namespace FLOOF {
 
         VkResult result = vkCreateCommandPool(m_LogicalDevice, &poolInfo, nullptr, &m_CommandPool);
         ASSERT(result == VK_SUCCESS);
-        LOG("Command pool created.\n");
-    }
 
-    void VulkanRenderer::AllocateCommandBuffers(VulkanWindow& window) {
-        for (auto& frame : window.Frames) {
-            VkCommandBufferAllocateInfo allocInfo{};
-            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            allocInfo.commandPool = m_CommandPool;
-            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            allocInfo.commandBufferCount = 1;
-
-            VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.MainCommandBuffer);
-            ASSERT(result == VK_SUCCESS);
-            result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.ImGuiCommandBuffer);
+        for (auto& frameData : m_VulkanWindow.Frames) {
+            result = vkCreateCommandPool(m_LogicalDevice, &poolInfo, nullptr, &frameData.CommandPool);
             ASSERT(result == VK_SUCCESS);
         }
-        LOG("Command buffers created.\n");
+        LOG("Command pool created.\n");
     }
 
     void VulkanRenderer::CreateDescriptorPools() {
@@ -1351,8 +1350,6 @@ namespace FLOOF {
             VkResult result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].ImageAvailableSemaphore);
             ASSERT(result == VK_SUCCESS);
             result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].RenderFinishedSemaphore);
-            ASSERT(result == VK_SUCCESS);
-            result = vkCreateSemaphore(m_LogicalDevice, &semaphoreInfo, nullptr, &window.Frames[i].MainPassEndSemaphore);
             ASSERT(result == VK_SUCCESS);
             result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &window.Frames[i].Fence);
             ASSERT(result == VK_SUCCESS);
@@ -1647,6 +1644,19 @@ namespace FLOOF {
         VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &descriptorSet);
         ASSERT(result == VK_SUCCESS);
         return descriptorSet;
+    }
+
+    VkCommandBuffer VulkanRenderer::AllocateCommandBuffer()
+    {
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = m_VulkanWindow.Frames[m_VulkanWindow.FrameIndex].CommandPool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
+        VkCommandBuffer commandBuffer;
+        VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
+        ASSERT(result == VK_SUCCESS);
+        return commandBuffer;
     }
 
     void VulkanRenderer::FreeUBODescriptorSet(VkDescriptorSet desctriptorSet) {

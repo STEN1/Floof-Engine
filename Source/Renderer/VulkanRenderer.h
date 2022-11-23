@@ -36,11 +36,11 @@ namespace FLOOF {
     };
 
     struct VulkanTexture {
-        VkImage Image = VK_NULL_HANDLE;
-        VkImageView ImageView = VK_NULL_HANDLE;
-        VkDescriptorSet DesctriptorSet = VK_NULL_HANDLE;
-        VmaAllocation Allocation = VK_NULL_HANDLE;
-        VmaAllocationInfo AllocationInfo{};
+        VkImage             Image = VK_NULL_HANDLE;
+        VkImageView         ImageView = VK_NULL_HANDLE;
+        VkDescriptorSet     DesctriptorSet = VK_NULL_HANDLE;
+        VmaAllocation       Allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo   AllocationInfo{};
     };
 
     enum RenderPipelineFlags : uint32_t {
@@ -104,32 +104,22 @@ namespace FLOOF {
     };
 
     struct VulkanImageData {
-        VkImage Image = VK_NULL_HANDLE;
-        VmaAllocation Allocation = VK_NULL_HANDLE;
-        VmaAllocationInfo AllocationInfo{};
+        VkImage             Image = VK_NULL_HANDLE;
+        VmaAllocation       Allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo   AllocationInfo{};
     };
 
     struct VulkanBufferData {
-        VkBuffer Buffer = VK_NULL_HANDLE;
-        VmaAllocation Allocation = VK_NULL_HANDLE;
-        VmaAllocationInfo AllocationInfo{};
-    };
-
-    struct VulkanSubmitInfo {
-        VkCommandBuffer       CommandBuffer = VK_NULL_HANDLE;
-        VkSemaphore           WaitSemaphore = VK_NULL_HANDLE;
-        VkSemaphore           SignalSemaphore = VK_NULL_HANDLE;
-        VkFence               Fence = VK_NULL_HANDLE;
-        VkPipelineStageFlags  WaitStages{};
+        VkBuffer            Buffer = VK_NULL_HANDLE;
+        VmaAllocation       Allocation = VK_NULL_HANDLE;
+        VmaAllocationInfo   AllocationInfo{};
     };
 
     struct VulkanFrame {
-        VkSemaphore         ImageAvailableSemaphore = VK_NULL_HANDLE;
-        VkSemaphore         MainPassEndSemaphore = VK_NULL_HANDLE;
-        VkSemaphore         RenderFinishedSemaphore = VK_NULL_HANDLE;
-        VkFence             Fence = VK_NULL_HANDLE;
-        VkCommandBuffer     MainCommandBuffer = VK_NULL_HANDLE;
-        VkCommandBuffer     ImGuiCommandBuffer = VK_NULL_HANDLE;
+        VkSemaphore     ImageAvailableSemaphore = VK_NULL_HANDLE;
+        VkSemaphore     RenderFinishedSemaphore = VK_NULL_HANDLE;
+        VkFence         Fence = VK_NULL_HANDLE;
+        VkCommandPool   CommandPool = VK_NULL_HANDLE;
     };
 
     struct VulkanWindow {
@@ -175,6 +165,8 @@ namespace FLOOF {
 
         // Final present.
         void Present();
+
+        void BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer);
 
         VkPipelineLayout BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key);
 
@@ -223,6 +215,10 @@ namespace FLOOF {
 
         // Allocates a shader storage descriptor set.
         VkDescriptorSet AllocateUBODescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
+
+        // Allocates a command buffer that gets freed on when
+        // NewFrame() resets this frames command pool.
+        VkCommandBuffer AllocateCommandBuffer();
 
         // Frees a shader storage descriptor set.
         void FreeUBODescriptorSet(VkDescriptorSet desctriptorSet);
