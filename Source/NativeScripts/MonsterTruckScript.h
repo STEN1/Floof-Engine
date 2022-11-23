@@ -28,6 +28,8 @@ namespace FLOOF {
 
         std::vector<btHinge2Constraint*> axles;
         std::vector<btHingeConstraint*> singleAxles;
+
+        CameraComponent* Camera;
     };
 }
 

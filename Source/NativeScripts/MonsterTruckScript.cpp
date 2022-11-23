@@ -10,6 +10,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
     {
         frame = entity;
+        Camera = &scene->AddComponent<CameraComponent>(entity);
         auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx", false);
         //textures
         {
@@ -393,7 +394,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
 void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
-
+    Camera->Position = m_Scene->GetComponent<TransformComponent>(m_Entity).GetWorldPosition();
+    Camera->Position.y += 5.f;
     auto* scene = m_Scene;
     auto &engine = scene->GetComponent<EngineComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
