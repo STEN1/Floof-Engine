@@ -118,9 +118,9 @@ namespace FLOOF {
 
         VkViewport viewport{};
         viewport.x = 0.f;
-        viewport.y = 0.f;
+        viewport.y = static_cast<float>(renderPassInfo->renderArea.extent.height);
         viewport.width = static_cast<float>(renderPassInfo->renderArea.extent.width);
-        viewport.height = static_cast<float>(renderPassInfo->renderArea.extent.height);
+        viewport.height = -static_cast<float>(renderPassInfo->renderArea.extent.height);
         viewport.minDepth = 0.f;
         viewport.maxDepth = 1.f;
 
@@ -1066,7 +1066,7 @@ namespace FLOOF {
         rasterizer.polygonMode = params.PolygonMode;
         rasterizer.lineWidth = 1.0f;
         rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
         rasterizer.depthBiasConstantFactor = 0.0f; // Optional
         rasterizer.depthBiasClamp = 0.0f; // Optional
