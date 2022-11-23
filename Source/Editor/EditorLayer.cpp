@@ -28,6 +28,10 @@ namespace FLOOF {
         SelectDebugScene(DebugScenes::PhysicsPlayground);
     }
 
+    EditorLayer::~EditorLayer()
+    {
+    }
+
     void EditorLayer::OnUpdate(double deltaTime)
 	{
         if (m_EditorViewFocused)

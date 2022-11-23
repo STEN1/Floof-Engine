@@ -11,6 +11,7 @@ namespace FLOOF {
 	class EditorLayer : public ApplicationLayer {
 	public:
 		EditorLayer();
+		~EditorLayer();
 		virtual void OnUpdate(double deltaTime) override;
 		virtual void OnImGuiUpdate(double deltaTime) override;
 		virtual VkSemaphore OnDraw(double deltaTime, VkSemaphore waitSemaphore) override;
