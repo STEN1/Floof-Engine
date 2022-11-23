@@ -1196,8 +1196,6 @@ namespace FLOOF {
             ASSERT(result == VK_SUCCESS);
             result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &frame.ImGuiCommandBuffer);
             ASSERT(result == VK_SUCCESS);
-            result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &m_OneTimeCommandBuffer);
-            ASSERT(result == VK_SUCCESS);
         }
         LOG("Command buffers created.\n");
     }
@@ -1385,28 +1383,46 @@ namespace FLOOF {
     }
 
     VkCommandBuffer VulkanRenderer::BeginSingleUseCommandBuffer() {
-        ResetAndBeginCommandBuffer(m_OneTimeCommandBuffer);
-        m_SingleUseCommandBufferCount++;
-        return m_OneTimeCommandBuffer;
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = m_CommandPool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
+        VkCommandBuffer commandBuffer;
+        VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
+        ASSERT(result == VK_SUCCESS);
+
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        ASSERT(result == VK_SUCCESS);
+
+        return commandBuffer;
     }
 
     void VulkanRenderer::EndSingleUseCommandBuffer(VkCommandBuffer commandBuffer) {
-        ASSERT(m_SingleUseCommandBufferCount == 1);
-        vkEndCommandBuffer(commandBuffer);
+        VkResult result = vkEndCommandBuffer(commandBuffer);
+        ASSERT(result == VK_SUCCESS);
 
         VkFence fence;
         VkFenceCreateInfo fenceInfo = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-        vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &fence);
+        result = vkCreateFence(m_LogicalDevice, &fenceInfo, nullptr, &fence);
+        ASSERT(result == VK_SUCCESS);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
-        vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, fence);
+        result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, fence);
+        ASSERT(result == VK_SUCCESS);
 
-        vkWaitForFences(m_LogicalDevice, 1, &fence, VK_TRUE, UINT64_MAX);
+        result = vkWaitForFences(m_LogicalDevice, 1, &fence, VK_TRUE, UINT64_MAX);
+        ASSERT(result == VK_SUCCESS);
+
         vkDestroyFence(m_LogicalDevice, fence, nullptr);
-        m_SingleUseCommandBufferCount--;
+
+        vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
     }
 
     void VulkanRenderer::RecreateSwapChain(VulkanWindow& window) {

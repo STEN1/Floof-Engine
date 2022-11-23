@@ -270,7 +270,6 @@ namespace FLOOF {
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1, uint32_t layers = 1);
 
     private:
-        uint32_t m_SingleUseCommandBufferCount = 0;
         inline static VulkanRenderer* s_Singleton = nullptr;
         GLFWwindow* m_Window;
 
@@ -358,7 +357,6 @@ namespace FLOOF {
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
 
         VkCommandPool m_CommandPool;
-        VkCommandBuffer m_OneTimeCommandBuffer;
 
         VkDescriptorPool m_TextureDescriptorPool;
         VkDescriptorPool m_MaterialDescriptorPool;
