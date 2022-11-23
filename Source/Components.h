@@ -245,7 +245,7 @@ namespace FLOOF {
     struct EngineComponent {
         EngineComponent(){};
 
-        float EngineForce = 0.f;
+        float targetVelocity = 0.f;
         float TurnForce = 0.f;
 
         const float defaultBreakingForce = 10.f;
@@ -274,6 +274,11 @@ namespace FLOOF {
         std::vector<btHinge2Constraint*> axles;
 
         bool DifLock{false};
+
+        float getEngineForce(float velocity) {
+            float multiplier = 1-(velocity/100.f);
+            return maxEngineForce*multiplier;
+        }
 
     };
 

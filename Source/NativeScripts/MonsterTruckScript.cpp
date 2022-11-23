@@ -349,88 +349,11 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
         btHinge2Constraint *Hinge4 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge4, true);
-
-        // anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
-        //btHinge2Constraint *Hinge5 = new btHinge2Constraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
-        //scene->GetPhysicSystem()->AddConstraint(Hinge5, true);
-
-        //btHingeConstraint *Hinge6 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelblBody.RigidBody.get(), btVector3(0.f, 2.5f, 0.f), btVector3(0.f, 0.f, 0.f), parentAxis, parentAxis);
-        //scene->GetPhysicSystem()->AddConstraint(Hinge6, true);
-        //Hinge6->setDbgDrawSize(btScalar(1.5f));
-        //btHingeConstraint *Hinge7 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *WheelbrBody.RigidBody.get(), btVector3(0.f, -2.5f, 0.f), btVector3(0.f, 0.f, 0.f), parentAxis, parentAxis);
-        //scene->GetPhysicSystem()->AddConstraint(Hinge7, true);
-        //Hinge7->setDbgDrawSize(btScalar(1.5f));
-
-        if (false){
-            auto vec = btVector3(-4.5,-0.5,-2.0);
-            btHinge2Constraint *spring = new btHinge2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), vec, parentAxis, childAxis);
-            //auto *spring = new btGeneric6DofSpring2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), btTransform(btQuaternion::getIdentity(), {-5.5f, -0.5f, -2.f}), btTransform(btQuaternion::getIdentity(), { 0.0f, 2.f, 0.0f }), RO_XYZ);
-            //btGeneric6DofSpringConstraint *spring = new btGeneric6DofSpringConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(),btTransform(btQuaternion::getIdentity(), { WheelbrBody.RigidBody->getWorldTransform().getOrigin()}),btTransform(btQuaternion::getIdentity(), { 0.0f, -2.5f, 0.0f }),true);
-            // Removing any restrictions on the y-coordinate of the hanging box
-            // by setting the lower limit above the upper one.
-
-            spring->setLimit(2, 0, engine.suspensionRestLength);
-
-            spring->setDamping(2, engine.suspensionDamping);
-            spring->setStiffness(2, engine.suspensionStiffness);
-            // Enabling the spring behavior for they y-coordinate (index = 1)
-            //spring->enableSpring(2, true);
-            spring->setLowerLimit(-SIMD_PI * 0.05f);
-            spring->setUpperLimit(SIMD_PI * 0.05f);
-            //spring->setLimit(2, 0, engine.suspensionRestLength);
-            //spring->setDamping(2, engine.suspensionDamping);
-            //spring->setStiffness(2, engine.suspensionStiffness);
-            spring->setEquilibriumPoint();
-            scene->GetPhysicSystem()->AddConstraint(spring, true);
-            spring->setDbgDrawSize(btScalar(1.5f));
-        }
-        if(false){
-            auto vec = btVector3(-4.5,-0.5,2.0);
-            btHinge2Constraint *spring = new btHinge2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), vec, parentAxis, childAxis);
-            //auto *spring = new btGeneric6DofSpring2Constraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), btTransform(btQuaternion::getIdentity(), {-5.5f, -0.5f, -2.f}), btTransform(btQuaternion::getIdentity(), { 0.0f, 2.f, 0.0f }), RO_XYZ);
-            //btGeneric6DofSpringConstraint *spring = new btGeneric6DofSpringConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(),btTransform(btQuaternion::getIdentity(), { WheelbrBody.RigidBody->getWorldTransform().getOrigin()}),btTransform(btQuaternion::getIdentity(), { 0.0f, -2.5f, 0.0f }),true);
-            // Removing any restrictions on the y-coordinate of the hanging box
-            // by setting the lower limit above the upper one.
-
-            spring->setLimit(2, 0, engine.suspensionRestLength);
-
-            spring->setDamping(2, engine.suspensionDamping);
-            spring->setStiffness(2, engine.suspensionStiffness);
-            // Enabling the spring behavior for they y-coordinate (index = 1)
-            //spring->enableSpring(2, true);
-            spring->setLowerLimit(SIMD_PI * 0.05f);
-            spring->setUpperLimit(-SIMD_PI * 0.05f);
-            //spring->setLimit(2, 0, engine.suspensionRestLength);
-            //spring->setDamping(2, engine.suspensionDamping);
-            //spring->setStiffness(2, engine.suspensionStiffness);
-            spring->setEquilibriumPoint();
-            scene->GetPhysicSystem()->AddConstraint(spring, true);
-            spring->setDbgDrawSize(btScalar(1.5f));
-        }
-
-        //frame to back axle
-        //btHingeConstraint* Hinge8 = new btHingeConstraint(*BackDifBody.RigidBody.get(), *frameBody.RigidBody.get(),btVector3(0.f,0.f,0.f),btVector3(-4.8f, -0.5f, 0.f),parentAxis,childAxis);
-        //btHingeConstraint *Hinge8 = new btHingeConstraint(*frameBody.RigidBody.get(), *BackDifBody.RigidBody.get(), btVector3(-4.8f, -0.0f, 0.f), btVector3(0.f, 0.f, 0.f), childAxis, parentAxis);
-        //scene->GetPhysicSystem()->AddConstraint(Hinge8, true);
-        //Hinge8->setDbgDrawSize(btScalar(1.5f));
-
-
+        
         axles.emplace_back(Hinge1);
         axles.emplace_back(Hinge2);
         axles.emplace_back(Hinge3);
         axles.emplace_back(Hinge4);
-
-        //back dif
-        //singleAxles.emplace_back(Hinge8);
-
-        // Drive engine.
-        //Hinge8->enableMotor(true);
-        //Hinge8->setMaxMotorImpulse(engine.maxEngineForce / 10.f);
-        //Hinge8->setMotorTargetVelocity(0);
-
-        //lock hinge wheel towards axle
-        //Hinge6->setLimit(0, 0.1); // a tiny bit of slack
-        //Hinge7->setLimit(0, 0.1);
 
         engine.axles = axles;
 
@@ -489,11 +412,11 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         }
     }
     if (Input::Key(ImGuiKey_UpArrow)) {
-        engine.EngineForce = engine.maxVelocity;
+        engine.targetVelocity = engine.maxVelocity;
         engine.BreakingForce = 0.f;
     }
     if (Input::Key(ImGuiKey_DownArrow)) {
-        engine.EngineForce = -engine.maxVelocity;
+        engine.targetVelocity = -engine.maxVelocity;
         engine.BreakingForce = 0.f;
     }
     if (Input::Key(ImGuiKey_Space)) {
@@ -531,21 +454,30 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     wheels.emplace_back(wbl);
 
     for (auto &axle: axles) {
-        axle->setTargetVelocity(3, engine.EngineForce);
+        axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
+        axle->setTargetVelocity(3, engine.targetVelocity);
+
+        if(axle->getRigidBodyB().getLinearVelocity().length() > 10.f)
+            axle->getRigidBodyB().setFriction(engine.WheelFriction/2.f);
     }
     for (auto &axle: singleAxles) {
-        axle->setMotorTargetVelocity(engine.EngineForce);
+        axle->setMotorTargetVelocity(engine.targetVelocity);
     }
     //turning
     {
         axles[0]->setTargetVelocity(5, engine.TurnForce); // front right
         axles[1]->setTargetVelocity(5, engine.TurnForce); // front left
-        axles[2]->setTargetVelocity(5, engine.TurnForce); // front left
-        axles[3]->setTargetVelocity(5, engine.TurnForce); // front left
+
+        //turn other way if fast car
+        if(axles[2]->getRigidBodyB().getLinearVelocity().length() > 10.f){
+           engine.TurnForce *= -1;
+        }
+        axles[2]->setTargetVelocity(5, engine.TurnForce); // back right
+        axles[3]->setTargetVelocity(5, engine.TurnForce); // back left
 
     }
 
     //makes you need to hold button for power
-    engine.EngineForce = 0.f;
+    engine.targetVelocity = 0.f;
     engine.TurnForce = 0.f;
 }
