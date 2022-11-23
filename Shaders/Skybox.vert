@@ -12,5 +12,6 @@ layout(push_constant) uniform PushConstants {
 
 void main() {
     fragUv = pos;
-    gl_Position = pushConstants.vp * vec4(pos, 1.0);
+    vec4 clipPos = pushConstants.vp * vec4(pos, 1.0);
+    gl_Position = clipPos.xyww;
 }
