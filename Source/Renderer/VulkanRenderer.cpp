@@ -68,9 +68,6 @@ namespace FLOOF {
         vkDestroyDescriptorPool(m_LogicalDevice, m_UBODescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_MaterialDescriptorPool, nullptr);
         vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
-        for (auto& frameData : m_VulkanWindow.Frames) {
-            vkDestroyCommandPool(m_LogicalDevice, frameData.CommandPool, nullptr);
-        }
         for (auto& [key, val] : m_DescriptorSetLayouts) {
             vkDestroyDescriptorSetLayout(m_LogicalDevice, val, nullptr);
         }
@@ -114,7 +111,6 @@ namespace FLOOF {
 
     void VulkanRenderer::NewFrame() {
         m_VulkanWindow.ImageIndex = GetNextSwapchainImage(m_VulkanWindow);
-        vkResetCommandPool(m_LogicalDevice, m_VulkanWindow.Frames[m_VulkanWindow.FrameIndex].CommandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
     }
 
     void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPassBeginInfo* renderPassInfo) {
@@ -1192,10 +1188,6 @@ namespace FLOOF {
         VkResult result = vkCreateCommandPool(m_LogicalDevice, &poolInfo, nullptr, &m_CommandPool);
         ASSERT(result == VK_SUCCESS);
 
-        for (auto& frameData : m_VulkanWindow.Frames) {
-            result = vkCreateCommandPool(m_LogicalDevice, &poolInfo, nullptr, &frameData.CommandPool);
-            ASSERT(result == VK_SUCCESS);
-        }
         LOG("Command pool created.\n");
     }
 
@@ -1650,7 +1642,7 @@ namespace FLOOF {
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = m_VulkanWindow.Frames[m_VulkanWindow.FrameIndex].CommandPool;
+        allocInfo.commandPool = m_CommandPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
         VkCommandBuffer commandBuffer;

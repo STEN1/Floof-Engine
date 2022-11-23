@@ -144,18 +144,14 @@ namespace FLOOF {
         InitOpenAL(device);
     }
 
-    void SoundManager::Update() {
+    void SoundManager::Update(Scene* scene, CameraComponent* camera) {
 
         float globalRefDistance = 125.0f;
         float globalMaxDistance = 1250.0f;
 
+		SetListener(camera->Position, glm::vec3(0.f), camera->Forward, camera->Up);
 
-        auto& app = Application::Get();
-        auto& registry = app.m_Scene->GetRegistry();
-        auto camera = app.m_EditorCamera;
-		SetListener(camera.Position, glm::vec3(0.f), camera.Forward, camera.Up);
-
-        auto view = registry.view<TransformComponent, SoundSourceComponent>();
+        auto view = scene->GetRegistry().view<TransformComponent, SoundSourceComponent>();
         for (auto [entity, transform, soundsource] : view.each()) {
 	        if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();

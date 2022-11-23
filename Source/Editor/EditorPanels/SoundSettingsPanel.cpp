@@ -1,11 +1,10 @@
 #include "SoundSettingsPanel.h"
 #include "../../Application.h"
 #include "../../Scene.h"
+#include "../EditorLayer.h"
 
 namespace FLOOF {
     void SoundSettingsPanel::DrawPanel() {
-        auto& app = Application::Get();
-
         ImGui::Begin("Sounds Settings");
 
 		if (ImGui::SmallButton("Refresh Device List"))

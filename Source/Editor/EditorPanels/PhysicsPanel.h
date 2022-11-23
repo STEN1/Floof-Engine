@@ -8,11 +8,13 @@
 namespace FLOOF {
     class PhysicsPanel : public EditorPanel {
     public:
+        PhysicsPanel(EditorLayer* editorLayer) : EditorPanel(editorLayer) {}
+
         virtual void DrawPanel();
 
-        static const entt::entity SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture);
+        const entt::entity SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture);
 
-        static const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture, bt::CollisionPrimitive shape = bt::CollisionPrimitive::ConvexHull);
+        const entt::entity SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture, bt::CollisionPrimitive shape = bt::CollisionPrimitive::ConvexHull);
 
     };
 }

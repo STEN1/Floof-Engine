@@ -26,12 +26,14 @@ namespace FLOOF {
     };
 
     class Scene;
+    class PhysicsDebugDraw;
     class SceneRenderer {
         friend class RendererPanel;
     public:
         SceneRenderer();
         ~SceneRenderer();
-        SceneRenderFinishedData RenderToTexture(Scene* scene, glm::vec2 extent);
+        SceneRenderFinishedData RenderToTexture(Scene* scene, glm::vec2 extent, CameraComponent* camera, RenderPipelineKeys drawMode,
+            PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore);
 
     private:
         void CreateTextureRenderer();
@@ -56,7 +58,9 @@ namespace FLOOF {
 
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
+        std::vector<VkSemaphore> m_waitSemaphores;
         std::vector<VkSemaphore> m_SignalSemaphores;
+        std::vector<VkCommandBuffer> m_CommandBuffers;
 
         VulkanImageData m_ResolveBuffer{};
         VkImageView m_ResolveImageView = VK_NULL_HANDLE;

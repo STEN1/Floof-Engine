@@ -1,6 +1,7 @@
 #include "RendererPanel.h"
 #include "../../Application.h"
 #include "../../Renderer/SceneRenderer.h"
+#include "../EditorLayer.h"
 
 namespace FLOOF {
 	// Matches indices from RenderPipelineKeys in VulkanRenderer.h
@@ -13,19 +14,25 @@ namespace FLOOF {
 	};
 	void RendererPanel::DrawPanel()
 	{
-		auto& app = Application::Get();
-		auto& sceneRenderer = *app.m_SceneRenderer.get();
-
-		static int selectedDrawMode = static_cast<int>(app.m_DrawMode);
+		static int editorDrawMode = static_cast<int>(RenderPipelineKeys::PBR);
+		static int playDrawMode = static_cast<int>(RenderPipelineKeys::PBR);
 
 		ImGui::Begin("Renderer");
 
-		if (ImGui::Combo("DrawMode",
-			&selectedDrawMode,
+		if (ImGui::Combo("Editor draw mode",
+			&editorDrawMode,
 			ApplicationDrawModes,
 			IM_ARRAYSIZE(ApplicationDrawModes)))
 		{
-			app.SetDrawMode(static_cast<RenderPipelineKeys>(selectedDrawMode));
+			m_EditorLayer->SetEditorDrawMode(static_cast<RenderPipelineKeys>(editorDrawMode));
+		}
+
+		if (ImGui::Combo("Play draw mode",
+			&playDrawMode,
+			ApplicationDrawModes,
+			IM_ARRAYSIZE(ApplicationDrawModes)))
+		{
+			m_EditorLayer->SetPlayDrawMode(static_cast<RenderPipelineKeys>(playDrawMode));
 		}
 
 		ImGui::End();

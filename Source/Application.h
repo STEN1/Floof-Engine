@@ -17,82 +17,37 @@
 
 namespace FLOOF {
     class Application {
-        friend class SoundManager;
-        friend class ForwardSceneRenderer;
-        friend class EditorLayer;
-        friend class ApplicationPanel;
-        friend class SceneGraphPanel;
-        friend class ComponentsPanel;
-        friend class RendererPanel;
         Application();
     public:
-        int Run();
         static Application& Get() { 
             static Application app;
             return app; 
         }
-    private:
-        /**
-         * @brief Updates GUI for application
-        */
+
+        int Run();
+
+        void SetDrawMode(RenderPipelineKeys drawMode) { m_DrawMode = drawMode; }
+
+        RenderPipelineKeys GetDrawMode() { return m_DrawMode; }
+
         void UpdateImGui(double deltaTime);
-        
-        /**
-         * @brief Updates all cameras
-        */
-        void UpdateCameraSystem(double deltaTime);
 
         void Update(double deltaTime);
 
         void Draw(double deltaTime);
 
         void CleanApplication();
-        
+
+    private:
+
         GLFWwindow* m_Window;
         ImGuiContext* m_ImguiContext;
         VulkanRenderer* m_Renderer;
+        std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
 
         std::vector<std::unique_ptr<ApplicationLayer>> m_ApplicationLayers;
 
-        void SelectDebugScene(DebugScenes type);
-        DebugScenes m_CurrentDebugScene;
-
-    public:
-        PhysicsDebugDraw* GetPhysicsSystemDrawer() { return m_Scene->GetPhysicsDebugDrawer(); }
-
-        void MakePhysicsScene();
-        void MakePhysicsPlayGround();
-        void MakeRenderingDemoScene();
-        void MakeAudioTestScene();
-        void MakeLandscapeScene();
-
-        void SetDrawMode(RenderPipelineKeys drawMode) { m_DrawMode = drawMode; }
-        RenderPipelineKeys GetDrawMode() { return m_DrawMode; }
-
-        /**
-         * @brief Temp, currently editor camera is set as render camera. 
-         * @brief Rendercamera can be changed at any stage. (i.e playerController->GetCamera() -> SetRenderCamera).
-         * @param cam 
-        */
-        void SetRenderCamera(CameraComponent& cam);
-
-        /**
-         * @brief SceneRenderer uses this function to get the render camera
-         * @return Non owning camera pointer
-        */
-        CameraComponent* GetRenderCamera();
-
-    private:
-        /*SceneRenderer Objects*/     
-        std::unique_ptr<SceneRenderer> m_SceneRenderer;
-
-        /*SceneCamera, temp*/
-        float m_CameraSpeed{ 100.f };
-        CameraComponent m_EditorCamera;   
-        CameraComponent* m_RenderCamera{nullptr};
+        // TODO: Move to editor layer?
         RenderPipelineKeys m_DrawMode{ RenderPipelineKeys::PBR };
-
-    public:
-        std::shared_ptr<Scene> m_Scene;
     };
 }

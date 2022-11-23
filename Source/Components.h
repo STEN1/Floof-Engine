@@ -57,6 +57,7 @@ namespace FLOOF {
     };
 
     struct CameraComponent {
+        CameraComponent();
         CameraComponent(glm::vec3 position);
 
         glm::mat4 GetVP(float fov, float aspect, float near, float far);

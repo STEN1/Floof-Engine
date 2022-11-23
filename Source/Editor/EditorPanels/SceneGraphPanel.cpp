@@ -1,12 +1,12 @@
 #include "SceneGraphPanel.h"
 #include "../../Application.h"
+#include "../EditorLayer.h"
 
 namespace FLOOF {
 	void SceneGraphPanel::DrawPanel()
 	{
-        auto& app = Application::Get();
         ImGui::Begin("Scene graph");
-        auto view = app.m_Scene->GetRegistry().view<TransformComponent, TagComponent, Relationship>();
+        auto view = m_EditorLayer->GetScene()->GetRegistry().view<TransformComponent, TagComponent, Relationship>();
         for (auto [entity, transform, tag, rel] : view.each()) {
             // only care about entitys without parent.
             // deal with child entitys later.
@@ -27,7 +27,7 @@ namespace FLOOF {
 
         ImGuiTreeNodeFlags node_flags = base_flags;
 
-        if (entity == app.m_Scene->m_SelectedEntity)
+        if (entity == m_EditorLayer->GetScene()->m_SelectedEntity)
             node_flags |= ImGuiTreeNodeFlags_Selected;
 
         if (rel.Children.empty()) {
@@ -36,20 +36,20 @@ namespace FLOOF {
             node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
             ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                app.m_Scene->m_SelectedEntity = entity;
+                m_EditorLayer->GetScene()->m_SelectedEntity = entity;
             }
 
         } else {
             // is parent to children and has to make a tree
             bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
             if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                app.m_Scene->m_SelectedEntity = entity;
+                m_EditorLayer->GetScene()->m_SelectedEntity = entity;
             }
 
             if (node_open) {
                 for (auto& childEntity : rel.Children) {
-                    auto& childTag = app.m_Scene->GetComponent<TagComponent>(childEntity);
-                    auto& childRel = app.m_Scene->GetComponent<Relationship>(childEntity);
+                    auto& childTag = m_EditorLayer->GetScene()->GetComponent<TagComponent>(childEntity);
+                    auto& childRel = m_EditorLayer->GetScene()->GetComponent<Relationship>(childEntity);
                     MakeTreeNode(childEntity, childTag.Tag.c_str(), childRel);
                 }
                 ImGui::TreePop();

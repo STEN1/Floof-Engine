@@ -76,6 +76,11 @@ namespace FLOOF {
         memcpy(VertexBuffer.AllocationInfo.pMappedData, vertexData.data(), sizeof(ColorVertex) * VertexCount);
     }
 
+    CameraComponent::CameraComponent()
+        : CameraComponent(glm::vec3(0.f))
+    {
+    }
+
     CameraComponent::CameraComponent(glm::vec3 position) : Position{position} {
         Up = glm::vec3(0.f, -1.f, 0.f);
         Forward = glm::vec3(0.f, 0.f, 1.f);

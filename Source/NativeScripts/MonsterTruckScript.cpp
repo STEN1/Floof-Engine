@@ -394,7 +394,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
 
-    auto scene = Application::Get().m_Scene;
+    auto* scene = m_Scene;
     auto &engine = scene->GetComponent<EngineComponent>(frame);
 
     if (Input::Key(ImGuiKey_RightArrow)) {

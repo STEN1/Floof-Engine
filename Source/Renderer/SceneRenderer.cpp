@@ -2,6 +2,7 @@
 #include "VulkanRenderer.h"
 #include "../Application.h"
 #include <iostream>
+#include "../PhysicsSystem.h"
 
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {
@@ -24,21 +25,19 @@ namespace FLOOF {
         DestroyTextureRenderer();
     }
 
-    SceneRenderFinishedData SceneRenderer::RenderToTexture(Scene* scene, glm::vec2 extent) {
+    SceneRenderFinishedData SceneRenderer::RenderToTexture(Scene* scene, glm::vec2 extent, CameraComponent* camera,
+            RenderPipelineKeys drawMode, PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore) {
         if (extent == glm::vec2(0.f))
             return SceneRenderFinishedData();
         if (extent != m_Extent)
             ResizeBuffers(extent);
 
-        auto &app = Application::Get();
         auto *renderer = VulkanRenderer::Get();
         auto *window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
         auto &frameData = window->Frames[frameIndex];
-        auto waitSemaphore = frameData.ImageAvailableSemaphore;
         auto signalSemaphore = m_SignalSemaphores[frameIndex];
-        auto commandBuffer = renderer->AllocateCommandBuffer();
-        renderer->BeginSingleUseCommandBuffer(commandBuffer);
+        auto commandBuffer = m_CommandBuffers[frameIndex];
 
         VkExtent2D vkExtent;
         vkExtent.width = m_Extent.x;
@@ -66,7 +65,6 @@ namespace FLOOF {
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         // Camera setup
-        CameraComponent *camera = app.GetRenderCamera();
         glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 0.5f, 1000000.f);
         glm::mat4 cameraView = camera->GetView();
         glm::mat4 vp = cameraProjection * cameraView;
@@ -85,7 +83,6 @@ namespace FLOOF {
             m_Skybox->Draw(commandBuffer, pipelineLayout);
         }
 
-        auto drawMode = app.GetDrawMode();
         auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
 
         if (drawMode == RenderPipelineKeys::PBR) {
@@ -186,7 +183,6 @@ namespace FLOOF {
         }
 
         // Draw debug lines
-        auto *physicDrawer = app.GetPhysicsSystemDrawer();
         if (physicDrawer) {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
             auto *lineMesh = physicDrawer->GetUpdatedLineMesh();
@@ -252,13 +248,18 @@ namespace FLOOF {
     }
 
     void SceneRenderer::CreateTextureRenderer() {
+        auto *renderer = VulkanRenderer::Get();
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_SignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_waitSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_CommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        for (auto& commandBuffer : m_CommandBuffers) {
+            commandBuffer = renderer->AllocateCommandBuffer();
+        }
 
         CreateSyncObjects();
 
         CreateRenderPass();
-        auto *renderer = VulkanRenderer::Get();
         {    // PBR shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
@@ -694,6 +695,11 @@ namespace FLOOF {
                 &semaphoreInfo, nullptr, &semaphore);
             ASSERT(result == VK_SUCCESS);
         }
+        for (auto& semaphore : m_waitSemaphores) {
+            VkResult result = vkCreateSemaphore(renderer->GetDevice(),
+                &semaphoreInfo, nullptr, &semaphore);
+            ASSERT(result == VK_SUCCESS);
+        }
     }
 
     void SceneRenderer::DestroyRenderPass() {
@@ -721,6 +727,9 @@ namespace FLOOF {
     void SceneRenderer::DestroySyncObjects() {
         auto* renderer = VulkanRenderer::Get();
         for (auto& semaphore : m_SignalSemaphores) {
+            vkDestroySemaphore(renderer->GetDevice(), semaphore, nullptr);
+        }
+        for (auto& semaphore : m_waitSemaphores) {
             vkDestroySemaphore(renderer->GetDevice(), semaphore, nullptr);
         }
     }

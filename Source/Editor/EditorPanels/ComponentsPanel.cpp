@@ -2,22 +2,23 @@
 #include "../../Application.h"
 #include <filesystem>
 #include <limits>
+#include "../EditorLayer.h"
 
 namespace FLOOF {
 	void ComponentsPanel::DrawPanel() {
 		auto& app = Application::Get();
 		ImGui::Begin("Components");
 		ImGui::Text("Components");
-		if (app.m_Scene && app.m_Scene->m_SelectedEntity != entt::null) {
-			if (auto* transform = app.m_Scene->GetRegistry().try_get<TransformComponent>(
-				app.m_Scene->m_SelectedEntity)) {
+		if (m_EditorLayer->GetScene() && m_EditorLayer->GetScene()->m_SelectedEntity != entt::null) {
+			if (auto* transform = m_EditorLayer->GetScene()->GetRegistry().try_get<TransformComponent>(
+				m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Transform component");
 				bool transformChanged{ false };
 				transformChanged |= ImGui::DragFloat3("Position", &transform->Position[0], 0.1f);
 				transformChanged |= ImGui::DragFloat3("Rotation", &transform->Rotation[0]);
 
-				if (auto* body = app.m_Scene->TryGetComponent<RigidBodyComponent>(app.m_Scene->m_SelectedEntity)) {
+				if (auto* body = m_EditorLayer->GetScene()->TryGetComponent<RigidBodyComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 					if (body->Primitive == bt::CollisionPrimitive::Sphere) {
 						transformChanged |= ImGui::DragFloat("Scale", &transform->Scale[0], 0.1, 0.01, std::numeric_limits<float>::max());
 						transform->Scale[1] = transform->Scale[2] = transform->Scale[0];
@@ -31,8 +32,8 @@ namespace FLOOF {
 				}
 			}
 
-			if (auto* soundComponent = app.m_Scene->GetRegistry().try_get<SoundSourceComponent>(
-				app.m_Scene->m_SelectedEntity)) {
+			if (auto* soundComponent = m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(
+				m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Sound Component");
 				ImGui::Text(soundComponent->m_Path.c_str());
@@ -50,8 +51,8 @@ namespace FLOOF {
 				if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }
 			}
 
-			if (auto* rigidBody = app.m_Scene->GetRegistry().try_get<RigidBodyComponent>(
-				app.m_Scene->m_SelectedEntity)) {
+			if (auto* rigidBody = m_EditorLayer->GetScene()->GetRegistry().try_get<RigidBodyComponent>(
+				m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Rigid body component");
 				if (rigidBody->RigidBody) {
@@ -73,11 +74,11 @@ namespace FLOOF {
 					ImGui::Text("Velocity length: %.3f", rigidBody->RigidBody->getLinearVelocity().length());
 				}
 			}
-			if (auto* softBody = app.m_Scene->GetRegistry().try_get<SoftBodyComponent>(app.m_Scene->m_SelectedEntity)) {
+			if (auto* softBody = m_EditorLayer->GetScene()->GetRegistry().try_get<SoftBodyComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Soft body component");
 			}
-			if (auto* staticMesh = app.m_Scene->GetRegistry().try_get<StaticMeshComponent>(app.m_Scene->m_SelectedEntity)) {
+			if (auto* staticMesh = m_EditorLayer->GetScene()->GetRegistry().try_get<StaticMeshComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Static mesh component");
 				if (ImGui::Button("Toggle all Wireframe off")) {
@@ -85,7 +86,7 @@ namespace FLOOF {
 						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = false;
 					}
 				}
-				if (app.m_Scene->m_SelectedEntity != app.m_Scene->m_LastSelectedEntity) {
+				if (m_EditorLayer->GetScene()->m_SelectedEntity != m_EditorLayer->GetScene()->m_LastSelectedEntity) {
 					for (auto& mesh : staticMesh->meshes) {
 						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = true;
 					}
@@ -119,8 +120,8 @@ namespace FLOOF {
 			
 
 			}
-			if (auto* scriptComponent = app.m_Scene->TryGetComponent<ScriptComponent>(
-				app.m_Scene->m_SelectedEntity)) {
+			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(
+				m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Script Component");
 				std::string currentscript = scriptComponent->ModuleName;

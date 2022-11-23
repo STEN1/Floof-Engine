@@ -119,7 +119,6 @@ namespace FLOOF {
         VkSemaphore     ImageAvailableSemaphore = VK_NULL_HANDLE;
         VkSemaphore     RenderFinishedSemaphore = VK_NULL_HANDLE;
         VkFence         Fence = VK_NULL_HANDLE;
-        VkCommandPool   CommandPool = VK_NULL_HANDLE;
     };
 
     struct VulkanWindow {

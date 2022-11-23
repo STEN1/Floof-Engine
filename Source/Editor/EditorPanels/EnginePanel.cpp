@@ -2,10 +2,11 @@
 
 #include "EnginePanel.h"
 #include "../../Application.h"
+#include "../EditorLayer.h"
 
 void FLOOF::EnginePanel::DrawPanel() {
 
-    auto scene = Application::Get().m_Scene;
+    auto* scene = m_EditorLayer->GetScene();
     auto view = scene->GetCulledScene().view<EngineComponent>();
 
     ImGui::Begin("Engine Panel");

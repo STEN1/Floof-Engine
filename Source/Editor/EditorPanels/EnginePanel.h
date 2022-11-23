@@ -6,6 +6,8 @@
 #include "../../Math.h"
 namespace FLOOF {
     class EnginePanel : public EditorPanel{
+    public:
+        EnginePanel(EditorLayer* editorLayer) : EditorPanel(editorLayer) {}
         virtual void DrawPanel();
     };
 }

@@ -37,6 +37,16 @@ namespace FLOOF {
         // Get ref to scene registry.
         entt::registry& GetRegistry();
 
+        bool IsActiveScene() { return m_IsActiveScene; }
+
+        CameraComponent* GetEditorCamera() { return &m_EditorCamera; }
+
+        // Returns the first scene camera, or the
+        // editor camera if no camera was found.
+        CameraComponent* GetFirstSceneCamera();
+
+        uint32_t GetSceneID() { return m_SceneID; }
+
         /**
          * @brief Creates entity with Transform, tag, and relationship components.
          * @param tag: Entity name tag.
@@ -66,7 +76,6 @@ namespace FLOOF {
         PhysicsSystem* GetPhysicSystem(){return m_PhysicSystem.get();}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
     private:
-        VkSemaphore OnDraw(float deltaTime);
         void OnUpdate(float deltaTime);
         void OnCreate();
     private:
@@ -79,5 +88,8 @@ namespace FLOOF {
 
         std::unique_ptr<SceneRenderer> m_SceneRenderer;
         uint32_t m_SceneID;
+        bool m_IsActiveScene = false;
+
+        CameraComponent m_EditorCamera;
     };
 }

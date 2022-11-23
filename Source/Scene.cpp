@@ -52,33 +52,17 @@ namespace FLOOF {
         return m_Registry;
     }
 
-    VkSemaphore Scene::OnDraw(float deltaTime)
+    CameraComponent* Scene::GetFirstSceneCamera()
     {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-        ImGui::Begin((std::string("Scene renderer") + std::to_string(m_SceneID)).c_str());
-        ImGui::PopStyleVar();
+        CameraComponent* camera = &m_EditorCamera;
 
-        ImVec2 canvasOffset = ImGui::GetWindowPos();
-        ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
-        ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
-        canvas_p0.x += canvasOffset.x;
-        canvas_p0.y += canvasOffset.y;
-        canvas_p1.x += canvasOffset.x;
-        canvas_p1.y += canvasOffset.y;
-
-        glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
-        if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
-            sceneCanvasExtent = glm::vec2(0.f);
-
-        auto sceneRenderData = m_SceneRenderer->RenderToTexture(this, sceneCanvasExtent);
-
-        if (sceneRenderData.Texture != VK_NULL_HANDLE) {
-            ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddImage(sceneRenderData.Texture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
+        auto view = m_Registry.view<CameraComponent>();
+        for (auto [entity, cameraComp] : view.each()) {
+            camera = &cameraComp;
+            break;
         }
-        ImGui::End();
 
-        return sceneRenderData.SceneRenderFinishedSemaphore;
+        return camera;
     }
 
     void Scene::OnUpdate(float deltaTime) {
@@ -92,8 +76,8 @@ namespace FLOOF {
         }
 
         m_PhysicSystem->OnUpdate(deltaTime);
-        SoundManager::Update();
 
+        SoundManager::Update(this, GetFirstSceneCamera());
     }
 
     void Scene::OnCreate() {

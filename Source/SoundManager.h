@@ -46,7 +46,7 @@ namespace FLOOF {
 		static void UpdateDeviceList();
 		static void SetNewDevice(std::string device);
 
-		static void Update();
+		static void Update(Scene* scene, CameraComponent* camera);
 	private:
 		static std::vector<std::string> GetAvailableDevices();
 		static ALuint LoadWav(std::string sound);
