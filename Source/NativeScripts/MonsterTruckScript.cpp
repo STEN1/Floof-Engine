@@ -396,30 +396,30 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
 
     auto* scene = m_Scene;
     auto &engine = scene->GetComponent<EngineComponent>(frame);
-
-    if (Input::Key(ImGuiKey_RightArrow)) {
+    bool windowIsActive = scene->IsActiveScene();
+    if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
         engine.TurnForce = -engine.maxTurnForce;
         engine.VehicleSteering += engine.steeringIncrement;
         if (engine.VehicleSteering > engine.steeringClamp) {
             engine.VehicleSteering = engine.steeringClamp;
         }
     }
-    if (Input::Key(ImGuiKey_LeftArrow)) {
+    if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
         engine.TurnForce = engine.maxTurnForce;
         engine.VehicleSteering -= engine.steeringIncrement;
         if (engine.VehicleSteering < -engine.steeringClamp) {
             engine.VehicleSteering = -engine.steeringClamp;
         }
     }
-    if (Input::Key(ImGuiKey_UpArrow)) {
+    if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
         engine.targetVelocity = engine.maxVelocity;
         engine.BreakingForce = 0.f;
     }
-    if (Input::Key(ImGuiKey_DownArrow)) {
+    if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
         engine.targetVelocity = -engine.maxVelocity;
         engine.BreakingForce = 0.f;
     }
-    if (Input::Key(ImGuiKey_Space)) {
+    if (Input::Key(ImGuiKey_Space) && windowIsActive) {
         auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
         bl.lightRange = 100.f;
         //todo brake
@@ -429,7 +429,7 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
 
         bl.lightRange = 20.f;
     }
-    if (ImGui::IsKeyPressed(ImGuiKey_F, false)) {
+    if (ImGui::IsKeyPressed(ImGuiKey_F, false) && windowIsActive) {
         auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
         auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
 

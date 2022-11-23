@@ -28,6 +28,7 @@ namespace FLOOF {
         friend class EditorLayer;
         friend class SceneGraphPanel;
         friend class ComponentsPanel;
+        friend class EditorLayer;
     public:
         Scene();
         ~Scene();

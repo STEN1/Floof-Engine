@@ -133,6 +133,7 @@ namespace FLOOF {
             ImGui::PopStyleVar();
 
             m_PlayViewFocused = ImGui::IsWindowFocused();
+            m_Scene->m_IsActiveScene = m_PlayViewFocused;
 
             ImVec2 canvasOffset = ImGui::GetWindowPos();
             ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
