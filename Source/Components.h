@@ -252,7 +252,7 @@ namespace FLOOF {
 
         float breakingForce = 100.f;
 
-        float maxEngineForce = 10000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 8000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 1000.f;
         float maxVelocity = 20.f;
 
@@ -264,8 +264,6 @@ namespace FLOOF {
         float suspensionDamping = 8000.f;
         float suspensionCompression = 4.4f;
 
-        float RollingFriction{2.0f};
-        float SpinningFriction{2.f};
         float WheelFriction{2.f};
 
         float suspensionRestLength = 0.8;
@@ -278,6 +276,8 @@ namespace FLOOF {
             float multiplier = 1-(velocity/100.f);
             return maxEngineForce*multiplier;
         }
+        float velocityGraph[1000];
+        float TorqueGraph[1000];
 
     };
 

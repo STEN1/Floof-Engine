@@ -16,6 +16,7 @@ namespace FLOOF {
         ~PhysicsSystem();
 
         void OnUpdate(float DeltaTime);
+        void OnEditorUpdate(float DeltaTime);
 
         void UpdateDynamicWorld();
 
