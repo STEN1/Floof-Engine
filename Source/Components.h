@@ -252,7 +252,7 @@ namespace FLOOF {
         const float defaultBreakingForce = 10.f;
         float BreakingForce = 100.f;
 
-        float maxEngineForce = 20000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 10000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 100.f;
         float maxVelocity = 20.f;
 
@@ -266,9 +266,9 @@ namespace FLOOF {
         float suspensionDamping = 8000.f;
         float suspensionCompression = 4.4f;
 
-        float RollingFriction{2.0f};
+        float RollingFriction{1.0f};
         float SpinningFriction{1.f};
-        float WheelFriction{2.f};
+        float WheelFriction{1.f};
 
         float suspensionRestLength = 0.8;
 
