@@ -16,7 +16,7 @@ void FLOOF::EnginePanel::DrawPanel() {
     for (auto [entity, Engine]: view.each()) {
         if (ImGui::CollapsingHeader("Engine Graph")) {
             ImGui::PlotLines("Velocity", Engine.velocityGraph.data(), Engine.velocityGraph.size(),Engine.GraphOffset, "m/s", 0.0f, 50.f, ImVec2(200, 100.0f));
-            ImGui::PlotLines("Torque", Engine.TorqueGraph.data(), Engine.TorqueGraph.size(),Engine.GraphOffset, "kn", 1000.0f, 10000.f, ImVec2(200, 100.0f));
+            ImGui::PlotLines("Torque", Engine.TorqueGraph.data(), Engine.TorqueGraph.size(),Engine.GraphOffset, "kn", 1000.0f, 20000.f, ImVec2(200, 100.0f));
         }
         bool transformChanged{false};
         if (ImGui::CollapsingHeader("Engine Controls")) {
