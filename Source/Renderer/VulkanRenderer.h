@@ -60,6 +60,7 @@ namespace FLOOF {
         Basic,
         Line,
         LineStrip,
+        Landscape,
         Lit,
         Point,
         LineWithDepth,
