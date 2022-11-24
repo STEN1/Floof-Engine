@@ -19,7 +19,6 @@ void FLOOF::EnginePanel::DrawPanel() {
 
             transformChanged |= ImGui::DragFloat("Max Velocity", &Engine.maxVelocity);
             transformChanged |= ImGui::DragFloat("Max Torque", &Engine.maxEngineForce);
-            transformChanged |= ImGui::DragFloat("Max Turn Torque", &Engine.maxTurnForce);
             transformChanged |= ImGui::DragFloat("Max Breaking Force", &Engine.maxBreakingForce);
 
         }
@@ -39,8 +38,7 @@ void FLOOF::EnginePanel::DrawPanel() {
             for (auto &hinge: Engine.axles) {
                 // Drive engine.
                 hinge->setMaxMotorForce(3, Engine.maxEngineForce);
-                // Steering engine.
-                hinge->setMaxMotorForce(5, Engine.maxTurnForce);
+
                 //suspension
                 hinge->setDamping(2, Engine.suspensionDamping);
                 hinge->setStiffness(2, Engine.suspensionStiffness);
