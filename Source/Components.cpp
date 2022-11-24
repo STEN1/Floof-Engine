@@ -133,6 +133,12 @@ namespace FLOOF {
 
     }
 
+    void CameraComponent::Lookat(const glm::vec3 eye, const glm::vec3 center, const glm::vec3 up) {
+        Position = eye;
+        Forward = center - eye;
+        Up = up;
+    }
+
     PointCloudComponent::PointCloudComponent(const std::vector<ColorVertex> &vertexData) {
         auto renderer = VulkanRenderer::Get();
 
