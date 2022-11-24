@@ -21,12 +21,32 @@ namespace FLOOF {
 			ImGui::OpenPopup("Component popup");
 		if (ImGui::BeginPopup("Component popup"))
 		{
+			int selectedComponent = -1;
 			for (uint32_t i = 0; i < std::size(componentNames); i++) {
 				if (ImGui::Button(componentNames[i], ImVec2(windowWidth, 0.f))) {
+					selectedComponent = i;
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			ImGui::EndPopup();
+			auto selectedEntity = m_EditorLayer->GetScene()->m_SelectedEntity;
+			if (selectedComponent != -1 && selectedEntity != entt::null) {
+				switch (selectedComponent)
+				{
+				case 0: // point light
+				{
+					if (!m_EditorLayer->GetScene()->TryGetComponent<PointLightComponent>(selectedEntity))
+						m_EditorLayer->GetScene()->AddComponent<PointLightComponent>(selectedEntity);
+					break;
+				}
+				case 1: // mesh
+				{
+					if (!m_EditorLayer->GetScene()->TryGetComponent<StaticMeshComponent>(selectedEntity))
+						m_EditorLayer->GetScene()->AddComponent<StaticMeshComponent>(selectedEntity, "Assets/Ball.obj");
+					break;
+				}
+				}
+			}
 		}
 
 		ImGui::Separator();
@@ -140,6 +160,12 @@ namespace FLOOF {
 				}
 			
 
+			}
+			if (auto* pointLight = m_EditorLayer->GetScene()->GetRegistry().try_get<PointLightComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
+				ImGui::Separator();
+				ImGui::Text("Point light component");
+				ImGui::ColorPicker3("Light color", &pointLight->diffuse[0]);
+				ImGui::DragFloat("Light range", &pointLight->lightRange, 0.01f, 1.f);
 			}
 			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(
 				m_EditorLayer->GetScene()->m_SelectedEntity)) {

@@ -24,6 +24,7 @@ namespace FLOOF {
 
     void SceneGraphPanel::AddEntity()
     {
+        m_EditorLayer->GetScene()->CreateEntity();
     }
 
     void SceneGraphPanel::MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel) {
