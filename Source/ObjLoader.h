@@ -48,6 +48,7 @@ private:
         std::string MetallicPath;
         std::string RoughnessPath;
         std::string AOPath;
+        std::string OpacityPath;
         std::string Name;
     };
 

@@ -26,6 +26,9 @@ namespace FLOOF {
             if (!mesh.MeshMaterial.AO.Path.empty()) {
                 mesh.MeshMaterial.AO = Texture(assetPath + mesh.MeshMaterial.AO.Path);
             }
+            if (!mesh.MeshMaterial.Opacity.Path.empty()) {
+                mesh.MeshMaterial.Opacity = Texture(assetPath + mesh.MeshMaterial.Opacity.Path);
+            }
             mesh.MeshMaterial.UpdateDescriptorSet();
         }
     }

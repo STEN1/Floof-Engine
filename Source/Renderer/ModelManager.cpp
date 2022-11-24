@@ -30,6 +30,7 @@ namespace FLOOF {
             meshData.MeshMaterial.Metallic.Path = mesh.material.MetallicPath;
             meshData.MeshMaterial.Roughness.Path = mesh.material.RoughnessPath;
             meshData.MeshMaterial.AO.Path = mesh.material.AOPath;
+            meshData.MeshMaterial.Opacity.Path = mesh.material.OpacityPath;
             ret.emplace_back(meshData);
         }
 
