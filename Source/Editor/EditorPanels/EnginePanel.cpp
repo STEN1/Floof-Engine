@@ -38,6 +38,13 @@ void FLOOF::EnginePanel::DrawPanel() {
             std::string gear = "Current Gear : ";
             gear += std::to_string(Engine.CurrentGear+1);
             ImGui::Text(gear.c_str());
+
+            int i = 1;
+            for(auto& [speed, torque] : Engine.Gears){
+                std::string stats = "Gear " + std::to_string(i)  + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "kn";
+                ImGui::Text(stats.c_str());
+                i++;
+            }
         }
 
         if (transformChanged) {

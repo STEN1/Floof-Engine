@@ -70,13 +70,13 @@ namespace FLOOF {
         }
 
         AssimpLoader loader(path);
-
+        btModelData meshData;
         // Loader returns staticMesh, eventually it will return collision mesh too
         const auto& assimpStaticMesh = loader.GetAssimpStaticMesh();
         ASSERT(assimpStaticMesh.meshes.size() > 0);
         for (const auto& mesh : assimpStaticMesh.meshes)
         {
-            btModelData meshData;
+
             for(auto& vert : mesh.vertices){
                 auto pos = vert.Pos * scale;
                 meshData.btVertices.emplace_back(btVector3(pos.x,pos.y,pos.z));
@@ -84,11 +84,11 @@ namespace FLOOF {
             for(auto& ind : mesh.indices){
                 meshData.btIndices.emplace_back(ind);
             }
-            meshData.VertCount = mesh.vertices.size();
-            s_btMeshCache[pathwithScale] = meshData;
-           return meshData;
+            meshData.VertCount += mesh.vertices.size();
         }
 
+        s_btMeshCache[pathwithScale] = meshData;
+        return meshData;
     }
     static const std::vector<SimpleVertex> cubemapVertices = {
         // positions          

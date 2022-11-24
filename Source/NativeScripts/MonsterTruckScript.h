@@ -12,6 +12,7 @@ namespace FLOOF {
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
         virtual void OnUpdate(float deltaTime) override;
 
+        void CameraUi();
     private:
 
         entt::entity frame;
@@ -31,6 +32,17 @@ namespace FLOOF {
         std::vector<btHinge2Constraint*> axles;
         int graphnumb = 0;
 
+        struct CamLocation{
+            CamLocation(std::string n, glm::vec3 loc, glm::vec3 target){
+                CamLoc = loc;
+                CamTarget = target;
+                name = n;
+            }
+            glm::vec3 CamLoc;
+            glm::vec3 CamTarget;
+            std::string name;
+        };
+        std::vector<CamLocation> CamLocations;
     };
 
 }

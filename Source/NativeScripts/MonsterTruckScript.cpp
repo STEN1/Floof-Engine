@@ -120,10 +120,10 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         transform.Scale = glm::vec3(8.f);
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
-        body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.Looping(true);
-        sound.Play();
+        //sound.Play();
 
         //camera
         {
@@ -133,14 +133,14 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             auto &tf = scene->GetComponent<TransformComponent>(Camera);
             tf.Position = glm::vec3(-3.f,1.7f,0.f);
             tf.Scale = glm::vec3(0.1f);
-            scene->AddComponent<StaticMeshComponent>(Camera,"Assets/LowPolySphere.fbx");
+            //scene->AddComponent<StaticMeshComponent>(Camera,"Assets/LowPolySphere.fbx");
         }
         {
             CamTarget = scene->CreateEntity("CameraTarget",frame);
             auto &tf = scene->GetComponent<TransformComponent>(CamTarget);
             tf.Position = glm::vec3(2.4f,0.4f,0.f);
             tf.Scale = glm::vec3(0.1f);
-            scene->AddComponent<StaticMeshComponent>(CamTarget,"Assets/LowPolySphere.fbx");
+            //scene->AddComponent<StaticMeshComponent>(CamTarget,"Assets/LowPolySphere.fbx");
 
 
         }
@@ -413,10 +413,22 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             hinge->setDbgDrawSize(btScalar(1.5f));
         }
     }
+
+    //camera locations
+    {
+        CamLocations.emplace_back("Third Person",glm::vec3(-2.5f,1.2f,0.f),glm::vec3(2.f,0.4f,0.f));
+        CamLocations.emplace_back("Close Third Person",glm::vec3(-2.5f,1.2f,0.f),glm::vec3(1.f,0.1f,0.f));
+        CamLocations.emplace_back("First Person",glm::vec3(0.1f,0.4f,-0.15f),glm::vec3(2.4f,0.4f,0.f));
+        CamLocations.emplace_back("Cinematic",glm::vec3(-2.f,1.f,-1.f),glm::vec3(2.f,0.4f,0.f));
+        CamLocations.emplace_back("G T FUCKING A ",glm::vec3(0.2f,0.0f,-0.5f),glm::vec3(4.2f,0.5f,0.f));
+    }
 }
 
 void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
+
+    CameraUi();
+
     auto* scene = m_Scene;
     auto &engine = scene->GetComponent<EngineComponent>(frame);
     auto &car = scene->GetComponent<RigidBodyComponent>(frame);
@@ -537,11 +549,35 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
        engine.servoTarget = 0.f;
     }
 
+    //audio todo fix sound
+    auto& sound = m_Scene->GetComponent<SoundSourceComponent>(frame);
+
     //set camera
     auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
     auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
 
     auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
     cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
+
+}
+
+void FLOOF::MonsterTruckScript::CameraUi() {
+    ImGui::Begin("Play Camera");
+
+    static int p{0};
+    const char* presets[CamLocations.size()];
+    for(int i{0}; i < CamLocations.size(); i++){
+        presets[i] = CamLocations[i].name.c_str();
+    }
+    if (ImGui::Combo("Camera View",
+                     &p,
+                     presets,
+                     IM_ARRAYSIZE(presets))) {
+        auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
+        camTrans->Position = CamLocations[p].CamLoc;
+        auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
+        camtargetTrans->Position = CamLocations[p].CamTarget;
+    }
+    ImGui::End();
 
 }
