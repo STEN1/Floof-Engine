@@ -82,7 +82,7 @@ namespace FLOOF {
     }
 
     CameraComponent::CameraComponent(glm::vec3 position) : Position{position} {
-        Up = glm::vec3(0.f, 1.f, 0.f);
+        Up = glm::vec3(0.f, -1.f, 0.f);
         Forward = glm::vec3(0.f, 0.f, 1.f);
         Right = glm::normalize(glm::cross(Forward, Up));
     }
@@ -117,7 +117,7 @@ namespace FLOOF {
     void CameraComponent::Pitch(float amount) {
         if (amount == 0.f) return;
         glm::vec3 right = glm::normalize(glm::cross(Forward, Up));
-        glm::mat4 rotation = glm::rotate(-amount, right);
+        glm::mat4 rotation = glm::rotate(amount, right);
         Forward = glm::normalize(glm::vec3(rotation * glm::vec4(Forward, 1.f)));
     }
 
@@ -521,7 +521,7 @@ namespace FLOOF {
 
         //vulkan data
         meshData = landscape->getMeshData();
-        meshData.MeshMaterial.Diffuse = Texture(texture, false);
+        meshData.MeshMaterial.Diffuse = Texture(texture, true);
         meshData.MeshMaterial.UpdateDescriptorSet();
     }
 
