@@ -381,6 +381,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             hinge->setLowerLimit(-SIMD_PI * 0.2f);
             hinge->setUpperLimit(SIMD_PI * 0.2f);
 
+            hinge->setBreakingImpulseThreshold(20000.f);
             //back wheels
              if (hinge == Hinge3 || hinge == Hinge4) {
                 hinge->setLowerLimit(-SIMD_HALF_PI * 0.1f);
@@ -400,18 +401,12 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     auto &engine = scene->GetComponent<EngineComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
     if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
-        engine.TurnForce = -engine.maxTurnForce;
-        engine.VehicleSteering += engine.steeringIncrement;
-        if (engine.VehicleSteering > engine.steeringClamp) {
-            engine.VehicleSteering = engine.steeringClamp;
-        }
-    }
-    if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
         engine.TurnForce = engine.maxTurnForce;
         engine.VehicleSteering -= engine.steeringIncrement;
-        if (engine.VehicleSteering < -engine.steeringClamp) {
-            engine.VehicleSteering = -engine.steeringClamp;
-        }
+    }
+    if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
+        engine.TurnForce = -engine.maxTurnForce;
+        engine.VehicleSteering += engine.steeringIncrement;
     }
     if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
         engine.targetVelocity = engine.maxVelocity;
