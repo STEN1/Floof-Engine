@@ -11,6 +11,8 @@
 
 #include "../NativeScripts/MonsterTruckScript.h"
 
+#include "imgui_internal.h"
+
 namespace FLOOF {
     EditorLayer::EditorLayer()
     {
@@ -121,8 +123,10 @@ namespace FLOOF {
                 sceneCanvasExtent = glm::vec2(0.f);
             
             SceneRenderFinishedData sceneRenderData{};
-            sceneRenderData = m_EditorRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetEditorCamera(),
-                m_EditorDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
+            if (!ImGui::GetCurrentWindow()->Hidden) {
+                sceneRenderData = m_EditorRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetEditorCamera(),
+                    m_EditorDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
+            }
 
             if (sceneRenderData.Texture != VK_NULL_HANDLE) {
                 ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -154,8 +158,10 @@ namespace FLOOF {
                 sceneCanvasExtent = glm::vec2(0.f);
 
             SceneRenderFinishedData sceneRenderData{};
-            sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetFirstSceneCamera(),
-                m_PlayDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
+            if (!ImGui::GetCurrentWindow()->Hidden) {
+                sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetFirstSceneCamera(),
+                    m_PlayDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
+            }
             if (sceneRenderData.Texture != VK_NULL_HANDLE) {
                 ImDrawList* draw_list = ImGui::GetWindowDrawList();
                 draw_list->AddImage(sceneRenderData.Texture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
