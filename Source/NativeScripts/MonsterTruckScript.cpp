@@ -220,8 +220,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
-        RigidBody->setRollingFriction(engine.RollingFriction);
-        RigidBody->setSpinningFriction(engine.SpinningFriction);
+        RigidBody->setRollingFriction(1);
+        RigidBody->setSpinningFriction(1);
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
@@ -252,8 +252,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
-        RigidBody->setRollingFriction(engine.RollingFriction);
-        RigidBody->setSpinningFriction(engine.SpinningFriction);
+        RigidBody->setRollingFriction(1);
+        RigidBody->setSpinningFriction(1);
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right");
@@ -284,8 +284,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
-        RigidBody->setRollingFriction(engine.RollingFriction);
-        RigidBody->setSpinningFriction(engine.SpinningFriction);
+        RigidBody->setRollingFriction(1);
+        RigidBody->setSpinningFriction(1);
     }
     {
         Wheel_bl = scene->CreateEntity("Wheel back left");
@@ -316,10 +316,22 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
-        RigidBody->setRollingFriction(engine.RollingFriction);
-        RigidBody->setSpinningFriction(engine.SpinningFriction);
+        RigidBody->setRollingFriction(1);
+        RigidBody->setSpinningFriction(1);
     }
+    //make gears
+    {
+        auto& engine = m_Scene->GetComponent<EngineComponent>(frame);
+        engine.Gears.emplace_back(5.f,20000);
+        engine.Gears.emplace_back(10.f,10000);
+        engine.Gears.emplace_back(20.f,8000);
+        engine.Gears.emplace_back(40.f,6000);
+        engine.Gears.emplace_back(60.f,5000);
+        engine.Gears.emplace_back(90.f,4000);
 
+        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+    }
     //hinge car togheter
     {
 
@@ -407,9 +419,11 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
     auto* scene = m_Scene;
     auto &engine = scene->GetComponent<EngineComponent>(frame);
+    auto &car = scene->GetComponent<RigidBodyComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
 
     bool turnKeyPressed{false};
+    bool GasKeyPressed{false};
 
      if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
          turnKeyPressed |= true;
@@ -426,10 +440,12 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         }
     }
     if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
+        GasKeyPressed |= true;
         engine.targetVelocity = engine.maxVelocity;
         engine.breakingForce = 0.f;
     }
     if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
+        GasKeyPressed |= true;
         engine.targetVelocity = -engine.maxVelocity;
         engine.breakingForce = 0.f;
     }
@@ -456,6 +472,22 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
             fhl.lightRange = 100.f;
         }
     }
+    if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
+        engine.CurrentGear++;
+        if(engine.Gears.size() <= engine.CurrentGear){
+            engine.CurrentGear = engine.Gears.size()-1;
+        }
+        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+    }
+    if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
+        engine.CurrentGear--;
+        if(0 >= engine.CurrentGear){
+            engine.CurrentGear = 0;
+        }
+        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+    }
 
     for (auto &axle: axles) {
         axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
@@ -469,17 +501,17 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
 
         //back axles
         //turn other way if fast car
-        if(axles[2]->getRigidBodyB().getLinearVelocity().length() > 10.f){
-            axles[2]->setServoTarget(5,-engine.servoTarget/2.f);
-            axles[3]->setServoTarget(5, -engine.servoTarget/2.f);
+        if(axles[2]->getRigidBodyB().getLinearVelocity().length() > 15.f){
+            //axles[2]->setServoTarget(5,engine.servoTarget/2.f);
+            //axles[3]->setServoTarget(5, engine.servoTarget/2.f);
 
             //smaller sterring radius in big speed
             axles[0]->setLowerLimit(-SIMD_PI * 0.1f);
             axles[0]->setUpperLimit(SIMD_PI * 0.1f);
         }
         else{
-            axles[2]->setServoTarget(5,engine.servoTarget/2.f);
-            axles[3]->setServoTarget(5, engine.servoTarget/2.f);
+            axles[2]->setServoTarget(5,-engine.servoTarget/2.f);
+            axles[3]->setServoTarget(5, -engine.servoTarget/2.f);
 
             //bigger sterring radius in big speed
             axles[0]->setLowerLimit(-SIMD_PI * 0.2f);
@@ -487,6 +519,12 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         }
 
     }
+    if(graphnumb > 999)
+        graphnumb = 0;
+    engine.velocityGraph[graphnumb] = car.RigidBody->getLinearVelocity().length();
+    engine.TorqueGraph[graphnumb] = engine.getEngineForce(car.RigidBody->getLinearVelocity().length());
+    engine.GraphOffset = graphnumb;
+    graphnumb++;
 
     //makes you need to hold button for power
     engine.targetVelocity = 0.f;

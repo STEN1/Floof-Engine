@@ -14,6 +14,10 @@ void FLOOF::EnginePanel::DrawPanel() {
     ImGui::Text("Press 'Space' to Break");
 
     for (auto [entity, Engine]: view.each()) {
+        if (ImGui::CollapsingHeader("Engine Graph")) {
+            ImGui::PlotLines("Velocity", Engine.velocityGraph.data(), Engine.velocityGraph.size(),Engine.GraphOffset, "m/s", 0.0f, 50.f, ImVec2(200, 100.0f));
+            ImGui::PlotLines("Torque", Engine.TorqueGraph.data(), Engine.TorqueGraph.size(),Engine.GraphOffset, "kn", 1000.0f, 10000.f, ImVec2(200, 100.0f));
+        }
         bool transformChanged{false};
         if (ImGui::CollapsingHeader("Engine Controls")) {
 
@@ -29,8 +33,11 @@ void FLOOF::EnginePanel::DrawPanel() {
         }
         if (ImGui::CollapsingHeader("Wheel Controls")) {
             transformChanged |= ImGui::DragFloat("Wheel Friction", &Engine.WheelFriction,0.1,0.1,100);
-            transformChanged |= ImGui::DragFloat("Rolling Friction", &Engine.RollingFriction,0.1,0.1,100);
-            transformChanged |= ImGui::DragFloat("Spinning Friction", &Engine.SpinningFriction,0.1,0.1,100);
+        }
+        if (ImGui::CollapsingHeader("Gearing")) {
+            std::string gear = "Current Gear : ";
+            gear += std::to_string(Engine.CurrentGear+1);
+            ImGui::Text(gear.c_str());
         }
 
         if (transformChanged) {
@@ -45,8 +52,6 @@ void FLOOF::EnginePanel::DrawPanel() {
                 hinge->setLimit(2, 0, Engine.suspensionRestLength);
 
                 hinge->getRigidBodyB().setFriction(Engine.WheelFriction);
-                hinge->getRigidBodyB().setRollingFriction(Engine.RollingFriction);
-                hinge->getRigidBodyB().setSpinningFriction(Engine.SpinningFriction);
 
             }
 

@@ -6,6 +6,7 @@
 #include "../Components.h"
 
 namespace FLOOF {
+
     class MonsterTruckScript : public NativeScript {
     public:
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
@@ -28,8 +29,10 @@ namespace FLOOF {
         entt::entity HeadLightL;
 
         std::vector<btHinge2Constraint*> axles;
+        int graphnumb = 0;
 
     };
+
 }
 
 #endif //FLOOF_MONSTERTRUCKSCRIPT_H

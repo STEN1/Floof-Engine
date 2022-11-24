@@ -34,8 +34,11 @@ namespace FLOOF {
 
     void EditorLayer::OnUpdate(double deltaTime)
 	{
-        if (m_EditorViewFocused)
+        m_Scene->GetPhysicSystem()->OnEditorUpdate(deltaTime);
+        if (m_EditorViewFocused){
             UpdateEditorCamera(deltaTime);
+        }
+
         if (IsPlaying())
             m_Scene->OnUpdate(deltaTime);
 	}

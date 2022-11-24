@@ -136,7 +136,6 @@ namespace FLOOF {
                 }
             }
         }
-        mDynamicsWorld->debugDrawWorld();
 
     }
 
@@ -200,6 +199,10 @@ namespace FLOOF {
     void PhysicsSystem::AddCollisonShape(btCollisionObject *obj) {
         if (mDynamicsWorld)
             mDynamicsWorld->addCollisionObject(obj);
+    }
+
+    void PhysicsSystem::OnEditorUpdate(float DeltaTime) {
+        mDynamicsWorld->debugDrawWorld();
     }
 
 

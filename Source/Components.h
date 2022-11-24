@@ -246,13 +246,13 @@ namespace FLOOF {
     };
 
     struct EngineComponent {
-        EngineComponent(){};
+        EngineComponent(){velocityGraph.resize(1000,0);TorqueGraph.resize(1000,0);};
 
         float targetVelocity = 0.f;
 
         float breakingForce = 100.f;
 
-        float maxEngineForce = 10000.f;  //this should be engine/velocity dependent
+        float maxEngineForce = 8000.f;  //this should be engine/velocity dependent
         float maxBreakingForce = 1000.f;
         float maxVelocity = 20.f;
 
@@ -264,8 +264,6 @@ namespace FLOOF {
         float suspensionDamping = 8000.f;
         float suspensionCompression = 4.4f;
 
-        float RollingFriction{2.0f};
-        float SpinningFriction{2.f};
         float WheelFriction{2.f};
 
         float suspensionRestLength = 0.8;
@@ -276,8 +274,14 @@ namespace FLOOF {
 
         float getEngineForce(float velocity) {
             float multiplier = 1-(velocity/100.f);
-            return maxEngineForce*multiplier;
+            return maxEngineForce*multiplier*multiplier;
         }
+        std::vector<float> velocityGraph;
+        std::vector<float> TorqueGraph;
+        int GraphOffset = 0;
+
+        int CurrentGear{0};
+        std::vector<std::pair<float,float>> Gears; // max velocity, max torque
 
     };
 
