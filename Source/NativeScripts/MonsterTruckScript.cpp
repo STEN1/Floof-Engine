@@ -319,7 +319,19 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         RigidBody->setRollingFriction(1);
         RigidBody->setSpinningFriction(1);
     }
+    //make gears
+    {
+        auto& engine = m_Scene->GetComponent<EngineComponent>(frame);
+        engine.Gears.emplace_back(5.f,20000);
+        engine.Gears.emplace_back(10.f,10000);
+        engine.Gears.emplace_back(20.f,8000);
+        engine.Gears.emplace_back(40.f,6000);
+        engine.Gears.emplace_back(60.f,5000);
+        engine.Gears.emplace_back(90.f,4000);
 
+        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+    }
     //hinge car togheter
     {
 
@@ -460,6 +472,22 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
             fhl.lightRange = 100.f;
         }
     }
+    if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
+        engine.CurrentGear++;
+        if(engine.Gears.size() <= engine.CurrentGear){
+            engine.CurrentGear = engine.Gears.size()-1;
+        }
+        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+    }
+    if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
+        engine.CurrentGear--;
+        if(0 >= engine.CurrentGear){
+            engine.CurrentGear = 0;
+        }
+        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+    }
 
     for (auto &axle: axles) {
         axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
@@ -495,6 +523,7 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         graphnumb = 0;
     engine.velocityGraph[graphnumb] = car.RigidBody->getLinearVelocity().length();
     engine.TorqueGraph[graphnumb] = engine.getEngineForce(car.RigidBody->getLinearVelocity().length());
+    engine.GraphOffset = graphnumb;
     graphnumb++;
 
     //makes you need to hold button for power
