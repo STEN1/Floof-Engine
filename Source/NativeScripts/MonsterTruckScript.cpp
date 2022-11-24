@@ -198,6 +198,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
@@ -229,6 +230,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
@@ -260,6 +262,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
@@ -291,26 +294,12 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
         auto &engine = scene->GetComponent<EngineComponent>(frame);
+        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(engine.RollingFriction);
         RigidBody->setSpinningFriction(engine.SpinningFriction);
     }
-    //back dif
-    {
-        BackDif = scene->CreateEntity("BackDif");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(BackDif, "Assets/LowPolyCylinder.fbx");
 
-
-        auto &transform = scene->GetComponent<TransformComponent>(BackDif);
-        transform.Position = glm::vec3(-0.830f, 0.f, 0.f);
-        transform.Scale = glm::vec3(0.1f, 2.5f, 0.1f);
-        transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
-
-
-        auto &body = scene->AddComponent<RigidBodyComponent>(BackDif, transform.Position, transform.Scale, transform.Rotation, 100.f, bt::CollisionPrimitive::Cylinder);
-        auto &RigidBody = body.RigidBody;
-        RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-    }
     //hinge car togheter
     {
 
@@ -319,7 +308,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &WheelflBody = scene->GetComponent<RigidBodyComponent>(Wheel_fl);
         auto &WheelbrBody = scene->GetComponent<RigidBodyComponent>(Wheel_br);
         auto &WheelblBody = scene->GetComponent<RigidBodyComponent>(Wheel_bl);
-        auto &BackDifBody = scene->GetComponent<RigidBodyComponent>(BackDif);
 
         auto &engine = scene->GetComponent<EngineComponent>(frame);
 
@@ -328,7 +316,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         WheelflBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
         WheelbrBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
         WheelblBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
-        BackDifBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
 
 
         btVector3 parentAxis(0.f, 1.f, 0.f);
@@ -367,8 +354,9 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
             // Steering engine.
             hinge->enableMotor(5, true);
-            hinge->setMaxMotorForce(5, engine.maxTurnForce);
-            hinge->setTargetVelocity(5, 0);
+            hinge->setServo(5, true);
+            hinge->setMaxMotorForce(5, 8000.f);
+            hinge->setTargetVelocity(5, 10.f);
 
             hinge->setParam(BT_CONSTRAINT_CFM, 0.15f, 1);
             hinge->setParam(BT_CONSTRAINT_ERP, 0.35f, 1);
@@ -382,6 +370,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             hinge->setUpperLimit(SIMD_PI * 0.2f);
 
             hinge->setBreakingImpulseThreshold(20000.f);
+
+
             //back wheels
              if (hinge == Hinge3 || hinge == Hinge4) {
                 hinge->setLowerLimit(-SIMD_HALF_PI * 0.1f);
@@ -400,26 +390,36 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     auto* scene = m_Scene;
     auto &engine = scene->GetComponent<EngineComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
-    if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
-        engine.TurnForce = engine.maxTurnForce;
-        engine.VehicleSteering -= engine.steeringIncrement;
+
+    bool turnKeyPressed{false};
+
+     if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
+         turnKeyPressed |= true;
+         engine.servoTarget -= engine.steeringIncrement;
+        if(engine.servoTarget <= -engine.steeringClamp){
+            engine.servoTarget = -engine.steeringClamp;
+        }
     }
     if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
-        engine.TurnForce = -engine.maxTurnForce;
-        engine.VehicleSteering += engine.steeringIncrement;
+        turnKeyPressed |= true;
+        engine.servoTarget += engine.steeringIncrement;
+        if(engine.servoTarget >= engine.steeringClamp){
+            engine.servoTarget = engine.steeringClamp;
+        }
     }
     if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
         engine.targetVelocity = engine.maxVelocity;
-        engine.BreakingForce = 0.f;
+        engine.breakingForce = 0.f;
     }
     if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
         engine.targetVelocity = -engine.maxVelocity;
-        engine.BreakingForce = 0.f;
+        engine.breakingForce = 0.f;
     }
     if (Input::Key(ImGuiKey_Space) && windowIsActive) {
         auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
         bl.lightRange = 100.f;
         //todo brake
+        engine.breakingForce = engine.maxBreakingForce;
     } else {
         //reset lights
         auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
@@ -453,30 +453,36 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     for (auto &axle: axles) {
         axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
         axle->setTargetVelocity(3, engine.targetVelocity);
-
-        if(axle->getRigidBodyB().getLinearVelocity().length() > 10.f && axle->getRigidBodyB().getFriction() != engine.WheelFriction/2.f)
-            axle->getRigidBodyB().setFriction(engine.WheelFriction/2.f);
-        else if (axle->getRigidBodyB().getFriction() != engine.WheelFriction)
-            axle->getRigidBodyB().setFriction(engine.WheelFriction);
-    }
-    for (auto &axle: singleAxles) {
-        axle->setMotorTargetVelocity(engine.targetVelocity);
     }
     //turning
     {
-        axles[0]->setTargetVelocity(5, engine.TurnForce); // front right
-        axles[1]->setTargetVelocity(5, engine.TurnForce); // front left
-
+        //front wheels
+        axles[0]->setServoTarget(5,engine.servoTarget);
+        axles[1]->setServoTarget(5, engine.servoTarget);
+        //back axles
         //turn other way if fast car
         if(axles[2]->getRigidBodyB().getLinearVelocity().length() > 10.f){
-           engine.TurnForce *= -1;
+            axles[2]->setServoTarget(5,-engine.servoTarget/2.f);
+            axles[3]->setServoTarget(5, -engine.servoTarget/2.f);
         }
-        axles[2]->setTargetVelocity(5, engine.TurnForce); // back right
-        axles[3]->setTargetVelocity(5, engine.TurnForce); // back left
+        else{
+            axles[2]->setServoTarget(5,engine.servoTarget/2.f);
+            axles[3]->setServoTarget(5, engine.servoTarget/2.f);
+        }
+
 
     }
 
     //makes you need to hold button for power
     engine.targetVelocity = 0.f;
-    engine.TurnForce = 0.f;
+
+    if(!turnKeyPressed){
+        if(engine.servoTarget > 0)
+            engine.servoTarget -= engine.steeringIncrement;
+        else if(engine.servoTarget < 0)
+            engine.servoTarget += engine.steeringIncrement;
+    }
+
+
+
 }
