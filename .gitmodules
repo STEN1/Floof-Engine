@@ -24,3 +24,6 @@
 	path = Libs/simdjson
 	url = https://github.com/simdjson/simdjson
 
+[submodule "Libs/ImGuizmo"]
+	path = Libs/ImGuizmo
+	url = https://github.com/STEN1/ImGuizmo
