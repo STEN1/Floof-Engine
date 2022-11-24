@@ -10,7 +10,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
     {
         frame = entity;
-        Camera = &scene->AddComponent<CameraComponent>(frame);
+
         auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx", false);
         //textures
         {
@@ -124,6 +124,26 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.Looping(true);
         //sound.Play();
+
+        //camera
+        {
+            Camera = scene->CreateEntity("camera", frame);
+            scene->AddComponent<CameraComponent>(Camera);
+
+            auto &tf = scene->GetComponent<TransformComponent>(Camera);
+            tf.Position = glm::vec3(-3.f,1.7f,0.f);
+            tf.Scale = glm::vec3(0.1f);
+            scene->AddComponent<StaticMeshComponent>(Camera,"Assets/LowPolySphere.fbx");
+        }
+        {
+            CamTarget = scene->CreateEntity("CameraTarget",frame);
+            auto &tf = scene->GetComponent<TransformComponent>(CamTarget);
+            tf.Position = glm::vec3(2.4f,0.4f,0.f);
+            tf.Scale = glm::vec3(0.1f);
+            scene->AddComponent<StaticMeshComponent>(CamTarget,"Assets/LowPolySphere.fbx");
+
+
+        }
 
         //Breaklight
         {
@@ -369,7 +389,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             hinge->setLowerLimit(-SIMD_PI * 0.2f);
             hinge->setUpperLimit(SIMD_PI * 0.2f);
 
-            hinge->setBreakingImpulseThreshold(20000.f);
+            hinge->setBreakingImpulseThreshold(40000.f);
 
 
             //back wheels
@@ -385,8 +405,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
 void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
-    Camera->Position = m_Scene->GetComponent<TransformComponent>(m_Entity).GetWorldPosition();
-    Camera->Position.y += 5.f;
     auto* scene = m_Scene;
     auto &engine = scene->GetComponent<EngineComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
@@ -479,9 +497,10 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     }
 
     //set camera
-    glm::vec3 forward = glm::vec3(1.f,0.f,0.f);
-    glm::vec3 up = glm::vec3(0.f,-1.f,0.f);
-    glm::vec3 pos = glm::vec3(0.f);
-    Camera->Lookat(pos,(pos+forward),up);
+    auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
+    auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
+
+    auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
+    cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
 
 }

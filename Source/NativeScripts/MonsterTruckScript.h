@@ -15,6 +15,9 @@ namespace FLOOF {
 
         entt::entity frame;
 
+        entt::entity CamTarget;
+        entt::entity Camera;
+
         entt::entity Wheel_fr;
         entt::entity Wheel_fl;
         entt::entity Wheel_br;
@@ -26,7 +29,6 @@ namespace FLOOF {
 
         std::vector<btHinge2Constraint*> axles;
 
-        CameraComponent* Camera;
     };
 }
 
