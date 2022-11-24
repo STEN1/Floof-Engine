@@ -64,6 +64,8 @@ namespace FLOOF {
         glm::mat4 GetView();
         glm::mat4 GetPerspective(float fov, float aspect, float near, float far);
 
+        void Lookat(const glm::vec3 eye, const glm::vec3 center, const glm::vec3 up);
+
         void MoveForward(float amount);
 
         void MoveRight(float amount);

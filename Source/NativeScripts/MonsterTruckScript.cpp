@@ -10,7 +10,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
     {
         frame = entity;
-        Camera = &scene->AddComponent<CameraComponent>(entity);
+        Camera = &scene->AddComponent<CameraComponent>(frame);
         auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx", false);
         //textures
         {
@@ -439,17 +439,6 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         }
     }
 
-    auto &wfr = scene->GetComponent<RigidBodyComponent>(Wheel_fr).RigidBody;
-    auto &wfl = scene->GetComponent<RigidBodyComponent>(Wheel_fl).RigidBody;
-    auto &wbr = scene->GetComponent<RigidBodyComponent>(Wheel_br).RigidBody;
-    auto &wbl = scene->GetComponent<RigidBodyComponent>(Wheel_bl).RigidBody;
-
-    std::vector<std::shared_ptr<btRigidBody>> wheels;
-    wheels.emplace_back(wfr);
-    wheels.emplace_back(wfl);
-    wheels.emplace_back(wbr);
-    wheels.emplace_back(wbl);
-
     for (auto &axle: axles) {
         axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
         axle->setTargetVelocity(3, engine.targetVelocity);
@@ -459,30 +448,40 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         //front wheels
         axles[0]->setServoTarget(5,engine.servoTarget);
         axles[1]->setServoTarget(5, engine.servoTarget);
+
         //back axles
         //turn other way if fast car
         if(axles[2]->getRigidBodyB().getLinearVelocity().length() > 10.f){
             axles[2]->setServoTarget(5,-engine.servoTarget/2.f);
             axles[3]->setServoTarget(5, -engine.servoTarget/2.f);
+
+            //smaller sterring radius in big speed
+            axles[0]->setLowerLimit(-SIMD_PI * 0.1f);
+            axles[0]->setUpperLimit(SIMD_PI * 0.1f);
         }
         else{
             axles[2]->setServoTarget(5,engine.servoTarget/2.f);
             axles[3]->setServoTarget(5, engine.servoTarget/2.f);
-        }
 
+            //bigger sterring radius in big speed
+            axles[0]->setLowerLimit(-SIMD_PI * 0.2f);
+            axles[0]->setUpperLimit(SIMD_PI * 0.2f);
+        }
 
     }
 
     //makes you need to hold button for power
     engine.targetVelocity = 0.f;
 
+    //reset steering
     if(!turnKeyPressed){
-        if(engine.servoTarget > 0)
-            engine.servoTarget -= engine.steeringIncrement;
-        else if(engine.servoTarget < 0)
-            engine.servoTarget += engine.steeringIncrement;
+       engine.servoTarget = 0.f;
     }
 
-
+    //set camera
+    glm::vec3 forward = glm::vec3(1.f,0.f,0.f);
+    glm::vec3 up = glm::vec3(0.f,-1.f,0.f);
+    glm::vec3 pos = glm::vec3(0.f);
+    Camera->Lookat(pos,(pos+forward),up);
 
 }
