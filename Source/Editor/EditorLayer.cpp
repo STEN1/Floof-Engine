@@ -239,6 +239,11 @@ namespace FLOOF {
             MakeLandscapeScene();
             break;
         }
+        case DebugScenes::Sponza:
+        {
+            MakeSponzaScene();
+            break;
+        }
         default:
         {
             LOG("GameModeType is invalid\n");
@@ -479,6 +484,13 @@ namespace FLOOF {
             auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
 
         }
+    }
+
+    void EditorLayer::MakeSponzaScene()
+    {
+        m_Scene = std::make_unique<Scene>();
+        const auto entity = m_Scene->CreateEntity();
+        m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/Sponza.fbx");
     }
 
     void EditorLayer::MakePhysicsPlayGround() {

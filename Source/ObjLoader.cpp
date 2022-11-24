@@ -198,12 +198,12 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x
     aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
     //std::cout << "Material name: " << mat->GetName().C_Str() << std::endl;
 
-    /*for (uint32_t i = 0; i <= AI_TEXTURE_TYPE_MAX; i++) {
-        auto textureCount = mat->GetTextureCount(static_cast<aiTextureType>(i));
-        if (textureCount > 0) {
-            std::cout << "Has " << textureCount << " texture of type: " << i << std::endl;
-        }
-    }*/
+    std::cout << std::endl << "Material name: " << mat->GetName().C_Str() << std::endl;
+    for (uint32_t i = 0; i <= AI_TEXTURE_TYPE_MAX; i++) {
+        auto texturePath = LoadMaterialTexture(mat, static_cast<aiTextureType>(i));
+        if (!texturePath.empty())
+            std::cout << "Texture path " << i << ": " << texturePath << std::endl;
+    }
 
     internalMesh.material.DiffusePath = LoadMaterialTexture(mat, aiTextureType_BASE_COLOR);
     if (internalMesh.material.DiffusePath.empty())
@@ -212,6 +212,8 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x
     internalMesh.material.NormalsPath = LoadMaterialTexture(mat, aiTextureType_NORMAL_CAMERA);
     if (internalMesh.material.NormalsPath.empty())
         internalMesh.material.NormalsPath = LoadMaterialTexture(mat, aiTextureType_NORMALS);
+    if (internalMesh.material.NormalsPath.empty())
+        internalMesh.material.NormalsPath = LoadMaterialTexture(mat, aiTextureType_HEIGHT);
 
     internalMesh.material.MetallicPath = LoadMaterialTexture(mat, aiTextureType_METALNESS);
     if (internalMesh.material.MetallicPath.empty())
@@ -220,6 +222,8 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x
     internalMesh.material.RoughnessPath = LoadMaterialTexture(mat, aiTextureType_DIFFUSE_ROUGHNESS);
 
     internalMesh.material.AOPath = LoadMaterialTexture(mat, aiTextureType_AMBIENT_OCCLUSION);
+
+    internalMesh.material.OpacityPath = LoadMaterialTexture(mat, aiTextureType_OPACITY);
 
     internalMesh.Transform = nodeTransform;
 
