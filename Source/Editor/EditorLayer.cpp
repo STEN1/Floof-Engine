@@ -36,7 +36,8 @@ namespace FLOOF {
 	{
         if (m_EditorViewFocused)
             UpdateEditorCamera(deltaTime);
-        m_Scene->OnUpdate(deltaTime);
+        if (IsPlaying())
+            m_Scene->OnUpdate(deltaTime);
 	}
 	void EditorLayer::OnImGuiUpdate(double deltaTime)
 	{
@@ -68,6 +69,7 @@ namespace FLOOF {
 
         ImGui::PopStyleVar(3);
 
+        // TODO: Only allow docking to editor layer with id?
         auto dockSpaceID = ImGui::GetID("Dock space ID");
         ImGui::DockSpace(dockSpaceID, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
 
@@ -114,8 +116,9 @@ namespace FLOOF {
             glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
             if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
                 sceneCanvasExtent = glm::vec2(0.f);
-
-            auto sceneRenderData = m_EditorRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetEditorCamera(),
+            
+            SceneRenderFinishedData sceneRenderData{};
+            sceneRenderData = m_EditorRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetEditorCamera(),
                 m_EditorDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
 
             if (sceneRenderData.Texture != VK_NULL_HANDLE) {
@@ -127,7 +130,7 @@ namespace FLOOF {
 
             ImGui::End();
         }
-        {
+        if (IsPlaying()) {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
             ImGui::Begin("Play view");
             ImGui::PopStyleVar();
@@ -147,9 +150,9 @@ namespace FLOOF {
             if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
                 sceneCanvasExtent = glm::vec2(0.f);
 
-            auto sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetFirstSceneCamera(),
+            SceneRenderFinishedData sceneRenderData{};
+            sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetFirstSceneCamera(),
                 m_PlayDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
-
             if (sceneRenderData.Texture != VK_NULL_HANDLE) {
                 ImDrawList* draw_list = ImGui::GetWindowDrawList();
                 draw_list->AddImage(sceneRenderData.Texture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
@@ -160,6 +163,14 @@ namespace FLOOF {
             ImGui::End();
         }
         return waitSemaphore;
+    }
+    void EditorLayer::StartPlay()
+    {
+        m_PlayModeActive = true;
+    }
+    void EditorLayer::StopPlay()
+    {
+        m_PlayModeActive = false;
     }
     void EditorLayer::UpdateEditorCamera(double deltaTime)
     {

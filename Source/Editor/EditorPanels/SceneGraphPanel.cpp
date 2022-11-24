@@ -6,6 +6,10 @@ namespace FLOOF {
 	void SceneGraphPanel::DrawPanel()
 	{
         ImGui::Begin("Scene graph");
+        if (ImGui::Button("Add entity")) {
+            AddEntity();
+        }
+        ImGui::Separator();
         auto view = m_EditorLayer->GetScene()->GetRegistry().view<TransformComponent, TagComponent, Relationship>();
         for (auto [entity, transform, tag, rel] : view.each()) {
             // only care about entitys without parent.
@@ -17,6 +21,10 @@ namespace FLOOF {
         }
         ImGui::End();
 	}
+
+    void SceneGraphPanel::AddEntity()
+    {
+    }
 
     void SceneGraphPanel::MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel) {
         auto& app = Application::Get();

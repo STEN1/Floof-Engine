@@ -20,6 +20,9 @@ namespace FLOOF {
 		void SelectDebugScene(DebugScenes type);
 		DebugScenes GetCurrentDebugScene() { return m_CurrentDebugScene; }
 		Scene* GetScene() { return m_Scene.get(); }
+		void StartPlay();
+		void StopPlay();
+		bool IsPlaying() { return m_PlayModeActive; }
 	private:
 		void UpdateEditorCamera(double deltaTime);
 
@@ -40,6 +43,8 @@ namespace FLOOF {
 
 		bool m_EditorViewFocused = false;
 		bool m_PlayViewFocused = false;
+
+		bool m_PlayModeActive = false;
 
 		DebugScenes m_CurrentDebugScene;
 		RenderPipelineKeys m_EditorDrawMode = RenderPipelineKeys::PBR;

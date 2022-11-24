@@ -8,7 +8,28 @@ namespace FLOOF {
 	void ComponentsPanel::DrawPanel() {
 		auto& app = Application::Get();
 		ImGui::Begin("Components");
-		ImGui::Text("Components");
+
+		static const char* componentNames[] = {
+			"Point light",
+			"Mesh"
+		};
+
+		float dpiScale = ImGui::GetWindowDpiScale();
+		float windowWidth = ImGui::GetWindowWidth();
+
+		if (ImGui::Button("Add component", ImVec2(windowWidth, 0.f)))
+			ImGui::OpenPopup("Component popup");
+		if (ImGui::BeginPopup("Component popup"))
+		{
+			for (uint32_t i = 0; i < std::size(componentNames); i++) {
+				if (ImGui::Button(componentNames[i], ImVec2(windowWidth, 0.f))) {
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndPopup();
+		}
+
+		ImGui::Separator();
 		if (m_EditorLayer->GetScene() && m_EditorLayer->GetScene()->m_SelectedEntity != entt::null) {
 			if (auto* transform = m_EditorLayer->GetScene()->GetRegistry().try_get<TransformComponent>(
 				m_EditorLayer->GetScene()->m_SelectedEntity)) {

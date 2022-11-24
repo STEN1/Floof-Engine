@@ -8,6 +8,7 @@ namespace FLOOF {
 		SceneGraphPanel(EditorLayer* editorLayer) : EditorPanel(editorLayer) {}
 		virtual void DrawPanel() override;
 	private:
+		void AddEntity();
 		void MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel);
 	};
 }
