@@ -24,10 +24,7 @@ namespace FLOOF {
         entt::entity HeadLightR;
         entt::entity HeadLightL;
 
-        entt::entity BackDif;
-
         std::vector<btHinge2Constraint*> axles;
-        std::vector<btHingeConstraint*> singleAxles;
 
         CameraComponent* Camera;
     };
