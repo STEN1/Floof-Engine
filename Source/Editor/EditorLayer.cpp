@@ -287,7 +287,7 @@ namespace FLOOF {
             auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music, "pinchcliffe.wav");
             sound.Looping(true);
             sound.Volume(0.1f);
-            // sound.Play();
+            sound.Play();
         }
     }
 

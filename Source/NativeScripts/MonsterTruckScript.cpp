@@ -123,7 +123,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.Looping(true);
-        //sound.Play();
+        sound.Play();
 
         //camera
         {
@@ -523,6 +523,9 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         graphnumb = 0;
     engine.velocityGraph[graphnumb] = car.RigidBody->getLinearVelocity().length();
     engine.TorqueGraph[graphnumb] = engine.getEngineForce(car.RigidBody->getLinearVelocity().length());
+    if(car.RigidBody->getLinearVelocity().length() <= 0.f){
+        engine.TorqueGraph[graphnumb] = 0.f;
+    }
     engine.GraphOffset = graphnumb;
     graphnumb++;
 
