@@ -565,19 +565,18 @@ void FLOOF::MonsterTruckScript::CameraUi() {
     ImGui::Begin("Play Camera");
 
     static int p{0};
-    const char* presets[CamLocations.size()];
-    for(int i{0}; i < CamLocations.size(); i++){
-        presets[i] = CamLocations[i].name.c_str();
+    std::vector<const char*> camNames(CamLocations.size());
+
+    for(int i{0}; i < CamLocations.size(); i++) {
+        camNames[i] = CamLocations[i].name.c_str();
     }
-    if (ImGui::Combo("Camera View",
-                     &p,
-                     presets,
-                     IM_ARRAYSIZE(presets))) {
+
+    if (ImGui::Combo("Camera View", &p, camNames.data(), camNames.size())) {
         auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
         camTrans->Position = CamLocations[p].CamLoc;
         auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
         camtargetTrans->Position = CamLocations[p].CamTarget;
     }
-    ImGui::End();
 
+    ImGui::End();
 }
