@@ -20,3 +20,5 @@ glslc Shaders/IrradianceConv.frag -o Shaders/IrradianceConv.frag.spv
 glslc Shaders/Prefilter.frag -o Shaders/Prefilter.frag.spv
 glslc Shaders/BRDF.vert -o Shaders/BRDF.vert.spv
 glslc Shaders/BRDF.frag -o Shaders/BRDF.frag.spv
+glslc Shaders/Landscape.vert -o Shaders/Landscape.vert.spv
+glslc Shaders/Landscape.frag -o Shaders/Landscape.frag.spv

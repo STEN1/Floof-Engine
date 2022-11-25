@@ -6,9 +6,9 @@
 
 namespace FLOOF {
 
-	HeightmapLoader::HeightmapLoader(const char* mapstr):filepath(mapstr) {
+	HeightmapLoader::HeightmapLoader(const char* mapstr) : filepath(mapstr) {
 		if (readMap())
-			std::cout << "building heightmap sucsses\n";
+			std::cout << "heightmap sucsses\n";
 	}
 
 	bool HeightmapLoader::readMap() {
@@ -71,12 +71,13 @@ namespace FLOOF {
 			}
 			stbi_image_free(img);      //free image memory after bitmap generation
 		}
-
 		else {
 		stbi_image_free(img);      //free image memory after bitmap generation
 		std::cout << "Heightmap failed to read or could not find the file in the librariy";
 		return false;
 		}
+
+		return true;
 	}	
 	
 	void HeightmapLoader::MakeBuffersFromData(const std::vector<MeshVertex>& meshData, const std::vector<uint32_t> indexData) {

@@ -129,6 +129,7 @@ namespace FLOOF {
 
         // Draw landscape
         {
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
             for (auto [entity, transform, landscape] : view.each()) {
                 MeshPushConstants constants;
@@ -138,12 +139,20 @@ namespace FLOOF {
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
-                if (drawMode == RenderPipelineKeys::PBR || drawMode == RenderPipelineKeys::UnLit || drawMode == RenderPipelineKeys::Normals) {
-                    if (landscape.meshData.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
-                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                            0, 1, &landscape.meshData.MeshMaterial.DescriptorSet, 0, nullptr);
-                    }
+                
+                if (landscape.meshData.MeshMaterial1.DescriptorSet == VK_NULL_HANDLE) {
+                    landscape.meshData.MeshMaterial1.UpdateDescriptorSet();
                 }
+                if (landscape.meshData.MeshMaterial2.DescriptorSet == VK_NULL_HANDLE) {
+                    landscape.meshData.MeshMaterial2.UpdateDescriptorSet();
+                }
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                    0, 1, &landscape.meshData.MeshMaterial1.DescriptorSet, 0, nullptr);
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                    6, 1, &landscape.meshData.MeshMaterial2.DescriptorSet, 0, nullptr);
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                    7, 1, &landscape.meshData.BlendTex.VkTexture.DesctriptorSet, 0, nullptr);
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
                 vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
@@ -278,6 +287,30 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.Renderpass = m_RenderPass;
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
+            renderer->CreateGraphicsPipeline(params);
+        }
+        {    // Landscape shader
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.FragmentPath = "Shaders/Landscape.frag.spv";
+            params.VertexPath = "Shaders/Landscape.vert.spv";
+            params.Key = RenderPipelineKeys::Landscape;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.DescriptorSetLayoutBindings.resize(8);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
+            params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTexture];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);

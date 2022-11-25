@@ -500,7 +500,6 @@ namespace FLOOF {
 
         Pname = PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
-
     }
 
     LandscapeComponent::LandscapeComponent(const char *map, const char *texture) {
@@ -525,9 +524,21 @@ namespace FLOOF {
         landscape->mIndices = triangleCol.indicesOut;
 
         //vulkan data
-        meshData = landscape->getMeshData();
-        meshData.MeshMaterial.Diffuse = Texture(texture, true);
-        meshData.MeshMaterial.UpdateDescriptorSet();
+        meshData.setMesh(landscape->getMeshData());
+        std::string path = "Assets/Terrain";
+        meshData.MeshMaterial1.Diffuse = Texture(path + "/Stone/diffuse.png", true);
+        meshData.MeshMaterial1.AO = Texture(path + "/Stone/ao.png", true);
+        meshData.MeshMaterial1.Roughness = Texture(path + "/Stone/roughness.png", true);
+        meshData.MeshMaterial1.Normals = Texture(path + "/Stone/normal.png", true);
+        meshData.MeshMaterial1.Metallic = Texture(path + "/Stone/metallic.png", true);
+        meshData.MeshMaterial1.UpdateDescriptorSet();
+        meshData.MeshMaterial2.Diffuse = Texture(path + "/GrassTex/diffuse.png", true);
+        meshData.MeshMaterial2.AO = Texture(path + "/GrassTex/ao.png", true);
+        meshData.MeshMaterial2.Roughness = Texture(path + "/GrassTex/roughness.png", true);
+        meshData.MeshMaterial2.Normals = Texture(path + "/GrassTex/normal.png", true);
+        meshData.MeshMaterial2.Metallic = Texture(path + "/GrassTex/metallic.png", true);
+        meshData.MeshMaterial2.UpdateDescriptorSet();
+        //meshData.BlendTex = Texture(true);
     }
 
     LandscapeComponent::~LandscapeComponent() {

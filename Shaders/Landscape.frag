@@ -13,6 +13,15 @@ layout (set = 0, binding = 3) uniform sampler2D roughnessTexture;
 layout (set = 0, binding = 4) uniform sampler2D aoTexture;
 layout (set = 0, binding = 5) uniform sampler2D opacityTexture;
 
+layout (set = 6, binding = 0) uniform sampler2D diffuseTexture2;
+layout (set = 6, binding = 1) uniform sampler2D normalsTexture2;
+layout (set = 6, binding = 2) uniform sampler2D metallicTexture2;
+layout (set = 6, binding = 3) uniform sampler2D roughnessTexture2;
+layout (set = 6, binding = 4) uniform sampler2D aoTexture2;
+layout (set = 6, binding = 5) uniform sampler2D opacityTexture2;
+
+layout (set = 7, binding = 0) uniform sampler2D blendTexture;
+
 struct PointLight {    
     vec4 position;
     vec4 diffuse;

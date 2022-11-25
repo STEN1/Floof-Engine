@@ -1,6 +1,7 @@
 #include "ModelManager.h"
 #include "../objloader.h"
 #include "VulkanRenderer.h"
+#include "LandscapeMesh.h"
 
 namespace FLOOF {
     std::vector<MeshData> ModelManager::LoadModelMesh(const std::string& path) {

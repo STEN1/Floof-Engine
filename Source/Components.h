@@ -8,6 +8,7 @@
 
 #include "al.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/LandscapeMesh.h"
 #include "Renderer/Texture.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
@@ -289,7 +290,7 @@ namespace FLOOF {
         LandscapeComponent(const char* map, const char* texture);
         ~LandscapeComponent();
         
-        MeshData meshData;
+        LandscapeMesh meshData;
 
         HeightmapLoader* landscape;
 
