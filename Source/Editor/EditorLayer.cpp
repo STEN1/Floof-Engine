@@ -22,7 +22,6 @@ namespace FLOOF {
         m_EditorPanels.try_emplace("ComponentsPanel", std::make_unique<ComponentsPanel>(this));
         m_EditorPanels.try_emplace("PhysicsPanel", std::make_unique<PhysicsPanel>(this));
         m_EditorPanels.try_emplace("RendererPanel", std::make_unique<RendererPanel>(this));
-        m_EditorPanels.try_emplace("EnginePanel", std::make_unique<EnginePanel>(this));
         m_EditorPanels.try_emplace("SoundSettingsPanel", std::make_unique<SoundSettingsPanel>(this));
 
         SelectDebugScene(DebugScenes::PhysicsPlayground);
