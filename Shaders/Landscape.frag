@@ -54,6 +54,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 vec3 getNormal();
+vec3 blend();
 
 const float PI = 3.14159265359;
 
@@ -195,4 +196,12 @@ vec3 getNormal()
 	mat3 TBN = mat3(T, B, N);
 
 	return normalize(TBN * tangentNormal);
+}
+
+vec3 blend()
+{
+    float a1, a2;
+    diffuseTexture = diffuseTexture * a1 + diffuseTexture2 * a2;
+    return  * a1 + texture2.rgb * a2;
+
 }
