@@ -207,7 +207,7 @@ namespace FLOOF {
         return buffer;
     }
 
-    ALuint SoundManager::GenerateSource(SoundSourceComponent* source) {
+    ALuint SoundManager::GenerateSource(SoundSourceComponent::SoundClip* source) {
         ALuint tempSource;
         alGenSources(1, &tempSource);
         if (auto error = alGetError(); error != AL_NO_ERROR)
@@ -217,7 +217,7 @@ namespace FLOOF {
         return tempSource;
     }
 
-    void SoundManager::DeleteSource(SoundSourceComponent* source) {
+    void SoundManager::DeleteSource(SoundSourceComponent::SoundClip* source) {
 
         if (auto it = std::find(s_Sources.begin(), s_Sources.end(), source); it != s_Sources.end()) {
             alDeleteSources(1, &(*it)->m_Source);
