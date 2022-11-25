@@ -151,7 +151,7 @@ namespace FLOOF {
 						node_flags |= ImGuiTreeNodeFlags_Selected;
 					}
 					if (treeOpen) {
-						ImGui::TreeNodeEx((void*)(intptr_t)id, node_flags, "%s material", mesh.MeshName.c_str());
+						ImGui::TreeNodeEx((void*)(intptr_t)id, node_flags, "Mesh: %s", mesh.MeshName.c_str());
 						if (ImGui::IsItemClicked() && selectedId != id) {
 							selectedId = id;
 						}
@@ -162,6 +162,7 @@ namespace FLOOF {
 					if (selectedId == id && treeOpen) {
 						node_flags = base_flags;
 						node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+						ImGui::Text("Material: %s", mesh.MeshMaterial.Name.c_str());
 						ImGui::Separator();
 						ImGui::Text("Diffuse");
 						ImGui::Image(mesh.MeshMaterial.Diffuse.VkTexture.DesctriptorSet, imageSize);
