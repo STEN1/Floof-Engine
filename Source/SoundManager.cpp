@@ -164,6 +164,24 @@ namespace FLOOF {
 
     }
 
+    void SoundManager::UpdateVolume() {
+	    if (!Muted) {
+            alec(alec(alListenerf(AL_GAIN, MasterVolume)));
+	    }
+    }
+
+    void SoundManager::UpdateMute() {
+
+	    if (!Muted) {
+            alec(alec(alListenerf(AL_GAIN, 0.f)));
+            Muted = true;
+	    }
+        else if (Muted) {
+        	alec(alec(alListenerf(AL_GAIN, MasterVolume)));
+            Muted = false;
+	    }
+    }
+
     ALuint SoundManager::LoadWav(std::string sound) {
 
         std::string path = "Assets/Sounds/" + sound;
