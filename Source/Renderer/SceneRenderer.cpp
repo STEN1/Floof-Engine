@@ -219,6 +219,10 @@ namespace FLOOF {
         return renderFinishedData;
     }
 
+    void SceneRenderer::ShadowPass()
+    {
+    }
+
     void SceneRenderer::CreateTextureRenderer() {
         auto *renderer = VulkanRenderer::Get();
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);

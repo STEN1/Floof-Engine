@@ -265,6 +265,8 @@ namespace FLOOF {
 
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1, uint32_t layers = 1);
 
+        VkFormat FindDepthFormat();
+
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
         GLFWwindow* m_Window;
@@ -327,7 +329,6 @@ namespace FLOOF {
         VkPresentModeKHR GetPresentMode(VkPresentModeKHR presentMode);
         VkExtent2D GetWindowExtent();
 
-        VkFormat FindDepthFormat();
         VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates,
             VkImageTiling tiling,
             VkFormatFeatureFlags features);
