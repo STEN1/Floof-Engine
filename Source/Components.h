@@ -17,6 +17,7 @@
 
 #include <pytypedefs.h>
 #include "HeightField.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
 class SoundManager;
 
@@ -140,6 +141,7 @@ namespace FLOOF {
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
+        std::shared_ptr<btGhostObject> GhostObject;
 
         void transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale);
 

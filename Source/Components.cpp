@@ -248,6 +248,12 @@ namespace FLOOF {
         RigidBody->setFriction(0.5f);
         RigidBody->setRollingFriction(0.3f);
         RigidBody->setSpinningFriction(0.3f);
+
+        RigidBody->setUserPointer(this);
+        GhostObject = std::make_shared<btGhostObject>();
+        GhostObject->setCollisionShape(CollisionShape.get());
+        GhostObject->setCollisionFlags(GhostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        GhostObject->setUserPointer(this);
     }
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,

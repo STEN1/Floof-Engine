@@ -12,10 +12,10 @@ namespace FLOOF {
 
         float targetVelocity = 0.f;
 
-        float breakingForce = 100.f;
+        float breakingForce = 0.f;
 
         float maxEngineForce = 8000.f;  //this should be engine/velocity dependent
-        float maxBreakingForce = 1000.f;
+        float maxBreakingForce = 20000.f;
         float maxVelocity = 20.f;
 
         float servoTarget = 0.f;
@@ -51,6 +51,7 @@ namespace FLOOF {
     public:
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
         virtual void OnUpdate(float deltaTime) override;
+        virtual void LastUpdate(float deltaTime) override;
 
         void CameraUi();
         void EngineUi();

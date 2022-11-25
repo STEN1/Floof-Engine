@@ -494,8 +494,19 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     }
 
     for (auto &axle: axles) {
-        axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
-        axle->setTargetVelocity(3, engine.targetVelocity);
+        if(engine.breakingForce <= 0){
+            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
+            axle->setTargetVelocity(3, engine.targetVelocity);
+        }
+        else if (engine.targetVelocity > 0){
+            axle->setMaxMotorForce(3, engine.breakingForce);
+            axle->setTargetVelocity(3, -axle->getRigidBodyB().getLinearVelocity().length());
+        }
+        else {
+            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
+            axle->setTargetVelocity(3, 0); 
+        }
+
     }
     //turning
     {
@@ -544,12 +555,6 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     //audio todo fix sound
     auto& sound = m_Scene->GetComponent<SoundSourceComponent>(frame);
 
-    //set camera
-    auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
-    auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
-
-    auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
-    cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
 
 }
 
@@ -571,6 +576,7 @@ void FLOOF::MonsterTruckScript::CameraUi() {
     }
 
     ImGui::End();
+
 }
 
 void FLOOF::MonsterTruckScript::EngineUi() {
@@ -632,5 +638,16 @@ void FLOOF::MonsterTruckScript::EngineUi() {
 
     ImGui::End();
 
+
+}
+
+void FLOOF::MonsterTruckScript::LastUpdate(float deltaTime) {
+    NativeScript::LastUpdate(deltaTime);
+    //set camera
+    auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
+    auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
+
+    auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
+    cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
 
 }
