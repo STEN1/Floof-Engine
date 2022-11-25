@@ -316,15 +316,14 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     }
     //make gears
     {
-        engine.Gears.emplace_back(5.f,20000);
-        engine.Gears.emplace_back(10.f,10000);
-        engine.Gears.emplace_back(20.f,8000);
-        engine.Gears.emplace_back(40.f,6000);
-        engine.Gears.emplace_back(60.f,5000);
-        engine.Gears.emplace_back(90.f,4000);
+        engine.Gears.emplace_back(5.f,3.f);
+        engine.Gears.emplace_back(15.f,2.f);
+        engine.Gears.emplace_back(25.f,1.5f);
+        engine.Gears.emplace_back(50.f,1.f);
+        engine.Gears.emplace_back(70.f,0.5f);
+        engine.Gears.emplace_back(90.f,0.25f);
 
         engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
     }
     //hinge car togheter
     {
@@ -482,7 +481,7 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
             engine.CurrentGear = engine.Gears.size()-1;
         }
         engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+        //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
     }
     if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
         engine.CurrentGear--;
@@ -490,21 +489,18 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
             engine.CurrentGear = 0;
         }
         engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+        //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
     }
 
     for (auto &axle: axles) {
+
+        axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
+
         if(engine.breakingForce <= 0){
-            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
             axle->setTargetVelocity(3, engine.targetVelocity);
         }
-        else if (engine.targetVelocity > 0){
-            axle->setMaxMotorForce(3, engine.breakingForce);
-            axle->setTargetVelocity(3, -axle->getRigidBodyB().getLinearVelocity().length());
-        }
         else {
-            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
-            axle->setTargetVelocity(3, 0); 
+            axle->setTargetVelocity(3, 0);
         }
 
     }
@@ -584,10 +580,11 @@ void FLOOF::MonsterTruckScript::EngineUi() {
     ImGui::Begin("engine Panel");
     ImGui::Text("Press 'F' to Toggle Headlights");
     ImGui::Text("Press 'Space' to Break");
+    ImGui::Text("Press 'E' 'Q' to change Gear");
 
         if (ImGui::CollapsingHeader("engine Graph")) {
-            ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 50.f, ImVec2(200, 100.0f));
-            ImGui::PlotLines("Torque", engine.TorqueGraph.data(), engine.TorqueGraph.size(), engine.GraphOffset, "kn", 1000.0f, 20000.f, ImVec2(200, 100.0f));
+            ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 90.f, ImVec2(200, 100.0f));
+            ImGui::PlotLines("Torque", engine.TorqueGraph.data(), engine.TorqueGraph.size(), engine.GraphOffset, "N", 1000.0f, 20000.f, ImVec2(200, 100.0f));
         }
         bool transformChanged{false};
         if (ImGui::CollapsingHeader("engine Controls")) {

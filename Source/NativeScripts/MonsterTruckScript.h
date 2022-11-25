@@ -14,8 +14,8 @@ namespace FLOOF {
 
         float breakingForce = 0.f;
 
-        float maxEngineForce = 8000.f;  //this should be engine/velocity dependent
-        float maxBreakingForce = 20000.f;
+        float maxEngineForce = 5000.f;  //this should be engine/velocity dependent
+        float maxBreakingForce = 9000.f;
         float maxVelocity = 20.f;
 
         float servoTarget = 0.f;
@@ -34,9 +34,9 @@ namespace FLOOF {
 
         bool DifLock{false};
 
-        float getEngineForce(float velocity) {
-            float multiplier = 1-(velocity/100.f);
-            return maxEngineForce*multiplier*multiplier;
+        float getEngineForce(float velocity) const {
+            float multiplier = (1+(velocity/100.f));
+            return maxEngineForce*multiplier*multiplier*Gears[CurrentGear].second;
         }
         std::vector<float> velocityGraph;
         std::vector<float> TorqueGraph;
