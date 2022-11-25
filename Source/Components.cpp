@@ -10,6 +10,8 @@
 #include <filesystem>
 
 #include "SoundManager.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "Application.h"
 
 //pulls in python api
 // The python headers must be included last!
@@ -77,8 +79,7 @@ namespace FLOOF {
     }
 
     CameraComponent::CameraComponent()
-        : CameraComponent(glm::vec3(0.f))
-    {
+            : CameraComponent(glm::vec3(0.f)) {
     }
 
     CameraComponent::CameraComponent(glm::vec3 position) : Position{position} {
@@ -250,6 +251,7 @@ namespace FLOOF {
         RigidBody->setSpinningFriction(0.3f);
 
         RigidBody->setUserPointer(this);
+        RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         GhostObject = std::make_shared<btGhostObject>();
         GhostObject->setCollisionShape(CollisionShape.get());
         GhostObject->setCollisionFlags(GhostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
@@ -299,7 +301,8 @@ namespace FLOOF {
 
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,const std::string convexShape)
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,
+                                           const std::string convexShape)
             : DefaultScale(scale), Primitive(bt::ConvexHull) {
 
         auto vertices = ModelManager::LoadbtModel(convexShape, scale);
@@ -349,7 +352,7 @@ namespace FLOOF {
         SoftBody->generateBendingConstraints(16);
 
         SoftBody->m_cfg.kVC = conservation; //Konservation coefficient
-        SoftBody->m_cfg.kPR = 0.1;
+        //SoftBody->m_cfg.kPR = 0.1;
         SoftBody->m_materials[0]->m_kLST = stiffness; // linear stiffness
 
         //soft rigid collision and soft soft collision
@@ -361,7 +364,7 @@ namespace FLOOF {
         SoftBody->m_cfg.kSK_SPLT_CL = 1;
         SoftBody->m_cfg.collisions = btSoftBody::fCollision::CL_SS + btSoftBody::fCollision::CL_RS;
         SoftBody->randomizeConstraints();
-        SoftBody->generateClusters(2);
+        SoftBody->generateClusters(16);
         SoftBody->setPose(true, true);
 
         SoftBody->setTotalMass(mass, false);
@@ -544,5 +547,6 @@ namespace FLOOF {
         delete HeightFieldShape;
         delete landscape;
     }
+
 
 }

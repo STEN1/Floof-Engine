@@ -77,7 +77,7 @@ add_executable(Floof
     Source/Renderer/Skybox.cpp
     Source/Editor/EditorPanels/SoundSettingsPanel.h
     Source/Editor/EditorPanels/SoundSettingsPanel.cpp
-        Source/HeightField.cpp Source/HeightField.h "Source/Renderer/IBL.h" "Source/Renderer/Framebuffer.h" "Source/Renderer/Framebuffer.cpp" "Source/Renderer/IBL.cpp")
+        Source/HeightField.cpp Source/HeightField.h "Source/Renderer/IBL.h" "Source/Renderer/Framebuffer.h" "Source/Renderer/Framebuffer.cpp" "Source/Renderer/IBL.cpp" Source/NativeScripts/WonderBaumScript.cpp Source/NativeScripts/WonderBaumScript.h)
 
 
 find_package(Vulkan REQUIRED)

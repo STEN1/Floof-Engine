@@ -151,6 +151,13 @@ void FLOOF::PhysicsPanel::DrawPanel() {
             if (m_Scene->GetPhysicSystem())
                 m_Scene->GetPhysicSystem()->AddSoftBody(body.SoftBody);
         }
+        if (ImGui::Button("Soft Dense Ball")) {
+            auto ent = SpawnSoftMesh(camera->Position, glm::vec3(5.f), 1000.f, "Assets/Ball.obj",
+                                     "Assets/BallTexture.png");
+            auto &body = m_Scene->GetComponent<SoftBodyComponent>(ent);
+            if (m_Scene->GetPhysicSystem())
+                m_Scene->GetPhysicSystem()->AddSoftBody(body.SoftBody);
+        }
     }
 
     ImGui::End();
@@ -182,7 +189,7 @@ const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::v
 
     psb->translate(btVector3(Location.x, Location.y, Location.z));
 
-    auto &collision = m_Scene->AddComponent<SoftBodyComponent>(entity, 0.2, 0.5, mass, psb);
+    auto &collision = m_Scene->AddComponent<SoftBodyComponent>(entity, 0.05, 0.7, mass, psb);
 
     transform.Position = Location;
     transform.Scale = Scale;
@@ -212,7 +219,7 @@ const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::
     auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
 
     //test python script
-    auto &script = m_Scene->AddComponent<ScriptComponent>(entity, "Scripts/HelloWorld.py");
+    auto &script = m_Scene->AddComponent<ScriptComponent>(entity, "Scripts/example.py");
 
     transform.Position = Location;
     transform.Scale = Scale;

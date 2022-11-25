@@ -4,6 +4,8 @@
 #include "../Renderer/ModelManager.h"
 #include "../Input.h"
 #include "../Application.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "../Utils.h"
 
 void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
@@ -408,11 +410,13 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     //camera locations
     {
         CamLocations.emplace_back("Third Person",glm::vec3(-2.5f,1.2f,0.f),glm::vec3(2.f,0.4f,0.f));
-        CamLocations.emplace_back("Close Third Person",glm::vec3(-2.5f,1.2f,0.f),glm::vec3(1.f,0.1f,0.f));
+        CamLocations.emplace_back("Close Third Person",glm::vec3(-1.5f,0.8f,0.f),glm::vec3(1.f,0.1f,0.f));
         CamLocations.emplace_back("First Person",glm::vec3(0.1f,0.4f,-0.15f),glm::vec3(2.4f,0.4f,0.f));
         CamLocations.emplace_back("Cinematic",glm::vec3(-2.f,1.f,-1.f),glm::vec3(2.f,0.4f,0.f));
         CamLocations.emplace_back("G T FUCKING A ",glm::vec3(0.2f,0.0f,-0.5f),glm::vec3(4.2f,0.5f,0.f));
     }
+
+
 }
 
 void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {

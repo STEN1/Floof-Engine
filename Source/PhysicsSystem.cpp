@@ -6,12 +6,19 @@
 #include "Application.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 
 #define GravitationalConstant -9.81
 
+bool MyContactProcessedCallback(btManifoldPoint& cp,void* body0,void* body1){
+    std::cout <<"Collsion callback" << std::endl;
+    return true;
+}
+
+
+
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry &scene) : mScene(scene) {
-
         mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
@@ -49,6 +56,9 @@ namespace FLOOF {
 
         mVehicleRayCaster = new btDefaultVehicleRaycaster(mDynamicsWorld);
 
+        mDynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+
+        gContactProcessedCallback = MyContactProcessedCallback;
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -73,12 +83,30 @@ namespace FLOOF {
         if (simulate) {
             mDynamicsWorld->stepSimulation(deltaTime);
 
+
+
             //rigid body
             {
 
                 auto view = mScene.view<RigidBodyComponent, TransformComponent, Relationship>();
                 for (auto [entity, RigidBodyComponent, transform, rel]: view.each()) {
+                    //collision callback
+                    {
+                        auto pairArray = RigidBodyComponent.GhostObject->getOverlappingPairs();
+                        int numPairs = pairArray.size();
 
+                        for (int i = 0; i < numPairs; ++i)
+                        {
+
+                            auto object = pairArray[i];
+
+                            auto owner = (FLOOF::RigidBodyComponent*)object->getUserPointer();
+                            if(owner){
+                                std::cout << "Collision found";
+                            }
+
+                        }
+                    }
 
                     btRigidBody *body = RigidBodyComponent.RigidBody.get();
                     btTransform trans;

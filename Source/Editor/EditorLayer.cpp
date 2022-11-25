@@ -10,7 +10,7 @@
 #include "EditorPanels/SoundSettingsPanel.h"
 
 #include "../NativeScripts/MonsterTruckScript.h"
-
+#include "../NativeScripts/WonderBaumScript.h"
 #include "imgui_internal.h"
 
 namespace FLOOF {
@@ -570,6 +570,12 @@ namespace FLOOF {
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene.get(), ent);
+        }
+
+        //banana test
+        {
+            //auto ent = m_Scene->CreateEntity("Banana");
+            //m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<WonderBaumScript>(), m_Scene.get(), ent);
         }
     }
 }
