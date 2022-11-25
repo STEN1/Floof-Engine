@@ -10,13 +10,6 @@
 
 #define GravitationalConstant -9.81
 
-bool MyContactProcessedCallback(btManifoldPoint& cp,void* body0,void* body1){
-    std::cout <<"Collsion callback" << std::endl;
-    return true;
-}
-
-
-
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry &scene) : mScene(scene) {
         mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
@@ -58,7 +51,7 @@ namespace FLOOF {
 
         mDynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
-        gContactProcessedCallback = MyContactProcessedCallback;
+        gContactProcessedCallback = CustomContactProcessedCallback;
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -224,6 +217,12 @@ namespace FLOOF {
 
     void PhysicsSystem::OnEditorUpdate(float DeltaTime) {
         mDynamicsWorld->debugDrawWorld();
+    }
+
+    bool PhysicsSystem::CustomContactProcessedCallback(btManifoldPoint &cp, void *body0, void *body1) {
+        //todo add collision callback code
+        //body0 == body1, dont ask why just bullet things
+        return true;
     }
 
 
