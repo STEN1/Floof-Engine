@@ -29,6 +29,12 @@ namespace FLOOF {
 			ImGui::EndCombo();
 		}
 
+		if (ImGui::DragFloat("Master Volume", &SoundManager::MasterVolume, 0.001f, 0.f, 1.f)) {
+			SoundManager::UpdateVolume();
+		}
+		if (SoundManager::Muted) { if (ImGui::Button("Unmute")) { SoundManager::UpdateMute(); } }
+		if (!SoundManager::Muted) { if (ImGui::Button("Mute")) { SoundManager::UpdateMute(); } }
+
     	ImGui::End();
     }
 }

@@ -47,6 +47,11 @@ namespace FLOOF {
 		static void SetNewDevice(std::string device);
 
 		static void Update(Scene* scene, CameraComponent* camera);
+		static void UpdateVolume();
+		static void UpdateMute();
+		inline static float MasterVolume{ 1.f };
+		inline static bool Muted{ false };
+
 	private:
 		static std::vector<std::string> GetAvailableDevices();
 		static ALuint LoadWav(std::string sound);
@@ -58,6 +63,7 @@ namespace FLOOF {
 		inline static ALCdevice* s_Device{ nullptr };
 		inline static ALCcontext* s_Context{ nullptr };
 		inline static bool needsReload{ false };
+		
 
 	};
 
