@@ -132,6 +132,9 @@ namespace FLOOF {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
             for (auto [entity, transform, landscape] : view.each()) {
+                VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+                colorBlendAttachment.blendEnable = VK_TRUE;
+
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
                 constants.VP = vp;
