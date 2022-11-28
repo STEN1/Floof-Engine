@@ -22,6 +22,5 @@ namespace FLOOF {
         StaticMeshComponent(const std::string& path);
         StaticMeshComponent(const std::string& path, bool textureFromPath);
         std::vector<MeshData> meshes{};
-        std::unordered_map<std::string, bool> mapDrawWireframeMeshes{};
     };
 }

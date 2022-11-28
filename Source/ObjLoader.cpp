@@ -225,6 +225,8 @@ bool AssimpLoader::LoadMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x
 
     internalMesh.material.OpacityPath = LoadMaterialTexture(mat, aiTextureType_OPACITY);
 
+    internalMesh.material.Name = mat->GetName().C_Str();
+
     internalMesh.Transform = nodeTransform;
 
     staticMesh.meshes.emplace_back(internalMesh);
