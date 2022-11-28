@@ -84,6 +84,8 @@ add_executable(Floof
     Source/Renderer/IBL.cpp
     Source/Editor/EditorPanels/SoundClipsPanel.h
     Source/Editor/EditorPanels/SoundClipsPanel.cpp
+    Source/Editor/EditorPanels/SoundSourcesPanel.cpp
+    Source/Editor/EditorPanels/SoundSourcesPanel.h
 )
 
 

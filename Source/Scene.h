@@ -31,6 +31,9 @@ namespace FLOOF {
         friend class SceneGraphPanel;
         friend class ComponentsPanel;
         friend class EditorLayer;
+        friend class SoundSourcesPanel;
+        friend class SoundClipsPanel;
+
     public:
         Scene();
         ~Scene();
