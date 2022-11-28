@@ -4,8 +4,8 @@
 #include <entt/entt.hpp>
 #include "PhysicsSystem.h"
 #include "Renderer/SceneRenderer.h"
+#include "Components.h"
 
-class FLOOF::SoundSourceComponent::SoundClip;
 
 namespace FLOOF {
 
