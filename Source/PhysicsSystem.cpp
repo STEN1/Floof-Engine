@@ -83,23 +83,6 @@ namespace FLOOF {
 
                 auto view = mScene.view<RigidBodyComponent, TransformComponent, Relationship>();
                 for (auto [entity, RigidBodyComponent, transform, rel]: view.each()) {
-                    //collision callback
-                    {
-                        auto pairArray = RigidBodyComponent.GhostObject->getOverlappingPairs();
-                        int numPairs = pairArray.size();
-
-                        for (int i = 0; i < numPairs; ++i)
-                        {
-
-                            auto object = pairArray[i];
-
-                            auto owner = (FLOOF::RigidBodyComponent*)object->getUserPointer();
-                            if(owner){
-                                std::cout << "Collision found";
-                            }
-
-                        }
-                    }
 
                     btRigidBody *body = RigidBodyComponent.RigidBody.get();
                     btTransform trans;
