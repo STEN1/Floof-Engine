@@ -77,7 +77,7 @@ namespace FLOOF {
 				m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Sound Component");
-				ImGui::Text(soundComponent->m_Path.c_str());
+				/*ImGui::Text(soundComponent->m_Path.c_str());
 
 				if (ImGui::DragFloat("Volume", &soundComponent->m_Volume, 0.001f, 0.f, 1.f)) {
 					soundComponent->Update();
@@ -89,7 +89,7 @@ namespace FLOOF {
 				if (soundComponent->isPlaying) { if (ImGui::Button("Stop")) { soundComponent->Stop(); } }
 				if (!soundComponent->isPlaying) { if (ImGui::Button("Play")) { soundComponent->Play(); } }
 				if (soundComponent->isLooping) { if (ImGui::Button("Looping")) { soundComponent->Looping(false); } }
-				if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }
+				if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }*/
 			}
 
 			if (auto* rigidBody = m_EditorLayer->GetScene()->GetRegistry().try_get<RigidBodyComponent>(

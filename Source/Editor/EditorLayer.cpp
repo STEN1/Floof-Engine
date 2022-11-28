@@ -289,10 +289,11 @@ namespace FLOOF {
         }
         {
             auto music = m_Scene->CreateEntity("Background Music");
-            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music, "pinchcliffe.wav");
-            sound.Looping(true);
-            sound.Volume(0.1f);
-            sound.Play();
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music);
+            sound.AddClip("pinchcliffe.wav");
+            sound.GetClip("pinchcliffe.wav")->Looping(true);
+            sound.GetClip("pinchcliffe.wav")->Volume(0.1f);
+            sound.GetClip("pinchcliffe.wav")->Play();
         }
     }
 
@@ -453,7 +454,6 @@ namespace FLOOF {
             transform.Scale = glm::vec3(75.f);
             auto& sound = m_Scene->AddComponent<SoundSourceComponent>(entity, "TestSound_Stereo.wav");
 
-
         }
 
 
@@ -476,8 +476,9 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Mono.wav");
-            sound.Play();
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(Ball);
+            sound.AddClip("TestSound_Mono.wav");
+            sound.GetClip("TestSound_Mono.wav")->Play();
         }
 
 

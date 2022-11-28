@@ -434,6 +434,10 @@ namespace FLOOF {
     SoundSourceComponent::SoundSourceComponent() {
     }
 
+    SoundSourceComponent::SoundSourceComponent(const std::string& path) {
+        AddClip(path);
+    }
+
 
     void SoundSourceComponent::NewDeviceReload() {
         for (auto it = mClips.begin(); it != mClips.end(); it++)
@@ -517,12 +521,13 @@ namespace FLOOF {
 
     }
 
-    std::shared_ptr<SoundSourceComponent::SoundClip> SoundSourceComponent::GetClip(const std::string& name) {
+    std::shared_ptr<SoundSourceComponent::SoundClip> SoundSourceComponent::GetClip(const std::string& name){
 
-        if (mClips[name])
-            return mClips[name];
-        else
-            return nullptr;
+
+            if (mClips[name])
+                return mClips[name];
+            else
+                return nullptr;
         
     }
 

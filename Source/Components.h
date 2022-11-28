@@ -190,6 +190,7 @@ namespace FLOOF {
 
     public:
         SoundSourceComponent();
+        SoundSourceComponent(const std::string& path);
         void NewDeviceReload();
         ~SoundSourceComponent();
 
@@ -220,7 +221,7 @@ namespace FLOOF {
         };
 
         std::unordered_map<std::string, std::shared_ptr<SoundClip>> mClips;
-        SoundClip* GetClip(const std::string& name);
+        std::shared_ptr<SoundClip> GetClip(const std::string& name);
 
     };
 
