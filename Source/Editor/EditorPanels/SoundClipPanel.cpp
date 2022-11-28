@@ -1,4 +1,4 @@
-#include "SoundClipsPanel.h"
+#include "SoundClipPanel.h"
 #include "../../Application.h"
 #include "../EditorLayer.h"
 
