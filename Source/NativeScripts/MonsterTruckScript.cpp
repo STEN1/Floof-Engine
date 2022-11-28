@@ -124,6 +124,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         sound.AddClip("Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
         sound.GetClip("Vehicles_idle2.wav")->Play();
+        sound.AddClip("pinchcliffe.wav");
+
 
         //camera
         {

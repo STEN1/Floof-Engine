@@ -200,8 +200,6 @@ namespace FLOOF {
         void NewDeviceReload();
         ~SoundSourceComponent();
 
-
-
         void AddClip(const std::string& path);
         
         float m_Volume{1.f};
@@ -232,6 +230,8 @@ namespace FLOOF {
         std::shared_ptr<SoundClip> GetClip(const std::string& name);
 
         void Play(const std::string& name);
+
+        std::shared_ptr<SoundClip> m_SelectedClip;
 
     };
 

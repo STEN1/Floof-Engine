@@ -51,38 +51,61 @@ namespace FLOOF {
 
 		ImGuiTreeNodeFlags node_flags = base_flags;
 
-		if (entity == m_EditorLayer->GetScene()->m_SelectedEntity)
-			node_flags |= ImGuiTreeNodeFlags_Selected;
+		//if (entity == m_EditorLayer->GetScene()->m_SelectedEntity)
+		//	node_flags |= ImGuiTreeNodeFlags_Selected;
 
-		if (rel.Children.empty()) {
-			// Parent without children are just nodes.
-			// using tree node since it allows for selection
-			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-			if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-				m_EditorLayer->GetScene()->m_SelectedEntity = entity;
-			}
 
-		}
-		else {
-			// is parent to children and has to make a tree
-			bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-			if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-				m_EditorLayer->GetScene()->m_SelectedEntity = entity;
-			}
-			bool hasSoundChild = false;
-			if (node_open) {
-				for (auto& childEntity : rel.Children) {
-					if (m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(childEntity)) {
-						auto& childTag = m_EditorLayer->GetScene()->GetComponent<TagComponent>(childEntity);
-						auto& childRel = m_EditorLayer->GetScene()->GetComponent<Relationship>(childEntity);
-						MakeTreeNode(childEntity, childTag.Tag.c_str(), childRel);
-					}
-					else
-						node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		// is parent to children and has to make a tree
+		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
+
+
+		if (node_open) {
+			for (auto& clip : m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(entity)->mClips) {
+
+				node_flags = base_flags;
+
+				if (m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(entity)->m_SelectedClip == clip.second)
+					node_flags |= ImGuiTreeNodeFlags_Selected;
+
+				node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+				ImGui::TreeNodeEx((void*)&clip, node_flags, clip.second->m_Path.c_str());
+				if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+					m_EditorLayer->GetScene()->m_SelectedEntity = entity;
+					m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(entity)->m_SelectedClip = clip.second;
 				}
-				ImGui::TreePop();
 			}
+			ImGui::TreePop();
 		}
+
+
+
+		//if (rel.Children.empty()) {
+		//	// Parent without children are just nodes.
+		//	// using tree node since it allows for selection
+		//	node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		//	ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
+		//	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+		//		m_EditorLayer->GetScene()->m_SelectedEntity = entity;
+		//	}
+
+		//}
+		//else {
+		//	// is parent to children and has to make a tree
+		//	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
+		//	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+		//		m_EditorLayer->GetScene()->m_SelectedEntity = entity;
+		//	}
+		//	bool hasSoundChild = false;
+		//	if (node_open) {
+		//		for (auto& childEntity : rel.Children) {
+		//			if (m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(childEntity)) {
+		//				auto& childTag = m_EditorLayer->GetScene()->GetComponent<TagComponent>(childEntity);
+		//				auto& childRel = m_EditorLayer->GetScene()->GetComponent<Relationship>(childEntity);
+		//				MakeTreeNode(childEntity, childTag.Tag.c_str(), childRel);
+		//			}
+		//		}
+		//		ImGui::TreePop();
+		//	}
+		//}
 	}
 }
