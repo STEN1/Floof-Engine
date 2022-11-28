@@ -5,6 +5,8 @@
 #include "PhysicsSystem.h"
 #include "Renderer/SceneRenderer.h"
 
+class FLOOF::SoundSourceComponent::SoundClip;
+
 namespace FLOOF {
 
     enum DebugScenes {
@@ -32,7 +34,7 @@ namespace FLOOF {
         friend class ComponentsPanel;
         friend class EditorLayer;
         friend class SoundSourcesPanel;
-        friend class SoundClipsPanel;
+        friend class SoundClipPanel;
 
     public:
         Scene();
@@ -90,6 +92,7 @@ namespace FLOOF {
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
+        std::shared_ptr<SoundSourceComponent::SoundClip> m_SelectedClip;
         entt::entity m_LastSelectedEntity = entt::null;
 
         std::unique_ptr<SceneRenderer> m_SceneRenderer;

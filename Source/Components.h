@@ -231,7 +231,7 @@ namespace FLOOF {
         std::shared_ptr<SoundClip> GetClip(const std::string& name);
 
         void Play(const std::string& name);
-        std::shared_ptr<SoundClip> m_SelectedClip;
+        //std::shared_ptr<SoundClip> m_SelectedClip;
 
     };
 

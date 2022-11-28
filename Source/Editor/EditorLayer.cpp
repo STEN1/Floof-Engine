@@ -8,7 +8,7 @@
 #include "EditorPanels/PhysicsPanel.h"
 #include "EditorPanels/RendererPanel.h"
 #include "EditorPanels/SoundSettingsPanel.h"
-#include "EditorPanels/SoundClipsPanel.h"
+#include "EditorPanels/SoundClipPanel.h"
 #include "EditorPanels/SoundSourcesPanel.h"
 
 #include "../NativeScripts/MonsterTruckScript.h"
@@ -28,7 +28,7 @@ namespace FLOOF {
         m_EditorPanels.try_emplace("RendererPanel", std::make_unique<RendererPanel>(this));
         m_EditorPanels.try_emplace("SoundSettingsPanel", std::make_unique<SoundSettingsPanel>(this));
         m_EditorPanels.try_emplace("SoundSourcesPanel", std::make_unique<SoundSourcesPanel>(this));
-        m_EditorPanels.try_emplace("SoundClipsPanel", std::make_unique<SoundClipsPanel>(this));
+        m_EditorPanels.try_emplace("SoundClipPanel", std::make_unique<SoundClipPanel>(this));
 
         SelectDebugScene(DebugScenes::PhysicsPlayground);
     }
