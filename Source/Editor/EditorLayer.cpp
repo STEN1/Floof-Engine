@@ -476,9 +476,15 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(Ball);
-            sound.AddClip("TestSound_Mono.wav");
-            sound.GetClip("TestSound_Mono.wav")->Play();
+
+
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, std::vector<std::string>{ "TestSound_Mono.wav", "TestSound_Stereo.wav" });
+
+        	//sound.GetClip("TestSound_Stereo.wav")->Play();
+
+            //sound.AddClip("TestSound_Stereo.wav");
+            //sound.GetClip("TestSound_Stereo.wav");
+
         }
 
 

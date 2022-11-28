@@ -5,7 +5,8 @@
 #include "Floof.h"
 #include <chrono>
 #include <entt/entt.hpp>
-
+#include <initializer_list>
+#include <cstdarg>
 #include "al.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Texture.h"
@@ -191,8 +192,15 @@ namespace FLOOF {
     public:
         SoundSourceComponent();
         SoundSourceComponent(const std::string& path);
+
+        SoundSourceComponent(std::initializer_list<std::string> clips);
+        SoundSourceComponent(std::vector<std::string> clips);
+
+
         void NewDeviceReload();
         ~SoundSourceComponent();
+
+
 
         void AddClip(const std::string& path);
         
@@ -222,6 +230,8 @@ namespace FLOOF {
 
         std::unordered_map<std::string, std::shared_ptr<SoundClip>> mClips;
         std::shared_ptr<SoundClip> GetClip(const std::string& name);
+
+        void Play(const std::string& name);
 
     };
 

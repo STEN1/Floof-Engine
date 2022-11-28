@@ -438,6 +438,18 @@ namespace FLOOF {
         AddClip(path);
     }
 
+    SoundSourceComponent::SoundSourceComponent(std::initializer_list<std::string> clips){
+	    for (auto clip : clips) {
+            AddClip(clip);
+	    }
+    }
+
+    SoundSourceComponent::SoundSourceComponent(std::vector<std::string> clips) {
+        for (auto clip : clips) {
+            AddClip(clip);
+        }
+    }
+
 
     void SoundSourceComponent::NewDeviceReload() {
         for (auto it = mClips.begin(); it != mClips.end(); it++)
@@ -522,14 +534,21 @@ namespace FLOOF {
     }
 
     std::shared_ptr<SoundSourceComponent::SoundClip> SoundSourceComponent::GetClip(const std::string& name){
-
-
             if (mClips[name])
                 return mClips[name];
             else
                 return nullptr;
         
     }
+
+    void SoundSourceComponent::Play(const std::string& name) {
+        if (mClips[name])
+        	mClips[name]->Play();
+        else
+            return;
+    }
+
+
 
     void ScriptComponent::ReloadScript() {
         Py_Finalize();
