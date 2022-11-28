@@ -209,13 +209,14 @@ namespace FLOOF {
             SoundClip(const std::string& path);
             void NewDeviceReload();
             ~SoundClip();
+            void Volume();
             void Volume(float volume);
             void Pitch();
             void UpdateStatus();
             void Play();
             void Stop();
             void Looping(bool looping);
-            void Update();
+            
             ALuint m_Source;
             ALuint m_Sound;
             std::string m_Path;
@@ -230,7 +231,6 @@ namespace FLOOF {
         std::shared_ptr<SoundClip> GetClip(const std::string& name);
 
         void Play(const std::string& name);
-
         std::shared_ptr<SoundClip> m_SelectedClip;
 
     };

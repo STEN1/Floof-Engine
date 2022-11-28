@@ -15,8 +15,8 @@ namespace FLOOF {
 
 				ImGui::Text(soundComponent->m_SelectedClip->m_Path.c_str());
 
-				if (ImGui::DragFloat("Volume", &soundComponent->m_Volume, 0.001f, 0.f, 1.f)) {
-					soundComponent->m_SelectedClip->Update();
+				if (ImGui::DragFloat("Volume", &soundComponent->m_SelectedClip->m_Volume, 0.001f, 0.f, 1.f)) {
+					soundComponent->m_SelectedClip->Volume();
 				}
 				if (ImGui::DragFloat("Pitch", &soundComponent->m_SelectedClip->m_Pitch, 0.01f, 0.f, 50.f)) {
 					soundComponent->m_SelectedClip->Pitch();
@@ -26,6 +26,7 @@ namespace FLOOF {
 				if (!soundComponent->m_SelectedClip->isPlaying) { if (ImGui::Button("Play")) { soundComponent->m_SelectedClip->Play(); } }
 				if (soundComponent->m_SelectedClip->isLooping) { if (ImGui::Button("Looping")) { soundComponent->m_SelectedClip->Looping(false); } }
 				if (!soundComponent->m_SelectedClip->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->m_SelectedClip->Looping(true); } }
+				soundComponent->m_SelectedClip->UpdateStatus();
 			}
 		}
 

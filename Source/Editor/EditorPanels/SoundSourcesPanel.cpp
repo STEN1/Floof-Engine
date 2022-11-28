@@ -16,29 +16,6 @@ namespace FLOOF {
 			MakeTreeNode(entity, tag.Tag.c_str(), rel);
 		}
 
-
-
-		//if (m_EditorLayer->GetScene() && m_EditorLayer->GetScene()->m_SelectedEntity != entt::null) {
-		//	if (auto* soundComponent = m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(
-		//		m_EditorLayer->GetScene()->m_SelectedEntity)) {
-		//		ImGui::Separator();
-		//		ImGui::Text("Sound Component");
-				/*ImGui::Text(soundComponent->m_Path.c_str());
-
-				if (ImGui::DragFloat("Volume", &soundComponent->m_Volume, 0.001f, 0.f, 1.f)) {
-					soundComponent->Update();
-				}
-				if (ImGui::DragFloat("Pitch", &soundComponent->m_Pitch, 0.01f, 0.f, 50.f)) {
-					soundComponent->Pitch();
-				}
-
-				if (soundComponent->isPlaying) { if (ImGui::Button("Stop")) { soundComponent->Stop(); } }
-				if (!soundComponent->isPlaying) { if (ImGui::Button("Play")) { soundComponent->Play(); } }
-				if (soundComponent->isLooping) { if (ImGui::Button("Looping")) { soundComponent->Looping(false); } }
-				if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }*/
-				//	}
-				//}
-
 		ImGui::End();
 	}
 
@@ -76,36 +53,5 @@ namespace FLOOF {
 			}
 			ImGui::TreePop();
 		}
-
-
-
-		//if (rel.Children.empty()) {
-		//	// Parent without children are just nodes.
-		//	// using tree node since it allows for selection
-		//	node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		//	ImGui::TreeNodeEx((void*)&entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-		//	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-		//		m_EditorLayer->GetScene()->m_SelectedEntity = entity;
-		//	}
-
-		//}
-		//else {
-		//	// is parent to children and has to make a tree
-		//	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)entity, node_flags, "%s\t\tEntity id: %d", tag, static_cast<uint32_t>(entity));
-		//	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-		//		m_EditorLayer->GetScene()->m_SelectedEntity = entity;
-		//	}
-		//	bool hasSoundChild = false;
-		//	if (node_open) {
-		//		for (auto& childEntity : rel.Children) {
-		//			if (m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(childEntity)) {
-		//				auto& childTag = m_EditorLayer->GetScene()->GetComponent<TagComponent>(childEntity);
-		//				auto& childRel = m_EditorLayer->GetScene()->GetComponent<Relationship>(childEntity);
-		//				MakeTreeNode(childEntity, childTag.Tag.c_str(), childRel);
-		//			}
-		//		}
-		//		ImGui::TreePop();
-		//	}
-		//}
 	}
 }

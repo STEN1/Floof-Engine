@@ -486,6 +486,10 @@ namespace FLOOF {
         SoundManager::DeleteSource(this);
     }
 
+    void SoundSourceComponent::SoundClip::Volume() {
+        alec(alSourcef(m_Source, AL_GAIN, m_Volume));
+    }
+
     void SoundSourceComponent::SoundClip::Volume(float volume) {
         m_Volume = volume;
         alec(alSourcef(m_Source, AL_GAIN, volume));
@@ -509,10 +513,12 @@ namespace FLOOF {
     }
 
     void SoundSourceComponent::SoundClip::Play() {
+        isPlaying = true;
         alec(alSourcePlay(m_Source));
     }
 
     void SoundSourceComponent::SoundClip::Stop() {
+        isPlaying = false;
         alec(alSourceStop(m_Source));
 
     }
@@ -526,11 +532,6 @@ namespace FLOOF {
             alec(alSourcei(m_Source, AL_LOOPING, AL_FALSE));
             isLooping = false;
         }
-    }
-
-    void SoundSourceComponent::SoundClip::Update() {
-        Volume(m_Volume);
-
     }
 
     std::shared_ptr<SoundSourceComponent::SoundClip> SoundSourceComponent::GetClip(const std::string& name){
