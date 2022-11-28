@@ -16,6 +16,7 @@ namespace FLOOF {
 
         Material MeshMaterial1;
         Material MeshMaterial2;
+        Material MeshMaterial3;
         Texture BlendTex;
 
         void setMesh(MeshData meshData){

@@ -265,8 +265,6 @@ namespace FLOOF {
     void EditorLayer::MakePhysicsScene() {
         m_Scene = std::make_unique<Scene>();
 
-        // TODO: make physics scene.
-
         //terrain
         {
             auto entity = m_Scene->CreateEntity("Terrain");
@@ -490,8 +488,7 @@ namespace FLOOF {
             std::string name = "Heightmap";
 
             auto entity = m_Scene->CreateEntity(name);
-            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
-
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
         }
     }
 
