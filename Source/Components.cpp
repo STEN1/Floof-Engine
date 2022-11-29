@@ -618,9 +618,4 @@ namespace FLOOF {
         delete HeightFieldShape;
         delete landscape;
     }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> main
 }
