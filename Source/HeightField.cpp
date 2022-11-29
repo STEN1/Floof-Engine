@@ -66,8 +66,8 @@ void FLOOF::TriangleCollector::processTriangle(btVector3 *tris, int partId, int 
 
         float uvPosX = v.Pos.x + (width / 2.f);
         float uvPosY = -v.Pos.z + (height / 2.f);
-        v.UV.x = uvPosX / (float)width;
-        v.UV.y = uvPosY / (float)height;
+        v.UV.x = (50 * uvPosX) / (float)width;
+        v.UV.y = (50 * uvPosY) / (float)height;
 
         indicesOut.emplace_back(vertOut.size());
         vertOut.emplace_back(v);

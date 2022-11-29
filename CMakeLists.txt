@@ -71,15 +71,22 @@ add_executable(Floof
     Source/Renderer/Texture.cpp
     Source/Renderer/Material.cpp
     Source/TransformComponent.h
-    Source/Editor/EditorPanels/EnginePanel.cpp
-    Source/Editor/EditorPanels/EnginePanel.h
     Source/Renderer/Cubemap.h
     Source/Renderer/Cubemap.cpp
     Source/Renderer/Skybox.h
     Source/Renderer/Skybox.cpp
     Source/Editor/EditorPanels/SoundSettingsPanel.h
     Source/Editor/EditorPanels/SoundSettingsPanel.cpp
-        Source/HeightField.cpp Source/HeightField.h "Source/Renderer/IBL.h" "Source/Renderer/Framebuffer.h" "Source/Renderer/Framebuffer.cpp" "Source/Renderer/IBL.cpp")
+    Source/HeightField.cpp Source/HeightField.h
+    Source/Renderer/IBL.h
+    Source/Renderer/Framebuffer.h
+    Source/Renderer/Framebuffer.cpp
+    Source/Renderer/IBL.cpp
+    Source/Editor/EditorPanels/SoundClipPanel.h
+    Source/Editor/EditorPanels/SoundClipPanel.cpp
+    Source/Editor/EditorPanels/SoundSourcesPanel.cpp
+    Source/Editor/EditorPanels/SoundSourcesPanel.h
+)
 
 
 find_package(Vulkan REQUIRED)

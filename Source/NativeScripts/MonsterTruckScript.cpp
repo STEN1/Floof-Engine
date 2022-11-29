@@ -114,7 +114,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
                 mesh.meshes[i].MeshMaterial.UpdateDescriptorSet();
             }
         }
-        auto &engine = scene->AddComponent<EngineComponent>(frame);
 
         auto &transform = scene->GetComponent<TransformComponent>(frame);
         transform.Scale = glm::vec3(8.f);
@@ -122,8 +121,10 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
-        sound.Looping(true);
-        //sound.Play();
+        sound.GetClip("Vehicles_idle2.wav")->Looping(true);
+        sound.GetClip("Vehicles_idle2.wav")->Play();
+        sound.AddClip("pinchcliffe.wav");
+
 
         //camera
         {
@@ -192,6 +193,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     }
     {
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
+
+        auto& sound = scene->AddComponent<SoundSourceComponent>(Wheel_fr, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/Wheels/tuner-wheel/source/tunerWheelRight.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
         mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
@@ -217,7 +220,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
@@ -225,6 +227,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
+        auto& sound = scene->AddComponent<SoundSourceComponent>(Wheel_fl, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/Wheels/tuner-wheel/source/tunerWheelLeft.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
         mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
@@ -249,7 +252,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
@@ -281,7 +283,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
@@ -313,7 +314,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        auto &engine = scene->GetComponent<EngineComponent>(frame);
         RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
@@ -321,7 +321,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     }
     //make gears
     {
-        auto& engine = m_Scene->GetComponent<EngineComponent>(frame);
         engine.Gears.emplace_back(5.f,20000);
         engine.Gears.emplace_back(10.f,10000);
         engine.Gears.emplace_back(20.f,8000);
@@ -340,8 +339,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &WheelflBody = scene->GetComponent<RigidBodyComponent>(Wheel_fl);
         auto &WheelbrBody = scene->GetComponent<RigidBodyComponent>(Wheel_br);
         auto &WheelblBody = scene->GetComponent<RigidBodyComponent>(Wheel_bl);
-
-        auto &engine = scene->GetComponent<EngineComponent>(frame);
 
         frameBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
         WheelfrBody.RigidBody->setActivationState(DISABLE_DEACTIVATION);
@@ -428,9 +425,9 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
 
     CameraUi();
+    EngineUi();
 
     auto* scene = m_Scene;
-    auto &engine = scene->GetComponent<EngineComponent>(frame);
     auto &car = scene->GetComponent<RigidBodyComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
 
@@ -502,8 +499,19 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     }
 
     for (auto &axle: axles) {
-        axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
-        axle->setTargetVelocity(3, engine.targetVelocity);
+        if(engine.breakingForce <= 0){
+            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
+            axle->setTargetVelocity(3, engine.targetVelocity);
+        }
+        else if (engine.targetVelocity > 0){
+            axle->setMaxMotorForce(3, engine.breakingForce);
+            axle->setTargetVelocity(3, -axle->getRigidBodyB().getLinearVelocity().length());
+        }
+        else {
+            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
+            axle->setTargetVelocity(3, 0); 
+        }
+
     }
     //turning
     {
@@ -552,12 +560,6 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     //audio todo fix sound
     auto& sound = m_Scene->GetComponent<SoundSourceComponent>(frame);
 
-    //set camera
-    auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
-    auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
-
-    auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
-    cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
 
 }
 
@@ -579,4 +581,78 @@ void FLOOF::MonsterTruckScript::CameraUi() {
     }
 
     ImGui::End();
+
+}
+
+void FLOOF::MonsterTruckScript::EngineUi() {
+
+    ImGui::Begin("engine Panel");
+    ImGui::Text("Press 'F' to Toggle Headlights");
+    ImGui::Text("Press 'Space' to Break");
+
+        if (ImGui::CollapsingHeader("engine Graph")) {
+            ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 50.f, ImVec2(200, 100.0f));
+            ImGui::PlotLines("Torque", engine.TorqueGraph.data(), engine.TorqueGraph.size(), engine.GraphOffset, "kn", 1000.0f, 20000.f, ImVec2(200, 100.0f));
+        }
+        bool transformChanged{false};
+        if (ImGui::CollapsingHeader("engine Controls")) {
+
+            transformChanged |= ImGui::DragFloat("Max Velocity", &engine.maxVelocity);
+            transformChanged |= ImGui::DragFloat("Max Torque", &engine.maxEngineForce);
+            transformChanged |= ImGui::DragFloat("Max Breaking Force", &engine.maxBreakingForce);
+
+        }
+        if (ImGui::CollapsingHeader("Suspension Control")) {
+            transformChanged |= ImGui::DragFloat("Suspension Stiffness", &engine.suspensionStiffness);
+            transformChanged |= ImGui::DragFloat("Suspension Damping", &engine.suspensionDamping);
+            transformChanged |= ImGui::DragFloat("Suspension Length", &engine.suspensionRestLength, 0.01, 0, 3);
+        }
+        if (ImGui::CollapsingHeader("Wheel Controls")) {
+            transformChanged |= ImGui::DragFloat("Wheel Friction", &engine.WheelFriction, 0.1, 0.1, 100);
+        }
+        if (ImGui::CollapsingHeader("Gearing")) {
+            std::string gear = "Current Gear : ";
+            gear += std::to_string(engine.CurrentGear + 1);
+            ImGui::Text(gear.c_str());
+
+            int i = 1;
+            for(auto& [speed, torque] : engine.Gears){
+                std::string stats = "Gear " + std::to_string(i)  + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "kn";
+                ImGui::Text(stats.c_str());
+                i++;
+            }
+
+
+        if (transformChanged) {
+            //remake stuff
+            for (auto &hinge: engine.axles) {
+                // Drive engine.
+                hinge->setMaxMotorForce(3, engine.maxEngineForce);
+
+                //suspension
+                hinge->setDamping(2, engine.suspensionDamping);
+                hinge->setStiffness(2, engine.suspensionStiffness);
+                hinge->setLimit(2, 0, engine.suspensionRestLength);
+
+                hinge->getRigidBodyB().setFriction(engine.WheelFriction);
+
+            }
+
+        }
+    }
+
+    ImGui::End();
+
+
+}
+
+void FLOOF::MonsterTruckScript::LastUpdate(float deltaTime) {
+    NativeScript::LastUpdate(deltaTime);
+    //set camera
+    auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
+    auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
+
+    auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
+    cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
+
 }

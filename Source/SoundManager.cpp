@@ -155,13 +155,34 @@ namespace FLOOF {
         for (auto [entity, transform, soundsource] : view.each()) {
 	        if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();
-            alec(alSource3f(soundsource.m_Source, AL_POSITION, pos.x, pos.y, pos.z));
-            alSourcef(soundsource.m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
-            alSourcef(soundsource.m_Source, AL_MAX_DISTANCE, globalMaxDistance);
-            soundsource.UpdateStatus();
+
+            for (auto it = soundsource.mClips.begin(); it != soundsource.mClips.end(); it++) {
+	            alec(alSource3f(it->second->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
+	            alSourcef(it->second->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
+	            alSourcef(it->second->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
+	            it->second->UpdateStatus();
+            }
         }
         if (needsReload == true) { needsReload = false; }
 
+    }
+
+    void SoundManager::UpdateVolume() {
+	    if (!Muted) {
+            alec(alec(alListenerf(AL_GAIN, MasterVolume)));
+	    }
+    }
+
+    void SoundManager::UpdateMute() {
+
+	    if (!Muted) {
+            alec(alec(alListenerf(AL_GAIN, 0.f)));
+            Muted = true;
+	    }
+        else if (Muted) {
+        	alec(alec(alListenerf(AL_GAIN, MasterVolume)));
+            Muted = false;
+	    }
     }
 
     ALuint SoundManager::LoadWav(std::string sound) {
@@ -189,7 +210,7 @@ namespace FLOOF {
         return buffer;
     }
 
-    ALuint SoundManager::GenerateSource(SoundSourceComponent* source) {
+    ALuint SoundManager::GenerateSource(SoundSourceComponent::SoundClip* source) {
         ALuint tempSource;
         alGenSources(1, &tempSource);
         if (auto error = alGetError(); error != AL_NO_ERROR)
@@ -199,7 +220,7 @@ namespace FLOOF {
         return tempSource;
     }
 
-    void SoundManager::DeleteSource(SoundSourceComponent* source) {
+    void SoundManager::DeleteSource(SoundSourceComponent::SoundClip* source) {
 
         if (auto it = std::find(s_Sources.begin(), s_Sources.end(), source); it != s_Sources.end()) {
             alDeleteSources(1, &(*it)->m_Source);

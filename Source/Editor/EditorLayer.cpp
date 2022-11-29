@@ -8,6 +8,8 @@
 #include "EditorPanels/PhysicsPanel.h"
 #include "EditorPanels/RendererPanel.h"
 #include "EditorPanels/SoundSettingsPanel.h"
+#include "EditorPanels/SoundClipPanel.h"
+#include "EditorPanels/SoundSourcesPanel.h"
 
 #include "../NativeScripts/MonsterTruckScript.h"
 
@@ -24,8 +26,9 @@ namespace FLOOF {
         m_EditorPanels.try_emplace("ComponentsPanel", std::make_unique<ComponentsPanel>(this));
         m_EditorPanels.try_emplace("PhysicsPanel", std::make_unique<PhysicsPanel>(this));
         m_EditorPanels.try_emplace("RendererPanel", std::make_unique<RendererPanel>(this));
-        m_EditorPanels.try_emplace("EnginePanel", std::make_unique<EnginePanel>(this));
         m_EditorPanels.try_emplace("SoundSettingsPanel", std::make_unique<SoundSettingsPanel>(this));
+        m_EditorPanels.try_emplace("SoundSourcesPanel", std::make_unique<SoundSourcesPanel>(this));
+        m_EditorPanels.try_emplace("SoundClipPanel", std::make_unique<SoundClipPanel>(this));
 
         SelectDebugScene(DebugScenes::PhysicsPlayground);
     }
@@ -266,12 +269,10 @@ namespace FLOOF {
     void EditorLayer::MakePhysicsScene() {
         m_Scene = std::make_unique<Scene>();
 
-        // TODO: make physics scene.
-
         //terrain
         {
             auto entity = m_Scene->CreateEntity("Terrain");
-            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
             //transform.Position = glm::vec3(mesh.landscape->width/2.f,-100,mesh.landscape->height/2.f);
@@ -290,10 +291,11 @@ namespace FLOOF {
         }
         {
             auto music = m_Scene->CreateEntity("Background Music");
-            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music, "pinchcliffe.wav");
-            sound.Looping(true);
-            sound.Volume(0.1f);
-            sound.Play();
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(music);
+            sound.AddClip("pinchcliffe.wav");
+            sound.GetClip("pinchcliffe.wav")->Looping(true);
+            sound.GetClip("pinchcliffe.wav")->Volume(0.1f);
+            sound.GetClip("pinchcliffe.wav")->Play();
         }
     }
 
@@ -454,7 +456,6 @@ namespace FLOOF {
             transform.Scale = glm::vec3(75.f);
             auto& sound = m_Scene->AddComponent<SoundSourceComponent>(entity, "TestSound_Stereo.wav");
 
-
         }
 
 
@@ -477,8 +478,15 @@ namespace FLOOF {
             transform.Position = location;
             transform.Scale = extents;
 
-            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, "TestSound_Mono.wav");
-            sound.Play();
+
+
+            auto& sound = m_Scene->AddComponent<SoundSourceComponent>(Ball, std::vector<std::string>{ "TestSound_Mono.wav", "TestSound_Stereo.wav" });
+
+        	//sound.GetClip("TestSound_Stereo.wav")->Play();
+
+            //sound.AddClip("TestSound_Stereo.wav");
+            //sound.GetClip("TestSound_Stereo.wav");
+
         }
 
 
@@ -490,8 +498,7 @@ namespace FLOOF {
             std::string name = "Heightmap";
 
             auto entity = m_Scene->CreateEntity(name);
-            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
-
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
         }
     }
 

@@ -1,7 +1,7 @@
 #include "Scene.h"
+#include "Components.h"
 
 #include "Application.h"
-#include "Components.h"
 #include "SoundManager.h"
 
 namespace FLOOF {
@@ -78,6 +78,10 @@ namespace FLOOF {
         m_PhysicSystem->OnUpdate(deltaTime);
 
         SoundManager::Update(this, GetFirstSceneCamera());
+
+        for (auto [entity, nativeScript] : nativeScriptView.each()) {
+            nativeScript.Script->LastUpdate(deltaTime);
+        }
     }
 
     void Scene::OnCreate() {

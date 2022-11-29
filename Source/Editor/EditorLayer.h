@@ -3,9 +3,9 @@
 #include "entt/entt.hpp"
 #include <unordered_map>
 #include <string>
-#include "EditorPanels/EnginePanel.h"
 #include "../Renderer/SceneRenderer.h"
 #include "../Scene.h"
+#include "EditorPanels/EditorPanel.h"
 
 namespace FLOOF {
 	class EditorLayer : public ApplicationLayer {

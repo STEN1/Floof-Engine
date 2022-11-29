@@ -5,9 +5,11 @@
 #include "Floof.h"
 #include <chrono>
 #include <entt/entt.hpp>
-
+#include <initializer_list>
+#include <cstdarg>
 #include "al.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/LandscapeMesh.h"
 #include "Renderer/Texture.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
@@ -17,6 +19,8 @@
 
 #include <pytypedefs.h>
 #include "HeightField.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
+#include <unordered_map>
 
 class SoundManager;
 
@@ -140,6 +144,7 @@ namespace FLOOF {
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
+        std::shared_ptr<btGhostObject> GhostObject;
 
         void transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale);
 
@@ -186,34 +191,48 @@ namespace FLOOF {
         friend class SoundManager;
 
     public:
-        SoundSourceComponent(const std::string &path);
-        void NewDeviceReload();
+        SoundSourceComponent();
+        SoundSourceComponent(const std::string& path);
 
+        SoundSourceComponent(std::initializer_list<std::string> clips);
+        SoundSourceComponent(std::vector<std::string> clips);
+
+
+        void NewDeviceReload();
         ~SoundSourceComponent();
 
-        void Volume(float volume);
-
-        void Pitch();
-
-        void UpdateStatus();
-
-        void Play();
-
-        void Stop();
-
-        void Looping(bool looping);
-
-        void Update();
-
-        ALuint m_Source;
-        ALuint m_Sound;
-        std::string m_Path;
-        std::string m_Name;
+        void AddClip(const std::string& path);
+        
         float m_Volume{1.f};
-        float m_Pitch{1.f};
-        bool isPlaying{false};
-        bool isLooping{false};
 
+        class SoundClip {
+        public:
+            SoundClip(const std::string& path);
+            void NewDeviceReload();
+            ~SoundClip();
+            void Volume();
+            void Volume(float volume);
+            void Pitch();
+            void UpdateStatus();
+            void Play();
+            void Stop();
+            void Looping(bool looping);
+            
+            ALuint m_Source;
+            ALuint m_Sound;
+            std::string m_Path;
+            std::string m_Name;
+            float m_Volume{ 1.f };
+            float m_Pitch{ 1.f };
+            bool isPlaying{ false };
+            bool isLooping{ false };
+        };
+
+        std::unordered_map<std::string, std::shared_ptr<SoundClip>> mClips;
+        std::shared_ptr<SoundClip> GetClip(const std::string& name);
+
+        void Play(const std::string& name);
+        //std::shared_ptr<SoundClip> m_SelectedClip;
 
     };
 
@@ -245,51 +264,11 @@ namespace FLOOF {
         std::unique_ptr<NativeScript> Script;
     };
 
-    struct EngineComponent {
-        EngineComponent(){velocityGraph.resize(1000,0);TorqueGraph.resize(1000,0);};
-
-        float targetVelocity = 0.f;
-
-        float breakingForce = 100.f;
-
-        float maxEngineForce = 8000.f;  //this should be engine/velocity dependent
-        float maxBreakingForce = 1000.f;
-        float maxVelocity = 20.f;
-
-        float servoTarget = 0.f;
-        float steeringIncrement = SIMD_PI * 0.01f;
-        float steeringClamp = SIMD_PI * 0.2f;
-
-        float suspensionStiffness = 15000.f;
-        float suspensionDamping = 8000.f;
-        float suspensionCompression = 4.4f;
-
-        float WheelFriction{2.f};
-
-        float suspensionRestLength = 0.8;
-
-        std::vector<btHinge2Constraint*> axles;
-
-        bool DifLock{false};
-
-        float getEngineForce(float velocity) {
-            float multiplier = 1-(velocity/100.f);
-            return maxEngineForce*multiplier*multiplier;
-        }
-        std::vector<float> velocityGraph;
-        std::vector<float> TorqueGraph;
-        int GraphOffset = 0;
-
-        int CurrentGear{0};
-        std::vector<std::pair<float,float>> Gears; // max velocity, max torque
-
-    };
-
     struct LandscapeComponent {
         LandscapeComponent(const char* map, const char* texture);
         ~LandscapeComponent();
         
-        MeshData meshData;
+        LandscapeMesh meshData;
 
         HeightmapLoader* landscape;
 
