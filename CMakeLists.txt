@@ -86,7 +86,8 @@ add_executable(Floof
     Source/Editor/EditorPanels/SoundClipPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.h
-)
+    Source/SoundComponent.h
+    Source/SoundComponent.cpp)
 
 
 find_package(Vulkan REQUIRED)
