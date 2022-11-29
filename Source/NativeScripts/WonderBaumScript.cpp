@@ -13,7 +13,6 @@ void FLOOF::WonderBaumScript::OnCreate(FLOOF::Scene *scene, entt::entity entity)
 
     auto &body = scene->AddComponent<RigidBodyComponent>(entity, transform.Position, transform.Scale, transform.Rotation, 100.f, bt::CollisionPrimitive::Box);
     auto &sound = scene->AddComponent<SoundSourceComponent>(entity, "Voices, Baby, Toddler, 18 Months Old, Boy, Say Banana 02 SND23664.wav");
-    sound.Looping(true);
     //sound.Play();
 
     auto rope = scene->CreateEntity("Rope");
