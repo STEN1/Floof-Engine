@@ -8,17 +8,14 @@ layout(location = 0) out vec4 outColor;
 
 layout (set = 0, binding = 0) uniform sampler2D diffuseTexture;
 layout (set = 0, binding = 1) uniform sampler2D normalsTexture;
-layout (set = 0, binding = 2) uniform sampler2D metallicTexture;
 layout (set = 0, binding = 3) uniform sampler2D roughnessTexture;
 
 layout (set = 6, binding = 0) uniform sampler2D diffuseTexture2;
 layout (set = 6, binding = 1) uniform sampler2D normalsTexture2;
-layout (set = 6, binding = 2) uniform sampler2D metallicTexture2;
 layout (set = 6, binding = 3) uniform sampler2D roughnessTexture2;
 
 layout (set = 7, binding = 0) uniform sampler2D diffuseTexture3;
 layout (set = 7, binding = 1) uniform sampler2D normalsTexture3;
-layout (set = 7, binding = 2) uniform sampler2D metallicTexture3;
 layout (set = 7, binding = 3) uniform sampler2D roughnessTexture3;
 
 
@@ -57,6 +54,7 @@ vec3 getNormal(vec3);
 
 const float PI = 3.14159265359;
 const float ao = 1.0;
+const float metallic = 0.0;
 
 void main() {
     vec3 skyColor = sceneFrameUBO.sunColor.xyz;
@@ -67,7 +65,6 @@ void main() {
     vec3 blendColor;
     vec3 albedo;
     float roughness;
-    float metallic;
     vec3 tangentNormal;
 
     if(fragPos.y >= 60)            //snow rocky
@@ -75,7 +72,6 @@ void main() {
         //blendColor = vec3(1,0,0);
         albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
         roughness = texture(roughnessTexture, fragUv).g;
-        metallic = texture(metallicTexture, fragUv).b;
         tangentNormal = texture(normalsTexture, fragUv).xyz * 2.0 - 1.0;
     }
     else if(abs(fragNormal.y) <= 0.7)    //rocky
@@ -83,7 +79,6 @@ void main() {
         //blendColor = vec3(0,1,0);
         albedo = pow(texture(diffuseTexture2, fragUv).xyz, vec3(2.2));
         roughness = texture(roughnessTexture2, fragUv).g;
-        metallic = texture(metallicTexture2, fragUv).b;
         tangentNormal = texture(normalsTexture2, fragUv).xyz * 2.0 - 1.0;
     }
     else                            //Grass
@@ -91,7 +86,6 @@ void main() {
         //blendColor = vec3(0,0,1);
         albedo = pow(texture(diffuseTexture3, fragUv).xyz, vec3(2.2));
         roughness = texture(roughnessTexture3, fragUv).g;
-        metallic = texture(metallicTexture3, fragUv).b;
         tangentNormal = texture(normalsTexture3, fragUv).xyz * 2.0 - 1.0;
     }
 
