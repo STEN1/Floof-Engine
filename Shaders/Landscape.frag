@@ -8,10 +8,16 @@ layout(location = 0) out vec4 outColor;
 
 layout (set = 0, binding = 0) uniform sampler2D diffuseTexture;
 layout (set = 0, binding = 1) uniform sampler2D normalsTexture;
-layout (set = 0, binding = 2) uniform sampler2D metallicTexture;
-layout (set = 0, binding = 3) uniform sampler2D roughnessTexture;
-layout (set = 0, binding = 4) uniform sampler2D aoTexture;
-layout (set = 0, binding = 5) uniform sampler2D opacityTexture;
+layout (set = 0, binding = 2) uniform sampler2D roughnessTexture;
+
+layout (set = 6, binding = 0) uniform sampler2D diffuseTexture2;
+layout (set = 6, binding = 1) uniform sampler2D normalsTexture2;
+layout (set = 6, binding = 2) uniform sampler2D roughnessTexture2;
+
+layout (set = 7, binding = 0) uniform sampler2D diffuseTexture3;
+layout (set = 7, binding = 1) uniform sampler2D normalsTexture3;
+layout (set = 7, binding = 2) uniform sampler2D roughnessTexture3;
+
 
 struct PointLight {    
     vec4 position;
@@ -44,21 +50,47 @@ float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
-vec3 getNormal();
+vec3 getNormal(vec3);
 
 const float PI = 3.14159265359;
+const float ao = 1.0;
+const float metallic = 0.0;
 
 void main() {
     vec3 skyColor = sceneFrameUBO.sunColor.xyz;
     vec3 skyDir = normalize(sceneFrameUBO.sunDirection.xyz);
+   
+    //write blendmap
 
-    vec3 N = getNormal();
+    vec3 blendColor;
+    vec3 albedo;
+    float roughness;
+    vec3 tangentNormal;
+
+    if(fragPos.y >= 60)            //snow rocky
+    {
+        //blendColor = vec3(1,0,0);
+        albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
+        roughness = texture(roughnessTexture, fragUv).g;
+        tangentNormal = texture(normalsTexture, fragUv).xyz * 2.0 - 1.0;
+    }
+    else if(abs(fragNormal.y) <= 0.7)    //rocky
+    {
+        //blendColor = vec3(0,1,0);
+        albedo = pow(texture(diffuseTexture2, fragUv).xyz, vec3(2.2));
+        roughness = texture(roughnessTexture2, fragUv).g;
+        tangentNormal = texture(normalsTexture2, fragUv).xyz * 2.0 - 1.0;
+    }
+    else                            //Grass
+    {
+        //blendColor = vec3(0,0,1);
+        albedo = pow(texture(diffuseTexture3, fragUv).xyz, vec3(2.2));
+        roughness = texture(roughnessTexture3, fragUv).g;
+        tangentNormal = texture(normalsTexture3, fragUv).xyz * 2.0 - 1.0;
+    }
+
+    vec3 N = getNormal(tangentNormal);
     vec3 V = normalize(sceneFrameUBO.cameraPos.xyz - fragPos);
-
-    vec3 albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
-    float roughness = texture(roughnessTexture, fragUv).g;
-    float metallic = texture(metallicTexture, fragUv).b;
-    float ao = texture(aoTexture, fragUv).r;
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -122,7 +154,7 @@ void main() {
     color = pow(color, vec3(1.0/2.2)); 
 
     //outColor = vec4(brdf, 0.0, 1.0);
-    outColor = vec4(color, texture(diffuseTexture, fragUv).a * (1.0 - texture(opacityTexture, fragUv).r));
+    outColor = vec4(color, texture(diffuseTexture, fragUv).a);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -170,11 +202,9 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 } 
 
-vec3 getNormal()
+vec3 getNormal(vec3 tangentNormal)
 {
 	// Perturb normal, see http://www.thetenthplanet.de/archives/1180
-	vec3 tangentNormal = texture(normalsTexture, fragUv).xyz * 2.0 - 1.0;
-
 	vec3 q1 = dFdx(fragPos);
 	vec3 q2 = dFdy(fragPos);
 	vec2 st1 = dFdx(fragUv);

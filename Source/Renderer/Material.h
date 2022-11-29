@@ -20,4 +20,18 @@ namespace FLOOF
 
         ~Material();
 	};
+    struct LandscapeMaterial
+    {
+        Texture Diffuse;
+        Texture Normals;
+        Texture Roughness;
+
+        std::string Name;
+
+        VkDescriptorSet DescriptorSet = VK_NULL_HANDLE;
+
+        void UpdateDescriptorSet();
+
+        ~LandscapeMaterial();
+    };
 }

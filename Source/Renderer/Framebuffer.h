@@ -31,4 +31,28 @@ namespace FLOOF {
 		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_ImageView = VK_NULL_HANDLE;
 	};
+	class DepthFramebuffer {
+	public:
+		DepthFramebuffer(uint32_t width, uint32_t height);
+		~DepthFramebuffer();
+
+		VkRenderPass GetRenderPass() { return m_RenderPass; };
+		VkFramebuffer GetFramebuffer() { return m_Framebuffer; }
+		VulkanTexture GetTexture() { return m_Texture; }
+
+	private:
+		void CreateFramebufferTexture();
+		void CreateFramebufferObject();
+		void CreateRenderPass();
+
+		void DestroyFramebufferTexture();
+		void DestroyFramebufferObject();
+		void DestroyRenderPass();
+
+		VulkanTexture m_Texture{};
+		VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
+		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
+		VkFormat m_Format{};
+		VkExtent2D m_Extent{};
+	};
 }

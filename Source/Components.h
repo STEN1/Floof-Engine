@@ -5,9 +5,11 @@
 #include "Floof.h"
 #include <chrono>
 #include <entt/entt.hpp>
-
+#include <initializer_list>
+#include <cstdarg>
 #include "al.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/LandscapeMesh.h"
 #include "Renderer/Texture.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btSoftBody.h"
@@ -18,6 +20,7 @@
 #include <pytypedefs.h>
 #include "HeightField.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
+#include <unordered_map>
 
 class SoundManager;
 
@@ -188,34 +191,48 @@ namespace FLOOF {
         friend class SoundManager;
 
     public:
-        SoundSourceComponent(const std::string &path);
-        void NewDeviceReload();
+        SoundSourceComponent();
+        SoundSourceComponent(const std::string& path);
 
+        SoundSourceComponent(std::initializer_list<std::string> clips);
+        SoundSourceComponent(std::vector<std::string> clips);
+
+
+        void NewDeviceReload();
         ~SoundSourceComponent();
 
-        void Volume(float volume);
-
-        void Pitch();
-
-        void UpdateStatus();
-
-        void Play();
-
-        void Stop();
-
-        void Looping(bool looping);
-
-        void Update();
-
-        ALuint m_Source;
-        ALuint m_Sound;
-        std::string m_Path;
-        std::string m_Name;
+        void AddClip(const std::string& path);
+        
         float m_Volume{1.f};
-        float m_Pitch{1.f};
-        bool isPlaying{false};
-        bool isLooping{false};
 
+        class SoundClip {
+        public:
+            SoundClip(const std::string& path);
+            void NewDeviceReload();
+            ~SoundClip();
+            void Volume();
+            void Volume(float volume);
+            void Pitch();
+            void UpdateStatus();
+            void Play();
+            void Stop();
+            void Looping(bool looping);
+            
+            ALuint m_Source;
+            ALuint m_Sound;
+            std::string m_Path;
+            std::string m_Name;
+            float m_Volume{ 1.f };
+            float m_Pitch{ 1.f };
+            bool isPlaying{ false };
+            bool isLooping{ false };
+        };
+
+        std::unordered_map<std::string, std::shared_ptr<SoundClip>> mClips;
+        std::shared_ptr<SoundClip> GetClip(const std::string& name);
+
+        void Play(const std::string& name);
+        //std::shared_ptr<SoundClip> m_SelectedClip;
 
     };
 
@@ -251,7 +268,7 @@ namespace FLOOF {
         LandscapeComponent(const char* map, const char* texture);
         ~LandscapeComponent();
         
-        MeshData meshData;
+        LandscapeMesh meshData;
 
         HeightmapLoader* landscape;
 

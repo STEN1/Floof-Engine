@@ -78,6 +78,7 @@ namespace FLOOF {
         LightSSBO,
         FontTexture,
         Material,
+        LandscapeMaterial,
         DiffuseTextureClamped,
     };
 
@@ -204,6 +205,8 @@ namespace FLOOF {
         // Allocates a combined texture-sampler descriptor set.
         VkDescriptorSet AllocateMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
+        VkDescriptorSet AllocateLandscapeMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
+
         // Frees a combined texture-sampler descriptor set.
         void FreeMaterialDescriptorSet(VkDescriptorSet desctriptorSet);
 
@@ -264,6 +267,8 @@ namespace FLOOF {
         void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1, uint32_t layers = 1);
+
+        VkFormat FindDepthFormat();
 
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
@@ -327,7 +332,6 @@ namespace FLOOF {
         VkPresentModeKHR GetPresentMode(VkPresentModeKHR presentMode);
         VkExtent2D GetWindowExtent();
 
-        VkFormat FindDepthFormat();
         VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates,
             VkImageTiling tiling,
             VkFormatFeatureFlags features);
@@ -356,6 +360,7 @@ namespace FLOOF {
 
         VkDescriptorPool m_TextureDescriptorPool;
         VkDescriptorPool m_MaterialDescriptorPool;
+        VkDescriptorPool m_LandscapeMaterialDescriptorPool;
         VkDescriptorPool m_ShaderStorageDescriptorPool;
         VkDescriptorPool m_UBODescriptorPool;
 

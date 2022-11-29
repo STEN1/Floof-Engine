@@ -36,6 +36,8 @@ namespace FLOOF {
             PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore);
 
     private:
+        void ShadowPass();
+
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
 
@@ -56,7 +58,7 @@ namespace FLOOF {
 
         VkRenderPass m_RenderPass;
 
-
+        std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
         std::vector<VkSemaphore> m_waitSemaphores;
         std::vector<VkSemaphore> m_SignalSemaphores;

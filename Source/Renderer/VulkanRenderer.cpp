@@ -64,6 +64,7 @@ namespace FLOOF {
 
 
         vkDestroyDescriptorPool(m_LogicalDevice, m_TextureDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(m_LogicalDevice, m_LandscapeMaterialDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_ShaderStorageDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_UBODescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_MaterialDescriptorPool, nullptr);
@@ -947,6 +948,21 @@ namespace FLOOF {
             VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::Material]);
         }
         {
+            std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = {
+                { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+                { 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+                { 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+            };
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = setLayoutBindings.size();
+            descriptorSetLayoutCreateInfo.pBindings = setLayoutBindings.data();
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial]);
+        }
+        {
             VkDescriptorSetLayoutBinding layoutBinding{};
             layoutBinding.binding = 0;
             layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -1222,6 +1238,22 @@ namespace FLOOF {
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_MaterialDescriptorPool);
+            ASSERT(result == VK_SUCCESS);
+        }
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSize.descriptorCount = 100;
+
+            // Create texture descriptor pool.
+            VkDescriptorPoolCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
+            //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.maxSets = 100;
+            createInfo.pPoolSizes = &poolSize;
+            createInfo.poolSizeCount = 1;
+            VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_LandscapeMaterialDescriptorPool);
             ASSERT(result == VK_SUCCESS);
         }
         {
@@ -1595,6 +1627,20 @@ namespace FLOOF {
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = m_MaterialDescriptorPool;
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
+
+        VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &textureDescriptorSet);
+        ASSERT(result == VK_SUCCESS);
+        return textureDescriptorSet;
+    }
+
+    VkDescriptorSet VulkanRenderer::AllocateLandscapeMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
+    {
+        VkDescriptorSet textureDescriptorSet{};
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = m_LandscapeMaterialDescriptorPool;
         allocInfo.descriptorSetCount = 1;
         allocInfo.pSetLayouts = &descriptorSetLayout;
 

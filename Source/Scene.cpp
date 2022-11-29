@@ -1,7 +1,7 @@
 #include "Scene.h"
+#include "Components.h"
 
 #include "Application.h"
-#include "Components.h"
 #include "SoundManager.h"
 
 namespace FLOOF {

@@ -4,6 +4,8 @@
 #include <entt/entt.hpp>
 #include "PhysicsSystem.h"
 #include "Renderer/SceneRenderer.h"
+#include "Components.h"
+
 
 namespace FLOOF {
 
@@ -31,6 +33,9 @@ namespace FLOOF {
         friend class SceneGraphPanel;
         friend class ComponentsPanel;
         friend class EditorLayer;
+        friend class SoundSourcesPanel;
+        friend class SoundClipPanel;
+
     public:
         Scene();
         ~Scene();
@@ -87,6 +92,7 @@ namespace FLOOF {
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
+        std::shared_ptr<SoundSourceComponent::SoundClip> m_SelectedClip;
         entt::entity m_LastSelectedEntity = entt::null;
 
         std::unique_ptr<SceneRenderer> m_SceneRenderer;

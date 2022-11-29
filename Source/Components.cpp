@@ -434,7 +434,43 @@ namespace FLOOF {
         }
     }
 
-    SoundSourceComponent::SoundSourceComponent(const std::string &path) {
+    SoundSourceComponent::SoundSourceComponent() {
+    }
+
+    SoundSourceComponent::SoundSourceComponent(const std::string& path) {
+        AddClip(path);
+    }
+
+    SoundSourceComponent::SoundSourceComponent(std::initializer_list<std::string> clips){
+	    for (auto clip : clips) {
+            AddClip(clip);
+	    }
+    }
+
+    SoundSourceComponent::SoundSourceComponent(std::vector<std::string> clips) {
+        for (auto clip : clips) {
+            AddClip(clip);
+        }
+    }
+
+
+    void SoundSourceComponent::NewDeviceReload() {
+        for (auto it = mClips.begin(); it != mClips.end(); it++)
+            (*it).second->NewDeviceReload();
+    }
+
+    SoundSourceComponent::~SoundSourceComponent() {
+
+    }
+
+    void SoundSourceComponent::AddClip(const std::string& path) {
+        mClips.insert(std::pair<std::string, std::shared_ptr<SoundClip>>(path, std::make_shared<SoundClip>(path)));
+    }
+
+
+
+
+    SoundSourceComponent::SoundClip::SoundClip(const std::string& path) {
         m_Name = path;
         m_Sound = SoundManager::LoadWav(path);
         m_Path = path;
@@ -442,61 +478,81 @@ namespace FLOOF {
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
     }
 
-    void SoundSourceComponent::NewDeviceReload() {
+    void SoundSourceComponent::SoundClip::NewDeviceReload() {
         // TODO Make sure previous source and buffer is deleted
         m_Sound = SoundManager::LoadWav(m_Name);
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
     }
 
-    SoundSourceComponent::~SoundSourceComponent() {
+    SoundSourceComponent::SoundClip::~SoundClip() {
         SoundManager::DeleteSource(this);
     }
 
-    void SoundSourceComponent::Volume(float volume) {
+    void SoundSourceComponent::SoundClip::Volume() {
+        alec(alSourcef(m_Source, AL_GAIN, m_Volume));
+    }
+
+    void SoundSourceComponent::SoundClip::Volume(float volume) {
         m_Volume = volume;
         alec(alSourcef(m_Source, AL_GAIN, volume));
     }
 
-    void SoundSourceComponent::Pitch() {
+    void SoundSourceComponent::SoundClip::Pitch() {
         alec(alSourcef(m_Source, AL_PITCH, m_Pitch));
     }
 
-    void SoundSourceComponent::UpdateStatus() {
+    void SoundSourceComponent::SoundClip::UpdateStatus() {
 
         ALint sourceState;
         alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState))
 
-        if (sourceState == AL_PLAYING) {
-            isPlaying = true;
-        } else {
-            isPlaying = false;
-        }
+            if (sourceState == AL_PLAYING) {
+                isPlaying = true;
+            }
+            else {
+                isPlaying = false;
+            }
     }
 
-    void SoundSourceComponent::Play() {
+    void SoundSourceComponent::SoundClip::Play() {
+        isPlaying = true;
         alec(alSourcePlay(m_Source));
     }
 
-    void SoundSourceComponent::Stop() {
+    void SoundSourceComponent::SoundClip::Stop() {
+        isPlaying = false;
         alec(alSourceStop(m_Source));
 
     }
 
-    void SoundSourceComponent::Looping(bool looping) {
+    void SoundSourceComponent::SoundClip::Looping(bool looping) {
         if (looping) {
             alec(alSourcei(m_Source, AL_LOOPING, AL_TRUE));
             isLooping = true;
-        } else {
+        }
+        else {
             alec(alSourcei(m_Source, AL_LOOPING, AL_FALSE));
             isLooping = false;
         }
     }
 
-    void SoundSourceComponent::Update() {
-        Volume(m_Volume);
-
+    std::shared_ptr<SoundSourceComponent::SoundClip> SoundSourceComponent::GetClip(const std::string& name){
+            if (mClips[name])
+                return mClips[name];
+            else
+                return nullptr;
+        
     }
+
+    void SoundSourceComponent::Play(const std::string& name) {
+        if (mClips[name])
+        	mClips[name]->Play();
+        else
+            return;
+    }
+
+
 
     void ScriptComponent::ReloadScript() {
         Py_Finalize();
@@ -509,7 +565,6 @@ namespace FLOOF {
 
         Pname = PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
-
     }
 
     LandscapeComponent::LandscapeComponent(const char *map, const char *texture) {
@@ -534,9 +589,25 @@ namespace FLOOF {
         landscape->mIndices = triangleCol.indicesOut;
 
         //vulkan data
-        meshData = landscape->getMeshData();
-        meshData.MeshMaterial.Diffuse = Texture(texture, true);
-        meshData.MeshMaterial.UpdateDescriptorSet();
+        meshData.setMesh(landscape->getMeshData());
+        std::string path = "Assets/Terrain";
+        
+        meshData.MeshMaterial1.Diffuse = Texture(path + "/SnowRocky/diffuse.png", true);
+        meshData.MeshMaterial1.Roughness = Texture(path + "/SnowRocky/roughness.png", true);
+        meshData.MeshMaterial1.Normals = Texture(path + "/SnowRocky/normal.png", true);
+        meshData.MeshMaterial1.UpdateDescriptorSet();
+        
+        meshData.MeshMaterial2.Diffuse = Texture(path + "/Stone/diffuse.png", true);
+        meshData.MeshMaterial2.Roughness = Texture(path + "/Stone/roughness.png", true);
+        meshData.MeshMaterial2.Normals = Texture(path + "/Stone/normal.png", true);
+        meshData.MeshMaterial2.UpdateDescriptorSet();
+        
+        meshData.MeshMaterial3.Diffuse = Texture(path + "/GrassTex/diffuse.png", true);
+        meshData.MeshMaterial3.Roughness = Texture(path + "/GrassTex/roughness.png", true);
+        meshData.MeshMaterial3.Normals = Texture(path + "/GrassTex/normal.png", true);
+        meshData.MeshMaterial3.UpdateDescriptorSet();
+
+        //meshData.BlendTex = Texture(true);
     }
 
     LandscapeComponent::~LandscapeComponent() {
@@ -547,6 +618,9 @@ namespace FLOOF {
         delete HeightFieldShape;
         delete landscape;
     }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> main
 }

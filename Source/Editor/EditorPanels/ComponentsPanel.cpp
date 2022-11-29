@@ -73,27 +73,7 @@ namespace FLOOF {
 				}
 			}
 
-			if (auto* soundComponent = m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(
-				m_EditorLayer->GetScene()->m_SelectedEntity)) {
-				ImGui::Separator();
-				ImGui::Text("Sound Component");
-				ImGui::Text(soundComponent->m_Path.c_str());
-
-				if (ImGui::DragFloat("Volume", &soundComponent->m_Volume, 0.001f, 0.f, 1.f)) {
-					soundComponent->Update();
-				}
-				if (ImGui::DragFloat("Pitch", &soundComponent->m_Pitch, 0.01f, 0.f, 50.f)) {
-					soundComponent->Pitch();
-				}
-
-				if (soundComponent->isPlaying) { if (ImGui::Button("Stop")) { soundComponent->Stop(); } }
-				if (!soundComponent->isPlaying) { if (ImGui::Button("Play")) { soundComponent->Play(); } }
-				if (soundComponent->isLooping) { if (ImGui::Button("Looping")) { soundComponent->Looping(false); } }
-				if (!soundComponent->isLooping) { if (ImGui::Button("Not Looping")) { soundComponent->Looping(true); } }
-			}
-
-			if (auto* rigidBody = m_EditorLayer->GetScene()->GetRegistry().try_get<RigidBodyComponent>(
-				m_EditorLayer->GetScene()->m_SelectedEntity)) {
+			if (auto* rigidBody = m_EditorLayer->GetScene()->GetRegistry().try_get<RigidBodyComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Rigid body component");
 				if (rigidBody->RigidBody) {
@@ -122,44 +102,64 @@ namespace FLOOF {
 			if (auto* staticMesh = m_EditorLayer->GetScene()->GetRegistry().try_get<StaticMeshComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Static mesh component");
-				if (ImGui::Button("Toggle all Wireframe off")) {
-					for (auto& mesh : staticMesh->meshes) {
-						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = false;
-					}
-				}
-				if (m_EditorLayer->GetScene()->m_SelectedEntity != m_EditorLayer->GetScene()->m_LastSelectedEntity) {
-					for (auto& mesh : staticMesh->meshes) {
-						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = true;
-					}
-				}
-				ImGui::Text("Internal Meshes list:");
-				for (auto& mesh : staticMesh->meshes) {
-					std::string name = "\t";
-					name += mesh.MeshName;
-					if (ImGui::Selectable(name.c_str(), staticMesh->mapDrawWireframeMeshes[mesh.MeshName])) {
-						staticMesh->mapDrawWireframeMeshes[mesh.MeshName] = !staticMesh->mapDrawWireframeMeshes[mesh.MeshName];
-					}
+
+				static ImGuiTreeNodeFlags base_flags =
+					ImGuiTreeNodeFlags_OpenOnArrow |
+					ImGuiTreeNodeFlags_OpenOnDoubleClick |
+					ImGuiTreeNodeFlags_SpanAvailWidth;
+
+				ImGuiTreeNodeFlags node_flags = base_flags;
+
+				static StaticMeshComponent* selectedComp = nullptr;
+				static int selectedId = -1;
+
+				if (selectedComp != staticMesh) {
+					selectedComp = staticMesh;
+					selectedId = -1;
 				}
 
-				ImGui::Text("Materials");
+				int id = 0;
+				bool treeOpen = ImGui::TreeNodeEx((void*)(intptr_t)id, node_flags, "Meshes");
+
+				node_flags = base_flags;
+				node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
 				ImVec2 imageSize(200.f, 200.f);
 				for (auto& mesh : staticMesh->meshes) {
-					ImGui::Separator();
-					ImGui::Text("Diffuse");
-					ImGui::Image(mesh.MeshMaterial.Diffuse.VkTexture.DesctriptorSet, imageSize);
-					ImGui::Text("Normals");
-					ImGui::Image(mesh.MeshMaterial.Normals.VkTexture.DesctriptorSet, imageSize);
-					ImGui::Text("Metallic");
-					ImGui::Image(mesh.MeshMaterial.Metallic.VkTexture.DesctriptorSet, imageSize);
-					ImGui::Text("Roughness");
-					ImGui::Image(mesh.MeshMaterial.Roughness.VkTexture.DesctriptorSet, imageSize);
-					ImGui::Text("AO");
-					ImGui::Image(mesh.MeshMaterial.AO.VkTexture.DesctriptorSet, imageSize);
-					ImGui::Text("Opacity");
-					ImGui::Image(mesh.MeshMaterial.Opacity.VkTexture.DesctriptorSet, imageSize);
+					id++;
+					if (selectedId == id) {
+						node_flags |= ImGuiTreeNodeFlags_Selected;
+					}
+					if (treeOpen) {
+						ImGui::TreeNodeEx((void*)(intptr_t)id, node_flags, "Mesh: %s", mesh.MeshName.c_str());
+						if (ImGui::IsItemClicked() && selectedId != id) {
+							selectedId = id;
+						}
+						else if (ImGui::IsItemClicked() && selectedId == id) {
+							selectedId = -1;
+						}
+					}
+					if (selectedId == id && treeOpen) {
+						node_flags = base_flags;
+						node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+						ImGui::Text("Material: %s", mesh.MeshMaterial.Name.c_str());
+						ImGui::Separator();
+						ImGui::Text("Diffuse");
+						ImGui::Image(mesh.MeshMaterial.Diffuse.VkTexture.DesctriptorSet, imageSize);
+						ImGui::Text("Normals");
+						ImGui::Image(mesh.MeshMaterial.Normals.VkTexture.DesctriptorSet, imageSize);
+						ImGui::Text("Metallic");
+						ImGui::Image(mesh.MeshMaterial.Metallic.VkTexture.DesctriptorSet, imageSize);
+						ImGui::Text("Roughness");
+						ImGui::Image(mesh.MeshMaterial.Roughness.VkTexture.DesctriptorSet, imageSize);
+						ImGui::Text("AO");
+						ImGui::Image(mesh.MeshMaterial.AO.VkTexture.DesctriptorSet, imageSize);
+						ImGui::Text("Opacity");
+						ImGui::Image(mesh.MeshMaterial.Opacity.VkTexture.DesctriptorSet, imageSize);
+					}
 				}
-			
-
+				if (treeOpen)
+					ImGui::TreePop();
 			}
 			if (auto* pointLight = m_EditorLayer->GetScene()->GetRegistry().try_get<PointLightComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
@@ -167,8 +167,7 @@ namespace FLOOF {
 				ImGui::ColorPicker3("Light color", &pointLight->diffuse[0]);
 				ImGui::DragFloat("Light range", &pointLight->lightRange, 0.01f, 1.f);
 			}
-			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(
-				m_EditorLayer->GetScene()->m_SelectedEntity)) {
+			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Script Component");
 				std::string currentscript = scriptComponent->ModuleName;
