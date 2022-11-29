@@ -554,6 +554,9 @@ namespace FLOOF {
                     std::string name = "Random ramp ";
                     name += std::to_string(i);
 
+                    for (uint32_t i = 0; i < 1000; i++)
+                        std::cout << Math::RandFloat(0.f, 6.28f) << std::endl;
+
                     auto entity = m_Scene->CreateEntity(name);
                     auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/Primitives/IdentityRamp.fbx");
                     auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityRamp.fbx");
@@ -569,6 +572,7 @@ namespace FLOOF {
                     auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
                     transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
                     transform.Scale = extents;
+                    transform.Rotation = rotation;
                     collision.RigidBody->setFriction(0.9f);
                 }
             }
