@@ -210,6 +210,8 @@ namespace FLOOF {
         // Frees a combined texture-sampler descriptor set.
         void FreeMaterialDescriptorSet(VkDescriptorSet desctriptorSet);
 
+        void FreeLandscapeMaterialDescriptorSet(VkDescriptorSet desctriptorSet);
+
         // Allocates a shader storage descriptor set.
         VkDescriptorSet AllocateShaderStorageDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 

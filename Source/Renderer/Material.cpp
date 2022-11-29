@@ -106,7 +106,7 @@ namespace FLOOF {
         auto* renderer = VulkanRenderer::Get();
         if (DescriptorSet != VK_NULL_HANDLE) {
             renderer->FinishAllFrames();
-            renderer->FreeMaterialDescriptorSet(DescriptorSet);
+            renderer->FreeLandscapeMaterialDescriptorSet(DescriptorSet);
         }
     }
 }
