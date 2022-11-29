@@ -83,9 +83,9 @@ namespace FLOOF {
             m_Skybox->Draw(commandBuffer, pipelineLayout);
         }
 
-        auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
 
         if (drawMode == RenderPipelineKeys::PBR) {
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
             std::vector<PointLightComponent::PointLight> pointLights;
             auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
             for (auto [entity, transform, lightComp] : lightView.each()) {
@@ -174,38 +174,40 @@ namespace FLOOF {
         }
         // Draw landscape
         {
-            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
-            for (auto [entity, transform, landscape] : view.each()) {
-                MeshPushConstants constants;
-                glm::mat4 modelMat = transform.GetTransform();
-                constants.VP = vp;
-                constants.Model = modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
+            if (view.begin() != view.end()) {
+                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
+                for (auto [entity, transform, landscape] : view.each()) {
+                    MeshPushConstants constants;
+                    glm::mat4 modelMat = transform.GetTransform();
+                    constants.VP = vp;
+                    constants.Model = modelMat;
+                    constants.InvModelMat = glm::inverse(modelMat);
+                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                        0, sizeof(MeshPushConstants), &constants);
 
-                if (landscape.meshData.MeshMaterial1.DescriptorSet == VK_NULL_HANDLE) {
-                    landscape.meshData.MeshMaterial1.UpdateDescriptorSet();
-                }
-                if (landscape.meshData.MeshMaterial2.DescriptorSet == VK_NULL_HANDLE) {
-                    landscape.meshData.MeshMaterial2.UpdateDescriptorSet();
-                }
-                if (landscape.meshData.MeshMaterial3.DescriptorSet == VK_NULL_HANDLE) {
-                    landscape.meshData.MeshMaterial3.UpdateDescriptorSet();
-                }
+                    if (landscape.meshData.MeshMaterial1.DescriptorSet == VK_NULL_HANDLE) {
+                        landscape.meshData.MeshMaterial1.UpdateDescriptorSet();
+                    }
+                    if (landscape.meshData.MeshMaterial2.DescriptorSet == VK_NULL_HANDLE) {
+                        landscape.meshData.MeshMaterial2.UpdateDescriptorSet();
+                    }
+                    if (landscape.meshData.MeshMaterial3.DescriptorSet == VK_NULL_HANDLE) {
+                        landscape.meshData.MeshMaterial3.UpdateDescriptorSet();
+                    }
               
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    0, 1, &landscape.meshData.MeshMaterial1.DescriptorSet, 0, nullptr);
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    6, 1, &landscape.meshData.MeshMaterial2.DescriptorSet, 0, nullptr);
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    7, 1, &landscape.meshData.MeshMaterial3.DescriptorSet, 0, nullptr);
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        0, 1, &landscape.meshData.MeshMaterial1.DescriptorSet, 0, nullptr);
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        6, 1, &landscape.meshData.MeshMaterial2.DescriptorSet, 0, nullptr);
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        7, 1, &landscape.meshData.MeshMaterial3.DescriptorSet, 0, nullptr);
 
-                VkDeviceSize offset{ 0 };
-                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
-                vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-                vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
+                    VkDeviceSize offset{ 0 };
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
+                    vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                    vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
+                }
             }
         }
 

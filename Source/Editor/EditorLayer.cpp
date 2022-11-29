@@ -106,10 +106,13 @@ namespace FLOOF {
 	}
     VkSemaphore EditorLayer::OnDraw(double deltaTime, VkSemaphore waitSemaphore)
     {
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse;
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-            ImGui::Begin("Editor view");
+            ImGui::Begin("Editor view", nullptr, windowFlags);
             ImGui::PopStyleVar();
+            auto viewport = ImGui::GetWindowViewport();
+            viewport->Flags &= (~ImGuiViewportFlags_NoDecoration);
 
             m_EditorViewFocused = ImGui::IsWindowFocused();
 
@@ -142,8 +145,10 @@ namespace FLOOF {
         }
         if (IsPlaying()) {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-            ImGui::Begin("Play view");
+            ImGui::Begin("Play view", nullptr, windowFlags);
             ImGui::PopStyleVar();
+            auto viewport = ImGui::GetWindowViewport();
+            viewport->Flags &= (~ImGuiViewportFlags_NoDecoration);
 
             m_PlayViewFocused = ImGui::IsWindowFocused();
             m_Scene->m_IsActiveScene = m_PlayViewFocused;
@@ -553,9 +558,6 @@ namespace FLOOF {
                     auto rotation = glm::vec3(0.f, Math::RandFloat(0.f, 6.28f), 0.f);
                     std::string name = "Random ramp ";
                     name += std::to_string(i);
-
-                    for (uint32_t i = 0; i < 1000; i++)
-                        std::cout << Math::RandFloat(0.f, 6.28f) << std::endl;
 
                     auto entity = m_Scene->CreateEntity(name);
                     auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/Primitives/IdentityRamp.fbx");
