@@ -10,22 +10,16 @@ layout (set = 0, binding = 0) uniform sampler2D diffuseTexture;
 layout (set = 0, binding = 1) uniform sampler2D normalsTexture;
 layout (set = 0, binding = 2) uniform sampler2D metallicTexture;
 layout (set = 0, binding = 3) uniform sampler2D roughnessTexture;
-layout (set = 0, binding = 4) uniform sampler2D aoTexture;
-layout (set = 0, binding = 5) uniform sampler2D opacityTexture;
 
 layout (set = 6, binding = 0) uniform sampler2D diffuseTexture2;
 layout (set = 6, binding = 1) uniform sampler2D normalsTexture2;
 layout (set = 6, binding = 2) uniform sampler2D metallicTexture2;
 layout (set = 6, binding = 3) uniform sampler2D roughnessTexture2;
-layout (set = 6, binding = 4) uniform sampler2D aoTexture2;
-layout (set = 6, binding = 5) uniform sampler2D opacityTexture2;
 
 layout (set = 7, binding = 0) uniform sampler2D diffuseTexture3;
 layout (set = 7, binding = 1) uniform sampler2D normalsTexture3;
 layout (set = 7, binding = 2) uniform sampler2D metallicTexture3;
 layout (set = 7, binding = 3) uniform sampler2D roughnessTexture3;
-layout (set = 7, binding = 4) uniform sampler2D aoTexture3;
-layout (set = 7, binding = 5) uniform sampler2D opacityTexture3;
 
 
 struct PointLight {    
@@ -62,6 +56,7 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 vec3 getNormal(vec3);
 
 const float PI = 3.14159265359;
+const float ao = 1.0;
 
 void main() {
     vec3 skyColor = sceneFrameUBO.sunColor.xyz;
@@ -73,7 +68,6 @@ void main() {
     vec3 albedo;
     float roughness;
     float metallic;
-    float ao;
     vec3 tangentNormal;
 
     if(fragPos.y >= 60)            //snow rocky
@@ -82,7 +76,6 @@ void main() {
         albedo = pow(texture(diffuseTexture, fragUv).xyz, vec3(2.2));
         roughness = texture(roughnessTexture, fragUv).g;
         metallic = texture(metallicTexture, fragUv).b;
-        ao = texture(aoTexture, fragUv).r;
         tangentNormal = texture(normalsTexture, fragUv).xyz * 2.0 - 1.0;
     }
     else if(abs(fragNormal.y) <= 0.7)    //rocky
@@ -91,7 +84,6 @@ void main() {
         albedo = pow(texture(diffuseTexture2, fragUv).xyz, vec3(2.2));
         roughness = texture(roughnessTexture2, fragUv).g;
         metallic = texture(metallicTexture2, fragUv).b;
-        ao = texture(aoTexture2, fragUv).r;
         tangentNormal = texture(normalsTexture2, fragUv).xyz * 2.0 - 1.0;
     }
     else                            //Grass
@@ -100,7 +92,6 @@ void main() {
         albedo = pow(texture(diffuseTexture3, fragUv).xyz, vec3(2.2));
         roughness = texture(roughnessTexture3, fragUv).g;
         metallic = texture(metallicTexture3, fragUv).b;
-        ao = texture(aoTexture3, fragUv).r;
         tangentNormal = texture(normalsTexture3, fragUv).xyz * 2.0 - 1.0;
     }
 
@@ -169,7 +160,7 @@ void main() {
     color = pow(color, vec3(1.0/2.2)); 
 
     //outColor = vec4(brdf, 0.0, 1.0);
-    outColor = vec4(color, texture(diffuseTexture, fragUv).a * (1.0 - texture(opacityTexture, fragUv).r));
+    outColor = vec4(color, texture(diffuseTexture, fragUv).a);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
