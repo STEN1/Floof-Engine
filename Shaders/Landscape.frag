@@ -8,15 +8,15 @@ layout(location = 0) out vec4 outColor;
 
 layout (set = 0, binding = 0) uniform sampler2D diffuseTexture;
 layout (set = 0, binding = 1) uniform sampler2D normalsTexture;
-layout (set = 0, binding = 3) uniform sampler2D roughnessTexture;
+layout (set = 0, binding = 2) uniform sampler2D roughnessTexture;
 
 layout (set = 6, binding = 0) uniform sampler2D diffuseTexture2;
 layout (set = 6, binding = 1) uniform sampler2D normalsTexture2;
-layout (set = 6, binding = 3) uniform sampler2D roughnessTexture2;
+layout (set = 6, binding = 2) uniform sampler2D roughnessTexture2;
 
 layout (set = 7, binding = 0) uniform sampler2D diffuseTexture3;
 layout (set = 7, binding = 1) uniform sampler2D normalsTexture3;
-layout (set = 7, binding = 3) uniform sampler2D roughnessTexture3;
+layout (set = 7, binding = 2) uniform sampler2D roughnessTexture3;
 
 
 struct PointLight {    

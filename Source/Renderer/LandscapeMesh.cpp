@@ -18,17 +18,8 @@ namespace FLOOF {
             if (!mesh.MeshMaterial.Normals.Path.empty()) {
                 mesh.MeshMaterial.Normals = Texture(assetPath + mesh.MeshMaterial.Normals.Path);
             }
-            if (!mesh.MeshMaterial.Metallic.Path.empty()) {
-                mesh.MeshMaterial.Metallic = Texture(assetPath + mesh.MeshMaterial.Metallic.Path);
-            }
             if (!mesh.MeshMaterial.Roughness.Path.empty()) {
                 mesh.MeshMaterial.Roughness = Texture(assetPath + mesh.MeshMaterial.Roughness.Path);
-            }
-            if (!mesh.MeshMaterial.AO.Path.empty()) {
-                mesh.MeshMaterial.AO = Texture(assetPath + mesh.MeshMaterial.AO.Path);
-            }
-            if (!mesh.MeshMaterial.Opacity.Path.empty()) {
-                mesh.MeshMaterial.Opacity = Texture(assetPath + mesh.MeshMaterial.Opacity.Path);
             }
             mesh.MeshMaterial.UpdateDescriptorSet();
         }

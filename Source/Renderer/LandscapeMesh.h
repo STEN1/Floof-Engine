@@ -14,9 +14,9 @@ namespace FLOOF {
         uint32_t IndexCount{};
         std::string MeshName{ "NoName" };
 
-        Material MeshMaterial1;
-        Material MeshMaterial2;
-        Material MeshMaterial3;
+        LandscapeMaterial MeshMaterial1;
+        LandscapeMaterial MeshMaterial2;
+        LandscapeMaterial MeshMaterial3;
         Texture BlendTex;
 
         void setMesh(MeshData meshData){

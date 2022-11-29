@@ -78,6 +78,7 @@ namespace FLOOF {
         LightSSBO,
         FontTexture,
         Material,
+        LandscapeMaterial,
         DiffuseTextureClamped,
     };
 
@@ -203,6 +204,8 @@ namespace FLOOF {
 
         // Allocates a combined texture-sampler descriptor set.
         VkDescriptorSet AllocateMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
+
+        VkDescriptorSet AllocateLandscapeMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
         // Frees a combined texture-sampler descriptor set.
         void FreeMaterialDescriptorSet(VkDescriptorSet desctriptorSet);
@@ -357,6 +360,7 @@ namespace FLOOF {
 
         VkDescriptorPool m_TextureDescriptorPool;
         VkDescriptorPool m_MaterialDescriptorPool;
+        VkDescriptorPool m_LandscapeMaterialDescriptorPool;
         VkDescriptorPool m_ShaderStorageDescriptorPool;
         VkDescriptorPool m_UBODescriptorPool;
 
