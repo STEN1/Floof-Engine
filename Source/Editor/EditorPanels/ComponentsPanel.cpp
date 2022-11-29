@@ -73,8 +73,7 @@ namespace FLOOF {
 				}
 			}
 
-			if (auto* rigidBody = m_EditorLayer->GetScene()->GetRegistry().try_get<RigidBodyComponent>(
-				m_EditorLayer->GetScene()->m_SelectedEntity)) {
+			if (auto* rigidBody = m_EditorLayer->GetScene()->GetRegistry().try_get<RigidBodyComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Rigid body component");
 				if (rigidBody->RigidBody) {
@@ -159,6 +158,8 @@ namespace FLOOF {
 						ImGui::Image(mesh.MeshMaterial.Opacity.VkTexture.DesctriptorSet, imageSize);
 					}
 				}
+				if (treeOpen)
+					ImGui::TreePop();
 			}
 			if (auto* pointLight = m_EditorLayer->GetScene()->GetRegistry().try_get<PointLightComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
@@ -166,8 +167,7 @@ namespace FLOOF {
 				ImGui::ColorPicker3("Light color", &pointLight->diffuse[0]);
 				ImGui::DragFloat("Light range", &pointLight->lightRange, 0.01f, 1.f);
 			}
-			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(
-				m_EditorLayer->GetScene()->m_SelectedEntity)) {
+			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Script Component");
 				std::string currentscript = scriptComponent->ModuleName;
