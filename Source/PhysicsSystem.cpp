@@ -7,6 +7,7 @@
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "Scene.h"
 
 #define GravitationalConstant -9.81
 
@@ -203,9 +204,27 @@ namespace FLOOF {
     }
 
     bool PhysicsSystem::CustomContactProcessedCallback(btManifoldPoint &cp, void *body0, void *body1) {
-        //todo add collision callback code
         //body0 == body1, dont ask why just bullet things
-        return true;
+        bool ret = false;
+        {
+            auto* ptr = reinterpret_cast<btRigidBody*>(body0)->getUserPointer();
+            if(ptr != nullptr){
+                ret |=true;
+                auto* Native = static_cast<NativeScript*>(ptr);
+                Native->OnOverlap();
+            }
+        }
+        {
+            auto* ptr = reinterpret_cast<btRigidBody*>(body1)->getUserPointer();
+            if(ptr != nullptr){
+                ret |=true;
+                auto* Native = static_cast<NativeScript*>(ptr);
+                Native->OnOverlap();
+            }
+
+        }
+
+        return ret;
     }
 
 

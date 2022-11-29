@@ -52,6 +52,7 @@ namespace FLOOF {
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
         virtual void OnUpdate(float deltaTime) override;
         virtual void LastUpdate(float deltaTime) override;
+        virtual void OnOverlap() override;
 
         void CameraUi();
         void EngineUi();

@@ -250,12 +250,12 @@ namespace FLOOF {
         RigidBody->setRollingFriction(0.3f);
         RigidBody->setSpinningFriction(0.3f);
 
-        RigidBody->setUserPointer(this);
+        RigidBody->setUserPointer(nullptr);
         RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         GhostObject = std::make_shared<btGhostObject>();
         GhostObject->setCollisionShape(CollisionShape.get());
         GhostObject->setCollisionFlags(GhostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-        GhostObject->setUserPointer(this);
+        GhostObject->setUserPointer(nullptr);
     }
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,
@@ -342,6 +342,11 @@ namespace FLOOF {
 
     void RigidBodyComponent::wakeup() {
         RigidBody->activate(true);
+    }
+
+    void RigidBodyComponent::setUserptr(void *ptr) {
+        RigidBody->setUserPointer(ptr);
+
     }
 
     SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation, const float mass,
@@ -617,5 +622,73 @@ namespace FLOOF {
 
         delete HeightFieldShape;
         delete landscape;
+    }
+
+    TriggerVolumeComponent::TriggerVolumeComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation,
+                                                   const float mass, bt::CollisionPrimitive shape) {
+        using namespace bt;
+        switch (shape) {
+            case CollisionPrimitive::Box:
+                CollisionShape = std::make_shared<btBoxShape>(btVector3(scale.x, scale.y, scale.z));
+                break;
+
+            case CollisionPrimitive::Sphere:
+                CollisionShape = std::make_shared<btSphereShape>(scale.x);
+                break;
+
+            case CollisionPrimitive::Capsule:
+                CollisionShape = std::make_shared<btCapsuleShape>(scale.x, scale.y);
+                break;
+
+            case CollisionPrimitive::Cylinder:
+                CollisionShape = std::make_shared<btCylinderShape>(btVector3(scale.x, scale.y, scale.z));
+                break;
+
+            case CollisionPrimitive::Cone:
+                CollisionShape = std::make_shared<btConeShape>(scale.x, scale.y * 2.f);
+                break;
+
+        }
+        Transform.setIdentity();
+        auto rot = Utils::glmTobt(glm::vec3(rotation));
+        btQuaternion btquat;
+        btquat.setEulerZYX(rot.z(), rot.y(), rot.x());
+        Transform.setRotation(btquat);
+        Transform.setOrigin(btVector3(location.x, location.y, location.z));
+        DefaultMotionState = std::make_shared<btDefaultMotionState>(Transform);
+
+        btVector3 localInertia(0, 0, 0);
+        if (mass != 0.f)
+            CollisionShape->calculateLocalInertia(mass, localInertia);
+
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, DefaultMotionState.get(), CollisionShape.get(), localInertia);
+        RigidBody = std::make_shared<btRigidBody>(rbInfo);
+        RigidBody->setFriction(0.5f);
+        RigidBody->setRollingFriction(0.3f);
+        RigidBody->setSpinningFriction(0.3f);
+
+        RigidBody->setUserPointer(nullptr);
+        RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+    }
+
+    void TriggerVolumeComponent::transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale) {
+        btTransform trans;
+        if (RigidBody && RigidBody->getMotionState()) {
+            RigidBody->getMotionState()->getWorldTransform(trans);
+        } else {
+            trans = RigidBody->getWorldTransform();
+        }
+        trans.setOrigin(Utils::glmTobt(location));
+        btQuaternion btquat;
+        auto rot = Utils::glmTobt(rotation);
+        btquat.setEulerZYX(rot.z(), rot.y(), rot.x());
+        trans.setRotation(btquat);
+        trans.setOrigin(Utils::glmTobt(location));
+        RigidBody->setCenterOfMassTransform(trans);
+    }
+
+    void TriggerVolumeComponent::setUserptr(void *ptr) {
+        RigidBody->setUserPointer(ptr);
     }
 }

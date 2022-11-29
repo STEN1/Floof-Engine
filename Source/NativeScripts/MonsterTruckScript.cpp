@@ -122,6 +122,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        body.setUserptr(this);
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
         sound.GetClip("Vehicles_idle2.wav")->Play();
@@ -656,4 +657,9 @@ void FLOOF::MonsterTruckScript::LastUpdate(float deltaTime) {
     auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
     cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
 
+}
+
+void FLOOF::MonsterTruckScript::OnOverlap() {
+    NativeScript::OnOverlap();
+    std::cout << "overlap" << std::endl;
 }

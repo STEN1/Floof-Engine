@@ -151,11 +151,22 @@ namespace FLOOF {
         const bt::CollisionPrimitive Primitive;
 
         void wakeup();
+        void setUserptr(void* ptr);
 
     private:
         void InitializeBasicPhysics(const float mass);
 
         const glm::vec3 DefaultScale;
+    };
+    struct TriggerVolumeComponent{
+        TriggerVolumeComponent(glm::vec3 location, glm::vec3 scale,glm::vec3 rotation, const float mass, bt::CollisionPrimitive shape);
+        std::shared_ptr<btRigidBody> RigidBody{nullptr};
+        std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
+        btTransform Transform;
+        std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
+
+        void setUserptr(void* ptr);
+        void transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale);
     };
 
     struct SoftBodyComponent {
@@ -185,6 +196,7 @@ namespace FLOOF {
         void OnCreate();
 
         void OnUpdate(const float deltatime);
+
     };
 
     struct SoundSourceComponent {
