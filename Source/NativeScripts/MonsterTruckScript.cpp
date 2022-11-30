@@ -9,6 +9,7 @@
 
 void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
+    TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
 
     {
         frame = entity;
@@ -122,7 +123,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-        body.setUserptr(this);
+        body.setCollisionDispatcher(TruckCallback.get());
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
         sound.GetClip("Vehicles_idle2.wav")->Play();
@@ -659,7 +660,16 @@ void FLOOF::MonsterTruckScript::LastUpdate(float deltaTime) {
 
 }
 
-void FLOOF::MonsterTruckScript::OnOverlap() {
-    NativeScript::OnOverlap();
-    std::cout << "overlap" << std::endl;
+void FLOOF::MonsterTruckScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
+    std::cout << "On Begin Overlap" << std::endl;
+
+}
+
+void FLOOF::MonsterTruckScript::TruckCollisionCallback::onOverlap(void *obj1, void *obj2) {
+    CollisionDispatcher::onOverlap(obj1, obj2);
+}
+
+void FLOOF::MonsterTruckScript::TruckCollisionCallback::onEndOverlap(void *obj) {
+    CollisionDispatcher::onEndOverlap(obj);
+    std::cout << "On End Overlap" << std::endl;
 }

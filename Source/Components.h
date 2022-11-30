@@ -151,7 +151,9 @@ namespace FLOOF {
         const bt::CollisionPrimitive Primitive;
 
         void wakeup();
-        void setUserptr(void* ptr);
+
+        //Set CollisionDispatcher
+        void setCollisionDispatcher(void* ptr);
 
     private:
         void InitializeBasicPhysics(const float mass);
@@ -165,7 +167,7 @@ namespace FLOOF {
         btTransform Transform;
         std::shared_ptr<btDefaultMotionState> DefaultMotionState{nullptr};
 
-        void setUserptr(void* ptr);
+        void setCollisionDispatcher(void* ptr);
         void transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale);
     };
 

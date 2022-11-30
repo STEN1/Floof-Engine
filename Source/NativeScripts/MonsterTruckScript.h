@@ -4,6 +4,7 @@
 
 #include "NativeScript.h"
 #include "../Components.h"
+#include "../CollisionDispatcher.h"
 
 namespace FLOOF {
 
@@ -52,7 +53,6 @@ namespace FLOOF {
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
         virtual void OnUpdate(float deltaTime) override;
         virtual void LastUpdate(float deltaTime) override;
-        virtual void OnOverlap() override;
 
         void CameraUi();
         void EngineUi();
@@ -88,6 +88,17 @@ namespace FLOOF {
             std::string name;
         };
         std::vector<CamLocation> CamLocations;
+
+
+        class TruckCollisionCallback : public CollisionDispatcher {
+        public:
+            TruckCollisionCallback(Scene* scene, entt::entity& entity): CollisionDispatcher(scene,entity){};
+            virtual void onBeginOverlap(void* obj1, void* obj2) override;
+            virtual void onOverlap(void* obj1, void* obj2) override;
+            virtual void onEndOverlap(void* obj) override;
+        };
+        std::shared_ptr<TruckCollisionCallback> TruckCallback;
+
     };
 
 }

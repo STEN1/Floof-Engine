@@ -344,8 +344,9 @@ namespace FLOOF {
         RigidBody->activate(true);
     }
 
-    void RigidBodyComponent::setUserptr(void *ptr) {
+    void RigidBodyComponent::setCollisionDispatcher(void *ptr) {
         RigidBody->setUserPointer(ptr);
+        CollisionShape->setUserPointer(ptr);
 
     }
 
@@ -688,7 +689,8 @@ namespace FLOOF {
         RigidBody->setCenterOfMassTransform(trans);
     }
 
-    void TriggerVolumeComponent::setUserptr(void *ptr) {
+    void TriggerVolumeComponent::setCollisionDispatcher(void *ptr) {
         RigidBody->setUserPointer(ptr);
+        CollisionShape->setUserPointer(ptr);
     }
 }

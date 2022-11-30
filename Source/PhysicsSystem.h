@@ -50,6 +50,7 @@ namespace FLOOF {
 
     public:
         static bool CustomContactProcessedCallback(btManifoldPoint& cp,void* body0,void* body1);
+        static  void CustomContactEndedCallback(btPersistentManifold* const& manifold);
     };
 
     struct LineMeshComponent;

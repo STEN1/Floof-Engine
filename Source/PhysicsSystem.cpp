@@ -8,6 +8,7 @@
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "Scene.h"
+#include "CollisionDispatcher.h"
 
 #define GravitationalConstant -9.81
 
@@ -53,6 +54,7 @@ namespace FLOOF {
         mDynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
         gContactProcessedCallback = CustomContactProcessedCallback;
+        gContactEndedCallback = CustomContactEndedCallback;
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -210,21 +212,35 @@ namespace FLOOF {
             auto* ptr = reinterpret_cast<btRigidBody*>(body0)->getUserPointer();
             if(ptr != nullptr){
                 ret |=true;
-                auto* Native = static_cast<NativeScript*>(ptr);
-                Native->OnOverlap();
+                auto* dispatcher = static_cast<CollisionDispatcher*>(ptr);
+                dispatcher->onOverlap(body0,body1);
             }
         }
         {
             auto* ptr = reinterpret_cast<btRigidBody*>(body1)->getUserPointer();
             if(ptr != nullptr){
                 ret |=true;
-                auto* Native = static_cast<NativeScript*>(ptr);
-                Native->OnOverlap();
+                auto* dispatcher = static_cast<CollisionDispatcher*>(ptr);
+                dispatcher->onOverlap(body1,body0);
             }
-
         }
 
         return ret;
+    }
+
+    void PhysicsSystem::CustomContactEndedCallback(btPersistentManifold *const &manifold) {
+
+        auto body0 = manifold->getBody0();
+        if(body0->getUserPointer() != nullptr){
+            auto* dispatcher = static_cast<CollisionDispatcher*>(body0->getUserPointer());
+            dispatcher->onEndOverlap(&body0);
+        }
+        auto body1 = manifold->getBody1();
+        if(body1->getUserPointer() != nullptr){
+            auto* dispatcher = static_cast<CollisionDispatcher*>(body1->getUserPointer());
+            dispatcher->onEndOverlap(&body1);
+        }
+
     }
 
 
