@@ -167,7 +167,6 @@ namespace FLOOF {
         // Final present.
         void Present();
 
-        void BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer);
 
         VkPipelineLayout BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key);
 
@@ -221,14 +220,14 @@ namespace FLOOF {
         // Allocates a shader storage descriptor set.
         VkDescriptorSet AllocateUBODescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
-        // Allocates a command buffer that gets freed on when
-        // NewFrame() resets this frames command pool.
+        // Allocates a command buffer that gets freed when
+        // NewFrame() frees this frames command buffers.
         VkCommandBuffer AllocateCommandBuffer();
+
+        void BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer);
 
         // Frees a shader storage descriptor set.
         void FreeUBODescriptorSet(VkDescriptorSet desctriptorSet);
-
-        void ResetAndBeginCommandBuffer(VkCommandBuffer commandBuffer);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer BeginSingleUseCommandBuffer();
@@ -359,6 +358,7 @@ namespace FLOOF {
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
 
         VkCommandPool m_CommandPool;
+        std::vector<std::vector<VkCommandBuffer>> m_CommandBuffers;
 
         VkDescriptorPool m_TextureDescriptorPool;
         VkDescriptorPool m_MaterialDescriptorPool;

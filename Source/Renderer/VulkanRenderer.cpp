@@ -112,6 +112,13 @@ namespace FLOOF {
 
     void VulkanRenderer::NewFrame() {
         m_VulkanWindow.ImageIndex = GetNextSwapchainImage(m_VulkanWindow);
+        if (m_CommandBuffers.empty()) {
+            m_CommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        }
+        for (auto& commandBuffer : m_CommandBuffers[m_VulkanWindow.FrameIndex]) {
+            vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
+        }
+        m_CommandBuffers[m_VulkanWindow.FrameIndex].clear();
     }
 
     void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPassBeginInfo* renderPassInfo) {
@@ -1699,24 +1706,14 @@ namespace FLOOF {
         VkCommandBuffer commandBuffer;
         VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
         ASSERT(result == VK_SUCCESS);
+
+        m_CommandBuffers[m_VulkanWindow.FrameIndex].push_back(commandBuffer);
+
         return commandBuffer;
     }
 
     void VulkanRenderer::FreeUBODescriptorSet(VkDescriptorSet desctriptorSet) {
         vkFreeDescriptorSets(m_LogicalDevice, m_UBODescriptorPool, 1, &desctriptorSet);
-    }
-
-    void VulkanRenderer::ResetAndBeginCommandBuffer(VkCommandBuffer commandBuffer)
-    {
-        vkResetCommandBuffer(commandBuffer, 0);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // Optional
-        beginInfo.pInheritanceInfo = nullptr; // Optional
-
-        VkResult beginResult = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-        ASSERT(beginResult == VK_SUCCESS);
     }
 
     void VulkanRenderer::PopulateQueueFamilyIndices(QueueFamilyIndices& QFI) {

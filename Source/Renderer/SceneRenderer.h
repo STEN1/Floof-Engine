@@ -60,12 +60,13 @@ namespace FLOOF {
 
         std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
+
         std::vector<VkSemaphore> m_waitSemaphores;
-        std::vector<VkSemaphore> m_SignalSemaphores;
-        std::vector<VkCommandBuffer> m_CommandBuffers;
+        std::vector<VkSemaphore> m_SignalSemaphores;      
 
         VulkanImageData m_ResolveBuffer{};
         VkImageView m_ResolveImageView = VK_NULL_HANDLE;
+
         VkFormat m_DepthFormat{};
         VulkanImageData m_DepthBuffer{};
         VkImageView m_DepthBufferImageView = VK_NULL_HANDLE;

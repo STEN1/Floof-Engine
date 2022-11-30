@@ -32,12 +32,15 @@ namespace FLOOF {
         if (extent != m_Extent)
             ResizeBuffers(extent);
 
+        ShadowPass();
+
         auto* renderer = VulkanRenderer::Get();
         auto* window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
         auto& frameData = window->Frames[frameIndex];
         auto signalSemaphore = m_SignalSemaphores[frameIndex];
-        auto commandBuffer = m_CommandBuffers[frameIndex];
+        auto commandBuffer = renderer->AllocateCommandBuffer();
+        renderer->BeginSingleUseCommandBuffer(commandBuffer);
 
         VkExtent2D vkExtent;
         vkExtent.width = m_Extent.x;
@@ -61,7 +64,6 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColors;
 
-        renderer->ResetAndBeginCommandBuffer(commandBuffer);
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         // Camera setup
@@ -262,10 +264,6 @@ namespace FLOOF {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_SignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_waitSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_CommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        for (auto& commandBuffer : m_CommandBuffers) {
-            commandBuffer = renderer->AllocateCommandBuffer();
-        }
 
         CreateSyncObjects();
 
