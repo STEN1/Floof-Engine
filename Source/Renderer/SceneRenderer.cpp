@@ -113,23 +113,24 @@ namespace FLOOF {
         {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
             auto lightDescriptor = m_LightSSBO.GetDescriptorSet();
+            if (drawMode == RenderPipelineKeys::PBR) {
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
+                    &lightDescriptor, 0, nullptr);
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
-                &lightDescriptor, 0, nullptr);
+                auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
 
-            auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
+                    &sceneDescriptor, 0, nullptr);
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
-                &sceneDescriptor, 0, nullptr);
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
+                    &m_IrradienceMap.DesctriptorSet, 0, nullptr);
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
-                &m_IrradienceMap.DesctriptorSet, 0, nullptr);
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
+                    &m_PrefilterMap.DesctriptorSet, 0, nullptr);
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
-                &m_PrefilterMap.DesctriptorSet, 0, nullptr);
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
-                &m_BRDFLut.DesctriptorSet, 0, nullptr);
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
+                    &m_BRDFLut.DesctriptorSet, 0, nullptr);
+            }
             auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
             for (auto [entity, transform, staticMesh] : view.each()) {
                 MeshPushConstants constants;

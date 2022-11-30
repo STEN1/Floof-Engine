@@ -1654,6 +1654,11 @@ namespace FLOOF {
         vkFreeDescriptorSets(m_LogicalDevice, m_MaterialDescriptorPool, 1, &desctriptorSet);
     }
 
+    void VulkanRenderer::FreeLandscapeMaterialDescriptorSet(VkDescriptorSet desctriptorSet)
+    {
+        vkFreeDescriptorSets(m_LogicalDevice, m_LandscapeMaterialDescriptorPool, 1, &desctriptorSet);
+    }
+
     VkDescriptorSet VulkanRenderer::AllocateShaderStorageDescriptorSet(VkDescriptorSetLayout descriptorSetLayout) {
         VkDescriptorSet descriptorSet{};
         VkDescriptorSetAllocateInfo allocInfo{};
