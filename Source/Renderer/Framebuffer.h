@@ -39,6 +39,7 @@ namespace FLOOF {
 		VkRenderPass GetRenderPass() { return m_RenderPass; };
 		VkFramebuffer GetFramebuffer() { return m_Framebuffer; }
 		VulkanTexture GetTexture() { return m_Texture; }
+		VkExtent2D GetExtent() { return m_Extent; }
 
 	private:
 		void CreateFramebufferTexture();

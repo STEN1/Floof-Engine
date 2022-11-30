@@ -11,6 +11,8 @@ namespace FLOOF {
         glm::vec4 CameraPos = glm::vec4(0.f);
         glm::vec4 SunDirection = glm::vec4(0.0f, 1.0f, 2.0f, 1.f);
         glm::vec4 SunColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.f);
+        glm::mat4 VP = glm::mat4(1.f);
+        glm::mat4 LightSpaceMatrix = glm::mat4(1.f);
         float sunStrenght = 15.f;
         int LightCount = 0;
     };
@@ -36,7 +38,7 @@ namespace FLOOF {
             PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore);
 
     private:
-        void ShadowPass();
+        void ShadowPass(VkCommandBuffer commandBuffer, Scene* scene, CameraComponent* camera);
 
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
@@ -58,6 +60,7 @@ namespace FLOOF {
 
         VkRenderPass m_RenderPass;
 
+        uint32_t m_ShadowRes = 1024;
         std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
 

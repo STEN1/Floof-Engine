@@ -23,6 +23,8 @@ namespace FLOOF {
 		void StartPlay();
 		void StopPlay();
 		bool IsPlaying() { return m_PlayModeActive; }
+		SceneRenderer* GetEditorRenderer() { return m_EditorRenderer.get(); }
+		SceneRenderer* GetPlayRenderer() { return m_PlayRenderer.get(); }
 	private:
 		void UpdateEditorCamera(double deltaTime);
 

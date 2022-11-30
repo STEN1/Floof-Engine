@@ -389,7 +389,7 @@ namespace FLOOF {
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             params.BindingDescription = SimpleVertex::GetBindingDescription();
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.PushConstantSize = sizeof(SkyPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.Renderpass = renderPass;
@@ -436,11 +436,11 @@ namespace FLOOF {
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                 renderer->StartRenderPass(commandBuffer, &renderPassInfo);
                 auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::EquiToCube);
-                MeshPushConstants constants{};
+                SkyPushConstants constants{};
                 constants.VP = captureProjection * captureViews[i];
                 constants.Model = glm::mat4(1.f);
                 constants.InvModelMat = glm::inverse(constants.Model);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
                     &constants);
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
@@ -533,7 +533,7 @@ namespace FLOOF {
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             params.BindingDescription = SimpleVertex::GetBindingDescription();
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.PushConstantSize = sizeof(SkyPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.Renderpass = renderPass;
@@ -591,11 +591,11 @@ namespace FLOOF {
                 auto commandBuffer = renderer->BeginSingleUseCommandBuffer();
                 renderer->StartRenderPass(commandBuffer, &renderPassInfo);
                 auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::IrradianceConv);
-                MeshPushConstants constants{};
+                SkyPushConstants constants{};
                 constants.VP = captureProjection * captureViews[i];
                 constants.Model = glm::mat4(1.f);
                 constants.InvModelMat = glm::inverse(constants.Model);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
                     &constants);
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cubeBuffer.Buffer, &offset);
@@ -692,7 +692,7 @@ namespace FLOOF {
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             params.BindingDescription = SimpleVertex::GetBindingDescription();
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.PushConstantSize = sizeof(SkyPushConstants);
             params.DescriptorSetLayoutBindings.resize(2);
             params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.DescriptorSetLayoutBindings[1] = renderer->GetDescriptorSetLayout(RenderSetLayouts::SceneFrameUBO);
@@ -752,11 +752,11 @@ namespace FLOOF {
                     renderer->StartRenderPass(commandBuffer, &renderPassInfo);
                     auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Prefilter);
                     auto cubeBuffer = ModelManager::GetSkyboxCube();
-                    MeshPushConstants constants{};
+                    SkyPushConstants constants{};
                     constants.VP = captureProjection * captureViews[i];
                     constants.Model = glm::mat4(1.f);
                     constants.InvModelMat = glm::inverse(constants.Model);
-                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
                         &constants);
                     VkDeviceSize offset{ 0 };
 

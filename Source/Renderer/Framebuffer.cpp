@@ -233,7 +233,7 @@ namespace FLOOF {
 		textureImageViewInfo.image = m_Texture.Image;
 		textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		textureImageViewInfo.format = m_Format;
-		textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 		textureImageViewInfo.subresourceRange.baseMipLevel = 0;
 		textureImageViewInfo.subresourceRange.levelCount = 1;
 		textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
@@ -280,24 +280,24 @@ namespace FLOOF {
 	{
 		auto* renderer = VulkanRenderer::Get();
 
-		VkAttachmentDescription colorAttachments[1]{};
-		colorAttachments[0].format = m_Format;
-		colorAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		VkAttachmentDescription depthAttachment[1]{};
+		depthAttachment[0].format = m_Format;
+		depthAttachment[0].samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		depthAttachment[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-		VkAttachmentReference colorAttachmentRef{};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		VkAttachmentReference depthAttachmentRef{};
+		depthAttachmentRef.attachment = 0;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 		VkSubpassDescription subpass{};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.colorAttachmentCount = 0;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		// Use subpass dependencies for layout transitions
 		std::array<VkSubpassDependency, 2> dependencies;
@@ -320,6 +320,8 @@ namespace FLOOF {
 
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = std::size(depthAttachment);
+		renderPassInfo.pAttachments = depthAttachment;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 		renderPassInfo.dependencyCount = dependencies.size();

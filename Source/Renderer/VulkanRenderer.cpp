@@ -1006,7 +1006,7 @@ namespace FLOOF {
             layoutBinding.binding = 0;
             layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             layoutBinding.descriptorCount = 1;
-            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
 
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
             descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -1176,7 +1176,7 @@ namespace FLOOF {
 
         vkDestroyShaderModule(m_LogicalDevice, vertShader, nullptr);
         vkDestroyShaderModule(m_LogicalDevice, fragShader, nullptr);
-        LOG("Render pipeline created.\n");
+        std::cout << "Render pipeline created: " << params.FragmentPath << " " << params.VertexPath << std::endl;
     }
 
     void VulkanRenderer::CreateFramebuffers(VulkanWindow& window) {

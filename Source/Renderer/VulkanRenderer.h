@@ -26,6 +26,11 @@ namespace FLOOF {
     };
 
     struct MeshPushConstants {
+        glm::mat4 Model;
+        glm::mat4 InvModelMat;
+    };
+
+    struct SkyPushConstants {
         glm::mat4 VP;
         glm::mat4 Model;
         glm::mat4 InvModelMat;
@@ -70,6 +75,7 @@ namespace FLOOF {
         IrradianceConv,
         Prefilter,
         BRDF,
+        ShadowPass,
     };
 
     enum class RenderSetLayouts : uint32_t {
@@ -144,6 +150,7 @@ namespace FLOOF {
         friend class ModelManager;
         friend class TextureManager;
         friend class SceneRenderer;
+        friend class RendererPanel;
     public:
         VulkanRenderer(GLFWwindow* window);
         ~VulkanRenderer();
