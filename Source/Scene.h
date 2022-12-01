@@ -6,6 +6,7 @@
 #include "Renderer/SceneRenderer.h"
 #include "Components.h"
 
+#include "Network/CarGameClient.h"
 
 namespace FLOOF {
 
@@ -103,5 +104,8 @@ namespace FLOOF {
         bool m_IsActiveScene = false;
 
         CameraComponent m_EditorCamera;
+
+    public:
+        CarClient client;
     };
 }
