@@ -6,12 +6,14 @@
 #include "Application.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "Scene.h"
+#include "CollisionDispatcher.h"
 
 #define GravitationalConstant -9.81
 
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry &scene) : mScene(scene) {
-
         mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
@@ -49,6 +51,10 @@ namespace FLOOF {
 
         mVehicleRayCaster = new btDefaultVehicleRaycaster(mDynamicsWorld);
 
+        mDynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+
+        gContactProcessedCallback = CustomContactProcessedCallback;
+        gContactEndedCallback = CustomContactEndedCallback;
     }
 
     PhysicsSystem::~PhysicsSystem() {
@@ -73,12 +79,13 @@ namespace FLOOF {
         if (simulate) {
             mDynamicsWorld->stepSimulation(deltaTime);
 
+
+
             //rigid body
             {
 
                 auto view = mScene.view<RigidBodyComponent, TransformComponent, Relationship>();
                 for (auto [entity, RigidBodyComponent, transform, rel]: view.each()) {
-
 
                     btRigidBody *body = RigidBodyComponent.RigidBody.get();
                     btTransform trans;
@@ -196,6 +203,44 @@ namespace FLOOF {
 
     void PhysicsSystem::OnEditorUpdate(float DeltaTime) {
         mDynamicsWorld->debugDrawWorld();
+    }
+
+    bool PhysicsSystem::CustomContactProcessedCallback(btManifoldPoint &cp, void *body0, void *body1) {
+        //body0 == body1, dont ask why just bullet things
+        bool ret = false;
+        {
+            auto* ptr = reinterpret_cast<btRigidBody*>(body0)->getUserPointer();
+            if(ptr != nullptr){
+                ret |=true;
+                auto* dispatcher = static_cast<CollisionDispatcher*>(ptr);
+                dispatcher->onOverlap(body0,body1);
+            }
+        }
+        {
+            auto* ptr = reinterpret_cast<btRigidBody*>(body1)->getUserPointer();
+            if(ptr != nullptr){
+                ret |=true;
+                auto* dispatcher = static_cast<CollisionDispatcher*>(ptr);
+                dispatcher->onOverlap(body1,body0);
+            }
+        }
+
+        return ret;
+    }
+
+    void PhysicsSystem::CustomContactEndedCallback(btPersistentManifold *const &manifold) {
+
+        auto body0 = manifold->getBody0();
+        if(body0->getUserPointer() != nullptr){
+            auto* dispatcher = static_cast<CollisionDispatcher*>(body0->getUserPointer());
+            dispatcher->onEndOverlap(&body0);
+        }
+        auto body1 = manifold->getBody1();
+        if(body1->getUserPointer() != nullptr){
+            auto* dispatcher = static_cast<CollisionDispatcher*>(body1->getUserPointer());
+            dispatcher->onEndOverlap(&body1);
+        }
+
     }
 
 

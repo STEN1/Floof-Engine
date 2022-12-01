@@ -77,6 +77,7 @@ add_executable(Floof
     Source/Renderer/Skybox.cpp
     Source/Editor/EditorPanels/SoundSettingsPanel.h
     Source/Editor/EditorPanels/SoundSettingsPanel.cpp
+        Source/HeightField.cpp Source/HeightField.h "Source/Renderer/IBL.h" "Source/Renderer/Framebuffer.h" "Source/Renderer/Framebuffer.cpp" "Source/Renderer/IBL.cpp" Source/NativeScripts/WonderBaumScript.cpp Source/NativeScripts/WonderBaumScript.h
     Source/HeightField.cpp Source/HeightField.h
     Source/Renderer/IBL.h
     Source/Renderer/Framebuffer.h
@@ -86,7 +87,8 @@ add_executable(Floof
     Source/Editor/EditorPanels/SoundClipPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.h
-)
+        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h)
+
 
 
 find_package(Vulkan REQUIRED)
@@ -173,6 +175,11 @@ target_include_directories(IMGUI
 target_link_libraries(Floof IMGUI)
 
 target_include_directories(Floof PUBLIC "Libs/HeaderOnly")
+
+#asio
+target_include_directories(Floof PUBLIC "Libs/asio/asio/include")
+
+
 
 #if compiled with xcode, not supporting release yet
 if(CMAKE_GENERATOR STREQUAL Xcode)
