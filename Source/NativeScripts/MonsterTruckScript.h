@@ -4,6 +4,7 @@
 
 #include "NativeScript.h"
 #include "../Components.h"
+#include "../CollisionDispatcher.h"
 
 namespace FLOOF {
 
