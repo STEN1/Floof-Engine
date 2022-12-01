@@ -516,7 +516,12 @@ namespace FLOOF {
 
     void EditorLayer::MakePhysicsPlayGround() {
         m_Scene = std::make_unique<Scene>();
-
+        {
+            const auto entity = m_Scene->CreateEntity();
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec4(0.f, 10.f, -0.5f, 1.f);
+            m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+        }
         //make flooring
         {
             auto location = glm::vec3(0.f, -50.f, 0.f);

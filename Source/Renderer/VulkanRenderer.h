@@ -30,6 +30,12 @@ namespace FLOOF {
         glm::mat4 InvModelMat;
     };
 
+    struct DepthPushConstants {
+        glm::mat4 Model;
+        glm::mat4 InvModelMat;
+        int cascadeIndex = 0;
+    };
+
     struct SkyPushConstants {
         glm::mat4 VP;
         glm::mat4 Model;
@@ -86,6 +92,7 @@ namespace FLOOF {
         Material,
         LandscapeMaterial,
         DiffuseTextureClamped,
+        DepthTexture,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {
@@ -109,6 +116,7 @@ namespace FLOOF {
         std::vector<VkDescriptorSetLayout> DescriptorSetLayoutBindings;
         VkRenderPass Renderpass;
         VkSampleCountFlagBits MsaaSampleCount = VK_SAMPLE_COUNT_1_BIT;
+        VkCullModeFlags CullMode = VK_CULL_MODE_BACK_BIT;
     };
 
     struct VulkanImageData {
@@ -255,6 +263,8 @@ namespace FLOOF {
 
         VkSampler GetTextureSamplerClamped() { return m_TextureSamplerClamped; }
 
+        VkSampler GetDepthSampler() { return m_ShadowSampler; }
+
         VkDescriptorSetLayout GetDescriptorSetLayout(RenderSetLayouts layout) { return m_DescriptorSetLayouts[layout]; }
 
         VkDevice GetDevice() { return m_LogicalDevice; }
@@ -316,6 +326,7 @@ namespace FLOOF {
         void CreateFontSampler();
         void CreateTextureSampler();
         void CreateTextureSamplerClamped();
+        void CreateShadowSampler();
 
         void DestroyTextureSampler();
         void DestroyTextureSamplerClamped();
@@ -376,6 +387,7 @@ namespace FLOOF {
         VkSampler m_TextureSampler;
         VkSampler m_TextureSamplerClamped;
         VkSampler m_FontSampler;
+        VkSampler m_ShadowSampler;
 
         const std::vector<const char*> m_RequiredDeviceExtentions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,

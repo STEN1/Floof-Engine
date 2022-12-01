@@ -52,6 +52,7 @@ namespace FLOOF {
         CreateFontSampler();
         CreateTextureSampler();
         CreateTextureSamplerClamped();
+        CreateShadowSampler();
         CreateDescriptorSetLayouts();
 
         InitGlfwCallbacks();
@@ -83,6 +84,7 @@ namespace FLOOF {
         DestroyFontSampler();
         DestroyTextureSampler();
         DestroyTextureSamplerClamped();
+        vkDestroySampler(m_LogicalDevice, m_ShadowSampler, nullptr);
 
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
         vkDestroyDevice(m_LogicalDevice, nullptr);
@@ -1004,6 +1006,22 @@ namespace FLOOF {
         {
             VkDescriptorSetLayoutBinding layoutBinding{};
             layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layoutBinding.pImmutableSamplers = &m_ShadowSampler;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture]);
+        }
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
             layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             layoutBinding.descriptorCount = 1;
             layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
@@ -1088,7 +1106,7 @@ namespace FLOOF {
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = params.PolygonMode;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.cullMode = params.CullMode;
         rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
         rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -1343,8 +1361,8 @@ namespace FLOOF {
         samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         samplerInfo.anisotropyEnable = VK_TRUE;
-        samplerInfo.maxAnisotropy = 16;
-        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.maxAnisotropy = 16.f;
+        samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_FALSE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
@@ -1354,6 +1372,25 @@ namespace FLOOF {
         samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
 
         VkResult err = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_TextureSamplerClamped);
+        ASSERT(err == VK_SUCCESS);
+    }
+
+    void VulkanRenderer::CreateShadowSampler()
+    {
+        VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        samplerInfo.addressModeV = samplerInfo.addressModeU;
+        samplerInfo.addressModeW = samplerInfo.addressModeU;
+        samplerInfo.mipLodBias = 0.f;
+        samplerInfo.maxAnisotropy = 1.f;
+        samplerInfo.minLod = 0.f;
+        samplerInfo.maxLod = 1.f;
+        samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+        VkResult err = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_ShadowSampler);
         ASSERT(err == VK_SUCCESS);
     }
 

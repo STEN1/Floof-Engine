@@ -185,9 +185,13 @@ namespace FLOOF {
 		auto* renderer = VulkanRenderer::Get();
 		vkDestroyRenderPass(renderer->GetDevice(), m_RenderPass, nullptr);
 	}
-	DepthFramebuffer::DepthFramebuffer(uint32_t width, uint32_t height)
+	DepthFramebuffer::DepthFramebuffer(uint32_t width, uint32_t height, uint32_t layers)
 	{
 		auto* renderer = VulkanRenderer::Get();
+		m_DescriptorSets.resize(layers);
+		m_ImageViews.resize(layers);
+		m_Framebuffers.resize(layers);
+		m_LayerCount = layers;
 		m_Format = renderer->FindDepthFormat();
 		m_Extent.width = width;
 		m_Extent.height = height;
@@ -211,7 +215,7 @@ namespace FLOOF {
 		imageInfo.extent.height = m_Extent.height;
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
+		imageInfo.arrayLayers = m_LayerCount;
 		imageInfo.format = m_Format;
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -228,7 +232,7 @@ namespace FLOOF {
 		vmaCreateImage(renderer->GetAllocator(), &imageInfo, &imageAllocCreateInfo, &m_Texture.Image,
 			&m_Texture.Allocation, &m_Texture.AllocationInfo);
 
-		// create image view
+		// create image view for imgui
 		VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 		textureImageViewInfo.image = m_Texture.Image;
 		textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -240,41 +244,100 @@ namespace FLOOF {
 		textureImageViewInfo.subresourceRange.layerCount = 1;
 		vkCreateImageView(renderer->GetDevice(), &textureImageViewInfo, nullptr, &m_Texture.ImageView);
 
-		VkSampler sampler = renderer->GetFontSampler();
-		m_Texture.DesctriptorSet = ImGui_ImplVulkan_AddTexture(sampler, m_Texture.ImageView,
+		// descriptor for imgui
+		VkSampler fontSampler = renderer->GetFontSampler();
+		m_Texture.DesctriptorSet = ImGui_ImplVulkan_AddTexture(fontSampler, m_Texture.ImageView,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+		for (uint32_t i = 0; i < m_LayerCount; i++) {
+
+			// create image view
+			VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+			textureImageViewInfo.image = m_Texture.Image;
+			textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+			textureImageViewInfo.format = m_Format;
+			textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			textureImageViewInfo.subresourceRange.baseMipLevel = 0;
+			textureImageViewInfo.subresourceRange.levelCount = 1;
+			textureImageViewInfo.subresourceRange.baseArrayLayer = i;
+			textureImageViewInfo.subresourceRange.layerCount = 1;
+			vkCreateImageView(renderer->GetDevice(), &textureImageViewInfo, nullptr, &m_ImageViews[i]);
+		}
+		// create image view and descriptor for fragment shader
+		{
+			// create image view
+			VkImageViewCreateInfo textureImageViewInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+			textureImageViewInfo.image = m_Texture.Image;
+			textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+			textureImageViewInfo.format = m_Format;
+			textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			textureImageViewInfo.subresourceRange.baseMipLevel = 0;
+			textureImageViewInfo.subresourceRange.levelCount = 1;
+			textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
+			textureImageViewInfo.subresourceRange.layerCount = m_LayerCount;
+			vkCreateImageView(renderer->GetDevice(), &textureImageViewInfo, nullptr, &m_ArrayImageView);
+
+			m_ArrayDescriptorSet = renderer->AllocateTextureDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::DepthTexture));
+
+			VkSampler clampedSampler = renderer->GetDepthSampler();
+
+			VkDescriptorImageInfo descriptorImageInfo{};
+			descriptorImageInfo.sampler = clampedSampler;
+			descriptorImageInfo.imageView = m_ArrayImageView;
+			descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			VkWriteDescriptorSet writeSet{};
+			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			writeSet.descriptorCount = 1;
+			writeSet.dstSet = m_ArrayDescriptorSet;
+			writeSet.dstBinding = 0;
+			writeSet.pImageInfo = &descriptorImageInfo;
+
+			vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
+		}
 	}
 	void DepthFramebuffer::CreateFramebufferObject()
 	{
-		auto* renderer = VulkanRenderer::Get();
-		VkImageView attachments[] = {
-					m_Texture.ImageView,
-		};
+		for (uint32_t i = 0; i < m_LayerCount; i++) {
+			auto* renderer = VulkanRenderer::Get();
+			VkImageView attachments[] = {
+						m_ImageViews[i],
+			};
 
-		VkFramebufferCreateInfo framebufferInfo{};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = m_RenderPass;
-		framebufferInfo.attachmentCount = std::size(attachments);
-		framebufferInfo.pAttachments = attachments;
-		framebufferInfo.width = m_Extent.width;
-		framebufferInfo.height = m_Extent.height;
-		framebufferInfo.layers = 1;
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = m_RenderPass;
+			framebufferInfo.attachmentCount = std::size(attachments);
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = m_Extent.width;
+			framebufferInfo.height = m_Extent.height;
+			framebufferInfo.layers = 1;
 
-		VkResult result = vkCreateFramebuffer(renderer->GetDevice(), &framebufferInfo, nullptr,
-			&m_Framebuffer);
-		ASSERT(result == VK_SUCCESS);
+			VkResult result = vkCreateFramebuffer(renderer->GetDevice(), &framebufferInfo, nullptr,
+				&m_Framebuffers[i]);
+			ASSERT(result == VK_SUCCESS);
+		}
 	}
 	void DepthFramebuffer::DestroyFramebufferTexture()
 	{
 		auto* renderer = VulkanRenderer::Get();
 		renderer->FreeTextureDescriptorSet(m_Texture.DesctriptorSet);
+		renderer->FreeTextureDescriptorSet(m_ArrayDescriptorSet);
+		for (uint32_t i = 0; i < m_LayerCount; i++) {
+			renderer->FreeTextureDescriptorSet(m_DescriptorSets[i]);
+			vkDestroyImageView(renderer->GetDevice(), m_ImageViews[i], nullptr);
+		}
+		vkDestroyImageView(renderer->GetDevice(), m_ArrayImageView, nullptr);
 		vkDestroyImageView(renderer->GetDevice(), m_Texture.ImageView, nullptr);
 		vmaDestroyImage(renderer->GetAllocator(), m_Texture.Image, m_Texture.Allocation);
 	}
 	void DepthFramebuffer::DestroyFramebufferObject()
 	{
 		auto* renderer = VulkanRenderer::Get();
-		vkDestroyFramebuffer(renderer->GetDevice(), m_Framebuffer, nullptr);
+		for (uint32_t i = 0; i < m_LayerCount; i++) {
+			vkDestroyFramebuffer(renderer->GetDevice(), m_Framebuffers[i], nullptr);
+		}
 	}
 	void DepthFramebuffer::CreateRenderPass()
 	{

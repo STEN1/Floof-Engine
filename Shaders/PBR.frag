@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 fragNormal;
 layout(location = 1) in vec2 fragUv;
 layout(location = 2) in vec3 fragPos;
+layout(location = 3) in vec3 fragViewPos;
 
 layout(location = 0) out vec4 outColor;
 
@@ -25,12 +26,15 @@ struct PointLight {
 
 layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     vec4 cameraPos;
-    vec4 sunDirection;
+    vec4 sunPosition;
     vec4 sunColor;
     mat4 vp;
-    mat4 lightSpaceMatrix;
+    mat4 lightSpaceMatrix[4];
+    mat4 view;
+    vec4 splitDists;
     float sunStrenght;
     int lightCount;
+    int cascadeCount;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -41,19 +45,28 @@ layout (set = 3, binding = 0) uniform samplerCube irradianceMap;
 layout (set = 4, binding = 0) uniform samplerCube prefilterMap;
 layout (set = 5, binding = 0) uniform sampler2D brdfLut;
 
+layout (set = 6, binding = 0) uniform sampler2DArray shadowMap;
+
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 vec3 getNormal();
+float ShadowCalculation(vec4 shadowCoord, int cascadeIndex);
+float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex);
+float filterPCF(vec4 sc, int cascadeIndex);
 
 const float PI = 3.14159265359;
 
-void main() {
-    vec3 skyColor = sceneFrameUBO.sunColor.xyz;
-    vec3 skyDir = normalize(sceneFrameUBO.sunDirection.xyz);
+const mat4 biasMat = mat4( 
+	0.5, 0.0, 0.0, 0.0,
+	0.0, 0.5, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.5, 0.5, 0.0, 1.0 
+);
 
+void main() {
     vec3 N = getNormal();
     vec3 V = normalize(sceneFrameUBO.cameraPos.xyz - fragPos);
 
@@ -61,6 +74,15 @@ void main() {
     float roughness = texture(roughnessTexture, fragUv).g;
     float metallic = texture(metallicTexture, fragUv).b;
     float ao = texture(aoTexture, fragUv).r;
+
+    int cascadeIndex = 0;
+    for (int i = 0; i < sceneFrameUBO.cascadeCount - 1; i++) {
+        if (fragViewPos.z < sceneFrameUBO.splitDists[i]) {
+            cascadeIndex = i + 1;
+        }
+    }
+    vec4 shadowCoord = (biasMat * sceneFrameUBO.lightSpaceMatrix[cascadeIndex]) * vec4(fragPos, 1.0);
+    float shadow = filterPCF(shadowCoord, cascadeIndex);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -114,7 +136,7 @@ void main() {
     vec2 brdf = texture(brdfLut, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambient = (kD * diffuse + specular) * ao;
+    vec3 ambient = (kD * diffuse + specular) * ao * max(shadow + 0.5, 1.0);
     
     vec3 color = ambient + Lo;
 
@@ -123,6 +145,13 @@ void main() {
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
+
+//    vec4 projCoords = fragPosLightSpace;// / fragPosLightSpace.w;
+//    shadow = textureProjection(projCoords);
+//    outColor = vec4(shadow, projCoords.z, 0.0, 1.0);
+    //outColor = fragPosLightSpace;
+    //outColor = texture(shadowMap, projCoords.xy);
+    //outColor = vec4(texture(shadowMap, projCoords.xy).x, 1.0, projCoords.z, 1.0);
     //outColor = vec4(brdf, 0.0, 1.0);
     outColor = vec4(color, texture(diffuseTexture, fragUv).a * (1.0 - texture(opacityTexture, fragUv).r));
 }
@@ -189,3 +218,74 @@ vec3 getNormal()
 
 	return normalize(TBN * tangentNormal);
 }
+
+float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex)
+{
+	float shadow = 1.0;
+	float bias = 0.0005;
+
+	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
+		float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
+		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
+			shadow = 0.0;
+		}
+	}
+	return shadow;
+}
+
+
+float filterPCF(vec4 sc, int cascadeIndex)
+{
+	ivec2 texDim = textureSize(shadowMap, 0).xy;
+	float scale = 0.75;
+	float dx = scale * 1.0 / float(texDim.x);
+	float dy = scale * 1.0 / float(texDim.y);
+
+	float shadowFactor = 0.0;
+	int count = 0;
+	int range = 1;
+	
+	for (int x = -range; x <= range; x++) {
+		for (int y = -range; y <= range; y++) {
+			shadowFactor += textureProjection(sc, vec2(dx*x, dy*y), cascadeIndex);
+			count++;
+		}
+	}
+	return shadowFactor / count;
+}
+
+float ShadowCalculation(vec4 shadowCoord, int cascadeIndex)
+{
+    // perform perspective divide
+    vec3 projCoords = shadowCoord.xyz / shadowCoord.w;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    projCoords = vec3(projCoords.xy * 0.5 + 0.5, projCoords.z);
+    float closestDepth = texture(shadowMap, vec3(projCoords.xy, cascadeIndex)).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // calculate bias (based on depth map resolution and slope)
+    vec3 normal = normalize(fragNormal);
+    vec3 lightDir = normalize(sceneFrameUBO.sunPosition.xyz - fragPos);
+    //float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
+    float bias = 0.0005;
+    // check whether current frag pos is in shadow
+    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, cascadeIndex).xy;
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, vec3((projCoords.xy + vec2(x, y) * texelSize), cascadeIndex)).r;
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+    
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+        
+    return shadow;
+}  
