@@ -14,7 +14,6 @@ FLOOF::MonsterTruckScript::MonsterTruckScript(glm::vec3 Pos):SpawnLocation(Pos) 
 void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
     TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
-
     {
         frame = entity;
 
