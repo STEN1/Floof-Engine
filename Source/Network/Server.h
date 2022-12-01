@@ -7,7 +7,7 @@
 #include "asio/ts/buffer.hpp"
 #include "asio/ts/internet.hpp"
 
-namespace FLOOF{
+namespace FLOOF::Network{
     class Server {
     public:
         Server();
@@ -21,12 +21,17 @@ namespace FLOOF{
 
         asio::io_context context;
 
+        std::thread threadContext;
+
         asio::ip::tcp::socket socket{context};
 
     private:
         asio::ip::tcp::endpoint endpoint;
 
         std::vector<char> vBuffer; //buffer to read data
+
+        //fake work
+        asio::io_context::work idleWork{context};
     };
 }
 

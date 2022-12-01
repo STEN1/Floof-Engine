@@ -1,7 +1,9 @@
 #include "Server.h"
 #include <iostream>
 
-FLOOF::Server::Server() {
+FLOOF::Network::Server::Server() {
+
+    threadContext = std::thread([&](){context.run();});
 
     vBuffer.resize(20 * 1024);
 
@@ -15,14 +17,13 @@ FLOOF::Server::Server() {
         std::cout << "Failed to conned to address : " << std::endl << ec.message() << std::endl;
     }
 
+}
+
+FLOOF::Network::Server::~Server() {
 
 }
 
-FLOOF::Server::~Server() {
-
-}
-
-void FLOOF::Server::listen() {
+void FLOOF::Network::Server::listen() {
 
     if (socket.is_open()) {
 
@@ -31,12 +32,12 @@ void FLOOF::Server::listen() {
 
 }
 
-void FLOOF::Server::handleData(asio::ip::tcp::socket &socket) {
+void FLOOF::Network::Server::handleData(asio::ip::tcp::socket &socket) {
 
     socket.async_read_some(asio::buffer(vBuffer.data(), vBuffer.size()),
                            [&](std::error_code ec, std::size_t length) {
                                if (!ec) {
-                                   //handle data when ariving
+                                   //handle data when arriving
                                    std::cout << "Reading " << length << "bytes" << std::endl;
                                    for(int i =0; i < length; i++){
                                        std::cout << vBuffer[i];
