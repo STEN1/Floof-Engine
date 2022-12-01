@@ -289,6 +289,12 @@ namespace FLOOF {
         TriangleCollector triangleCol;
         HeightField* HeightFieldShape;
     };
+    struct PlayerControllerComponent{
+        PlayerControllerComponent(int player):mPlayer(player){};
+        ~PlayerControllerComponent(){};
+
+        int mPlayer;
+    };
 
 }
 

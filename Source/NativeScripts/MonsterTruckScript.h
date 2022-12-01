@@ -50,6 +50,7 @@ namespace FLOOF {
 
     class MonsterTruckScript : public NativeScript {
     public:
+        MonsterTruckScript(glm::vec3 Pos);
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
         virtual void OnUpdate(float deltaTime) override;
         virtual void LastUpdate(float deltaTime) override;
@@ -58,6 +59,7 @@ namespace FLOOF {
         void EngineUi();
     private:
 
+        const glm::vec3 SpawnLocation;
         Engine engine;
 
         entt::entity frame;

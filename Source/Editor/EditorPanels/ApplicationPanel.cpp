@@ -29,6 +29,13 @@ namespace FLOOF {
                 m_EditorLayer->StopPlay();
             }
         }
+        //choose player controller
+        auto view = m_EditorLayer->GetScene()->GetRegistry().view<PlayerControllerComponent>();
+        int Players{0};
+        for (auto [entity,controller] : view.each()) {
+            Players++;
+        }
+        ImGui::DragInt("Active Player", &m_EditorLayer->GetScene()->ActivePlayer, 1.f,0, Players-1);
 
         ImGui::End();
 	}

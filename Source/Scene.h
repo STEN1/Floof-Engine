@@ -52,6 +52,7 @@ namespace FLOOF {
         // Returns the first scene camera, or the
         // editor camera if no camera was found.
         CameraComponent* GetFirstSceneCamera();
+        CameraComponent* GetActiveCamera();
 
         uint32_t GetSceneID() { return m_SceneID; }
 
@@ -83,6 +84,8 @@ namespace FLOOF {
 
         PhysicsSystem* GetPhysicSystem(){return m_PhysicSystem.get();}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
+
+        int ActivePlayer{0};
     private:
         void OnUpdate(float deltaTime);
         void OnCreate();

@@ -7,6 +7,10 @@
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "../Utils.h"
 
+FLOOF::MonsterTruckScript::MonsterTruckScript(glm::vec3 Pos):SpawnLocation(Pos) {
+
+}
+
 void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
     TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
@@ -120,13 +124,13 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
         auto &transform = scene->GetComponent<TransformComponent>(frame);
         transform.Scale = glm::vec3(8.f);
+        transform.Position = SpawnLocation;
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         body.setCollisionDispatcher(TruckCallback.get());
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
-        sound.GetClip("Vehicles_idle2.wav")->Play();
         sound.AddClip("pinchcliffe.wav");
 
 
@@ -218,7 +222,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fr);
-        transform.Position = glm::vec3(5.5f, -0.5f, -2.5f);
+        transform.Position = glm::vec3(5.5f, -0.5f, -2.5f) + SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -250,7 +254,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
-        transform.Position = glm::vec3(5.5f, -0.5f, 2.5f);
+        transform.Position = glm::vec3(5.5f, -0.5f, 2.5f)+ SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -281,7 +285,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_br);
-        transform.Position = glm::vec3(-5.0f, -0.5f, -2.5f);
+        transform.Position = glm::vec3(-5.0f, -0.5f, -2.5f) + SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -312,7 +316,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
-        transform.Position = glm::vec3(-5.0f, -0.5f, 2.5f);
+        transform.Position = glm::vec3(-5.0f, -0.5f, 2.5f) + SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -429,9 +433,6 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
 
-    CameraUi();
-    EngineUi();
-
     auto* scene = m_Scene;
     auto &car = scene->GetComponent<RigidBodyComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
@@ -439,69 +440,77 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     bool turnKeyPressed{false};
     bool GasKeyPressed{false};
 
-     if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
-         turnKeyPressed |= true;
-         engine.servoTarget -= engine.steeringIncrement;
-        if(engine.servoTarget <= -engine.steeringClamp){
-            engine.servoTarget = -engine.steeringClamp;
-        }
-    }
-    if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
-        turnKeyPressed |= true;
-        engine.servoTarget += engine.steeringIncrement;
-        if(engine.servoTarget >= engine.steeringClamp){
-            engine.servoTarget = engine.steeringClamp;
-        }
-    }
-    if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
-        GasKeyPressed |= true;
-        engine.targetVelocity = engine.maxVelocity;
-        engine.breakingForce = 0.f;
-    }
-    if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
-        GasKeyPressed |= true;
-        engine.targetVelocity = -engine.maxVelocity;
-        engine.breakingForce = 0.f;
-    }
-    if (Input::Key(ImGuiKey_Space) && windowIsActive) {
-        auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
-        bl.lightRange = 100.f;
-        //todo brake
-        engine.breakingForce = engine.maxBreakingForce;
-    } else {
-        //reset lights
-        auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
+    auto* controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
+    if(controller && controller->mPlayer == m_Scene->ActivePlayer){
 
-        bl.lightRange = 20.f;
-    }
-    if (ImGui::IsKeyPressed(ImGuiKey_F, false) && windowIsActive) {
-        auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
-        auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
+        CameraUi();
+        EngineUi();
 
-        if (fhr.lightRange > 50) {
-            fhr.lightRange = 10.f;
-            fhl.lightRange = 10.f;
+        if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
+            turnKeyPressed |= true;
+            engine.servoTarget -= engine.steeringIncrement;
+            if(engine.servoTarget <= -engine.steeringClamp){
+                engine.servoTarget = -engine.steeringClamp;
+            }
+        }
+        if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
+            turnKeyPressed |= true;
+            engine.servoTarget += engine.steeringIncrement;
+            if(engine.servoTarget >= engine.steeringClamp){
+                engine.servoTarget = engine.steeringClamp;
+            }
+        }
+        if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
+            GasKeyPressed |= true;
+            engine.targetVelocity = engine.maxVelocity;
+            engine.breakingForce = 0.f;
+        }
+        if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
+            GasKeyPressed |= true;
+            engine.targetVelocity = -engine.maxVelocity;
+            engine.breakingForce = 0.f;
+        }
+        if (Input::Key(ImGuiKey_Space) && windowIsActive) {
+            auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
+            bl.lightRange = 100.f;
+            //todo brake
+            engine.breakingForce = engine.maxBreakingForce;
         } else {
-            fhr.lightRange = 100.f;
-            fhl.lightRange = 100.f;
+            //reset lights
+            auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
+
+            bl.lightRange = 20.f;
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_F, false) && windowIsActive) {
+            auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
+            auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
+
+            if (fhr.lightRange > 50) {
+                fhr.lightRange = 10.f;
+                fhl.lightRange = 10.f;
+            } else {
+                fhr.lightRange = 100.f;
+                fhl.lightRange = 100.f;
+            }
+        }
+        if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
+            engine.CurrentGear++;
+            if(engine.Gears.size() <= engine.CurrentGear){
+                engine.CurrentGear = engine.Gears.size()-1;
+            }
+            engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+            //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+        }
+        if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
+            engine.CurrentGear--;
+            if(0 >= engine.CurrentGear){
+                engine.CurrentGear = 0;
+            }
+            engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+            //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
         }
     }
-    if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
-        engine.CurrentGear++;
-        if(engine.Gears.size() <= engine.CurrentGear){
-            engine.CurrentGear = engine.Gears.size()-1;
-        }
-        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
-    }
-    if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
-        engine.CurrentGear--;
-        if(0 >= engine.CurrentGear){
-            engine.CurrentGear = 0;
-        }
-        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
-    }
+
 
     for (auto &axle: axles) {
 
@@ -592,6 +601,12 @@ void FLOOF::MonsterTruckScript::EngineUi() {
     ImGui::Text("Press 'F' to Toggle Headlights");
     ImGui::Text("Press 'Space' to Break");
     ImGui::Text("Press 'E' 'Q' to change Gear");
+    auto* controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
+    if(controller){
+        std::string txt = "Player : ";
+        txt +=std::to_string(controller->mPlayer);
+        ImGui::Text(txt.c_str());
+    }
 
         if (ImGui::CollapsingHeader("engine Graph")) {
             ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 90.f, ImVec2(200, 100.0f));
@@ -620,7 +635,7 @@ void FLOOF::MonsterTruckScript::EngineUi() {
 
             int i = 1;
             for(auto& [speed, torque] : engine.Gears){
-                std::string stats = "Gear " + std::to_string(i)  + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "kn";
+                std::string stats = "Gear " + std::to_string(i)  + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "Gear Ratio";
                 ImGui::Text(stats.c_str());
                 i++;
             }
@@ -659,6 +674,8 @@ void FLOOF::MonsterTruckScript::LastUpdate(float deltaTime) {
     cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
 
 }
+
+
 
 void FLOOF::MonsterTruckScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
     std::cout << "On Begin Overlap" << std::endl;

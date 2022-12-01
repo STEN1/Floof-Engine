@@ -58,7 +58,7 @@ namespace FLOOF {
 
         auto view = m_Registry.view<CameraComponent>();
         for (auto [entity, cameraComp] : view.each()) {
-            camera = &cameraComp;
+                camera = &cameraComp;
             break;
         }
 
@@ -77,7 +77,7 @@ namespace FLOOF {
 
         m_PhysicSystem->OnUpdate(deltaTime);
 
-        SoundManager::Update(this, GetFirstSceneCamera());
+        SoundManager::Update(this, GetActiveCamera());
 
         for (auto [entity, nativeScript] : nativeScriptView.each()) {
             nativeScript.Script->LastUpdate(deltaTime);
@@ -89,5 +89,23 @@ namespace FLOOF {
         for (auto [entity, Script] : PythonScriptView.each()) {
             Script.OnCreate();
         }
+    }
+
+    CameraComponent *Scene::GetActiveCamera() {
+        CameraComponent* camera = &m_EditorCamera;
+
+        auto view = m_Registry.view<PlayerControllerComponent, Relationship>();
+        for (auto [entity, controller, rel] : view.each()) {
+            if(controller.mPlayer == ActivePlayer){
+                for(auto ent : rel.Children){
+                    auto* cam = TryGetComponent<CameraComponent>(ent);
+                    if(cam)
+                        camera = cam;
+                }
+                break;
+            }
+        }
+
+        return camera;
     }
 }

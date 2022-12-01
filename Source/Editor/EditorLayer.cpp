@@ -167,7 +167,7 @@ namespace FLOOF {
 
             SceneRenderFinishedData sceneRenderData{};
             if (!ImGui::GetCurrentWindow()->Hidden) {
-                sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetFirstSceneCamera(),
+                sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetActiveCamera(),
                     m_PlayDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
             }
             if (sceneRenderData.Texture != VK_NULL_HANDLE) {
@@ -292,7 +292,7 @@ namespace FLOOF {
         // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene.get(), ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), m_Scene.get(), ent);
         }
         {
             auto music = m_Scene->CreateEntity("Background Music");
@@ -583,7 +583,14 @@ namespace FLOOF {
         // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene.get(), ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f,-40.f,0.f)), m_Scene.get(), ent);
+            m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
+        }
+        // make monstertruck
+        {
+            auto ent = m_Scene->CreateEntity("MonsterTruck");
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f,-40.f,10.f)), m_Scene.get(), ent);
+            m_Scene->AddComponent<PlayerControllerComponent>(ent, 1);
         }
 
         //banana test
