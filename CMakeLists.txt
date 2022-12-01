@@ -87,7 +87,7 @@ add_executable(Floof
     Source/Editor/EditorPanels/SoundClipPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.h
-        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h)
+        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Server.cpp Source/Server.h)
 
 
 
