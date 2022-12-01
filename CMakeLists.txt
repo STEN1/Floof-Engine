@@ -177,12 +177,6 @@ target_link_libraries(Floof IMGUI)
 target_include_directories(Floof PUBLIC "Libs/HeaderOnly")
 
 #asio
-add_library(asio INTERFACE)
-target_compile_options(asio INTERFACE ASIO_STANDALONE)
-target_include_directories(asio INTERFACE "Libs/asio/asio/include")
-#find_package(Threads::Threads)
-#target_link_libraries(asio INTERFACE Threads::Threads)
-#target_link_libraries(Floof asio)
 target_include_directories(Floof PUBLIC "Libs/asio/asio/include")
 
 
