@@ -26,6 +26,17 @@ namespace FLOOF {
     };
 
     struct MeshPushConstants {
+        glm::mat4 Model;
+        glm::mat4 InvModelMat;
+    };
+
+    struct DepthPushConstants {
+        glm::mat4 Model;
+        glm::mat4 InvModelMat;
+        int cascadeIndex = 0;
+    };
+
+    struct SkyPushConstants {
         glm::mat4 VP;
         glm::mat4 Model;
         glm::mat4 InvModelMat;
@@ -70,6 +81,7 @@ namespace FLOOF {
         IrradianceConv,
         Prefilter,
         BRDF,
+        ShadowPass,
     };
 
     enum class RenderSetLayouts : uint32_t {
@@ -80,6 +92,7 @@ namespace FLOOF {
         Material,
         LandscapeMaterial,
         DiffuseTextureClamped,
+        DepthTexture,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {
@@ -103,6 +116,7 @@ namespace FLOOF {
         std::vector<VkDescriptorSetLayout> DescriptorSetLayoutBindings;
         VkRenderPass Renderpass;
         VkSampleCountFlagBits MsaaSampleCount = VK_SAMPLE_COUNT_1_BIT;
+        VkCullModeFlags CullMode = VK_CULL_MODE_BACK_BIT;
     };
 
     struct VulkanImageData {
@@ -144,6 +158,7 @@ namespace FLOOF {
         friend class ModelManager;
         friend class TextureManager;
         friend class SceneRenderer;
+        friend class RendererPanel;
     public:
         VulkanRenderer(GLFWwindow* window);
         ~VulkanRenderer();
@@ -167,7 +182,6 @@ namespace FLOOF {
         // Final present.
         void Present();
 
-        void BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer);
 
         VkPipelineLayout BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key);
 
@@ -221,14 +235,14 @@ namespace FLOOF {
         // Allocates a shader storage descriptor set.
         VkDescriptorSet AllocateUBODescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
-        // Allocates a command buffer that gets freed on when
-        // NewFrame() resets this frames command pool.
+        // Allocates a command buffer that gets freed when
+        // NewFrame() frees this frames command buffers.
         VkCommandBuffer AllocateCommandBuffer();
+
+        void BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer);
 
         // Frees a shader storage descriptor set.
         void FreeUBODescriptorSet(VkDescriptorSet desctriptorSet);
-
-        void ResetAndBeginCommandBuffer(VkCommandBuffer commandBuffer);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer BeginSingleUseCommandBuffer();
@@ -248,6 +262,8 @@ namespace FLOOF {
         VkSampler GetTextureSampler() { return m_TextureSampler; }
 
         VkSampler GetTextureSamplerClamped() { return m_TextureSamplerClamped; }
+
+        VkSampler GetDepthSampler() { return m_ShadowSampler; }
 
         VkDescriptorSetLayout GetDescriptorSetLayout(RenderSetLayouts layout) { return m_DescriptorSetLayouts[layout]; }
 
@@ -310,6 +326,7 @@ namespace FLOOF {
         void CreateFontSampler();
         void CreateTextureSampler();
         void CreateTextureSamplerClamped();
+        void CreateShadowSampler();
 
         void DestroyTextureSampler();
         void DestroyTextureSamplerClamped();
@@ -359,6 +376,7 @@ namespace FLOOF {
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
 
         VkCommandPool m_CommandPool;
+        std::vector<std::vector<VkCommandBuffer>> m_CommandBuffers;
 
         VkDescriptorPool m_TextureDescriptorPool;
         VkDescriptorPool m_MaterialDescriptorPool;
@@ -369,6 +387,7 @@ namespace FLOOF {
         VkSampler m_TextureSampler;
         VkSampler m_TextureSamplerClamped;
         VkSampler m_FontSampler;
+        VkSampler m_ShadowSampler;
 
         const std::vector<const char*> m_RequiredDeviceExtentions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,

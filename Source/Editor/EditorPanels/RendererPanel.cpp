@@ -17,6 +17,8 @@ namespace FLOOF {
 		static int editorDrawMode = static_cast<int>(RenderPipelineKeys::PBR);
 		static int playDrawMode = static_cast<int>(RenderPipelineKeys::PBR);
 
+		int frameIndex = VulkanRenderer::Get()->GetVulkanWindow()->FrameIndex;
+
 		ImGui::Begin("Renderer");
 
 		if (ImGui::Combo("Editor draw mode",
@@ -33,6 +35,20 @@ namespace FLOOF {
 			IM_ARRAYSIZE(ApplicationDrawModes)))
 		{
 			m_EditorLayer->SetPlayDrawMode(static_cast<RenderPipelineKeys>(playDrawMode));
+		}
+
+		ImVec2 imageSize(200.f, 200.f);
+
+		ImGui::Separator();
+		ImGui::Text("Editor Shadowmap");
+		ImGui::NewLine();
+		ImGui::Image(m_EditorLayer->GetEditorRenderer()->m_ShadowDepthBuffers[frameIndex]->GetTexture().DesctriptorSet, imageSize);
+
+		if (m_EditorLayer->IsPlaying()) {
+			ImGui::Separator();
+			ImGui::Text("Play Shadowmap");
+			ImGui::NewLine();
+			ImGui::Image(m_EditorLayer->GetPlayRenderer()->m_ShadowDepthBuffers[frameIndex]->GetTexture().DesctriptorSet, imageSize);
 		}
 
 		ImGui::End();

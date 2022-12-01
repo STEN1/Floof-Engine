@@ -33,6 +33,8 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     vec4 cameraPos;
     vec4 sunDirection;
     vec4 sunColor;
+    mat4 vp;
+    mat4 lightSpaceMatrix;
     float sunStrenght;
     int lightCount;
 } sceneFrameUBO;

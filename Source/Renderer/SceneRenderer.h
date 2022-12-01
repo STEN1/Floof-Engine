@@ -7,12 +7,18 @@
 #include "../Components.h"
 
 namespace FLOOF {
+#define FLOOF_CASCADE_COUNT 4
     struct SceneFrameData {
         glm::vec4 CameraPos = glm::vec4(0.f);
-        glm::vec4 SunDirection = glm::vec4(0.0f, 1.0f, 2.0f, 1.f);
+        glm::vec4 SunPosition = glm::vec4(2.f, 5.f, 10.0f, 1.f);
         glm::vec4 SunColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.f);
+        glm::mat4 VP = glm::mat4(1.f);
+        glm::mat4 LightSpaceMatrix[FLOOF_CASCADE_COUNT];
+        glm::mat4 View = glm::mat4(1.f);
+        glm::vec4 SplitDists = glm::vec4(0.f);
         float sunStrenght = 15.f;
         int LightCount = 0;
+        int CascadeCount = FLOOF_CASCADE_COUNT;
     };
     
     struct SceneRenderFinishedData {
@@ -36,7 +42,7 @@ namespace FLOOF {
             PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore);
 
     private:
-        void ShadowPass();
+        void ShadowPass(VkCommandBuffer commandBuffer, Scene* scene, CameraComponent* camera);
 
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
@@ -58,14 +64,16 @@ namespace FLOOF {
 
         VkRenderPass m_RenderPass;
 
+        uint32_t m_ShadowRes = 2048;
         std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
+
         std::vector<VkSemaphore> m_waitSemaphores;
-        std::vector<VkSemaphore> m_SignalSemaphores;
-        std::vector<VkCommandBuffer> m_CommandBuffers;
+        std::vector<VkSemaphore> m_SignalSemaphores;      
 
         VulkanImageData m_ResolveBuffer{};
         VkImageView m_ResolveImageView = VK_NULL_HANDLE;
+
         VkFormat m_DepthFormat{};
         VulkanImageData m_DepthBuffer{};
         VkImageView m_DepthBufferImageView = VK_NULL_HANDLE;

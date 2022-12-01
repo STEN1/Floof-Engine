@@ -33,12 +33,14 @@ namespace FLOOF {
 	};
 	class DepthFramebuffer {
 	public:
-		DepthFramebuffer(uint32_t width, uint32_t height);
+		DepthFramebuffer(uint32_t width, uint32_t height, uint32_t layers = 1);
 		~DepthFramebuffer();
 
 		VkRenderPass GetRenderPass() { return m_RenderPass; };
-		VkFramebuffer GetFramebuffer() { return m_Framebuffer; }
+		VkFramebuffer GetFramebuffer(uint32_t index = 0) { return m_Framebuffers[index]; }
 		VulkanTexture GetTexture() { return m_Texture; }
+		VkExtent2D GetExtent() { return m_Extent; }
+		VkDescriptorSet GetDescriptorSet() { return m_ArrayDescriptorSet; }
 
 	private:
 		void CreateFramebufferTexture();
@@ -50,9 +52,14 @@ namespace FLOOF {
 		void DestroyRenderPass();
 
 		VulkanTexture m_Texture{};
-		VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
+		VkImageView m_ArrayImageView = VK_NULL_HANDLE;
+		VkDescriptorSet m_ArrayDescriptorSet = VK_NULL_HANDLE;
+		std::vector<VkImageView> m_ImageViews;
+		std::vector<VkDescriptorSet> m_DescriptorSets;
+		std::vector<VkFramebuffer> m_Framebuffers;
 		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 		VkFormat m_Format{};
 		VkExtent2D m_Extent{};
+		uint32_t m_LayerCount = 1;
 	};
 }

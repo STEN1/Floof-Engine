@@ -186,18 +186,6 @@ if(CMAKE_GENERATOR STREQUAL Xcode)
     set(CMAKE_CURRENT_BINARY_DIR  "Debug/")
 endif()
 
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.frag.spv")
-
-
 execute_process(
         #OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Source/setup.py install

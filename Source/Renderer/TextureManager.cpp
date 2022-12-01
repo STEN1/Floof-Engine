@@ -366,7 +366,7 @@ namespace FLOOF {
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.PushConstantSize = sizeof(SkyPushConstants);
             params.DescriptorSetLayoutBindings.resize(2);
             params.DescriptorSetLayoutBindings[0] = renderer->GetDescriptorSetLayout(RenderSetLayouts::DiffuseTextureClamped);
             params.DescriptorSetLayoutBindings[1] = renderer->GetDescriptorSetLayout(RenderSetLayouts::SceneFrameUBO);

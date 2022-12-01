@@ -32,12 +32,16 @@ namespace FLOOF {
         if (extent != m_Extent)
             ResizeBuffers(extent);
 
+
         auto* renderer = VulkanRenderer::Get();
         auto* window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
         auto& frameData = window->Frames[frameIndex];
         auto signalSemaphore = m_SignalSemaphores[frameIndex];
-        auto commandBuffer = m_CommandBuffers[frameIndex];
+        auto commandBuffer = renderer->AllocateCommandBuffer();
+        renderer->BeginSingleUseCommandBuffer(commandBuffer);
+
+        ShadowPass(commandBuffer, scene, camera);
 
         VkExtent2D vkExtent;
         vkExtent.width = m_Extent.x;
@@ -61,28 +65,13 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 2;
         renderPassInfo.pClearValues = clearColors;
 
-        renderer->ResetAndBeginCommandBuffer(commandBuffer);
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         // Camera setup
         glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 0.5f, 1000000.f);
         glm::mat4 cameraView = camera->GetView();
+        m_SceneFrameData.View = cameraView;
         glm::mat4 vp = cameraProjection * cameraView;
-
-        if (m_Skybox) {
-            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Skybox);
-
-            MeshPushConstants constants;
-            glm::mat4 modelMat = glm::mat4(1.f);
-            constants.VP = cameraProjection * glm::mat4(glm::mat3(camera->GetView()));
-            constants.Model = modelMat;
-            constants.InvModelMat = glm::inverse(modelMat);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                0, sizeof(MeshPushConstants), &constants);
-
-            m_Skybox->Draw(commandBuffer, pipelineLayout);
-        }
-
 
         {
             std::vector<PointLightComponent::PointLight> pointLights;
@@ -97,17 +86,31 @@ namespace FLOOF {
                 light.quadratic = 75.f / (light.lightRange * light.lightRange);
                 pointLights.push_back(light);
             }
-
             m_LightSSBO.Update(pointLights);
 
-            static float accumulator = 0.f;
-            accumulator += 0.01f;
-            float r = (sinf(accumulator) + 1.f) * 0.5f;
-            float b = (cosf(accumulator) + 1.f) * 0.5f;
             m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
             m_SceneFrameData.LightCount = pointLights.size();
+            m_SceneFrameData.VP = vp;
+            // Light space matrix is set in ShadowPass();
+            //m_SceneFrameData.LightSpaceMatrix = ??
             m_SceneDataUBO.Update(m_SceneFrameData);
         }
+
+        if (m_Skybox) {
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Skybox);
+
+            SkyPushConstants constants;
+            glm::mat4 modelMat = glm::mat4(1.f);
+            constants.VP = cameraProjection * glm::mat4(glm::mat3(camera->GetView()));
+            constants.Model = modelMat;
+            constants.InvModelMat = glm::inverse(modelMat);
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                0, sizeof(SkyPushConstants), &constants);
+
+            m_Skybox->Draw(commandBuffer, pipelineLayout);
+        }
+
+
 
         // Draw models
         {
@@ -130,12 +133,28 @@ namespace FLOOF {
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                     &m_BRDFLut.DesctriptorSet, 0, nullptr);
+
+                auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
+                    &shadowDescriptor, 0, nullptr);
+            }
+            if (drawMode == RenderPipelineKeys::Wireframe || drawMode == RenderPipelineKeys::UV) {
+                auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                    &sceneDescriptor, 0, nullptr);
+            }
+            if (drawMode == RenderPipelineKeys::Normals || drawMode == RenderPipelineKeys::UnLit) {
+                auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
+                    &sceneDescriptor, 0, nullptr);
             }
             auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
             for (auto [entity, transform, staticMesh] : view.each()) {
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
-                constants.VP = vp;
                 constants.Model = modelMat;
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
@@ -165,11 +184,11 @@ namespace FLOOF {
         if (physicDrawer) {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
             auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
-            MeshPushConstants constants;
+            SkyPushConstants constants;
             constants.VP = vp;
             constants.Model = glm::mat4(1.f);
             constants.InvModelMat = glm::mat4(1.f);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants),
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
                 &constants);
             lineMesh->Draw(commandBuffer);
         }
@@ -199,7 +218,6 @@ namespace FLOOF {
             for (auto [entity, transform, landscape] : view.each()) {
                 MeshPushConstants constants;
                 glm::mat4 modelMat = transform.GetTransform();
-                constants.VP = vp;
                 constants.Model = modelMat;
                 constants.InvModelMat = glm::inverse(modelMat);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
@@ -253,8 +271,143 @@ namespace FLOOF {
         return renderFinishedData;
     }
 
-    void SceneRenderer::ShadowPass()
+    void SceneRenderer::ShadowPass(VkCommandBuffer commandBuffer, Scene* scene, CameraComponent* camera)
     {
+        uint32_t SHADOW_MAP_CASCADE_COUNT = m_SceneFrameData.CascadeCount;
+        static constexpr float cascadeSplitLambda = 0.95f;
+
+        std::vector<float> cascadeSplits(SHADOW_MAP_CASCADE_COUNT);
+
+        float nearClip = camera->Near;
+        float farClip = 500.f;
+        float clipRange = farClip - nearClip;
+
+        float minZ = nearClip;
+        float maxZ = nearClip + clipRange;
+
+        float range = maxZ - minZ;
+        float ratio = maxZ / minZ;
+
+        // Calculate split depths based on view camera frustum
+        // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+        for (uint32_t i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
+            float p = (i + 1) / static_cast<float>(SHADOW_MAP_CASCADE_COUNT);
+            float log = minZ * std::pow(ratio, p);
+            float uniform = minZ + range * p;
+            float d = cascadeSplitLambda * (log - uniform) + uniform;
+            cascadeSplits[i] = (d - nearClip) / clipRange;
+        }
+
+        // Calculate orthographic projection matrix for each cascade
+        float lastSplitDist = 0.0;
+        for (uint32_t i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
+            float splitDist = cascadeSplits[i];
+
+            glm::vec3 frustumCorners[8] = {
+                glm::vec3(-1.0f,  1.0f, -1.0f),
+                glm::vec3(1.0f,  1.0f, -1.0f),
+                glm::vec3(1.0f, -1.0f, -1.0f),
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(-1.0f,  1.0f,  1.0f),
+                glm::vec3(1.0f,  1.0f,  1.0f),
+                glm::vec3(1.0f, -1.0f,  1.0f),
+                glm::vec3(-1.0f, -1.0f,  1.0f),
+            };
+
+            // Project frustum corners into world space
+            glm::mat4 invCam = glm::inverse(camera->GetVP(camera->FOV, camera->Aspect, camera->Near, farClip));
+            for (uint32_t i = 0; i < 8; i++) {
+                glm::vec4 invCorner = invCam * glm::vec4(frustumCorners[i], 1.0f);
+                frustumCorners[i] = invCorner / invCorner.w;
+            }
+
+            for (uint32_t i = 0; i < 4; i++) {
+                glm::vec3 dist = frustumCorners[i + 4] - frustumCorners[i];
+                frustumCorners[i + 4] = frustumCorners[i] + (dist * splitDist);
+                frustumCorners[i] = frustumCorners[i] + (dist * lastSplitDist);
+            }
+
+            // Get frustum center
+            glm::vec3 frustumCenter = glm::vec3(0.0f);
+            for (uint32_t i = 0; i < 8; i++) {
+                frustumCenter += frustumCorners[i];
+            }
+            frustumCenter /= 8.0f;
+
+            float radius = 0.0f;
+            for (uint32_t i = 0; i < 8; i++) {
+                float distance = glm::length(frustumCorners[i] - frustumCenter);
+                radius = glm::max(radius, distance);
+            }
+            radius = std::ceil(radius * 16.0f) / 16.0f;
+
+            glm::vec3 maxExtents = glm::vec3(radius);
+            glm::vec3 minExtents = -maxExtents;
+
+            glm::vec3 lightDir = glm::normalize(-m_SceneFrameData.SunPosition);
+            glm::vec3 eye = frustumCenter - (lightDir * -minExtents.z);
+            glm::mat4 lightViewMatrix = glm::lookAt(eye, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, maxExtents.z - minExtents.z);
+
+            // Store split distance and matrix in cascade
+            m_SceneFrameData.SplitDists[i] = (camera->Near + splitDist * clipRange) * -1.f;
+            m_SceneFrameData.LightSpaceMatrix[i] = lightOrthoMatrix * lightViewMatrix;
+
+            lastSplitDist = cascadeSplits[i];
+        }
+
+        auto* renderer = VulkanRenderer::Get();
+        auto* vulkanWindow = renderer->GetVulkanWindow();
+        int frameIndex = vulkanWindow->FrameIndex;
+        auto renderPass = m_ShadowDepthBuffers[frameIndex]->GetRenderPass();
+        auto extent = m_ShadowDepthBuffers[frameIndex]->GetExtent();
+
+        VkClearValue clearValue{};
+        clearValue.depthStencil = { 1.f, 0 };
+
+
+        for (uint32_t i = 0; i < m_SceneFrameData.CascadeCount; i++) {
+            auto framebuffer = m_ShadowDepthBuffers[frameIndex]->GetFramebuffer(i);
+
+            VkRenderPassBeginInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = framebuffer;
+            renderPassInfo.renderArea.extent = extent;
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = &clearValue;
+
+            renderer->StartRenderPass(commandBuffer, &renderPassInfo);
+
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::ShadowPass);
+
+            auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                &sceneDescriptor, 0, nullptr);
+
+            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
+            for (auto [entity, transform, staticMesh] : view.each()) {
+                DepthPushConstants constants;
+                glm::mat4 modelMat = transform.GetTransform();
+                constants.Model = modelMat;
+                constants.InvModelMat = glm::inverse(modelMat);
+                constants.cascadeIndex = i;
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                    0, sizeof(DepthPushConstants), &constants);
+                for (auto& mesh : staticMesh.meshes) {
+                    VkDeviceSize offset{ 0 };
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
+                    if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                        vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
+                            1, 0, 0, 0);
+                    } else {
+                        vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                    }
+                }
+            }
+            vkCmdEndRenderPass(commandBuffer);
+        }
     }
 
     void SceneRenderer::CreateTextureRenderer() {
@@ -262,14 +415,31 @@ namespace FLOOF {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_SignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_waitSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_CommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        for (auto& commandBuffer : m_CommandBuffers) {
-            commandBuffer = renderer->AllocateCommandBuffer();
+        m_ShadowDepthBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        for (auto& shadowDB : m_ShadowDepthBuffers) {
+            shadowDB = std::make_unique<DepthFramebuffer>(m_ShadowRes, m_ShadowRes, m_SceneFrameData.CascadeCount);
         }
 
         CreateSyncObjects();
 
         CreateRenderPass();
+        {    // Shadow shader
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.FragmentPath = "Shaders/Shadow.frag.spv";
+            params.VertexPath = "Shaders/Shadow.vert.spv";
+            params.Key = RenderPipelineKeys::ShadowPass;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(DepthPushConstants);
+            params.Renderpass = m_ShadowDepthBuffers[0]->GetRenderPass();
+            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
+            params.CullMode = VK_CULL_MODE_FRONT_BIT;
+            renderer->CreateGraphicsPipeline(params);
+        }
         {    // PBR shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
@@ -281,13 +451,14 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(6);
+            params.DescriptorSetLayoutBindings.resize(7);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
@@ -326,7 +497,7 @@ namespace FLOOF {
             params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
             params.BindingDescription = SimpleVertex::GetBindingDescription();
             params.AttributeDescriptions = SimpleVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.PushConstantSize = sizeof(SkyPushConstants);
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.Renderpass = m_RenderPass;
@@ -346,6 +517,8 @@ namespace FLOOF {
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
+            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             renderer->CreateGraphicsPipeline(params);
         }
         {    // Normals
@@ -360,8 +533,9 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
-            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings.resize(2);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
@@ -378,6 +552,8 @@ namespace FLOOF {
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
+            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             renderer->CreateGraphicsPipeline(params);
         }
         {    // UnLit
@@ -392,8 +568,9 @@ namespace FLOOF {
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
             params.Renderpass = m_RenderPass;
-            params.DescriptorSetLayoutBindings.resize(1);
+            params.DescriptorSetLayoutBindings.resize(2);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }
@@ -407,7 +584,7 @@ namespace FLOOF {
             params.Topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
             params.BindingDescription = ColorVertex::GetBindingDescription();
             params.AttributeDescriptions = ColorVertex::GetAttributeDescriptions();
-            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.PushConstantSize = sizeof(SkyPushConstants);
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
