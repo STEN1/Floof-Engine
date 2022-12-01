@@ -809,7 +809,7 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateSwapChain(VulkanWindow& window) {
         window.SurfaceFormat = GetSurfaceFormat(VK_FORMAT_B8G8R8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR);
-        window.PresentMode = GetPresentMode(VK_PRESENT_MODE_FIFO_KHR);
+        window.PresentMode = GetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
         window.Extent = GetWindowExtent();
         std::cout << "m_SwapChainExtent: x = " << window.Extent.width << " y = " << window.Extent.height << std::endl;
 

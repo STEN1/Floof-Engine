@@ -214,6 +214,11 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                 &m_BRDFLut.DesctriptorSet, 0, nullptr);
 
+            auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
+                &shadowDescriptor, 0, nullptr);
+
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
             for (auto [entity, transform, landscape] : view.each()) {
                 MeshPushConstants constants;
@@ -365,6 +370,11 @@ namespace FLOOF {
         VkClearValue clearValue{};
         clearValue.depthStencil = { 1.f, 0 };
 
+        // Depth bias (and slope) are used to avoid shadowing artifacts
+        // Constant depth bias factor (always applied)
+        //float depthBiasConstant = 1.25f;
+        // Slope depth bias factor, applied depending on polygon's slope
+        //float depthBiasSlope = 1.75f;
 
         for (uint32_t i = 0; i < m_SceneFrameData.CascadeCount; i++) {
             auto framebuffer = m_ShadowDepthBuffers[frameIndex]->GetFramebuffer(i);
@@ -377,6 +387,8 @@ namespace FLOOF {
             renderPassInfo.pClearValues = &clearValue;
 
             renderer->StartRenderPass(commandBuffer, &renderPassInfo);
+
+            //vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::ShadowPass);
 
@@ -474,7 +486,7 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(8);
+            params.DescriptorSetLayoutBindings.resize(9);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
@@ -483,6 +495,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
+            params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);

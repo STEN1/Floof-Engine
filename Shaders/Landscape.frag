@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 fragNormal;
 layout(location = 1) in vec2 fragUv;
 layout(location = 2) in vec3 fragPos;
+layout(location = 3) in vec3 fragViewPos;
 
 layout(location = 0) out vec4 outColor;
 
@@ -31,12 +32,15 @@ struct PointLight {
 
 layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     vec4 cameraPos;
-    vec4 sunDirection;
+    vec4 sunPosition;
     vec4 sunColor;
     mat4 vp;
-    mat4 lightSpaceMatrix;
+    mat4 lightSpaceMatrix[4];
+    mat4 view;
+    vec4 splitDists;
     float sunStrenght;
     int lightCount;
+    int cascadeCount;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -47,20 +51,32 @@ layout (set = 3, binding = 0) uniform samplerCube irradianceMap;
 layout (set = 4, binding = 0) uniform samplerCube prefilterMap;
 layout (set = 5, binding = 0) uniform sampler2D brdfLut;
 
+layout (set = 8, binding = 0) uniform sampler2DArray shadowMap;
+
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 vec3 getNormal(vec3);
+float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex);
+float filterPCF(vec4 sc, int cascadeIndex);
+vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float metallic, vec3 F0);
 
 const float PI = 3.14159265359;
 const float ao = 1.0;
 const float metallic = 0.0;
 
+const mat4 biasMat = mat4( 
+	0.5, 0.0, 0.0, 0.0,
+	0.0, 0.5, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.5, 0.5, 0.0, 1.0 
+);
+
 void main() {
     vec3 skyColor = sceneFrameUBO.sunColor.xyz;
-    vec3 skyDir = normalize(sceneFrameUBO.sunDirection.xyz);
+    vec3 skyDir = normalize(sceneFrameUBO.sunPosition.xyz);
    
     //write blendmap
 
@@ -97,7 +113,17 @@ void main() {
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
-    vec3 Lo = vec3(0.0);
+    int cascadeIndex = 0;
+    for (int i = 0; i < sceneFrameUBO.cascadeCount - 1; i++) {
+        if (fragViewPos.z < sceneFrameUBO.splitDists[i]) {
+            cascadeIndex = i + 1;
+        }
+    }
+    vec4 shadowCoord = (biasMat * sceneFrameUBO.lightSpaceMatrix[cascadeIndex]) * vec4(fragPos, 1.0);
+    float shadow = filterPCF(shadowCoord, cascadeIndex);
+
+    vec3 Lo = CalcDirectionalLight(V, N, albedo, roughness, metallic, F0);
+    Lo *= shadow;
 
     // Point lights
     for(int i = 0; i < sceneFrameUBO.lightCount; ++i) 
@@ -218,4 +244,65 @@ vec3 getNormal(vec3 tangentNormal)
 	mat3 TBN = mat3(T, B, N);
 
 	return normalize(TBN * tangentNormal);
+}
+
+float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex)
+{
+	float shadow = 1.0;
+	float bias = 0.0005;
+
+	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
+		float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
+		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
+			shadow = 0.0;
+		}
+	}
+	return shadow;
+}
+
+float filterPCF(vec4 sc, int cascadeIndex)
+{
+	ivec2 texDim = textureSize(shadowMap, 0).xy;
+	float scale = 0.75;
+	float dx = scale * 1.0 / float(texDim.x);
+	float dy = scale * 1.0 / float(texDim.y);
+
+	float shadowFactor = 0.0;
+	int count = 0;
+	int range = 1;
+	
+	for (int x = -range; x <= range; x++) {
+		for (int y = -range; y <= range; y++) {
+			shadowFactor += textureProjection(sc, vec2(dx*x, dy*y), cascadeIndex);
+			count++;
+		}
+	}
+	return shadowFactor / count;
+}
+
+vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float metallic, vec3 F0) {
+    vec3 Lo = vec3(0.0);
+    vec3 lightColor = sceneFrameUBO.sunColor.xyz;
+    // calculate per-light radiance
+    vec3 L = normalize(sceneFrameUBO.sunPosition.xyz);
+    vec3 H = normalize(V + L);
+    vec3 radiance     = lightColor * sceneFrameUBO.sunStrenght;     
+        
+    // cook-torrance brdf
+    float NDF = DistributionGGX(N, H, roughness);        
+    float G   = GeometrySmith(N, V, L, roughness);      
+    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+        
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;	  
+        
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular     = numerator / denominator;  
+            
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, L), 0.0);                
+    Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+    return Lo;
 }
