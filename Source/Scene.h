@@ -6,7 +6,8 @@
 #include "Renderer/SceneRenderer.h"
 #include "Components.h"
 
-#include "Network/CarGameClient.h"
+#include "Network/CarGameNetworking.h"
+
 
 namespace FLOOF {
 
@@ -107,5 +108,6 @@ namespace FLOOF {
 
     public:
         CarClient client;
+        std::unique_ptr<CarServer> server;
     };
 }

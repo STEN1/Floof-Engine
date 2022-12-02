@@ -4,6 +4,7 @@
 #include "EditorPanel.h"
 namespace FLOOF{
     class NetworkPanel :public EditorPanel{
+    public:
         NetworkPanel(EditorLayer* editorLayer) : EditorPanel(editorLayer) {}
         virtual void DrawPanel() override;
     };
