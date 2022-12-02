@@ -66,6 +66,8 @@ namespace FLOOF {
 
         uint32_t m_ShadowRes = 2048;
         std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
+        float m_ShadowFarClip = 5000.f;
+
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
 
         std::vector<VkSemaphore> m_waitSemaphores;
@@ -87,5 +89,14 @@ namespace FLOOF {
         VulkanTexture m_IrradienceMap;
         VulkanTexture m_PrefilterMap;
         VulkanTexture m_BRDFLut;
+
+        std::unique_ptr<LineMeshComponent> m_DeugLineMesh;
+        mutable std::vector<ColorVertex> m_DebugVertexData;
+        void DebugDrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec3 color) const;
+        void DrawRect(const glm::vec3& bl, const glm::vec3& br, const glm::vec3& tl, const glm::vec3& tr, const glm::vec3& color) const;
+        void DebugDrawFrustum(const glm::vec3& nbl, const glm::vec3& nbr, const glm::vec3& ntl, const glm::vec3& ntr,
+            const glm::vec3& fbl, const glm::vec3& fbr, const glm::vec3& ftl, const glm::vec3& ftr, const glm::vec3& color) const;
+
+        void DrawDebugCameraLines(CameraComponent* camera, float shadowFarClip) const;
     };
 }

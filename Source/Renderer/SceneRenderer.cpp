@@ -7,14 +7,10 @@
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {
         CreateTextureRenderer();
-        /*std::array<std::string, 6> skyboxPaths = {
-            "Assets/Skybox/back.jpg",
-            "Assets/Skybox/front.jpg",
-            "Assets/Skybox/bottom.jpg",
-            "Assets/Skybox/top.jpg",
-            "Assets/Skybox/left.jpg",
-            "Assets/Skybox/right.jpg",
-        };*/
+        {
+            std::vector<ColorVertex> vertexData(10000);
+            m_DeugLineMesh = std::make_unique<LineMeshComponent>(vertexData);
+        }
         m_Skybox = std::make_unique<Skybox>("Assets/Skybox/belfast_sunset_puresky_4k.hdr");
         m_IrradienceMap = m_Skybox->m_Cubemap.GetIrradienceMap();
         m_PrefilterMap = m_Skybox->m_Cubemap.GetPrefilterMap();
@@ -68,7 +64,7 @@ namespace FLOOF {
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
         // Camera setup
-        glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 0.5f, 1000000.f);
+        glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 1.0f, 1000000.f);
         glm::mat4 cameraView = camera->GetView();
         m_SceneFrameData.View = cameraView;
         glm::mat4 vp = cameraProjection * cameraView;
@@ -181,16 +177,31 @@ namespace FLOOF {
         }
 
         // Draw debug lines
-        if (physicDrawer) {
-            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
-            auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
-            SkyPushConstants constants;
-            constants.VP = vp;
-            constants.Model = glm::mat4(1.f);
-            constants.InvModelMat = glm::mat4(1.f);
-            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
-                &constants);
-            lineMesh->Draw(commandBuffer);
+        {
+            if (physicDrawer) {
+                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
+                auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
+                SkyPushConstants constants;
+                constants.VP = vp;
+                constants.Model = glm::mat4(1.f);
+                constants.InvModelMat = glm::mat4(1.f);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
+                    &constants);
+                lineMesh->Draw(commandBuffer);
+            }
+            {
+                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
+                auto* lineMesh = m_DeugLineMesh.get();
+                lineMesh->UpdateBuffer(m_DebugVertexData);
+                m_DebugVertexData.clear();
+                SkyPushConstants constants;
+                constants.VP = vp;
+                constants.Model = glm::mat4(1.f);
+                constants.InvModelMat = glm::mat4(1.f);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
+                    &constants);
+                lineMesh->Draw(commandBuffer);
+            }
         }
         // Draw landscape
         {
@@ -284,7 +295,7 @@ namespace FLOOF {
         std::vector<float> cascadeSplits(SHADOW_MAP_CASCADE_COUNT);
 
         float nearClip = camera->Near;
-        float farClip = 500.f;
+        float farClip = m_ShadowFarClip;
         float clipRange = farClip - nearClip;
 
         float minZ = nearClip;
@@ -449,7 +460,7 @@ namespace FLOOF {
             params.Renderpass = m_ShadowDepthBuffers[0]->GetRenderPass();
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
-            params.CullMode = VK_CULL_MODE_FRONT_BIT;
+            //params.CullMode = VK_CULL_MODE_FRONT_BIT;
             renderer->CreateGraphicsPipeline(params);
         }
         {    // PBR shader
@@ -956,6 +967,127 @@ namespace FLOOF {
         for (auto& semaphore : m_waitSemaphores) {
             vkDestroySemaphore(renderer->GetDevice(), semaphore, nullptr);
         }
+    }
+
+    void SceneRenderer::DebugDrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec3 color) const
+    {
+        m_DebugVertexData.emplace_back(start, color);
+        m_DebugVertexData.emplace_back(end, color);
+    }
+
+    void SceneRenderer::DrawDebugCameraLines(CameraComponent* camera, float shadowFarClip) const
+    {
+        DebugDrawLine(camera->Position, camera->Position + glm::normalize(camera->Forward) * 10.f, glm::vec3(1.f, 0.f, 0.f));
+        uint32_t SHADOW_MAP_CASCADE_COUNT = m_SceneFrameData.CascadeCount;
+        static constexpr float cascadeSplitLambda = 0.95f;
+
+        std::vector<float> cascadeSplits(SHADOW_MAP_CASCADE_COUNT);
+
+        float nearClip = camera->Near;
+        float farClip = shadowFarClip;
+        float clipRange = farClip - nearClip;
+
+        float minZ = nearClip;
+        float maxZ = nearClip + clipRange;
+
+        float range = maxZ - minZ;
+        float ratio = maxZ / minZ;
+
+        // Calculate split depths based on view camera frustum
+        // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+        for (uint32_t i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
+            float p = (i + 1) / static_cast<float>(SHADOW_MAP_CASCADE_COUNT);
+            float log = minZ * std::pow(ratio, p);
+            float uniform = minZ + range * p;
+            float d = cascadeSplitLambda * (log - uniform) + uniform;
+            cascadeSplits[i] = (d - nearClip) / clipRange;
+        }
+
+        std::vector<glm::vec3> frustumColors = {
+            glm::vec3(0.f, 0.f, 1.f),
+            glm::vec3(0.f, 1.f, 0.f),
+            glm::vec3(1.f, 0.f, 0.f),
+            glm::vec3(1.f, 1.f, 1.f),
+        };
+
+        // Calculate orthographic projection matrix for each cascade
+        float lastSplitDist = 0.0;
+        for (uint32_t i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
+            float splitDist = cascadeSplits[i];
+
+            glm::vec3 frustumCorners[8] = {
+                glm::vec3(-1.0f,  1.0f, -1.0f),
+                glm::vec3(1.0f,  1.0f, -1.0f),
+                glm::vec3(1.0f, -1.0f, -1.0f),
+                glm::vec3(-1.0f, -1.0f, -1.0f),
+                glm::vec3(-1.0f,  1.0f,  1.0f),
+                glm::vec3(1.0f,  1.0f,  1.0f),
+                glm::vec3(1.0f, -1.0f,  1.0f),
+                glm::vec3(-1.0f, -1.0f,  1.0f),
+            };
+
+            // Project frustum corners into world space
+            glm::mat4 invCam = glm::inverse(camera->GetVP(camera->FOV, camera->Aspect, camera->Near, farClip));
+            for (uint32_t i = 0; i < 8; i++) {
+                glm::vec4 invCorner = invCam * glm::vec4(frustumCorners[i], 1.0f);
+                frustumCorners[i] = invCorner / invCorner.w;
+            }
+
+            for (uint32_t i = 0; i < 4; i++) {
+                glm::vec3 dist = frustumCorners[i + 4] - frustumCorners[i];
+                frustumCorners[i + 4] = frustumCorners[i] + (dist * splitDist);
+                frustumCorners[i] = frustumCorners[i] + (dist * lastSplitDist);
+            }
+
+            // Get frustum center
+            glm::vec3 frustumCenter = glm::vec3(0.0f);
+            for (uint32_t i = 0; i < 8; i++) {
+                frustumCenter += frustumCorners[i];
+            }
+            frustumCenter /= 8.0f;
+
+            float radius = 0.0f;
+            for (uint32_t i = 0; i < 8; i++) {
+                float distance = glm::length(frustumCorners[i] - frustumCenter);
+                radius = glm::max(radius, distance);
+            }
+            radius = std::ceil(radius * 16.0f) / 16.0f;
+
+            glm::vec3 maxExtents = glm::vec3(radius);
+            glm::vec3 minExtents = -maxExtents;
+
+            glm::vec3 lightDir = glm::normalize(-m_SceneFrameData.SunPosition);
+            glm::vec3 eye = frustumCenter - (lightDir * -minExtents.z);
+
+            DebugDrawFrustum(frustumCorners[3], frustumCorners[2], frustumCorners[0], frustumCorners[1],
+                frustumCorners[7], frustumCorners[6], frustumCorners[4], frustumCorners[5], frustumColors[i]);
+
+            DebugDrawLine(eye, eye + lightDir * 10.f, frustumColors[i]);
+
+            lastSplitDist = cascadeSplits[i];
+        }
+    }
+
+    void SceneRenderer::DebugDrawFrustum(const glm::vec3& nbl, const glm::vec3& nbr, const glm::vec3& ntl,
+        const glm::vec3& ntr, const glm::vec3& fbl, const glm::vec3& fbr, const glm::vec3& ftl, const glm::vec3& ftr, const glm::vec3& color) const
+    {
+        // draw lear rect
+        DrawRect(nbl, nbr, ntl, ntr, color);
+        // draw far rect
+        DrawRect(fbl, fbr, ftl, ftr, color);
+        // draw connecting lines
+        DebugDrawLine(nbl, fbl, color);
+        DebugDrawLine(nbr, fbr, color);
+        DebugDrawLine(ntl, ftl, color);
+        DebugDrawLine(ntr, ftr, color);
+    }
+
+    void SceneRenderer::DrawRect(const glm::vec3& bl, const glm::vec3& br, const glm::vec3& tl, const glm::vec3& tr, const glm::vec3& color) const 
+    {
+        DebugDrawLine(bl, br, color);
+        DebugDrawLine(br, tr, color);
+        DebugDrawLine(tr, tl, color);
+        DebugDrawLine(tl, bl, color);
     }
 
     void SceneRenderer::DestoryDepthBuffer() {

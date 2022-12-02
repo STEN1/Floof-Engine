@@ -37,6 +37,18 @@ namespace FLOOF {
 			m_EditorLayer->SetPlayDrawMode(static_cast<RenderPipelineKeys>(playDrawMode));
 		}
 
+		static bool drawCameraLines = false;
+		ImGui::Checkbox("Draw camera debug lines", &drawCameraLines);
+		if (drawCameraLines) {
+			float farClip = m_EditorLayer->GetPlayRenderer()->m_ShadowFarClip;
+			m_EditorLayer->GetEditorRenderer()->DrawDebugCameraLines(m_EditorLayer->GetScene()->GetFirstSceneCamera(), farClip);
+		}
+		static float shadowFarClip = m_EditorLayer->GetEditorRenderer()->m_ShadowFarClip;
+		if (ImGui::DragFloat("Shadow far clip", &shadowFarClip, 1.f, 2500.f, 15000.f)) {
+			m_EditorLayer->GetEditorRenderer()->m_ShadowFarClip = shadowFarClip;
+			m_EditorLayer->GetPlayRenderer()->m_ShadowFarClip = shadowFarClip;
+		}
+
 		ImVec2 imageSize(200.f, 200.f);
 
 		ImGui::Separator();
