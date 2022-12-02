@@ -992,8 +992,8 @@ namespace FLOOF {
 
     void SceneRenderer::DebugDrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec3 color) const
     {
-        m_DebugVertexData.emplace_back(start, color);
-        m_DebugVertexData.emplace_back(end, color);
+        m_DebugVertexData.emplace_back(ColorVertex{ start, color });
+        m_DebugVertexData.emplace_back(ColorVertex{ end, color });
     }
 
     void SceneRenderer::DrawDebugCameraLines(CameraComponent* camera, float shadowFarClip) const
