@@ -2,6 +2,7 @@
 #include "../Components.h"
 #include "../Application.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "../Scene.h"
 
 void FLOOF::WonderBaumScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);

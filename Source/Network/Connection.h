@@ -36,7 +36,7 @@ namespace FLOOF::Network {
         }
 
         bool Disconnect() {
-
+            return false;
         }
 
         bool IsConnected() const {

@@ -2,6 +2,7 @@
 #include "../../Application.h"
 #include "../../Scene.h"
 #include "../EditorLayer.h"
+#include "../../SoundManager.h"
 
 namespace FLOOF {
     void SoundSettingsPanel::DrawPanel() {

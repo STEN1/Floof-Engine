@@ -3,16 +3,8 @@
 
 #include <entt/entt.hpp>
 
-#include <unordered_map>
 #include <memory>
-#include <chrono>
 #include <unordered_map>
-#include "LasLoader.h"
-#include "Scene.h"
-#include "Renderer/SceneRenderer.h"
-#include "Scene.h"
-#include "Components.h"
-#include "SoundManager.h"
 #include "ApplicationLayer.h"
 
 namespace FLOOF {

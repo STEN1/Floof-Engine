@@ -3,6 +3,7 @@
 #include "../Application.h"
 #include <iostream>
 #include "../PhysicsSystem.h"
+#include "../Scene.h"
 
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {

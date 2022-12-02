@@ -49,6 +49,7 @@ namespace FLOOF::Network {
                 mThreadContext.join();
 
             std::cout << "[Server] Stoped" << std::endl;
+            return true;
         }
 
         //ASYNC - make asio wait for connection
