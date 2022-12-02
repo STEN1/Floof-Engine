@@ -11,7 +11,6 @@ layout(push_constant) uniform PushConstants {
     mat4 imodel;
 } pushConstants;
 
-
 void main() {
     gl_PointSize = 1.0;
     gl_Position = pushConstants.vp * pushConstants.model * vec4(pos, 1.0);

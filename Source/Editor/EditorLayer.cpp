@@ -12,7 +12,7 @@
 #include "EditorPanels/SoundSourcesPanel.h"
 
 #include "../NativeScripts/MonsterTruckScript.h"
-
+#include "../NativeScripts/WonderBaumScript.h"
 #include "imgui_internal.h"
 
 namespace FLOOF {
@@ -106,10 +106,13 @@ namespace FLOOF {
 	}
     VkSemaphore EditorLayer::OnDraw(double deltaTime, VkSemaphore waitSemaphore)
     {
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse;
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-            ImGui::Begin("Editor view");
+            ImGui::Begin("Editor view", nullptr, windowFlags);
             ImGui::PopStyleVar();
+            auto viewport = ImGui::GetWindowViewport();
+            viewport->Flags &= (~ImGuiViewportFlags_NoDecoration);
 
             m_EditorViewFocused = ImGui::IsWindowFocused();
 
@@ -142,8 +145,10 @@ namespace FLOOF {
         }
         if (IsPlaying()) {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-            ImGui::Begin("Play view");
+            ImGui::Begin("Play view", nullptr, windowFlags);
             ImGui::PopStyleVar();
+            auto viewport = ImGui::GetWindowViewport();
+            viewport->Flags &= (~ImGuiViewportFlags_NoDecoration);
 
             m_PlayViewFocused = ImGui::IsWindowFocused();
             m_Scene->m_IsActiveScene = m_PlayViewFocused;
@@ -162,7 +167,7 @@ namespace FLOOF {
 
             SceneRenderFinishedData sceneRenderData{};
             if (!ImGui::GetCurrentWindow()->Hidden) {
-                sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetFirstSceneCamera(),
+                sceneRenderData = m_PlayRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetActiveCamera(),
                     m_PlayDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
             }
             if (sceneRenderData.Texture != VK_NULL_HANDLE) {
@@ -269,12 +274,10 @@ namespace FLOOF {
     void EditorLayer::MakePhysicsScene() {
         m_Scene = std::make_unique<Scene>();
 
-        // TODO: make physics scene.
-
         //terrain
         {
             auto entity = m_Scene->CreateEntity("Terrain");
-            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
             //transform.Position = glm::vec3(mesh.landscape->width/2.f,-100,mesh.landscape->height/2.f);
@@ -289,7 +292,7 @@ namespace FLOOF {
         // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene.get(), ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), m_Scene.get(), ent);
         }
         {
             auto music = m_Scene->CreateEntity("Background Music");
@@ -500,8 +503,7 @@ namespace FLOOF {
             std::string name = "Heightmap";
 
             auto entity = m_Scene->CreateEntity(name);
-            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/TerrainTextures/Terrain_Tough/heightMap.png", "Assets/TerrainTextures/Terrain_Tough/texture.png");
-
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
         }
     }
 
@@ -514,7 +516,12 @@ namespace FLOOF {
 
     void EditorLayer::MakePhysicsPlayGround() {
         m_Scene = std::make_unique<Scene>();
-
+        {
+            const auto entity = m_Scene->CreateEntity();
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec4(0.f, 10.f, -0.5f, 1.f);
+            m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+        }
         //make flooring
         {
             auto location = glm::vec3(0.f, -50.f, 0.f);
@@ -572,6 +579,7 @@ namespace FLOOF {
                     auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
                     transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
                     transform.Scale = extents;
+                    transform.Rotation = rotation;
                     collision.RigidBody->setFriction(0.9f);
                 }
             }
@@ -580,7 +588,20 @@ namespace FLOOF {
         // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(), m_Scene.get(), ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f,-40.f,0.f)), m_Scene.get(), ent);
+            m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
+        }
+        // make monstertruck
+        {
+            auto ent = m_Scene->CreateEntity("MonsterTruck");
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f,-40.f,10.f)), m_Scene.get(), ent);
+            m_Scene->AddComponent<PlayerControllerComponent>(ent, 1);
+        }
+
+        //banana test
+        {
+            //auto ent = m_Scene->CreateEntity("Banana");
+            //m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<WonderBaumScript>(), m_Scene.get(), ent);
         }
     }
 }

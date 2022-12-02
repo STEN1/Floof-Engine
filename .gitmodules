@@ -27,3 +27,6 @@
 [submodule "Libs/ImGuizmo"]
 	path = Libs/ImGuizmo
 	url = https://github.com/STEN1/ImGuizmo
+[submodule "Libs/asio"]
+	path = Libs/asio
+	url = https://github.com/chriskohlhoff/asio

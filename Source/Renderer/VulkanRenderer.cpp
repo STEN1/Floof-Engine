@@ -52,6 +52,7 @@ namespace FLOOF {
         CreateFontSampler();
         CreateTextureSampler();
         CreateTextureSamplerClamped();
+        CreateShadowSampler();
         CreateDescriptorSetLayouts();
 
         InitGlfwCallbacks();
@@ -64,6 +65,7 @@ namespace FLOOF {
 
 
         vkDestroyDescriptorPool(m_LogicalDevice, m_TextureDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(m_LogicalDevice, m_LandscapeMaterialDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_ShaderStorageDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_UBODescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_MaterialDescriptorPool, nullptr);
@@ -82,6 +84,7 @@ namespace FLOOF {
         DestroyFontSampler();
         DestroyTextureSampler();
         DestroyTextureSamplerClamped();
+        vkDestroySampler(m_LogicalDevice, m_ShadowSampler, nullptr);
 
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
         vkDestroyDevice(m_LogicalDevice, nullptr);
@@ -111,6 +114,13 @@ namespace FLOOF {
 
     void VulkanRenderer::NewFrame() {
         m_VulkanWindow.ImageIndex = GetNextSwapchainImage(m_VulkanWindow);
+        if (m_CommandBuffers.empty()) {
+            m_CommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        }
+        for (auto& commandBuffer : m_CommandBuffers[m_VulkanWindow.FrameIndex]) {
+            vkFreeCommandBuffers(m_LogicalDevice, m_CommandPool, 1, &commandBuffer);
+        }
+        m_CommandBuffers[m_VulkanWindow.FrameIndex].clear();
     }
 
     void VulkanRenderer::StartRenderPass(VkCommandBuffer commandBuffer, VkRenderPassBeginInfo* renderPassInfo) {
@@ -799,7 +809,7 @@ namespace FLOOF {
 
     void VulkanRenderer::CreateSwapChain(VulkanWindow& window) {
         window.SurfaceFormat = GetSurfaceFormat(VK_FORMAT_B8G8R8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR);
-        window.PresentMode = GetPresentMode(VK_PRESENT_MODE_FIFO_KHR);
+        window.PresentMode = GetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
         window.Extent = GetWindowExtent();
         std::cout << "m_SwapChainExtent: x = " << window.Extent.width << " y = " << window.Extent.height << std::endl;
 
@@ -947,6 +957,21 @@ namespace FLOOF {
             VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::Material]);
         }
         {
+            std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = {
+                { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+                { 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+                { 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+            };
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = setLayoutBindings.size();
+            descriptorSetLayoutCreateInfo.pBindings = setLayoutBindings.data();
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial]);
+        }
+        {
             VkDescriptorSetLayoutBinding layoutBinding{};
             layoutBinding.binding = 0;
             layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -981,9 +1006,25 @@ namespace FLOOF {
         {
             VkDescriptorSetLayoutBinding layoutBinding{};
             layoutBinding.binding = 0;
-            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             layoutBinding.descriptorCount = 1;
             layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layoutBinding.pImmutableSamplers = &m_ShadowSampler;
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = 1;
+            descriptorSetLayoutCreateInfo.pBindings = &layoutBinding;
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture]);
+        }
+        {
+            VkDescriptorSetLayoutBinding layoutBinding{};
+            layoutBinding.binding = 0;
+            layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            layoutBinding.descriptorCount = 1;
+            layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
 
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
             descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -1065,7 +1106,7 @@ namespace FLOOF {
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = params.PolygonMode;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.cullMode = params.CullMode;
         rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
         rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -1153,7 +1194,7 @@ namespace FLOOF {
 
         vkDestroyShaderModule(m_LogicalDevice, vertShader, nullptr);
         vkDestroyShaderModule(m_LogicalDevice, fragShader, nullptr);
-        LOG("Render pipeline created.\n");
+        std::cout << "Render pipeline created: " << params.FragmentPath << " " << params.VertexPath << std::endl;
     }
 
     void VulkanRenderer::CreateFramebuffers(VulkanWindow& window) {
@@ -1222,6 +1263,22 @@ namespace FLOOF {
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_MaterialDescriptorPool);
+            ASSERT(result == VK_SUCCESS);
+        }
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSize.descriptorCount = 100;
+
+            // Create texture descriptor pool.
+            VkDescriptorPoolCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
+            //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.maxSets = 100;
+            createInfo.pPoolSizes = &poolSize;
+            createInfo.poolSizeCount = 1;
+            VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_LandscapeMaterialDescriptorPool);
             ASSERT(result == VK_SUCCESS);
         }
         {
@@ -1304,8 +1361,8 @@ namespace FLOOF {
         samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         samplerInfo.anisotropyEnable = VK_TRUE;
-        samplerInfo.maxAnisotropy = 16;
-        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.maxAnisotropy = 16.f;
+        samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_FALSE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
@@ -1315,6 +1372,25 @@ namespace FLOOF {
         samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
 
         VkResult err = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_TextureSamplerClamped);
+        ASSERT(err == VK_SUCCESS);
+    }
+
+    void VulkanRenderer::CreateShadowSampler()
+    {
+        VkSamplerCreateInfo samplerInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        samplerInfo.addressModeV = samplerInfo.addressModeU;
+        samplerInfo.addressModeW = samplerInfo.addressModeU;
+        samplerInfo.mipLodBias = 0.f;
+        samplerInfo.maxAnisotropy = 1.f;
+        samplerInfo.minLod = 0.f;
+        samplerInfo.maxLod = 1.f;
+        samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+        VkResult err = vkCreateSampler(m_LogicalDevice, &samplerInfo, nullptr, &m_ShadowSampler);
         ASSERT(err == VK_SUCCESS);
     }
 
@@ -1603,9 +1679,28 @@ namespace FLOOF {
         return textureDescriptorSet;
     }
 
+    VkDescriptorSet VulkanRenderer::AllocateLandscapeMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
+    {
+        VkDescriptorSet textureDescriptorSet{};
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = m_LandscapeMaterialDescriptorPool;
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
+
+        VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &textureDescriptorSet);
+        ASSERT(result == VK_SUCCESS);
+        return textureDescriptorSet;
+    }
+
     void VulkanRenderer::FreeMaterialDescriptorSet(VkDescriptorSet desctriptorSet)
     {
         vkFreeDescriptorSets(m_LogicalDevice, m_MaterialDescriptorPool, 1, &desctriptorSet);
+    }
+
+    void VulkanRenderer::FreeLandscapeMaterialDescriptorSet(VkDescriptorSet desctriptorSet)
+    {
+        vkFreeDescriptorSets(m_LogicalDevice, m_LandscapeMaterialDescriptorPool, 1, &desctriptorSet);
     }
 
     VkDescriptorSet VulkanRenderer::AllocateShaderStorageDescriptorSet(VkDescriptorSetLayout descriptorSetLayout) {
@@ -1648,24 +1743,14 @@ namespace FLOOF {
         VkCommandBuffer commandBuffer;
         VkResult result = vkAllocateCommandBuffers(m_LogicalDevice, &allocInfo, &commandBuffer);
         ASSERT(result == VK_SUCCESS);
+
+        m_CommandBuffers[m_VulkanWindow.FrameIndex].push_back(commandBuffer);
+
         return commandBuffer;
     }
 
     void VulkanRenderer::FreeUBODescriptorSet(VkDescriptorSet desctriptorSet) {
         vkFreeDescriptorSets(m_LogicalDevice, m_UBODescriptorPool, 1, &desctriptorSet);
-    }
-
-    void VulkanRenderer::ResetAndBeginCommandBuffer(VkCommandBuffer commandBuffer)
-    {
-        vkResetCommandBuffer(commandBuffer, 0);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // Optional
-        beginInfo.pInheritanceInfo = nullptr; // Optional
-
-        VkResult beginResult = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-        ASSERT(beginResult == VK_SUCCESS);
     }
 
     void VulkanRenderer::PopulateQueueFamilyIndices(QueueFamilyIndices& QFI) {

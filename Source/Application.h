@@ -43,7 +43,6 @@ namespace FLOOF {
         GLFWwindow* m_Window;
         ImGuiContext* m_ImguiContext;
         VulkanRenderer* m_Renderer;
-        std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
 
         std::vector<std::unique_ptr<ApplicationLayer>> m_ApplicationLayers;
 

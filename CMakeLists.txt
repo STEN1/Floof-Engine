@@ -77,6 +77,14 @@ add_executable(Floof
     Source/Renderer/Skybox.cpp
     Source/Editor/EditorPanels/SoundSettingsPanel.h
     Source/Editor/EditorPanels/SoundSettingsPanel.cpp
+    Source/HeightField.cpp
+    Source/HeightField.h
+    Source/Renderer/IBL.h
+    Source/Renderer/Framebuffer.h
+    Source/Renderer/Framebuffer.cpp
+    Source/Renderer/IBL.cpp
+    Source/NativeScripts/WonderBaumScript.cpp
+    Source/NativeScripts/WonderBaumScript.h
     Source/HeightField.cpp Source/HeightField.h
     Source/Renderer/IBL.h
     Source/Renderer/Framebuffer.h
@@ -88,6 +96,9 @@ add_executable(Floof
     Source/Editor/EditorPanels/SoundSourcesPanel.h
     Source/SoundComponent.h
     Source/SoundComponent.cpp)
+    Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h
+    )
+
 
 
 find_package(Vulkan REQUIRED)
@@ -175,22 +186,15 @@ target_link_libraries(Floof IMGUI)
 
 target_include_directories(Floof PUBLIC "Libs/HeaderOnly")
 
+#asio
+target_include_directories(Floof PUBLIC "Libs/asio/asio/include")
+
+
+
 #if compiled with xcode, not supporting release yet
 if(CMAKE_GENERATOR STREQUAL Xcode)
     set(CMAKE_CURRENT_BINARY_DIR  "Debug/")
 endif()
-
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Color.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ForwardLit.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Wireframe.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/UnLit.frag.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.vert -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.vert.spv")
-exec_program("glslc ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.frag -o ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/PBR.frag.spv")
-
 
 execute_process(
         #OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}

@@ -5,11 +5,20 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 uv;
 
 layout(push_constant) uniform PushConstants {
-    mat4 vp;
     mat4 model;
     mat4 imodel;
 } pushConstants;
 
+layout (std140, set = 0, binding = 0) uniform SceneFrameUBO {
+    vec4 cameraPos;
+    vec4 sunDirection;
+    vec4 sunColor;
+    mat4 vp;
+    mat4 lightSpaceMatrix;
+    float sunStrenght;
+    int lightCount;
+} sceneFrameUBO;
+
 void main() {
-    gl_Position = pushConstants.vp * pushConstants.model * vec4(pos, 1.0);
+    gl_Position = sceneFrameUBO.vp * pushConstants.model * vec4(pos, 1.0);
 }

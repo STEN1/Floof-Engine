@@ -1,7 +1,5 @@
 glslc Shaders/Color.vert -o Shaders/Color.vert.spv
 glslc Shaders/Color.frag -o Shaders/Color.frag.spv
-glslc Shaders/ForwardLit.vert -o Shaders/ForwardLit.vert.spv
-glslc Shaders/ForwardLit.frag -o Shaders/ForwardLit.frag.spv
 glslc Shaders/Wireframe.vert -o Shaders/Wireframe.vert.spv
 glslc Shaders/Wireframe.frag -o Shaders/Wireframe.frag.spv
 glslc Shaders/Normals.vert -o Shaders/Normals.vert.spv
@@ -20,3 +18,7 @@ glslc Shaders/IrradianceConv.frag -o Shaders/IrradianceConv.frag.spv
 glslc Shaders/Prefilter.frag -o Shaders/Prefilter.frag.spv
 glslc Shaders/BRDF.vert -o Shaders/BRDF.vert.spv
 glslc Shaders/BRDF.frag -o Shaders/BRDF.frag.spv
+glslc Shaders/Landscape.vert -o Shaders/Landscape.vert.spv
+glslc Shaders/Landscape.frag -o Shaders/Landscape.frag.spv
+glslc Shaders/Shadow.vert -o Shaders/Shadow.vert.spv
+glslc Shaders/Shadow.frag -o Shaders/Shadow.frag.spv

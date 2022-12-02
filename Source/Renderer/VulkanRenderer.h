@@ -26,6 +26,17 @@ namespace FLOOF {
     };
 
     struct MeshPushConstants {
+        glm::mat4 Model;
+        glm::mat4 InvModelMat;
+    };
+
+    struct DepthPushConstants {
+        glm::mat4 Model;
+        glm::mat4 InvModelMat;
+        int cascadeIndex = 0;
+    };
+
+    struct SkyPushConstants {
         glm::mat4 VP;
         glm::mat4 Model;
         glm::mat4 InvModelMat;
@@ -70,6 +81,7 @@ namespace FLOOF {
         IrradianceConv,
         Prefilter,
         BRDF,
+        ShadowPass,
     };
 
     enum class RenderSetLayouts : uint32_t {
@@ -78,7 +90,9 @@ namespace FLOOF {
         LightSSBO,
         FontTexture,
         Material,
+        LandscapeMaterial,
         DiffuseTextureClamped,
+        DepthTexture,
     };
 
     inline RenderPipelineFlags operator | (RenderPipelineFlags lhs, RenderPipelineFlags rhs) {
@@ -102,6 +116,7 @@ namespace FLOOF {
         std::vector<VkDescriptorSetLayout> DescriptorSetLayoutBindings;
         VkRenderPass Renderpass;
         VkSampleCountFlagBits MsaaSampleCount = VK_SAMPLE_COUNT_1_BIT;
+        VkCullModeFlags CullMode = VK_CULL_MODE_BACK_BIT;
     };
 
     struct VulkanImageData {
@@ -143,6 +158,7 @@ namespace FLOOF {
         friend class ModelManager;
         friend class TextureManager;
         friend class SceneRenderer;
+        friend class RendererPanel;
     public:
         VulkanRenderer(GLFWwindow* window);
         ~VulkanRenderer();
@@ -166,7 +182,6 @@ namespace FLOOF {
         // Final present.
         void Present();
 
-        void BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer);
 
         VkPipelineLayout BindGraphicsPipeline(VkCommandBuffer cmdBuffer, RenderPipelineKeys Key);
 
@@ -204,8 +219,12 @@ namespace FLOOF {
         // Allocates a combined texture-sampler descriptor set.
         VkDescriptorSet AllocateMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
+        VkDescriptorSet AllocateLandscapeMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
+
         // Frees a combined texture-sampler descriptor set.
         void FreeMaterialDescriptorSet(VkDescriptorSet desctriptorSet);
+
+        void FreeLandscapeMaterialDescriptorSet(VkDescriptorSet desctriptorSet);
 
         // Allocates a shader storage descriptor set.
         VkDescriptorSet AllocateShaderStorageDescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
@@ -216,14 +235,14 @@ namespace FLOOF {
         // Allocates a shader storage descriptor set.
         VkDescriptorSet AllocateUBODescriptorSet(VkDescriptorSetLayout descriptorSetLayout);
 
-        // Allocates a command buffer that gets freed on when
-        // NewFrame() resets this frames command pool.
+        // Allocates a command buffer that gets freed when
+        // NewFrame() frees this frames command buffers.
         VkCommandBuffer AllocateCommandBuffer();
+
+        void BeginSingleUseCommandBuffer(VkCommandBuffer commandBuffer);
 
         // Frees a shader storage descriptor set.
         void FreeUBODescriptorSet(VkDescriptorSet desctriptorSet);
-
-        void ResetAndBeginCommandBuffer(VkCommandBuffer commandBuffer);
 
         // Get one time command buffer, usefull for transfers. GPU->GPU, CPU->GPU, GPU->CPU.
         VkCommandBuffer BeginSingleUseCommandBuffer();
@@ -243,6 +262,8 @@ namespace FLOOF {
         VkSampler GetTextureSampler() { return m_TextureSampler; }
 
         VkSampler GetTextureSamplerClamped() { return m_TextureSamplerClamped; }
+
+        VkSampler GetDepthSampler() { return m_ShadowSampler; }
 
         VkDescriptorSetLayout GetDescriptorSetLayout(RenderSetLayouts layout) { return m_DescriptorSetLayouts[layout]; }
 
@@ -264,6 +285,8 @@ namespace FLOOF {
         void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1, uint32_t layers = 1);
+
+        VkFormat FindDepthFormat();
 
     private:
         inline static VulkanRenderer* s_Singleton = nullptr;
@@ -303,6 +326,7 @@ namespace FLOOF {
         void CreateFontSampler();
         void CreateTextureSampler();
         void CreateTextureSamplerClamped();
+        void CreateShadowSampler();
 
         void DestroyTextureSampler();
         void DestroyTextureSamplerClamped();
@@ -327,7 +351,6 @@ namespace FLOOF {
         VkPresentModeKHR GetPresentMode(VkPresentModeKHR presentMode);
         VkExtent2D GetWindowExtent();
 
-        VkFormat FindDepthFormat();
         VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates,
             VkImageTiling tiling,
             VkFormatFeatureFlags features);
@@ -353,15 +376,18 @@ namespace FLOOF {
         std::unordered_map<RenderPipelineKeys, VkPipeline> m_GraphicsPipelines;
 
         VkCommandPool m_CommandPool;
+        std::vector<std::vector<VkCommandBuffer>> m_CommandBuffers;
 
         VkDescriptorPool m_TextureDescriptorPool;
         VkDescriptorPool m_MaterialDescriptorPool;
+        VkDescriptorPool m_LandscapeMaterialDescriptorPool;
         VkDescriptorPool m_ShaderStorageDescriptorPool;
         VkDescriptorPool m_UBODescriptorPool;
 
         VkSampler m_TextureSampler;
         VkSampler m_TextureSamplerClamped;
         VkSampler m_FontSampler;
+        VkSampler m_ShadowSampler;
 
         const std::vector<const char*> m_RequiredDeviceExtentions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,

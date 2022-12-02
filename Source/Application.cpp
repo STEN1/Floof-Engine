@@ -61,11 +61,6 @@ namespace FLOOF {
         m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        m_ImGuiCommandBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        for (auto& commandBuffer : m_ImGuiCommandBuffers) {
-            commandBuffer = m_Renderer->AllocateCommandBuffer();
-        }
-
         stbi_set_flip_vertically_on_load(false);
         // Upload icons for windows and taskbar
         GLFWimage images[3]{};
@@ -179,8 +174,8 @@ namespace FLOOF {
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = clearColor;
 
-        auto imGuiCommandBuffer = m_ImGuiCommandBuffers[vulkanWindow->FrameIndex];
-        m_Renderer->ResetAndBeginCommandBuffer(imGuiCommandBuffer);
+        auto imGuiCommandBuffer = m_Renderer->AllocateCommandBuffer();
+        m_Renderer->BeginSingleUseCommandBuffer(imGuiCommandBuffer);
 
         m_Renderer->StartRenderPass(imGuiCommandBuffer, &renderPassInfo);
         // Render ImGui

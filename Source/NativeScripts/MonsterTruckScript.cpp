@@ -4,10 +4,16 @@
 #include "../Renderer/ModelManager.h"
 #include "../Input.h"
 #include "../Application.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "../Utils.h"
+
+FLOOF::MonsterTruckScript::MonsterTruckScript(glm::vec3 Pos):SpawnLocation(Pos) {
+
+}
 
 void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
-
+    TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
     {
         frame = entity;
 
@@ -117,12 +123,13 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
         auto &transform = scene->GetComponent<TransformComponent>(frame);
         transform.Scale = glm::vec3(8.f);
+        transform.Position = SpawnLocation;
 
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        body.setCollisionDispatcher(TruckCallback.get());
         auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
-        sound.GetClip("Vehicles_idle2.wav")->Play();
         sound.AddClip("pinchcliffe.wav");
 
 
@@ -214,7 +221,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
 
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fr);
-        transform.Position = glm::vec3(5.5f, -0.5f, -2.5f);
+        transform.Position = glm::vec3(5.5f, -0.5f, -2.5f) + SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -246,7 +253,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
-        transform.Position = glm::vec3(5.5f, -0.5f, 2.5f);
+        transform.Position = glm::vec3(5.5f, -0.5f, 2.5f)+ SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -277,7 +284,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_br);
-        transform.Position = glm::vec3(-5.0f, -0.5f, -2.5f);
+        transform.Position = glm::vec3(-5.0f, -0.5f, -2.5f) + SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -308,7 +315,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
-        transform.Position = glm::vec3(-5.0f, -0.5f, 2.5f);
+        transform.Position = glm::vec3(-5.0f, -0.5f, 2.5f) + SpawnLocation;
         transform.Scale = glm::vec3(2.5f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
@@ -321,15 +328,14 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     }
     //make gears
     {
-        engine.Gears.emplace_back(5.f,20000);
-        engine.Gears.emplace_back(10.f,10000);
-        engine.Gears.emplace_back(20.f,8000);
-        engine.Gears.emplace_back(40.f,6000);
-        engine.Gears.emplace_back(60.f,5000);
-        engine.Gears.emplace_back(90.f,4000);
+        engine.Gears.emplace_back(5.f,3.f);
+        engine.Gears.emplace_back(15.f,2.f);
+        engine.Gears.emplace_back(25.f,1.5f);
+        engine.Gears.emplace_back(50.f,1.f);
+        engine.Gears.emplace_back(70.f,0.5f);
+        engine.Gears.emplace_back(90.f,0.25f);
 
         engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
     }
     //hinge car togheter
     {
@@ -414,18 +420,17 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     //camera locations
     {
         CamLocations.emplace_back("Third Person",glm::vec3(-2.5f,1.2f,0.f),glm::vec3(2.f,0.4f,0.f));
-        CamLocations.emplace_back("Close Third Person",glm::vec3(-2.5f,1.2f,0.f),glm::vec3(1.f,0.1f,0.f));
+        CamLocations.emplace_back("Close Third Person",glm::vec3(-1.5f,0.8f,0.f),glm::vec3(1.f,0.1f,0.f));
         CamLocations.emplace_back("First Person",glm::vec3(0.1f,0.4f,-0.15f),glm::vec3(2.4f,0.4f,0.f));
         CamLocations.emplace_back("Cinematic",glm::vec3(-2.f,1.f,-1.f),glm::vec3(2.f,0.4f,0.f));
         CamLocations.emplace_back("G T FUCKING A ",glm::vec3(0.2f,0.0f,-0.5f),glm::vec3(4.2f,0.5f,0.f));
     }
+
+
 }
 
 void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
-
-    CameraUi();
-    EngineUi();
 
     auto* scene = m_Scene;
     auto &car = scene->GetComponent<RigidBodyComponent>(frame);
@@ -434,82 +439,87 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     bool turnKeyPressed{false};
     bool GasKeyPressed{false};
 
-     if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
-         turnKeyPressed |= true;
-         engine.servoTarget -= engine.steeringIncrement;
-        if(engine.servoTarget <= -engine.steeringClamp){
-            engine.servoTarget = -engine.steeringClamp;
-        }
-    }
-    if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
-        turnKeyPressed |= true;
-        engine.servoTarget += engine.steeringIncrement;
-        if(engine.servoTarget >= engine.steeringClamp){
-            engine.servoTarget = engine.steeringClamp;
-        }
-    }
-    if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
-        GasKeyPressed |= true;
-        engine.targetVelocity = engine.maxVelocity;
-        engine.breakingForce = 0.f;
-    }
-    if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
-        GasKeyPressed |= true;
-        engine.targetVelocity = -engine.maxVelocity;
-        engine.breakingForce = 0.f;
-    }
-    if (Input::Key(ImGuiKey_Space) && windowIsActive) {
-        auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
-        bl.lightRange = 100.f;
-        //todo brake
-        engine.breakingForce = engine.maxBreakingForce;
-    } else {
-        //reset lights
-        auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
+    auto* controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
+    if(controller && controller->mPlayer == m_Scene->ActivePlayer){
 
-        bl.lightRange = 20.f;
-    }
-    if (ImGui::IsKeyPressed(ImGuiKey_F, false) && windowIsActive) {
-        auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
-        auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
+        CameraUi();
+        EngineUi();
 
-        if (fhr.lightRange > 50) {
-            fhr.lightRange = 10.f;
-            fhl.lightRange = 10.f;
+        if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
+            turnKeyPressed |= true;
+            engine.servoTarget -= engine.steeringIncrement;
+            if(engine.servoTarget <= -engine.steeringClamp){
+                engine.servoTarget = -engine.steeringClamp;
+            }
+        }
+        if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
+            turnKeyPressed |= true;
+            engine.servoTarget += engine.steeringIncrement;
+            if(engine.servoTarget >= engine.steeringClamp){
+                engine.servoTarget = engine.steeringClamp;
+            }
+        }
+        if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
+            GasKeyPressed |= true;
+            engine.targetVelocity = engine.maxVelocity;
+            engine.breakingForce = 0.f;
+        }
+        if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
+            GasKeyPressed |= true;
+            engine.targetVelocity = -engine.maxVelocity;
+            engine.breakingForce = 0.f;
+        }
+        if (Input::Key(ImGuiKey_Space) && windowIsActive) {
+            auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
+            bl.lightRange = 100.f;
+            //todo brake
+            engine.breakingForce = engine.maxBreakingForce;
         } else {
-            fhr.lightRange = 100.f;
-            fhl.lightRange = 100.f;
+            //reset lights
+            auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
+
+            bl.lightRange = 20.f;
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_F, false) && windowIsActive) {
+            auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
+            auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
+
+            if (fhr.lightRange > 50) {
+                fhr.lightRange = 10.f;
+                fhl.lightRange = 10.f;
+            } else {
+                fhr.lightRange = 100.f;
+                fhl.lightRange = 100.f;
+            }
+        }
+        if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
+            engine.CurrentGear++;
+            if(engine.Gears.size() <= engine.CurrentGear){
+                engine.CurrentGear = engine.Gears.size()-1;
+            }
+            engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+            //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+        }
+        if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
+            engine.CurrentGear--;
+            if(0 >= engine.CurrentGear){
+                engine.CurrentGear = 0;
+            }
+            engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
+            //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
         }
     }
-    if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
-        engine.CurrentGear++;
-        if(engine.Gears.size() <= engine.CurrentGear){
-            engine.CurrentGear = engine.Gears.size()-1;
-        }
-        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
-    }
-    if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
-        engine.CurrentGear--;
-        if(0 >= engine.CurrentGear){
-            engine.CurrentGear = 0;
-        }
-        engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
-        engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
-    }
+
 
     for (auto &axle: axles) {
+
+        axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
+
         if(engine.breakingForce <= 0){
-            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
             axle->setTargetVelocity(3, engine.targetVelocity);
         }
-        else if (engine.targetVelocity > 0){
-            axle->setMaxMotorForce(3, engine.breakingForce);
-            axle->setTargetVelocity(3, -axle->getRigidBodyB().getLinearVelocity().length());
-        }
         else {
-            axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
-            axle->setTargetVelocity(3, 0); 
+            axle->setTargetVelocity(3, 0);
         }
 
     }
@@ -589,10 +599,17 @@ void FLOOF::MonsterTruckScript::EngineUi() {
     ImGui::Begin("engine Panel");
     ImGui::Text("Press 'F' to Toggle Headlights");
     ImGui::Text("Press 'Space' to Break");
+    ImGui::Text("Press 'E' 'Q' to change Gear");
+    auto* controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
+    if(controller){
+        std::string txt = "Player : ";
+        txt +=std::to_string(controller->mPlayer);
+        ImGui::Text(txt.c_str());
+    }
 
         if (ImGui::CollapsingHeader("engine Graph")) {
-            ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 50.f, ImVec2(200, 100.0f));
-            ImGui::PlotLines("Torque", engine.TorqueGraph.data(), engine.TorqueGraph.size(), engine.GraphOffset, "kn", 1000.0f, 20000.f, ImVec2(200, 100.0f));
+            ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 90.f, ImVec2(200, 100.0f));
+            ImGui::PlotLines("Torque", engine.TorqueGraph.data(), engine.TorqueGraph.size(), engine.GraphOffset, "N", 1000.0f, 20000.f, ImVec2(200, 100.0f));
         }
         bool transformChanged{false};
         if (ImGui::CollapsingHeader("engine Controls")) {
@@ -617,7 +634,7 @@ void FLOOF::MonsterTruckScript::EngineUi() {
 
             int i = 1;
             for(auto& [speed, torque] : engine.Gears){
-                std::string stats = "Gear " + std::to_string(i)  + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "kn";
+                std::string stats = "Gear " + std::to_string(i)  + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "Gear Ratio";
                 ImGui::Text(stats.c_str());
                 i++;
             }
@@ -655,4 +672,20 @@ void FLOOF::MonsterTruckScript::LastUpdate(float deltaTime) {
     auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
     cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
 
+}
+
+
+
+void FLOOF::MonsterTruckScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
+    std::cout << "On Begin Overlap" << std::endl;
+
+}
+
+void FLOOF::MonsterTruckScript::TruckCollisionCallback::onOverlap(void *obj1, void *obj2) {
+    CollisionDispatcher::onOverlap(obj1, obj2);
+}
+
+void FLOOF::MonsterTruckScript::TruckCollisionCallback::onEndOverlap(void *obj) {
+    CollisionDispatcher::onEndOverlap(obj);
+    std::cout << "On End Overlap" << std::endl;
 }

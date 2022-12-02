@@ -10,6 +10,8 @@
 #include <filesystem>
 
 #include "SoundManager.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "Application.h"
 
 //pulls in python api
 // The python headers must be included last!
@@ -77,8 +79,7 @@ namespace FLOOF {
     }
 
     CameraComponent::CameraComponent()
-        : CameraComponent(glm::vec3(0.f))
-    {
+            : CameraComponent(glm::vec3(0.f)) {
     }
 
     CameraComponent::CameraComponent(glm::vec3 position) : Position{position} {
@@ -249,11 +250,12 @@ namespace FLOOF {
         RigidBody->setRollingFriction(0.3f);
         RigidBody->setSpinningFriction(0.3f);
 
-        RigidBody->setUserPointer(this);
+        RigidBody->setUserPointer(nullptr);
+        RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         GhostObject = std::make_shared<btGhostObject>();
         GhostObject->setCollisionShape(CollisionShape.get());
         GhostObject->setCollisionFlags(GhostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-        GhostObject->setUserPointer(this);
+        GhostObject->setUserPointer(nullptr);
     }
 
     RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,
@@ -299,7 +301,8 @@ namespace FLOOF {
 
     }
 
-    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,const std::string convexShape)
+    RigidBodyComponent::RigidBodyComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation, const float mass,
+                                           const std::string convexShape)
             : DefaultScale(scale), Primitive(bt::ConvexHull) {
 
         auto vertices = ModelManager::LoadbtModel(convexShape, scale);
@@ -341,6 +344,12 @@ namespace FLOOF {
         RigidBody->activate(true);
     }
 
+    void RigidBodyComponent::setCollisionDispatcher(void *ptr) {
+        RigidBody->setUserPointer(ptr);
+        CollisionShape->setUserPointer(ptr);
+
+    }
+
     SoftBodyComponent::SoftBodyComponent(const float stiffness, const float conservation, const float mass,
                                          btSoftBody *body) {
 
@@ -349,7 +358,7 @@ namespace FLOOF {
         SoftBody->generateBendingConstraints(16);
 
         SoftBody->m_cfg.kVC = conservation; //Konservation coefficient
-        SoftBody->m_cfg.kPR = 0.1;
+        //SoftBody->m_cfg.kPR = 0.1;
         SoftBody->m_materials[0]->m_kLST = stiffness; // linear stiffness
 
         //soft rigid collision and soft soft collision
@@ -361,7 +370,7 @@ namespace FLOOF {
         SoftBody->m_cfg.kSK_SPLT_CL = 1;
         SoftBody->m_cfg.collisions = btSoftBody::fCollision::CL_SS + btSoftBody::fCollision::CL_RS;
         SoftBody->randomizeConstraints();
-        SoftBody->generateClusters(2);
+        SoftBody->generateClusters(16);
         SoftBody->setPose(true, true);
 
         SoftBody->setTotalMass(mass, false);
@@ -562,7 +571,6 @@ namespace FLOOF {
 
         Pname = PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
-
     }
 
     LandscapeComponent::LandscapeComponent(const char *map, const char *texture) {
@@ -587,9 +595,25 @@ namespace FLOOF {
         landscape->mIndices = triangleCol.indicesOut;
 
         //vulkan data
-        meshData = landscape->getMeshData();
-        meshData.MeshMaterial.Diffuse = Texture(texture, true);
-        meshData.MeshMaterial.UpdateDescriptorSet();
+        meshData.setMesh(landscape->getMeshData());
+        std::string path = "Assets/Terrain";
+        
+        meshData.MeshMaterial1.Diffuse = Texture(path + "/SnowRocky/diffuse.png", true);
+        meshData.MeshMaterial1.Roughness = Texture(path + "/SnowRocky/roughness.png", true);
+        meshData.MeshMaterial1.Normals = Texture(path + "/SnowRocky/normal.png", true);
+        meshData.MeshMaterial1.UpdateDescriptorSet();
+        
+        meshData.MeshMaterial2.Diffuse = Texture(path + "/Stone/diffuse.png", true);
+        meshData.MeshMaterial2.Roughness = Texture(path + "/Stone/roughness.png", true);
+        meshData.MeshMaterial2.Normals = Texture(path + "/Stone/normal.png", true);
+        meshData.MeshMaterial2.UpdateDescriptorSet();
+        
+        meshData.MeshMaterial3.Diffuse = Texture(path + "/GrassTex/diffuse.png", true);
+        meshData.MeshMaterial3.Roughness = Texture(path + "/GrassTex/roughness.png", true);
+        meshData.MeshMaterial3.Normals = Texture(path + "/GrassTex/normal.png", true);
+        meshData.MeshMaterial3.UpdateDescriptorSet();
+
+        //meshData.BlendTex = Texture(true);
     }
 
     LandscapeComponent::~LandscapeComponent() {
@@ -601,4 +625,72 @@ namespace FLOOF {
         delete landscape;
     }
 
+    TriggerVolumeComponent::TriggerVolumeComponent(glm::vec3 location, glm::vec3 scale, glm::vec3 rotation,
+                                                   const float mass, bt::CollisionPrimitive shape) {
+        using namespace bt;
+        switch (shape) {
+            case CollisionPrimitive::Box:
+                CollisionShape = std::make_shared<btBoxShape>(btVector3(scale.x, scale.y, scale.z));
+                break;
+
+            case CollisionPrimitive::Sphere:
+                CollisionShape = std::make_shared<btSphereShape>(scale.x);
+                break;
+
+            case CollisionPrimitive::Capsule:
+                CollisionShape = std::make_shared<btCapsuleShape>(scale.x, scale.y);
+                break;
+
+            case CollisionPrimitive::Cylinder:
+                CollisionShape = std::make_shared<btCylinderShape>(btVector3(scale.x, scale.y, scale.z));
+                break;
+
+            case CollisionPrimitive::Cone:
+                CollisionShape = std::make_shared<btConeShape>(scale.x, scale.y * 2.f);
+                break;
+
+        }
+        Transform.setIdentity();
+        auto rot = Utils::glmTobt(glm::vec3(rotation));
+        btQuaternion btquat;
+        btquat.setEulerZYX(rot.z(), rot.y(), rot.x());
+        Transform.setRotation(btquat);
+        Transform.setOrigin(btVector3(location.x, location.y, location.z));
+        DefaultMotionState = std::make_shared<btDefaultMotionState>(Transform);
+
+        btVector3 localInertia(0, 0, 0);
+        if (mass != 0.f)
+            CollisionShape->calculateLocalInertia(mass, localInertia);
+
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, DefaultMotionState.get(), CollisionShape.get(), localInertia);
+        RigidBody = std::make_shared<btRigidBody>(rbInfo);
+        RigidBody->setFriction(0.5f);
+        RigidBody->setRollingFriction(0.3f);
+        RigidBody->setSpinningFriction(0.3f);
+
+        RigidBody->setUserPointer(nullptr);
+        RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+    }
+
+    void TriggerVolumeComponent::transform(const glm::vec3 location, const glm::vec3 rotation, const glm::vec3 scale) {
+        btTransform trans;
+        if (RigidBody && RigidBody->getMotionState()) {
+            RigidBody->getMotionState()->getWorldTransform(trans);
+        } else {
+            trans = RigidBody->getWorldTransform();
+        }
+        trans.setOrigin(Utils::glmTobt(location));
+        btQuaternion btquat;
+        auto rot = Utils::glmTobt(rotation);
+        btquat.setEulerZYX(rot.z(), rot.y(), rot.x());
+        trans.setRotation(btquat);
+        trans.setOrigin(Utils::glmTobt(location));
+        RigidBody->setCenterOfMassTransform(trans);
+    }
+
+    void TriggerVolumeComponent::setCollisionDispatcher(void *ptr) {
+        RigidBody->setUserPointer(ptr);
+        CollisionShape->setUserPointer(ptr);
+    }
 }

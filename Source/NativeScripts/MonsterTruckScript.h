@@ -4,6 +4,7 @@
 
 #include "NativeScript.h"
 #include "../Components.h"
+#include "../CollisionDispatcher.h"
 
 namespace FLOOF {
 
@@ -14,8 +15,8 @@ namespace FLOOF {
 
         float breakingForce = 0.f;
 
-        float maxEngineForce = 8000.f;  //this should be engine/velocity dependent
-        float maxBreakingForce = 20000.f;
+        float maxEngineForce = 5000.f;  //this should be engine/velocity dependent
+        float maxBreakingForce = 9000.f;
         float maxVelocity = 20.f;
 
         float servoTarget = 0.f;
@@ -34,9 +35,9 @@ namespace FLOOF {
 
         bool DifLock{false};
 
-        float getEngineForce(float velocity) {
-            float multiplier = 1-(velocity/100.f);
-            return maxEngineForce*multiplier*multiplier;
+        float getEngineForce(float velocity) const {
+            float multiplier = (1+(velocity/100.f));
+            return maxEngineForce*multiplier*multiplier*Gears[CurrentGear].second;
         }
         std::vector<float> velocityGraph;
         std::vector<float> TorqueGraph;
@@ -49,6 +50,7 @@ namespace FLOOF {
 
     class MonsterTruckScript : public NativeScript {
     public:
+        MonsterTruckScript(glm::vec3 Pos);
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
         virtual void OnUpdate(float deltaTime) override;
         virtual void LastUpdate(float deltaTime) override;
@@ -57,6 +59,7 @@ namespace FLOOF {
         void EngineUi();
     private:
 
+        const glm::vec3 SpawnLocation;
         Engine engine;
 
         entt::entity frame;
@@ -87,6 +90,17 @@ namespace FLOOF {
             std::string name;
         };
         std::vector<CamLocation> CamLocations;
+
+
+        class TruckCollisionCallback : public CollisionDispatcher {
+        public:
+            TruckCollisionCallback(Scene* scene, entt::entity& entity): CollisionDispatcher(scene,entity){};
+            virtual void onBeginOverlap(void* obj1, void* obj2) override;
+            virtual void onOverlap(void* obj1, void* obj2) override;
+            virtual void onEndOverlap(void* obj) override;
+        };
+        std::shared_ptr<TruckCollisionCallback> TruckCallback;
+
     };
 
 }
