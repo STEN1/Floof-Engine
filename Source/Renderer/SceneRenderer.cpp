@@ -363,7 +363,7 @@ namespace FLOOF {
             glm::vec3 lightDir = glm::normalize(-m_SceneFrameData.SunPosition);
             glm::vec3 eye = frustumCenter - (lightDir * -minExtents.z);
             glm::mat4 lightViewMatrix = glm::lookAt(eye, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
-            glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, maxExtents.z - minExtents.z);
+            glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -m_ShadowZExtentOffset, maxExtents.z - minExtents.z);
 
             // Store split distance and matrix in cascade
             m_SceneFrameData.SplitDists[i] = (camera->Near + splitDist * clipRange) * -1.f;
@@ -1075,7 +1075,6 @@ namespace FLOOF {
             radius = std::ceil(radius * 16.0f) / 16.0f;
 
             glm::vec3 maxExtents = glm::vec3(radius);
-            maxExtents.z += m_ShadowZExtentOffset;
             glm::vec3 minExtents = -maxExtents;
 
             glm::vec3 lightDir = glm::normalize(-m_SceneFrameData.SunPosition);
