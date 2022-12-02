@@ -120,12 +120,14 @@ namespace FLOOF {
         glm::vec3 right = glm::normalize(glm::cross(Forward, Up));
         glm::mat4 rotation = glm::rotate(amount, right);
         Forward = glm::normalize(glm::vec3(rotation * glm::vec4(Forward, 1.f)));
+        Right = glm::normalize(glm::cross(Forward, Up));
     }
 
     void CameraComponent::Yaw(float amount) {
         if (amount == 0.f) return;
         glm::mat4 rotation = glm::rotate(-amount, Up);
         Forward = glm::normalize(glm::vec3(rotation * glm::vec4(Forward, 1.f)));
+        Right = glm::normalize(glm::cross(Forward, Up));
     }
 
     void CameraComponent::MoveUp(float amount) {
@@ -136,7 +138,8 @@ namespace FLOOF {
 
     void CameraComponent::Lookat(const glm::vec3 eye, const glm::vec3 center) {
         Position = eye;
-        Forward = center - eye;
+        Forward = glm::normalize(center - eye);
+        Right = glm::normalize(glm::cross(Forward, Up));
     }
 
     PointCloudComponent::PointCloudComponent(const std::vector<ColorVertex> &vertexData) {
