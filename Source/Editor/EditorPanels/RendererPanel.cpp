@@ -19,6 +19,7 @@ namespace FLOOF {
 
 		int frameIndex = VulkanRenderer::Get()->GetVulkanWindow()->FrameIndex;
 
+		// Rendering pipeline options
 		ImGui::Begin("Renderer");
 
 		if (ImGui::Combo("Editor draw mode",
@@ -37,29 +38,53 @@ namespace FLOOF {
 			m_EditorLayer->SetPlayDrawMode(static_cast<RenderPipelineKeys>(playDrawMode));
 		}
 
+		// Sun color option
+		ImGui::Separator();
+		glm::vec4 sunColor = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.SunColor;
+		if (ImGui::ColorEdit3("Sun color", &sunColor[0])) {
+			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.SunColor = sunColor;
+			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.SunColor = sunColor;
+		}
+
+		// Sun intensity
+		float sunIntensity = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.sunStrenght;
+		if (ImGui::DragFloat("Sun intensity", &sunIntensity, 0.2f, 0.f, 1000.f)) {
+			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.sunStrenght = sunIntensity;
+			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.sunStrenght = sunIntensity;
+		}
+
+		// Ambient intensity
+		float ambientIntensity = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.AmbientIntensity;
+		if (ImGui::DragFloat("Ambient intensity", &ambientIntensity, 0.05f, 0.f, 100.f)) {
+			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.AmbientIntensity = ambientIntensity;
+			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.AmbientIntensity = ambientIntensity;
+		}
+
+
+		// Shadow options
+		ImGui::Separator();
 		static bool drawCameraLines = false;
 		ImGui::Checkbox("Draw camera debug lines", &drawCameraLines);
 		if (drawCameraLines) {
 			float farClip = m_EditorLayer->GetPlayRenderer()->m_ShadowFarClip;
 			m_EditorLayer->GetEditorRenderer()->DrawDebugCameraLines(m_EditorLayer->GetScene()->GetFirstSceneCamera(), farClip);
 		}
-		static float shadowFarClip = m_EditorLayer->GetEditorRenderer()->m_ShadowFarClip;
+		float shadowFarClip = m_EditorLayer->GetEditorRenderer()->m_ShadowFarClip;
 		if (ImGui::DragFloat("Shadow far clip", &shadowFarClip, 1.f, 2500.f, 15000.f)) {
 			m_EditorLayer->GetEditorRenderer()->m_ShadowFarClip = shadowFarClip;
 			m_EditorLayer->GetPlayRenderer()->m_ShadowFarClip = shadowFarClip;
 		}
 
+		// Shadowmap visualization. only showing first cascade.
 		ImVec2 imageSize(200.f, 200.f);
 
 		ImGui::Separator();
 		ImGui::Text("Editor Shadowmap");
-		ImGui::NewLine();
 		ImGui::Image(m_EditorLayer->GetEditorRenderer()->m_ShadowDepthBuffers[frameIndex]->GetTexture().DesctriptorSet, imageSize);
 
 		if (m_EditorLayer->IsPlaying()) {
 			ImGui::Separator();
 			ImGui::Text("Play Shadowmap");
-			ImGui::NewLine();
 			ImGui::Image(m_EditorLayer->GetPlayRenderer()->m_ShadowDepthBuffers[frameIndex]->GetTexture().DesctriptorSet, imageSize);
 		}
 

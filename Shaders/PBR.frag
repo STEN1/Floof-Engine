@@ -35,6 +35,7 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     float sunStrenght;
     int lightCount;
     int cascadeCount;
+    float ambientIntensity;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -137,7 +138,7 @@ void main() {
     vec2 brdf = texture(brdfLut, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambient = (kD * diffuse + specular) * ao;
+    vec3 ambient = (kD * diffuse + specular) * ao * sceneFrameUBO.ambientIntensity;
     
     vec3 color = ambient + Lo;
 

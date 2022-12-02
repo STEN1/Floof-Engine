@@ -407,26 +407,43 @@ namespace FLOOF {
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                 &sceneDescriptor, 0, nullptr);
-
-            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
-            for (auto [entity, transform, staticMesh] : view.each()) {
-                DepthPushConstants constants;
-                glm::mat4 modelMat = transform.GetTransform();
-                constants.Model = modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
-                constants.cascadeIndex = i;
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(DepthPushConstants), &constants);
-                for (auto& mesh : staticMesh.meshes) {
-                    VkDeviceSize offset{ 0 };
-                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
-                    if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
-                        vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-                        vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
-                            1, 0, 0, 0);
-                    } else {
-                        vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+            {
+                auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
+                for (auto [entity, transform, staticMesh] : view.each()) {
+                    DepthPushConstants constants;
+                    glm::mat4 modelMat = transform.GetTransform();
+                    constants.Model = modelMat;
+                    constants.InvModelMat = glm::inverse(modelMat);
+                    constants.cascadeIndex = i;
+                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                        0, sizeof(DepthPushConstants), &constants);
+                    for (auto& mesh : staticMesh.meshes) {
+                        VkDeviceSize offset{ 0 };
+                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
+                        if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                            vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                            vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
+                                1, 0, 0, 0);
+                        } else {
+                            vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                        }
                     }
+                }
+            }
+            {
+                auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
+                for (auto [entity, transform, landscape] : view.each()) {
+                    MeshPushConstants constants;
+                    glm::mat4 modelMat = transform.GetTransform();
+                    constants.Model = modelMat;
+                    constants.InvModelMat = glm::inverse(modelMat);
+                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                        0, sizeof(MeshPushConstants), &constants);
+
+                    VkDeviceSize offset{ 0 };
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
+                    vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                    vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
                 }
             }
             vkCmdEndRenderPass(commandBuffer);

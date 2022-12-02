@@ -19,6 +19,7 @@ namespace FLOOF {
         float sunStrenght = 15.f;
         int LightCount = 0;
         int CascadeCount = FLOOF_CASCADE_COUNT;
+        float AmbientIntensity = 1.f;
     };
     
     struct SceneRenderFinishedData {
