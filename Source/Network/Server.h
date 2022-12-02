@@ -6,12 +6,15 @@
 #include "asio.hpp"
 #include "asio/ts/buffer.hpp"
 #include "asio/ts/internet.hpp"
+#include "Queue.h"
+#include "Connection.h"
 
 namespace FLOOF::Network{
+    template<typename  T>
     class Server {
     public:
-        Server();
-        ~Server();
+        Server(){};
+        ~Server(){};
 
         void listen();
 

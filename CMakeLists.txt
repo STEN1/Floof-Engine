@@ -87,7 +87,7 @@ add_executable(Floof
     Source/Editor/EditorPanels/SoundClipPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.cpp
     Source/Editor/EditorPanels/SoundSourcesPanel.h
-        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Network/Server.cpp Source/Network/Server.h Source/Network/Message.h Source/Network/Client.h Source/Network/Queue.h Source/Network/Connection.h Source/Network/CarGameClient.h Source/Editor/EditorPanels/NetworkPanel.cpp Source/Editor/EditorPanels/NetworkPanel.h)
+        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Network/Server.h Source/Network/Message.h Source/Network/Client.h Source/Network/Queue.h Source/Network/Connection.h Source/Network/CarGameClient.h Source/Editor/EditorPanels/NetworkPanel.cpp Source/Editor/EditorPanels/NetworkPanel.h)
 
 
 

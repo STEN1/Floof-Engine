@@ -9,7 +9,8 @@ namespace FLOOF{
         drive,
         brake,
         respawn,
-        lights
+        lights,
+        input
     };
    class CarClient : public Network::Client<CarMsgHeaders>{
    public:
@@ -20,6 +21,13 @@ namespace FLOOF{
            msg << brake;
 
            //send(msg);
+       };
+       bool Input(int key){
+           Network::message<CarMsgHeaders> msg;
+           msg.header.id = CarMsgHeaders::input;
+
+           msg << key;
+
        };
    };
 
