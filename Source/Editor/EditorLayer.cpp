@@ -14,6 +14,7 @@
 #include "../NativeScripts/MonsterTruckScript.h"
 #include "../NativeScripts/WonderBaumScript.h"
 #include "imgui_internal.h"
+#include "EditorPanels/NetworkPanel.h"
 
 namespace FLOOF {
     EditorLayer::EditorLayer()
@@ -29,6 +30,7 @@ namespace FLOOF {
         m_EditorPanels.try_emplace("SoundSettingsPanel", std::make_unique<SoundSettingsPanel>(this));
         m_EditorPanels.try_emplace("SoundSourcesPanel", std::make_unique<SoundSourcesPanel>(this));
         m_EditorPanels.try_emplace("SoundClipPanel", std::make_unique<SoundClipPanel>(this));
+        m_EditorPanels.try_emplace("NetworkPanel", std::make_unique<NetworkPanel>(this));
 
         SelectDebugScene(DebugScenes::PhysicsPlayground);
     }
