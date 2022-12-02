@@ -36,6 +36,7 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     int lightCount;
     int cascadeCount;
     float ambientIntensity;
+    float bias;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -216,8 +217,9 @@ vec3 getNormal()
 float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex)
 {
 	float shadow = 1.0;
-	float bias = 0.0005;
-
+    float baseBias = sceneFrameUBO.bias * (float(cascadeIndex) + 1.0);
+	float bias = max((baseBias * 10.0) * (1.0 - dot(normalize(fragNormal), normalize(sceneFrameUBO.sunPosition.xyz))), baseBias);
+    //float bias = sceneFrameUBO.bias;
 	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
 		float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
 		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {

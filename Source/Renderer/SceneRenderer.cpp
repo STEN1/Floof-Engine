@@ -37,11 +37,17 @@ namespace FLOOF {
         auto commandBuffer = renderer->AllocateCommandBuffer();
         renderer->BeginSingleUseCommandBuffer(commandBuffer);
 
-        ShadowPass(commandBuffer, scene, camera);
-
         VkExtent2D vkExtent;
         vkExtent.width = m_Extent.x;
         vkExtent.height = m_Extent.y;
+
+        // Camera setup
+        glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 1.0f, 1000000.f);
+        glm::mat4 cameraView = camera->GetView();
+        m_SceneFrameData.View = cameraView;
+        glm::mat4 vp = cameraProjection * cameraView;
+
+        ShadowPass(commandBuffer, scene, camera);
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -63,11 +69,6 @@ namespace FLOOF {
 
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
 
-        // Camera setup
-        glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), vkExtent.width / (float)vkExtent.height, 1.0f, 1000000.f);
-        glm::mat4 cameraView = camera->GetView();
-        m_SceneFrameData.View = cameraView;
-        glm::mat4 vp = cameraProjection * cameraView;
 
         {
             std::vector<PointLightComponent::PointLight> pointLights;
@@ -87,8 +88,6 @@ namespace FLOOF {
             m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
             m_SceneFrameData.LightCount = pointLights.size();
             m_SceneFrameData.VP = vp;
-            // Light space matrix is set in ShadowPass();
-            //m_SceneFrameData.LightSpaceMatrix = ??
             m_SceneDataUBO.Update(m_SceneFrameData);
         }
 
@@ -176,33 +175,6 @@ namespace FLOOF {
             }
         }
 
-        // Draw debug lines
-        {
-            if (physicDrawer) {
-                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
-                auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
-                SkyPushConstants constants;
-                constants.VP = vp;
-                constants.Model = glm::mat4(1.f);
-                constants.InvModelMat = glm::mat4(1.f);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
-                    &constants);
-                lineMesh->Draw(commandBuffer);
-            }
-            {
-                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
-                auto* lineMesh = m_DeugLineMesh.get();
-                lineMesh->UpdateBuffer(m_DebugVertexData);
-                m_DebugVertexData.clear();
-                SkyPushConstants constants;
-                constants.VP = vp;
-                constants.Model = glm::mat4(1.f);
-                constants.InvModelMat = glm::mat4(1.f);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
-                    &constants);
-                lineMesh->Draw(commandBuffer);
-            }
-        }
         // Draw landscape
         {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
@@ -260,6 +232,34 @@ namespace FLOOF {
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
                 vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
+            }
+        }
+
+        // Draw debug lines
+        {
+            if (physicDrawer) {
+                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
+                auto* lineMesh = physicDrawer->GetUpdatedLineMesh();
+                SkyPushConstants constants;
+                constants.VP = vp;
+                constants.Model = glm::mat4(1.f);
+                constants.InvModelMat = glm::mat4(1.f);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
+                    &constants);
+                lineMesh->Draw(commandBuffer);
+            }
+            {
+                auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
+                auto* lineMesh = m_DeugLineMesh.get();
+                lineMesh->UpdateBuffer(m_DebugVertexData);
+                m_DebugVertexData.clear();
+                SkyPushConstants constants;
+                constants.VP = vp;
+                constants.Model = glm::mat4(1.f);
+                constants.InvModelMat = glm::mat4(1.f);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SkyPushConstants),
+                    &constants);
+                lineMesh->Draw(commandBuffer);
             }
         }
 
@@ -433,13 +433,13 @@ namespace FLOOF {
             {
                 auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
                 for (auto [entity, transform, landscape] : view.each()) {
-                    MeshPushConstants constants;
+                    DepthPushConstants constants;
                     glm::mat4 modelMat = transform.GetTransform();
                     constants.Model = modelMat;
                     constants.InvModelMat = glm::inverse(modelMat);
+                    constants.cascadeIndex = i;
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                        0, sizeof(MeshPushConstants), &constants);
-
+                        0, sizeof(DepthPushConstants), &constants);
                     VkDeviceSize offset{ 0 };
                     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
                     vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
@@ -453,6 +453,8 @@ namespace FLOOF {
     void SceneRenderer::CreateTextureRenderer() {
         auto *renderer = VulkanRenderer::Get();
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_DepthBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_DepthBufferImageViews.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_SignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_waitSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_ShadowDepthBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
@@ -477,7 +479,7 @@ namespace FLOOF {
             params.Renderpass = m_ShadowDepthBuffers[0]->GetRenderPass();
             params.DescriptorSetLayoutBindings.resize(1);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
-            //params.CullMode = VK_CULL_MODE_FRONT_BIT;
+            params.CullMode = VK_CULL_MODE_NONE;
             renderer->CreateGraphicsPipeline(params);
         }
         {    // PBR shader
@@ -796,16 +798,18 @@ namespace FLOOF {
         depthImageViewInfo.subresourceRange.baseArrayLayer = 0;
         depthImageViewInfo.subresourceRange.layerCount = 1;
 
-        vmaCreateImage(renderer->m_Allocator, &depthImageInfo, &depthImageAllocCreateInfo,
-                       &m_DepthBuffer.Image,
-                       &m_DepthBuffer.Allocation,
-                       &m_DepthBuffer.AllocationInfo);
+        for (uint32_t i = 0; i < m_DepthBuffers.size(); i++) {
+            vmaCreateImage(renderer->m_Allocator, &depthImageInfo, &depthImageAllocCreateInfo,
+                &m_DepthBuffers[i].Image,
+                &m_DepthBuffers[i].Allocation,
+                &m_DepthBuffers[i].AllocationInfo);
 
-        depthImageViewInfo.image = m_DepthBuffer.Image;
+            depthImageViewInfo.image = m_DepthBuffers[i].Image;
 
-        auto result = vkCreateImageView(renderer->m_LogicalDevice, &depthImageViewInfo, nullptr,
-                                        &m_DepthBufferImageView);
-        ASSERT(result == VK_SUCCESS);
+            auto result = vkCreateImageView(renderer->m_LogicalDevice, &depthImageViewInfo, nullptr,
+                &m_DepthBufferImageViews[i]);
+            ASSERT(result == VK_SUCCESS);
+        }
     }
 
     void SceneRenderer::CreateResolveBuffer()
@@ -861,10 +865,10 @@ namespace FLOOF {
 
         CreateFrameBufferTextures();
 
-        for (auto &textureFrameBuffer: m_TextureFrameBuffers) {
+        for (uint32_t i = 0; i < m_TextureFrameBuffers.size(); i++) {
             VkImageView attachments[] = {
-                    textureFrameBuffer.VKTexture.ImageView,
-                    m_DepthBufferImageView,
+                    m_TextureFrameBuffers[i].VKTexture.ImageView,
+                    m_DepthBufferImageViews[i],
                     m_ResolveImageView,
             };
 
@@ -878,7 +882,7 @@ namespace FLOOF {
             framebufferInfo.layers = 1;
 
             VkResult result = vkCreateFramebuffer(renderer->m_LogicalDevice, &framebufferInfo, nullptr,
-                                                  &textureFrameBuffer.FrameBuffer);
+                                                  &m_TextureFrameBuffers[i].FrameBuffer);
             ASSERT(result == VK_SUCCESS);
         }
         LOG("Forward renderer: Framebuffers created.\n");
@@ -1071,6 +1075,7 @@ namespace FLOOF {
             radius = std::ceil(radius * 16.0f) / 16.0f;
 
             glm::vec3 maxExtents = glm::vec3(radius);
+            maxExtents.z += m_ShadowZExtentOffset;
             glm::vec3 minExtents = -maxExtents;
 
             glm::vec3 lightDir = glm::normalize(-m_SceneFrameData.SunPosition);
@@ -1110,10 +1115,14 @@ namespace FLOOF {
     void SceneRenderer::DestoryDepthBuffer() {
         auto *renderer = VulkanRenderer::Get();
 
-        vkDestroyImageView(renderer->m_LogicalDevice, m_DepthBufferImageView, nullptr);
-        m_DepthBufferImageView = VK_NULL_HANDLE;
-        vmaDestroyImage(renderer->m_Allocator, m_DepthBuffer.Image, m_DepthBuffer.Allocation);
-        m_DepthBuffer.Image = VK_NULL_HANDLE;
+        for (auto& imageView : m_DepthBufferImageViews) {
+            vkDestroyImageView(renderer->m_LogicalDevice, imageView, nullptr);
+            imageView = VK_NULL_HANDLE;
+        }
+        for (auto& depthBuffer : m_DepthBuffers) {
+            vmaDestroyImage(renderer->m_Allocator, depthBuffer.Image, depthBuffer.Allocation);
+            depthBuffer.Image = VK_NULL_HANDLE;
+        }
     }
     void SceneRenderer::DestroyResolveBuffer()
     {

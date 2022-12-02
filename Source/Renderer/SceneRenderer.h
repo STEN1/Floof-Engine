@@ -20,6 +20,7 @@ namespace FLOOF {
         int LightCount = 0;
         int CascadeCount = FLOOF_CASCADE_COUNT;
         float AmbientIntensity = 1.f;
+        float Bias = 0.0000005f;
     };
     
     struct SceneRenderFinishedData {
@@ -65,7 +66,8 @@ namespace FLOOF {
 
         VkRenderPass m_RenderPass;
 
-        uint32_t m_ShadowRes = 2048;
+        uint32_t m_ShadowRes = 4096;
+        float m_ShadowZExtentOffset = 1000.f;
         std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
         float m_ShadowFarClip = 5000.f;
 
@@ -78,8 +80,8 @@ namespace FLOOF {
         VkImageView m_ResolveImageView = VK_NULL_HANDLE;
 
         VkFormat m_DepthFormat{};
-        VulkanImageData m_DepthBuffer{};
-        VkImageView m_DepthBufferImageView = VK_NULL_HANDLE;
+        std::vector<VulkanImageData> m_DepthBuffers;
+        std::vector<VkImageView> m_DepthBufferImageViews;
 
         glm::vec2 m_Extent{ 0.f, 0.f };
 
