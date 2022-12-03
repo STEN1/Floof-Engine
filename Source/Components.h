@@ -295,6 +295,5 @@ namespace FLOOF {
 
         int mPlayer;
     };
-
 }
 

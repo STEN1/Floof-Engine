@@ -42,11 +42,8 @@ namespace FLOOF::Network {
                                     });
             }
         }
-
-        bool Disconnect() {
-            return false;
+        void Disconnect() {
             asio::post(mContext, [this]() { mSocket.close(); });
-
         }
 
         bool IsConnected() const {

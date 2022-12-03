@@ -32,7 +32,7 @@ namespace FLOOF {
         void CleanApplication();
 
     public:
-        FloofClient client;
+        std::unique_ptr<FloofClient> client;
         std::unique_ptr<FloofServer> server;
     private:
 

@@ -90,6 +90,7 @@ namespace FLOOF {
         int ActivePlayer{0};
     private:
         void OnUpdate(float deltaTime);
+        void OnEditorUpdate(float deltaTime);
         void OnCreate();
     private:
         entt::registry m_Registry;

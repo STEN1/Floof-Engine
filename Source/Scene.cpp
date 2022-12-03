@@ -108,4 +108,11 @@ namespace FLOOF {
 
         return camera;
     }
+
+    void Scene::OnEditorUpdate(float deltaTime) {
+        auto nativeScriptView = m_Registry.view<NativeScriptComponent>();
+        for (auto [entity, nativeScript] : nativeScriptView.each()) {
+            nativeScript.Script->EditorUpdate(deltaTime);
+        }
+    }
 }

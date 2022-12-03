@@ -42,7 +42,8 @@ void FLOOF::NetworkPanel::DrawPanel() {
             ImGui::InputInt("Port", &Port, 1, 2, 0);
             if (ImGui::Button("Join Game")) {
                 auto &cli = Application::Get().client;
-                cli.Connect(Ip, Port);
+                cli = std::make_unique<FloofClient>();
+                cli->Connect(Ip, Port);
                 Active = true;
                 con = Type::Client;
 
@@ -95,7 +96,8 @@ void FLOOF::NetworkPanel::DrawPanel() {
             case Type::Client:
                 if (ImGui::Button("Stop Client")) {
                     auto &cli = Application::Get().client;
-                    cli.Disconnect();
+                    cli->Disconnect();
+                    cli.release();
                     Active = false;
                 }
                 break;
