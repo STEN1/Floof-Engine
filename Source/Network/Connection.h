@@ -144,6 +144,7 @@ namespace FLOOF::Network {
                                   } else {
                                       std::cerr << "[" << id << "] Write Body Fail" << std::endl;
                                       mSocket.close();
+
                                   }
                               });
         }

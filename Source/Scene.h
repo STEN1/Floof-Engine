@@ -106,8 +106,5 @@ namespace FLOOF {
 
         CameraComponent m_EditorCamera;
 
-    public:
-        FloofClient client;
-        std::unique_ptr<FloofServer> server;
     };
 }

@@ -48,7 +48,7 @@ namespace FLOOF::Network {
             if (mThreadContext.joinable())
                 mThreadContext.join();
 
-            std::cout << "[Server] Stoped" << std::endl;
+            std::cout << "[Server] Stopped" << std::endl;
         }
 
         //ASYNC - make asio wait for connection
@@ -121,6 +121,9 @@ namespace FLOOF::Network {
             }
         }
 
+        size_t ConnectionCount()const{
+            return mQConnections.size();
+        }
     protected:
 
         virtual bool OnClientConnect(std::shared_ptr<Connection<T>> client) {

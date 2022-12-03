@@ -38,6 +38,9 @@ namespace FLOOF {
 
         void CleanApplication();
 
+    public:
+        FloofClient client;
+        std::unique_ptr<FloofServer> server;
     private:
 
         GLFWwindow* m_Window;

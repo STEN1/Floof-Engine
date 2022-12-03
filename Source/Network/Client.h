@@ -36,7 +36,7 @@ namespace FLOOF::Network {
                 std::cerr << "Client Exception " << e.what() << std::endl;
                 return false;
             }
-
+            return true;
         }
 
         void Disconnect() {
