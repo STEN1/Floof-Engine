@@ -1105,7 +1105,11 @@ namespace FLOOF {
         rasterizer.depthClampEnable = VK_FALSE;
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = params.PolygonMode;
+#ifdef WIN32
         rasterizer.lineWidth = 2.0f;
+#else
+        rasterizer.lineWidth = 1.0f;
+#endif
         rasterizer.cullMode = params.CullMode;
         rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
