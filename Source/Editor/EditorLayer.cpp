@@ -13,6 +13,7 @@
 
 #include "../NativeScripts/MonsterTruckScript.h"
 #include "../NativeScripts/WonderBaumScript.h"
+#include "../NativeScripts/GameModeScript.h"
 #include "imgui_internal.h"
 #include "EditorPanels/NetworkPanel.h"
 
@@ -48,6 +49,9 @@ namespace FLOOF {
 
         if (IsPlaying())
             m_Scene->OnUpdate(deltaTime);
+        else{
+            m_Scene->OnEditorUpdate(deltaTime);
+        }
 	}
 	void EditorLayer::OnImGuiUpdate(double deltaTime)
 	{
@@ -521,6 +525,13 @@ namespace FLOOF {
 
     void EditorLayer::MakePhysicsPlayGround() {
         m_Scene = std::make_unique<Scene>();
+
+        //Gamemode Script
+        {
+            auto ent = m_Scene->CreateEntity("GameMode");
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<GameModeScript>(), m_Scene.get(), ent);
+        }
+
         {
             const auto entity = m_Scene->CreateEntity();
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
@@ -592,21 +603,9 @@ namespace FLOOF {
         }
         // make monstertruck
         {
-            auto ent = m_Scene->CreateEntity("MonsterTruck");
+            auto ent = m_Scene->CreateEntity("Player : 0");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f,-40.f,0.f)), m_Scene.get(), ent);
             m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
-        }
-        // make monstertruck
-        {
-            auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f,-40.f,10.f)), m_Scene.get(), ent);
-            m_Scene->AddComponent<PlayerControllerComponent>(ent, 1);
-        }
-
-        //banana test
-        {
-            //auto ent = m_Scene->CreateEntity("Banana");
-            //m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<WonderBaumScript>(), m_Scene.get(), ent);
         }
     }
 }

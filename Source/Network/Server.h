@@ -148,7 +148,7 @@ namespace FLOOF::Network {
 
         asio::ip::tcp::acceptor mAcceptor;
 
-        uint32_t IDCounter{10000}; // identifie clients
+        uint32_t IDCounter{1000}; // identifie clients
 
     };
 }

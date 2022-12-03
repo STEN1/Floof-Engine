@@ -13,7 +13,8 @@ namespace FLOOF{
        ServerPing,
        MessageAll,
        ServerMessage,
-       KeyInput
+       KeyInput,
+       InitializeWord
     };
    class FloofClient : public Network::Client<FloofMsgHeaders>{
    public:
@@ -34,21 +35,30 @@ namespace FLOOF{
 
            msg << key;
            Send(msg);
-
        };
+
    };
    class FloofServer : public Network::Server<FloofMsgHeaders>{
    public:
        FloofServer(uint16_t port): Network::Server<FloofMsgHeaders>(port){
 
        };
+
+       //int ActivePlayers{1};
+       std::vector<std::shared_ptr<Network::Connection<FloofMsgHeaders>>> ActivePlayers;
+       std::vector<uint32_t> MarkedPlayerForRemove;
+       std::vector<std::shared_ptr<Network::Connection<FloofMsgHeaders>>> MarkedPlayerForInitialize;
+       //int InitializedPlayers{1};
    protected:
        virtual bool OnClientConnect(std::shared_ptr<Network::Connection<FloofMsgHeaders>> client)override{
+           //make Player
+           MarkedPlayerForInitialize.emplace_back(client);
 
            return true;
        }
        virtual void OnClientDisconnect(std::shared_ptr<Network::Connection<FloofMsgHeaders>> client) override{
-
+           //remove player
+           MarkedPlayerForRemove.emplace_back(client->GetID());
        }
 
        virtual void OnMessage(std::shared_ptr<Network::Connection<FloofMsgHeaders>> client, Network::message<FloofMsgHeaders> &msg) override{
@@ -66,6 +76,9 @@ namespace FLOOF{
                case FloofMsgHeaders::ServerMessage:
                    break;
                case FloofMsgHeaders::KeyInput:
+                   std::cout << "[" << client->GetID() << "] : Server KeyInput" <<std::endl;
+                   client->Send(msg);
+                   //send input to PlayerController
                    break;
            }
        }

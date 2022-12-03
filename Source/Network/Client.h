@@ -66,6 +66,9 @@ namespace FLOOF::Network {
             return mQMessageIn;
         }
 
+        uint32_t GetID(){
+            return mConnection->GetID();
+        }
     protected:
 
         asio::io_context mContext;
