@@ -7,6 +7,15 @@ namespace FLOOF{
     public:
         NetworkPanel(EditorLayer* editorLayer) : EditorPanel(editorLayer) {}
         virtual void DrawPanel() override;
+    private:
+        bool Active{false};
+        int  Port{25565};
+       std::string Ip{"255.255.255.255"};
+       enum class Type{
+           Server,
+           Client
+       };
+       Type con;
     };
 }
 
