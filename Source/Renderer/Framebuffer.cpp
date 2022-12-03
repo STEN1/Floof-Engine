@@ -247,7 +247,7 @@ namespace FLOOF {
 		// descriptor for imgui
 		VkSampler fontSampler = renderer->GetFontSampler();
 		m_Texture.DesctriptorSet = ImGui_ImplVulkan_AddTexture(fontSampler, m_Texture.ImageView,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
 		for (uint32_t i = 0; i < m_LayerCount; i++) {
 
@@ -284,7 +284,7 @@ namespace FLOOF {
 			VkDescriptorImageInfo descriptorImageInfo{};
 			descriptorImageInfo.sampler = clampedSampler;
 			descriptorImageInfo.imageView = m_ArrayImageView;
-			descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 
 			VkWriteDescriptorSet writeSet{};
 			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -351,7 +351,7 @@ namespace FLOOF {
 		depthAttachment[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depthAttachment[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		depthAttachment[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 
 		VkAttachmentReference depthAttachmentRef{};
 		depthAttachmentRef.attachment = 0;
@@ -367,9 +367,9 @@ namespace FLOOF {
 
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependencies[0].dstSubpass = 0;
-		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependencies[0].srcAccessMask = VK_ACCESS_NONE;
+		dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
 		dependencies[0].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
