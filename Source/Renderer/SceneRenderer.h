@@ -20,7 +20,7 @@ namespace FLOOF {
         int LightCount = 0;
         int CascadeCount = FLOOF_CASCADE_COUNT;
         float AmbientIntensity = 1.f;
-        float Bias = 0.00002f;
+        float Bias = 0.00005f;
     };
     
     struct SceneRenderFinishedData {

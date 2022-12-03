@@ -318,6 +318,29 @@ namespace FLOOF {
         m_Scene = std::make_unique<Scene>();
 
         {
+            auto location = glm::vec3(0.f, -50.f, 0.f);
+            auto extents = glm::vec3(1000.f, 5.f, 1000.f);
+            auto mass = 0.f;
+
+            auto entity = m_Scene->CreateEntity("flooring");
+            auto& collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, glm::vec3(0.f), mass, bt::CollisionPrimitive::Box);
+            auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
+            mesh.meshes[0].MeshMaterial.AO = Texture("Assets/crisscross-foam1-ue/crisscross-foam_ao.png");
+            mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/crisscross-foam1-ue/crisscross-foam_metallic.png");
+            mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/crisscross-foam1-ue/crisscross-foam_normal-dx.png");
+            mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/crisscross-foam1-ue/crisscross-foam_roughness.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
+                collision.Transform.getOrigin().getY(),
+                collision.Transform.getOrigin().getZ());
+            transform.Scale = extents;
+            collision.RigidBody->setFriction(1.0f);
+        }
+
+        {
             auto ent = m_Scene->CreateEntity("Cerberus");
             auto& sm = m_Scene->AddComponent<StaticMeshComponent>(ent, "Assets/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX", false);
             sm.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.tga");
@@ -328,6 +351,9 @@ namespace FLOOF {
 
             auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
             transform.Rotation.x = -1.f;
+            transform.Rotation.y += glm::pi<float>() / 2.f;
+            transform.Position.y += 55.f;
+            transform.Position.z += 40.f;
         }
 
         for (uint32_t i = 1; i < static_cast<uint32_t>(TextureColor::Size); i++) {
