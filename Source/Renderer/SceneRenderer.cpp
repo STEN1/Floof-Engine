@@ -8,10 +8,7 @@
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {
         CreateTextureRenderer();
-        {
-            std::vector<ColorVertex> vertexData(10000);
-            m_DeugLineMesh = std::make_unique<LineMeshComponent>(vertexData);
-        }
+
         m_Skybox = std::make_unique<Skybox>("Assets/Skybox/belfast_sunset_puresky_4k.hdr");
         m_IrradienceMap = m_Skybox->m_Cubemap.GetIrradienceMap();
         m_PrefilterMap = m_Skybox->m_Cubemap.GetPrefilterMap();
@@ -42,7 +39,8 @@ namespace FLOOF {
         glm::mat4 vp = cameraProjection * cameraView;
 
         if (m_DrawDebugCameraLines) {
-            DrawDebugCameraLines(scene->GetActiveCamera());
+            auto activeCamera = scene->GetActiveCamera();
+            DrawDebugCameraLines(activeCamera);
             m_DrawDebugCameraLines = false;
         }
         {
@@ -120,7 +118,7 @@ namespace FLOOF {
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
                     &lightDescriptor, 0, nullptr);
 
-                auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+                auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
                     &sceneDescriptor, 0, nullptr);
@@ -140,41 +138,42 @@ namespace FLOOF {
                     &shadowDescriptor, 0, nullptr);
             }
             if (drawMode == RenderPipelineKeys::Wireframe || drawMode == RenderPipelineKeys::UV) {
-                auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+                auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                     &sceneDescriptor, 0, nullptr);
             }
             if (drawMode == RenderPipelineKeys::Normals || drawMode == RenderPipelineKeys::UnLit) {
-                auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+                auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
                     &sceneDescriptor, 0, nullptr);
             }
-            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
-            for (auto [entity, transform, staticMesh] : view.each()) {
-                MeshPushConstants constants;
-                glm::mat4 modelMat = transform.GetTransform();
-                constants.Model = modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
-                for (auto& mesh : staticMesh.meshes) {
-                    if (drawMode == RenderPipelineKeys::PBR || drawMode == RenderPipelineKeys::UnLit || drawMode == RenderPipelineKeys::Normals) {
-                        if (mesh.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
-                            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                                0, 1, &mesh.MeshMaterial.DescriptorSet, 0, nullptr);
+            {
+                auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
+                for (auto [entity, transform, staticMesh] : view.each()) {
+                    MeshPushConstants constants;
+                    glm::mat4 modelMat = transform.GetTransform();
+                    constants.Model = modelMat;
+                    constants.InvModelMat = glm::inverse(modelMat);
+                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                        0, sizeof(MeshPushConstants), &constants);
+                    for (auto& mesh : staticMesh.meshes) {
+                        if (drawMode == RenderPipelineKeys::PBR || drawMode == RenderPipelineKeys::UnLit || drawMode == RenderPipelineKeys::Normals) {
+                            if (mesh.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
+                                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                                    0, 1, &mesh.MeshMaterial.DescriptorSet, 0, nullptr);
+                            }
                         }
-                    }
-                    VkDeviceSize offset{ 0 };
-                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
-                    if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
-                        vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-                        vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
-                            1, 0, 0, 0);
-                    }
-                    else {
-                        vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                        VkDeviceSize offset{ 0 };
+                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh.VertexBuffer.Buffer, &offset);
+                        if (mesh.IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                            vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                            vkCmdDrawIndexed(commandBuffer, mesh.IndexCount,
+                                1, 0, 0, 0);
+                        } else {
+                            vkCmdDraw(commandBuffer, mesh.VertexCount, 1, 0, 0);
+                        }
                     }
                 }
             }
@@ -188,7 +187,7 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
                 &lightDescriptor, 0, nullptr);
 
-            auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+            auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
                 &sceneDescriptor, 0, nullptr);
@@ -255,7 +254,7 @@ namespace FLOOF {
             }
             {
                 auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Line);
-                auto* lineMesh = m_DeugLineMesh.get();
+                auto* lineMesh = m_DebugLineMesh[frameIndex].get();
                 lineMesh->UpdateBuffer(m_DebugVertexData);
                 m_DebugVertexData.clear();
                 SkyPushConstants constants;
@@ -393,7 +392,7 @@ namespace FLOOF {
         VkClearValue clearValue{};
         clearValue.depthStencil = { 1.f, 0 };
 
-        m_SceneDataUBO.Update(m_SceneFrameData);
+        m_SceneDataUBO[frameIndex].Update(m_SceneFrameData);
         for (uint32_t i = 0; i < m_SceneFrameData.CascadeCount; i++) {
             auto framebuffer = m_ShadowDepthBuffers[frameIndex]->GetFramebuffer(i);
             auto commandBuffer = commandBuffers[i];
@@ -411,7 +410,7 @@ namespace FLOOF {
 
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::ShadowPass);
 
-            auto sceneDescriptor = m_SceneDataUBO.GetDescriptorSet();
+            auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                 &sceneDescriptor, 0, nullptr);
@@ -483,8 +482,14 @@ namespace FLOOF {
         m_MainPassSignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_ShadowPassSignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_ShadowDepthBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_SceneDataUBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_DebugLineMesh.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         for (auto& shadowDB : m_ShadowDepthBuffers) {
             shadowDB = std::make_unique<DepthFramebuffer>(m_ShadowRes, m_ShadowRes, m_SceneFrameData.CascadeCount);
+        }
+        for (auto& lineMesh : m_DebugLineMesh) {
+            std::vector<ColorVertex> vertexData(10000);
+            lineMesh = std::make_unique<LineMeshComponent>(vertexData);
         }
 
         CreateSyncObjects();
@@ -1016,6 +1021,7 @@ namespace FLOOF {
     void SceneRenderer::DrawDebugCameraLines(CameraComponent* camera) const
     {
         DebugDrawLine(camera->Position, camera->Position + camera->Forward * 10.f, glm::vec3(1.f, 0.f, 0.f));
+        DebugDrawLine(camera->Position + camera->Forward * 2.f, (camera->Position + camera->Forward * 2.f) + camera->Up, glm::vec3(1.f, 0.f, 0.f));
         uint32_t SHADOW_MAP_CASCADE_COUNT = m_SceneFrameData.CascadeCount;
         static constexpr float cascadeSplitLambda = 0.95f;
 

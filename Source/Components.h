@@ -284,6 +284,8 @@ namespace FLOOF {
         
         LandscapeMesh meshData;
 
+        Material TestMaterial;
+
         HeightmapLoader* landscape;
 
         TriangleCollector triangleCol;

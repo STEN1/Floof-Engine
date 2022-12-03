@@ -86,14 +86,14 @@ namespace FLOOF {
         glm::vec2 m_Extent{ 0.f, 0.f };
 
         SceneFrameData m_SceneFrameData;
-        VulkanUBO<SceneFrameData> m_SceneDataUBO{};
+        std::vector<VulkanUBO<SceneFrameData>> m_SceneDataUBO{};
         VulkanSSBO<PointLightComponent::PointLight> m_LightSSBO{};
         std::unique_ptr<Skybox> m_Skybox;
         VulkanTexture m_IrradienceMap;
         VulkanTexture m_PrefilterMap;
         VulkanTexture m_BRDFLut;
 
-        std::unique_ptr<LineMeshComponent> m_DeugLineMesh;
+        std::vector<std::unique_ptr<LineMeshComponent>> m_DebugLineMesh;
         mutable std::vector<ColorVertex> m_DebugVertexData;
         void DebugDrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec3 color) const;
         void DrawRect(const glm::vec3& bl, const glm::vec3& br, const glm::vec3& tl, const glm::vec3& tr, const glm::vec3& color) const;
