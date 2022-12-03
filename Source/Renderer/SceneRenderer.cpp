@@ -30,13 +30,6 @@ namespace FLOOF {
             ResizeBuffers(extent);
 
 
-        auto* renderer = VulkanRenderer::Get();
-        auto* window = renderer->GetVulkanWindow();
-        auto frameIndex = window->FrameIndex;
-        auto& frameData = window->Frames[frameIndex];
-        auto signalSemaphore = m_SignalSemaphores[frameIndex];
-        auto commandBuffer = renderer->AllocateCommandBuffer();
-        renderer->BeginSingleUseCommandBuffer(commandBuffer);
 
         VkExtent2D vkExtent;
         vkExtent.width = m_Extent.x;
@@ -48,7 +41,40 @@ namespace FLOOF {
         m_SceneFrameData.View = cameraView;
         glm::mat4 vp = cameraProjection * cameraView;
 
-        ShadowPass(commandBuffer, scene, camera);
+        if (m_DrawDebugCameraLines) {
+            DrawDebugCameraLines(scene->GetActiveCamera());
+            m_DrawDebugCameraLines = false;
+        }
+        {
+            std::vector<PointLightComponent::PointLight> pointLights;
+            auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
+            for (auto [entity, transform, lightComp] : lightView.each()) {
+                PointLightComponent::PointLight light;
+                light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
+                light.diffuse = lightComp.diffuse;
+                light.ambient = lightComp.ambient;
+                light.lightRange = lightComp.lightRange;
+                light.linear = 4.5f / light.lightRange;
+                light.quadratic = 75.f / (light.lightRange * light.lightRange);
+                pointLights.push_back(light);
+            }
+            m_LightSSBO.Update(pointLights);
+
+            m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
+            m_SceneFrameData.LightCount = pointLights.size();
+            m_SceneFrameData.VP = vp;
+            //m_SceneDataUBO.Update(m_SceneFrameData); Update done inside shadowpass.
+        }
+
+        waitSemaphore = ShadowPass(waitSemaphore, scene, camera);
+
+        auto* renderer = VulkanRenderer::Get();
+        auto* window = renderer->GetVulkanWindow();
+        auto frameIndex = window->FrameIndex;
+        auto& frameData = window->Frames[frameIndex];
+        auto signalSemaphore = m_MainPassSignalSemaphores[frameIndex];
+        auto commandBuffer = renderer->AllocateCommandBuffer();
+        renderer->BeginSingleUseCommandBuffer(commandBuffer);
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -69,28 +95,6 @@ namespace FLOOF {
         renderPassInfo.pClearValues = clearColors;
 
         renderer->StartRenderPass(commandBuffer, &renderPassInfo);
-
-
-        {
-            std::vector<PointLightComponent::PointLight> pointLights;
-            auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
-            for (auto [entity, transform, lightComp] : lightView.each()) {
-                PointLightComponent::PointLight light;
-                light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
-                light.diffuse = lightComp.diffuse;
-                light.ambient = lightComp.ambient;
-                light.lightRange = lightComp.lightRange;
-                light.linear = 4.5f / light.lightRange;
-                light.quadratic = 75.f / (light.lightRange * light.lightRange);
-                pointLights.push_back(light);
-            }
-            m_LightSSBO.Update(pointLights);
-
-            m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
-            m_SceneFrameData.LightCount = pointLights.size();
-            m_SceneFrameData.VP = vp;
-            m_SceneDataUBO.Update(m_SceneFrameData);
-        }
 
         if (m_Skybox) {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Skybox);
@@ -288,7 +292,7 @@ namespace FLOOF {
         return renderFinishedData;
     }
 
-    void SceneRenderer::ShadowPass(VkCommandBuffer commandBuffer, Scene* scene, CameraComponent* camera)
+    VkSemaphore SceneRenderer::ShadowPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera)
     {
         uint32_t SHADOW_MAP_CASCADE_COUNT = m_SceneFrameData.CascadeCount;
         static constexpr float cascadeSplitLambda = 0.95f;
@@ -317,6 +321,8 @@ namespace FLOOF {
 
         // Calculate orthographic projection matrix for each cascade
         float lastSplitDist = 0.0;
+        glm::mat4 VP = glm::perspective(camera->FOV, camera->Aspect, camera->Near, farClip) * camera->GetView();
+        glm::mat4 invCam = glm::inverse(VP);
         for (uint32_t i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
             float splitDist = cascadeSplits[i];
 
@@ -332,7 +338,6 @@ namespace FLOOF {
             };
 
             // Project frustum corners into world space
-            glm::mat4 invCam = glm::inverse(camera->GetVP(camera->FOV, camera->Aspect, camera->Near, farClip));
             for (uint32_t i = 0; i < 8; i++) {
                 glm::vec4 invCorner = invCam * glm::vec4(frustumCorners[i], 1.0f);
                 frustumCorners[i] = invCorner / invCorner.w;
@@ -379,17 +384,19 @@ namespace FLOOF {
         auto renderPass = m_ShadowDepthBuffers[frameIndex]->GetRenderPass();
         auto extent = m_ShadowDepthBuffers[frameIndex]->GetExtent();
 
+        std::vector<VkCommandBuffer> commandBuffers(FLOOF_CASCADE_COUNT);
+        for (auto& commandBuffer : commandBuffers) {
+            commandBuffer = renderer->AllocateCommandBuffer();
+            renderer->BeginSingleUseCommandBuffer(commandBuffer);
+        }
+
         VkClearValue clearValue{};
         clearValue.depthStencil = { 1.f, 0 };
 
-        // Depth bias (and slope) are used to avoid shadowing artifacts
-        // Constant depth bias factor (always applied)
-        //float depthBiasConstant = 1.25f;
-        // Slope depth bias factor, applied depending on polygon's slope
-        //float depthBiasSlope = 1.75f;
-
+        m_SceneDataUBO.Update(m_SceneFrameData);
         for (uint32_t i = 0; i < m_SceneFrameData.CascadeCount; i++) {
             auto framebuffer = m_ShadowDepthBuffers[frameIndex]->GetFramebuffer(i);
+            auto commandBuffer = commandBuffers[i];
 
             VkRenderPassBeginInfo renderPassInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
             renderPassInfo.renderPass = renderPass;
@@ -448,7 +455,24 @@ namespace FLOOF {
                 }
             }
             vkCmdEndRenderPass(commandBuffer);
+            VkResult endResult = vkEndCommandBuffer(commandBuffer);
+            ASSERT(endResult == VK_SUCCESS);
         }
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &waitSemaphore;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = commandBuffers.size();
+        submitInfo.pCommandBuffers = commandBuffers.data();
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &m_ShadowPassSignalSemaphores[frameIndex];
+
+        renderer->QueueSubmitGraphics(1, &submitInfo);
+
+        return m_ShadowPassSignalSemaphores[frameIndex];
     }
 
     void SceneRenderer::CreateTextureRenderer() {
@@ -456,8 +480,8 @@ namespace FLOOF {
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_DepthBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_DepthBufferImageViews.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_SignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_waitSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_MainPassSignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_ShadowPassSignalSemaphores.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_ShadowDepthBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         for (auto& shadowDB : m_ShadowDepthBuffers) {
             shadowDB = std::make_unique<DepthFramebuffer>(m_ShadowRes, m_ShadowRes, m_SceneFrameData.CascadeCount);
@@ -947,12 +971,12 @@ namespace FLOOF {
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-        for (auto& semaphore : m_SignalSemaphores) {
+        for (auto& semaphore : m_MainPassSignalSemaphores) {
             VkResult result = vkCreateSemaphore(renderer->GetDevice(),
                 &semaphoreInfo, nullptr, &semaphore);
             ASSERT(result == VK_SUCCESS);
         }
-        for (auto& semaphore : m_waitSemaphores) {
+        for (auto& semaphore : m_ShadowPassSignalSemaphores) {
             VkResult result = vkCreateSemaphore(renderer->GetDevice(),
                 &semaphoreInfo, nullptr, &semaphore);
             ASSERT(result == VK_SUCCESS);
@@ -983,10 +1007,10 @@ namespace FLOOF {
 
     void SceneRenderer::DestroySyncObjects() {
         auto* renderer = VulkanRenderer::Get();
-        for (auto& semaphore : m_SignalSemaphores) {
+        for (auto& semaphore : m_MainPassSignalSemaphores) {
             vkDestroySemaphore(renderer->GetDevice(), semaphore, nullptr);
         }
-        for (auto& semaphore : m_waitSemaphores) {
+        for (auto& semaphore : m_ShadowPassSignalSemaphores) {
             vkDestroySemaphore(renderer->GetDevice(), semaphore, nullptr);
         }
     }
@@ -997,16 +1021,16 @@ namespace FLOOF {
         m_DebugVertexData.emplace_back(ColorVertex{ end, color });
     }
 
-    void SceneRenderer::DrawDebugCameraLines(CameraComponent* camera, float shadowFarClip) const
+    void SceneRenderer::DrawDebugCameraLines(CameraComponent* camera) const
     {
-        DebugDrawLine(camera->Position, camera->Position + glm::normalize(camera->Forward) * 10.f, glm::vec3(1.f, 0.f, 0.f));
+        DebugDrawLine(camera->Position, camera->Position + camera->Forward * 10.f, glm::vec3(1.f, 0.f, 0.f));
         uint32_t SHADOW_MAP_CASCADE_COUNT = m_SceneFrameData.CascadeCount;
         static constexpr float cascadeSplitLambda = 0.95f;
 
         std::vector<float> cascadeSplits(SHADOW_MAP_CASCADE_COUNT);
 
         float nearClip = camera->Near;
-        float farClip = shadowFarClip;
+        float farClip = m_ShadowFarClip;
         float clipRange = farClip - nearClip;
 
         float minZ = nearClip;
@@ -1033,6 +1057,8 @@ namespace FLOOF {
         };
 
         // Calculate orthographic projection matrix for each cascade
+        glm::mat4 VP = glm::perspective(camera->FOV, camera->Aspect, camera->Near, farClip) * camera->GetView();
+        glm::mat4 invCam = glm::inverse(VP);
         float lastSplitDist = 0.0;
         for (uint32_t i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
             float splitDist = cascadeSplits[i];
@@ -1048,8 +1074,6 @@ namespace FLOOF {
                 glm::vec3(-1.0f, -1.0f,  1.0f),
             };
 
-            // Project frustum corners into world space
-            glm::mat4 invCam = glm::inverse(camera->GetVP(camera->FOV, camera->Aspect, camera->Near, farClip));
             for (uint32_t i = 0; i < 8; i++) {
                 glm::vec4 invCorner = invCam * glm::vec4(frustumCorners[i], 1.0f);
                 frustumCorners[i] = invCorner / invCorner.w;
@@ -1088,6 +1112,10 @@ namespace FLOOF {
 
             lastSplitDist = cascadeSplits[i];
         }
+    }
+
+    void SceneRenderer::DrawDebugCameraLines() {
+        m_DrawDebugCameraLines = true;
     }
 
     void SceneRenderer::DebugDrawFrustum(const glm::vec3& nbl, const glm::vec3& nbr, const glm::vec3& ntl,

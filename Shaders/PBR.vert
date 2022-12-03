@@ -26,6 +26,8 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     float sunStrenght;
     int lightCount;
     int cascadeCount;
+    float ambientIntensity;
+    float bias;
 } sceneFrameUBO;
 
 void main() {

@@ -44,7 +44,7 @@ namespace FLOOF {
             PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore);
 
     private:
-        void ShadowPass(VkCommandBuffer commandBuffer, Scene* scene, CameraComponent* camera);
+        VkSemaphore ShadowPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera);
 
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
@@ -73,8 +73,8 @@ namespace FLOOF {
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
 
-        std::vector<VkSemaphore> m_waitSemaphores;
-        std::vector<VkSemaphore> m_SignalSemaphores;      
+        std::vector<VkSemaphore> m_ShadowPassSignalSemaphores;
+        std::vector<VkSemaphore> m_MainPassSignalSemaphores;      
 
         VulkanImageData m_ResolveBuffer{};
         VkImageView m_ResolveImageView = VK_NULL_HANDLE;
@@ -100,6 +100,8 @@ namespace FLOOF {
         void DebugDrawFrustum(const glm::vec3& nbl, const glm::vec3& nbr, const glm::vec3& ntl, const glm::vec3& ntr,
             const glm::vec3& fbl, const glm::vec3& fbr, const glm::vec3& ftl, const glm::vec3& ftr, const glm::vec3& color) const;
 
-        void DrawDebugCameraLines(CameraComponent* camera, float shadowFarClip) const;
+        void DrawDebugCameraLines(CameraComponent* camera) const;
+        void DrawDebugCameraLines();
+        bool m_DrawDebugCameraLines = false;
     };
 }

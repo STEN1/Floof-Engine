@@ -109,42 +109,7 @@ namespace FLOOF {
     VkSemaphore EditorLayer::OnDraw(double deltaTime, VkSemaphore waitSemaphore)
     {
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse;
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
-            ImGui::Begin("Editor view", nullptr, windowFlags);
-            ImGui::PopStyleVar();
-            auto viewport = ImGui::GetWindowViewport();
-            viewport->Flags &= (~ImGuiViewportFlags_NoDecoration);
-
-            m_EditorViewFocused = ImGui::IsWindowFocused();
-
-            ImVec2 canvasOffset = ImGui::GetWindowPos();
-            ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
-            ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
-            canvas_p0.x += canvasOffset.x;
-            canvas_p0.y += canvasOffset.y;
-            canvas_p1.x += canvasOffset.x;
-            canvas_p1.y += canvasOffset.y;
-
-            glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
-            if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
-                sceneCanvasExtent = glm::vec2(0.f);
-            
-            SceneRenderFinishedData sceneRenderData{};
-            if (!ImGui::GetCurrentWindow()->Hidden) {
-                sceneRenderData = m_EditorRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetEditorCamera(),
-                    m_EditorDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
-            }
-
-            if (sceneRenderData.Texture != VK_NULL_HANDLE) {
-                ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                draw_list->AddImage(sceneRenderData.Texture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
-            }
-            if (sceneRenderData.SceneRenderFinishedSemaphore != VK_NULL_HANDLE)
-                waitSemaphore = sceneRenderData.SceneRenderFinishedSemaphore;
-
-            ImGui::End();
-        }
+        
         if (IsPlaying()) {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
             ImGui::Begin("Play view", nullptr, windowFlags);
@@ -181,6 +146,44 @@ namespace FLOOF {
 
             ImGui::End();
         }
+
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300.f, 300.f));
+            ImGui::Begin("Editor view", nullptr, windowFlags);
+            ImGui::PopStyleVar();
+            auto viewport = ImGui::GetWindowViewport();
+            viewport->Flags &= (~ImGuiViewportFlags_NoDecoration);
+
+            m_EditorViewFocused = ImGui::IsWindowFocused();
+
+            ImVec2 canvasOffset = ImGui::GetWindowPos();
+            ImVec2 canvas_p0 = ImGui::GetWindowContentRegionMin();
+            ImVec2 canvas_p1 = ImGui::GetWindowContentRegionMax();
+            canvas_p0.x += canvasOffset.x;
+            canvas_p0.y += canvasOffset.y;
+            canvas_p1.x += canvasOffset.x;
+            canvas_p1.y += canvasOffset.y;
+
+            glm::vec2 sceneCanvasExtent{ canvas_p1.x - canvas_p0.x, canvas_p1.y - canvas_p0.y };
+            if (sceneCanvasExtent.x < 2.f || sceneCanvasExtent.y < 2.f)
+                sceneCanvasExtent = glm::vec2(0.f);
+
+            SceneRenderFinishedData sceneRenderData{};
+            if (!ImGui::GetCurrentWindow()->Hidden) {
+                sceneRenderData = m_EditorRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetEditorCamera(),
+                    m_EditorDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
+            }
+
+            if (sceneRenderData.Texture != VK_NULL_HANDLE) {
+                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                draw_list->AddImage(sceneRenderData.Texture, canvas_p0, canvas_p1, ImVec2(0, 0), ImVec2(1, 1));
+            }
+            if (sceneRenderData.SceneRenderFinishedSemaphore != VK_NULL_HANDLE)
+                waitSemaphore = sceneRenderData.SceneRenderFinishedSemaphore;
+
+            ImGui::End();
+        }
+
         return waitSemaphore;
     }
     void EditorLayer::StartPlay()

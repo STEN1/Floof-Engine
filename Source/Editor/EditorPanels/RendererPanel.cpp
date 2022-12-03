@@ -66,8 +66,7 @@ namespace FLOOF {
 		static bool drawCameraLines = false;
 		ImGui::Checkbox("Draw camera debug lines", &drawCameraLines);
 		if (drawCameraLines) {
-			float farClip = m_EditorLayer->GetPlayRenderer()->m_ShadowFarClip;
-			m_EditorLayer->GetEditorRenderer()->DrawDebugCameraLines(m_EditorLayer->GetScene()->GetFirstSceneCamera(), farClip);
+			m_EditorLayer->GetEditorRenderer()->DrawDebugCameraLines();
 		}
 		float shadowFarClip = m_EditorLayer->GetEditorRenderer()->m_ShadowFarClip;
 		if (ImGui::DragFloat("Shadow far clip", &shadowFarClip, 1.f, 2500.f, 15000.f)) {
