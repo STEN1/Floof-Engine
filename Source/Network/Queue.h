@@ -50,6 +50,10 @@ namespace FLOOF::Network {
             deqQueue.pop_back();
             return t;
         }
+        bool empty(){
+            std::scoped_lock lock(muxQueue);
+            return deqQueue.empty();
+        }
 
     private:
         std::mutex muxQueue;

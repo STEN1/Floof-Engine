@@ -63,11 +63,11 @@ namespace FLOOF::Network{
 
         //forward declare
         template<typename  T>
-        class connection;
+        class Connection;
 
         template <typename T>
         struct ownedMessage{
-            std::shared_ptr<connection<T>> remote = nullptr; // owner of message
+            std::shared_ptr<Connection<T>> remote = nullptr; // owner of message
             message<T> msg;
 
 

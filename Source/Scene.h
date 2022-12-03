@@ -6,7 +6,7 @@
 #include "Renderer/SceneRenderer.h"
 #include "Components.h"
 
-#include "Network/CarGameNetworking.h"
+#include "Network/FloofNetworking.h"
 
 
 namespace FLOOF {
@@ -107,7 +107,7 @@ namespace FLOOF {
         CameraComponent m_EditorCamera;
 
     public:
-        CarClient client;
-        std::unique_ptr<CarServer> server;
+        FloofClient client;
+        std::unique_ptr<FloofServer> server;
     };
 }

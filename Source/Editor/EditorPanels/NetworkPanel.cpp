@@ -8,7 +8,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
 
     if (ImGui::Button("Create Server")) {
         auto &Server = m_EditorLayer->GetScene()->server;
-        Server = std::make_unique<CarServer>(25565);
+        Server = std::make_unique<FloofServer>(25565);
 
         Server->Start();
     }

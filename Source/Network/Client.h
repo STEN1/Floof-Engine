@@ -10,7 +10,7 @@ namespace FLOOF::Network {
     template<typename T>
     class Client {
     public:
-        Client(): mSocket(mContext) {
+        Client() : mSocket(mContext) {
 
         };
 
@@ -18,44 +18,51 @@ namespace FLOOF::Network {
             Disconnect();
         };
 
-        bool Connect(const std::string& host, const uint16_t port){
+        bool Connect(const std::string &host, const uint16_t port) {
 
-            try{
-               mConnection = std::make_unique<Connection<T>>();
-               asio::ip::tcp::resolver  resolver(mContext);
-               auto endpoints = resolver.resolve(host,std::to_string(port));
+            try {
 
-               mConnection->ConnectToServer(endpoints);
+                asio::ip::tcp::resolver resolver(mContext);
+                auto endpoints = resolver.resolve(host, std::to_string(port));
 
-               threadContext = std::thread([this](){mContext.run();});
+                mConnection = std::make_unique<Connection<T>>(Connection<T>::owner::client,mContext,asio::ip::tcp::socket(mContext),mQMessageIn);
+
+                mConnection->ConnectToServer(endpoints);
+
+                threadContext = std::thread([this]() { mContext.run(); });
 
             }
-            catch (std::exception& e){
+            catch (std::exception &e) {
                 std::cerr << "Client Exception " << e.what() << std::endl;
                 return false;
             }
 
         }
 
-        void Disconnect(){
-            if(IsConnected())
+        void Disconnect() {
+            if (IsConnected())
                 mConnection->Disconnect();
             mContext.stop();
-            if(threadContext.joinable())
+            if (threadContext.joinable())
                 threadContext.join();
 
             mConnection.release();
         }
 
-        bool IsConnected(){
-            if(mConnection)
+        bool IsConnected() {
+            if (mConnection)
                 return mConnection->IsConnected();
             else
                 return false;
         }
 
+        void Send(const message<T>& msg){
+            if(IsConnected()){
+                mConnection->Send(msg);
+            }
+        }
 
-       Queue<ownedMessage<T>> Incoming(){
+        Queue<ownedMessage<T>> Incoming() {
             return mQMessageIn;
         }
 
