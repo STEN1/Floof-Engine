@@ -54,7 +54,7 @@ namespace FLOOF::Network {
         }
 
 
-        bool Send(const message<T> &msg) {
+        void Send(const message<T> &msg) {
             asio::post(mContext,
                        [this, msg]() {
                            bool writing = !mQMessageOut.empty();

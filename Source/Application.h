@@ -6,6 +6,7 @@
 #include <memory>
 #include <unordered_map>
 #include "ApplicationLayer.h"
+#include "Network/FloofNetworking.h"
 
 namespace FLOOF {
     class Application {

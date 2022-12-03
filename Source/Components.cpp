@@ -87,7 +87,8 @@ namespace FLOOF {
         Forward = glm::vec3(0.f, 0.f, 1.f);
         Right = glm::normalize(glm::cross(Forward, Up));
     }
-
+#undef near
+#undef far
     glm::mat4 CameraComponent::GetVP(float fov, float aspect, float near, float far) {
         glm::mat4 view = GetView();
         glm::mat4 projection = GetPerspective(fov, aspect, near, far);
