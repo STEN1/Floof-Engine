@@ -151,16 +151,16 @@ namespace FLOOF {
 
 		SetListener(camera->Position, glm::vec3(0.f), camera->Forward, camera->Up);
 
-        auto view = scene->GetRegistry().view<TransformComponent, SoundSourceComponent>();
+        auto view = scene->GetRegistry().view<TransformComponent, SoundComponent>();
         for (auto [entity, transform, soundsource] : view.each()) {
-	        if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
+	        //if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();
 
-            for (auto it = soundsource.mClips.begin(); it != soundsource.mClips.end(); it++) {
-	            alec(alSource3f(it->second->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
-	            alSourcef(it->second->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
-	            alSourcef(it->second->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
-	            it->second->UpdateStatus();
+            for (auto it = soundsource.m_SourcesPlaying.begin(); it != soundsource.m_SourcesPlaying.end(); it++) {
+	            alec(alSource3f((*it)->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
+	            alSourcef((*it)->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
+	            alSourcef((*it)->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
+                (*it)->UpdateStatus();
             }
         }
         if (needsReload == true) { needsReload = false; }
@@ -210,7 +210,7 @@ namespace FLOOF {
         return buffer;
     }
 
-    ALuint SoundManager::GenerateSource(SoundSourceComponent::SoundClip* source) {
+    ALuint SoundManager::GenerateSource(SoundClip* source) {
         ALuint tempSource;
         alGenSources(1, &tempSource);
         if (auto error = alGetError(); error != AL_NO_ERROR)
@@ -220,7 +220,7 @@ namespace FLOOF {
         return tempSource;
     }
 
-    void SoundManager::DeleteSource(SoundSourceComponent::SoundClip* source) {
+    void SoundManager::DeleteSource(SoundClip* source) {
 
         if (auto it = std::find(s_Sources.begin(), s_Sources.end(), source); it != s_Sources.end()) {
             alDeleteSources(1, &(*it)->m_Source);
