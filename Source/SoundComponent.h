@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <queue>
 #include "al.h"
 #include "SoundManager.h"
 
@@ -50,6 +51,7 @@ namespace FLOOF {
 		void CheckPlaying();
 		void NewDeviceReload();
 		std::vector<SoundClip*> m_SourcesPlaying; // Only here when playing
+		std::queue<SoundClip*> m_PlayQueue;
 		SoundClip* m_DefaultSoundClip;
 		bool PlayOnPlay{ true };
 
