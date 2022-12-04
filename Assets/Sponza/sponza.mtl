@@ -14,7 +14,7 @@ newmtl leaf
 	Ke 0.0000 0.0000 0.0000
 	map_Ka textures/sponza_thorn_diff.png
 	map_Kd textures/sponza_thorn_diff.png
-	map_Ks textures/sponsa_thorn_spec.png
+	map_Ks textures/sponza_thorn_spec.png
 	map_d textures/sponza_thorn_mask.png
 	map_bump textures/sponza_thorn_ddn.png
 	bump textures/sponza_thorn_ddn.png
@@ -265,7 +265,7 @@ newmtl flagpole
 	map_Kd textures/sponza_flagpole_diff.png
 	map_Ks textures/sponza_flagpole_spec.png
 	map_bump textures/sponza_flagpole_diff_NRM.png
-	bump textures/sponza_flagpole_diff_ddn.png
+	bump textures/sponza_flagpole_diff_NRM.png
 
 newmtl fabric_e
 	Ns 10.0000
@@ -444,5 +444,5 @@ newmtl roof
 	Ke 0.0000 0.0000 0.0000
 	map_Ka textures/sponza_roof_diff.png
 	map_Kd textures/sponza_roof_diff.png
-	map_bump textures/sponza_roof_NRM.png
-	bump textures/sponza_roof_NRM.png
+	map_bump textures/sponza_roof_diff_NRM.png
+	bump textures/sponza_roof_diff_NRM.png
