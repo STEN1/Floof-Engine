@@ -23,7 +23,7 @@ namespace FLOOF {
             AO = Texture(TextureColor::White);
 
         if (!Opacity.IsValid())
-            Opacity = Texture(TextureColor::Black);
+            Opacity = Texture(TextureColor::White);
 
         std::vector<VkDescriptorImageInfo> imageInfos{
             { sampler, Diffuse.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },

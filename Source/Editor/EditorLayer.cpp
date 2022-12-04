@@ -547,7 +547,7 @@ namespace FLOOF {
     {
         m_Scene = std::make_unique<Scene>();
         const auto entity = m_Scene->CreateEntity();
-        m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/Sponza.fbx");
+        m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
     }
 
     void EditorLayer::MakePhysicsPlayGround() {

@@ -148,7 +148,7 @@ void main() {
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
 
-    outColor = vec4(color, texture(diffuseTexture, fragUv).a * (1.0 - texture(opacityTexture, fragUv).r));
+    outColor = vec4(color, texture(diffuseTexture, fragUv).a * (texture(opacityTexture, fragUv).r));
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
