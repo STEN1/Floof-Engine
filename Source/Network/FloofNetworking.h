@@ -28,7 +28,9 @@ namespace FLOOF {
         TransformComponent Transform;
         uint32_t id;
     };
-
+    struct LevelData{
+        Scene scene;
+    };
     class FloofClient : public Network::Client<FloofMsgHeaders> {
     public:
         FloofClient() : Client() {
@@ -54,8 +56,13 @@ namespace FLOOF {
                 switch (msg.header.id) {
                     case FloofMsgHeaders::ServerGetStatus:
                         break;
-                    case FloofMsgHeaders::ServerGetPing:
+                    case FloofMsgHeaders::ServerGetPing:{
+                        auto timeNow = std::chrono::system_clock::now();
+                        std::chrono::system_clock::time_point timeThen;
+                        msg >> timeThen;
+                        scene->ping = std::chrono::duration<double>(timeNow-timeThen).count();
                         break;
+                    }
                     case FloofMsgHeaders::ClientAccepted: {
                         Network::message<FloofMsgHeaders> sendMsg;
                         sendMsg.header.id = FloofMsgHeaders::ClientRegisterWithServer;
@@ -155,8 +162,11 @@ namespace FLOOF {
             switch (msg.header.id) {
                 case FloofMsgHeaders::ServerGetStatus:
                     break;
-                case FloofMsgHeaders::ServerGetPing:
+                case FloofMsgHeaders::ServerGetPing:{
+
+                    client->Send(msg);
                     break;
+                }
                 case FloofMsgHeaders::ClientAccepted:
                     break;
                 case FloofMsgHeaders::ClientAssignID:

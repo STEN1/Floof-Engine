@@ -82,6 +82,11 @@ void FLOOF::NetworkPanel::DrawPanel() {
                     txt += " :  ";
                     txt += std::to_string(Port);
                     ImGui::Text(txt.c_str());
+
+                    txt = "Ping : ";
+                    txt += std::to_string(m_EditorLayer->GetScene()->ping);
+                    txt += " m/s";
+                    ImGui::Text(txt.c_str());
                     break;
             }
         }

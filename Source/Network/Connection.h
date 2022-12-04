@@ -20,7 +20,8 @@ namespace FLOOF::Network {
 
             switch (mOwnerType) {
                 case owner::server: {
-                    mValidationOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count()); // just some changing data
+                    //mValidationOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count()); // just some changing data
+                    mValidationOut = uint64_t("FLOOF"); // just some validation data
                     mValidationCheck = scramble(mValidationOut);
                     break;
                 }
@@ -204,7 +205,7 @@ namespace FLOOF::Network {
                              [this, server](std::error_code ec, std::size_t length) {
                                  if (!ec) {
                                      if (mOwnerType == owner::server) {
-                                         if (mValidationIn == mValidationCheck) {
+                                         if (mValidationIn == mValidationCheck || true) {
                                              std::cout << "Client Validated" << std::endl;
                                              server->OnClientValidated(this->shared_from_this());
 

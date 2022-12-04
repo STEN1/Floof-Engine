@@ -48,6 +48,7 @@ namespace FLOOF {
         }
         auto& Client = Application::Get().client;
         if(Client){
+            Client->PingServer();
             Client->Update(m_Scene.get());
         }
 
