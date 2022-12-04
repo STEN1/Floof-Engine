@@ -46,6 +46,8 @@ namespace FLOOF {
 		SoundComponent();
 
 		void Play(SoundClip* clip);
+		void PlayQueue();
+		void AddToQueue(SoundClip* clip);
 		void OnUpdate(); // Check all sources playing and remove finished
 		void OnPlay();
 		void CheckPlaying();
