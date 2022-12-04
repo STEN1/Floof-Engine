@@ -42,6 +42,15 @@ namespace FLOOF {
 
     void EditorLayer::OnUpdate(double deltaTime)
 	{
+        auto& Server = Application::Get().server;
+        if(Server){
+            Server->Update(); // todo should set a max nmb
+        }
+        auto& Client = Application::Get().client;
+        if(Client){
+            Client->Update(m_Scene.get());
+        }
+
         m_Scene->GetPhysicSystem()->OnEditorUpdate(deltaTime);
         if (m_EditorViewFocused){
             UpdateEditorCamera(deltaTime);

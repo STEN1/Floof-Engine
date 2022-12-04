@@ -1,7 +1,7 @@
 #ifndef FLOOF_SERVER_H
 #define FLOOF_SERVER_H
 
-#define ASIO_STANDALONE
+//#define ASIO_STANDALONE
 
 #include "asio.hpp"
 #include "asio/ts/buffer.hpp"
@@ -62,12 +62,11 @@ namespace FLOOF::Network {
                             std::shared_ptr<Connection<T>> Conn =
                                     std::make_shared<Connection<T>>(Connection<T>::owner::server, mContext, std::move(socket), mQMessageIn);
 
-                            if(OnClientConnect(Conn)){
+                            if (OnClientConnect(Conn)) {
                                 mQConnections.push_back(std::move(Conn));
-                                mQConnections.back()->ConnectToClient(IDCounter++);
-                                std::cout << "[" << mQConnections.back()->GetID() << "]"<< " Connection Approved" << std::endl;
-                            }
-                            else{
+                                mQConnections.back()->ConnectToClient(this, IDCounter++);
+                                std::cout << "[" << mQConnections.back()->GetID() << "]" << " Connection Approved" << std::endl;
+                            } else {
                                 std::cout << "[Server] Connection Denied" << std::endl;
                             }
 
@@ -81,49 +80,51 @@ namespace FLOOF::Network {
 
         void MessageClient(std::shared_ptr<Connection<T>> client, const message<T> &msg) {
 
-            if(client && client->IsConnected()){
+            if (client && client->IsConnected()) {
                 client->Send(msg);
-            }
-            else{
+            } else {
                 OnClientDisconnect(client);
                 client.reset();
-                mQConnections.erase(std::remove(mQConnections.begin(), mQConnections.end(), client),mQConnections.end());
+                mQConnections.erase(std::remove(mQConnections.begin(), mQConnections.end(), client), mQConnections.end());
             }
 
         }
 
         void MessageAllClients(const message<T> &msg, std::shared_ptr<Connection<T>> IgnoreClient = nullptr) {
             bool InvalidClientFound{false};
-            for(auto& client : mQConnections){
-                if(client && client->IsConnected()){
-                    if(client != IgnoreClient)
+            for (auto &client: mQConnections) {
+                if (client && client->IsConnected()) {
+                    if (client != IgnoreClient)
                         client->Send(msg);
-                }
-                else{
+                } else {
                     OnClientDisconnect(client);
                     client.reset();
                     InvalidClientFound = true;
                 }
             }
-            if(InvalidClientFound)
-                mQConnections.erase(std::remove(mQConnections.begin(), mQConnections.end(), nullptr),mQConnections.end());
+            if (InvalidClientFound)
+                mQConnections.erase(std::remove(mQConnections.begin(), mQConnections.end(), nullptr), mQConnections.end());
 
         }
 
-        void Update(size_t MaxMessages = -1){
+        void Update(size_t MaxMessages = -1, bool wait = false) {
+
+            if(wait) mQMessageIn.wait();
+
             size_t Messagecount = 0;
-            while(Messagecount < MaxMessages && !mQMessageIn.empty()){
+            while (Messagecount < MaxMessages && !mQMessageIn.empty()) {
                 auto msg = mQMessageIn.pop_front();
 
-                OnMessage(msg.remote,msg.msg);
+                OnMessage(msg.remote, msg.msg);
 
                 Messagecount++;
             }
         }
 
-        size_t ConnectionCount()const{
+        size_t ConnectionCount() const {
             return mQConnections.size();
         }
+
     protected:
 
         virtual bool OnClientConnect(std::shared_ptr<Connection<T>> client) {
@@ -131,6 +132,12 @@ namespace FLOOF::Network {
             return false;
         }
 
+    public:
+        virtual void OnClientValidated(std::shared_ptr<Connection<T>> client) {
+
+        }
+
+    protected:
         virtual void OnClientDisconnect(std::shared_ptr<Connection<T>> client) {
 
         }

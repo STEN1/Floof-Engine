@@ -25,10 +25,16 @@ namespace FLOOF::Network {
         void push_back(const T& item){
             std::scoped_lock lock(muxQueue);
             deqQueue.emplace_back(std::move(item));
+
+            std::unique_lock<std::mutex> ul(muxBlocking);
+            blocking.notify_one();
         }
         void push_front(const T& item){
             std::scoped_lock lock(muxQueue);
             deqQueue.emplace_front(std::move(item));
+
+            std::unique_lock<std::mutex> ul(muxBlocking);
+            blocking.notify_one();
         }
         size_t size(){
             std::scoped_lock lock(muxQueue);
@@ -55,9 +61,19 @@ namespace FLOOF::Network {
             return deqQueue.empty();
         }
 
+        void wait(){
+            //sleep thread until it gets something to do
+            while(empty()){
+                std::unique_lock<std::mutex> ul(muxBlocking);
+                blocking.wait(ul);
+            }
+        }
+
     private:
         std::mutex muxQueue;
         std::deque<T> deqQueue;
+        std::condition_variable blocking;
+        std::mutex muxBlocking;
     };
 
 

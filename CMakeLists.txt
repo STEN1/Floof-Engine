@@ -177,6 +177,7 @@ target_link_libraries(Floof IMGUI)
 target_include_directories(Floof PUBLIC "Libs/HeaderOnly")
 
 #asio
+add_compile_definitions(ASIO_STANDALONE)
 target_include_directories(Floof PUBLIC "Libs/asio/asio/include")
 
 

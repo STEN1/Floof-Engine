@@ -15,6 +15,27 @@ namespace FLOOF {
 
         void OnUpdate(float deltaTime) override {
 
+            //send all players data
+            auto &Server = Application::Get().server;
+            auto &Client = Application::Get().client;
+            if(Server){
+
+            }
+            if(Client){
+                Network::message<FloofMsgHeaders> msg;
+                msg.header.id = FloofMsgHeaders::GameUpdatePlayer;
+                PlayerData data;
+                auto v = m_Scene->GetRegistry().view<PlayerControllerComponent,TransformComponent>();
+                for(auto[ent, player,tform]: v.each()){
+                    if(player.mPlayer == Client->GetID()){
+                        data.Transform = tform;
+                        msg << data;
+                        Client->Send(msg);
+                    }
+                }
+            }
+
+
         };
 
         void LastUpdate(float deltaTime) override {
