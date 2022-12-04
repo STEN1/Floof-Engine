@@ -107,7 +107,10 @@ namespace FLOOF::Network {
 
         }
 
-        void Update(size_t MaxMessages = -1) {
+        void Update(size_t MaxMessages = -1, bool wait = false) {
+
+            if(wait) mQMessageIn.wait();
+
             size_t Messagecount = 0;
             while (Messagecount < MaxMessages && !mQMessageIn.empty()) {
                 auto msg = mQMessageIn.pop_front();
