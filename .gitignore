@@ -72,7 +72,6 @@ compile_commands.json
 *creator.user*
 
 #other stuff
-*.mtl
 *.Debug
 *.Release
 
