@@ -4,6 +4,7 @@
 #include "asio.hpp"
 #include "Message.h"
 #include "Queue.h"
+#include "Server.h"
 
 namespace FLOOF::Network {
     template<typename T>
@@ -17,31 +18,45 @@ namespace FLOOF::Network {
         Connection(owner parent, asio::io_context &context, asio::ip::tcp::socket socket, Queue<ownedMessage<T>> &qIn) :
                 mContext(context), mQMessageIn(qIn), mSocket(std::move(socket)), mOwnerType(parent) {
 
+            switch (mOwnerType) {
+                case owner::server: {
+                    mValidationOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count()); // just some changing data
+                    mValidationCheck = scramble(mValidationOut);
+                    break;
+                }
+                case owner::client: {
+
+                    break;
+                }
+            }
         }
 
         virtual ~Connection() {
 
         }
 
-        void ConnectToClient(uint32_t uid = 0) {
+        void ConnectToClient(Server<T> *server, uint32_t uid = 0) {
             if (mOwnerType == owner::server) {
                 if (mSocket.is_open()) {
                     id = uid;
-                    ReadHeader();
+                    WriteValidation();
+                    ReadValidation(server);
                 }
             }
         }
+
 
         void ConnectToServer(const asio::ip::tcp::resolver::results_type &endpoints) {
             if (mOwnerType == owner::client) {
                 asio::async_connect(mSocket, endpoints,
                                     [this](std::error_code ec, asio::ip::tcp::endpoint endpoint) {
-                                        if(!ec){
-                                            ReadHeader();
+                                        if (!ec) {
+                                            ReadValidation();
                                         }
                                     });
             }
         }
+
         void Disconnect() {
             asio::post(mContext, [this]() { mSocket.close(); });
         }
@@ -65,7 +80,20 @@ namespace FLOOF::Network {
             return id;
         }
 
+        uint64_t scramble(uint64_t input) {
+            uint64_t out = input ^ 0xDAD00DEEF0DE;
+            out = (out & 0xF0F0F0F0F0) >> 4 | (out & 0x0F0F0F0F0F) << 4;
+            return out ^ 0xC0DEFCA1001; // 1001 is version number to stop old client talk to new servers //todo remember to change with version numbers :P
+        }
+
+
     private:
+        //validation check
+        uint64_t mValidationOut = 0;
+        uint64_t mValidationIn = 0;
+        uint64_t mValidationCheck = 0;
+
+
         asio::ip::tcp::socket mSocket;
 
         asio::io_context &mContext;
@@ -155,6 +183,45 @@ namespace FLOOF::Network {
                 mQMessageIn.push_back({nullptr, tmpMessage});
             }
             ReadHeader();
+        }
+
+        void WriteValidation() {
+            asio::async_write(mSocket, asio::buffer(&mValidationOut, sizeof(uint64_t)),
+                              [this](std::error_code ec, std::size_t length) {
+                                  if (!ec) {
+                                      if (mOwnerType == owner::client) {
+                                          ReadHeader();
+                                      }
+                                  } else {
+                                      std::cerr << "[" << id << "] Write Header Fail" << std::endl;
+                                      mSocket.close();
+                                  }
+                              });
+        }
+
+        void ReadValidation(Server<T> *server = nullptr) {
+            asio::async_read(mSocket, asio::buffer(&mValidationIn, sizeof(uint64_t)),
+                             [this, server](std::error_code ec, std::size_t length) {
+                                 if (!ec) {
+                                     if (mOwnerType == owner::server) {
+                                         if (mValidationIn == mValidationCheck) {
+                                             std::cout << "Client Validated" << std::endl;
+                                             server->OnClientValidated(this->shared_from_this());
+
+                                             ReadHeader();
+                                         } else {
+                                             std::cout << "Client Disconnected (Fail Validation)" << std::endl;
+                                             mSocket.close();
+                                         }
+                                     } else {
+                                         mValidationOut = scramble(mValidationIn);
+                                         WriteValidation();
+                                     }
+                                 } else {
+                                     std::cout << "Client Disconnected (Read Validation)" << std::endl;
+                                     mSocket.close();
+                                 }
+                             });
         }
     };
 }

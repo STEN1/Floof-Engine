@@ -6,9 +6,6 @@
 #include "Renderer/SceneRenderer.h"
 #include "Components.h"
 
-#include "Network/FloofNetworking.h"
-
-
 namespace FLOOF {
 
     enum DebugScenes {
