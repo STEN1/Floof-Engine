@@ -20,6 +20,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
                 auto &Server = Application::Get().server;
 
                 Server = std::make_unique<FloofServer>(Port);
+                Server->mScene = m_EditorLayer->GetScene();
 
                 Server->Start();
                 Active = true;

@@ -62,13 +62,15 @@ namespace FLOOF::Network {
             }
         }
 
-        Queue<ownedMessage<T>> Incoming() {
+        Queue<ownedMessage<T>>& Incoming() {
             return mQMessageIn;
         }
 
         uint32_t GetID(){
             return mConnection->GetID();
         }
+
+        virtual void Update(){if(!IsConnected())return;};
     protected:
 
         asio::io_context mContext;

@@ -4,6 +4,7 @@
 #include "asio.hpp"
 #include "Message.h"
 #include "Queue.h"
+#include "Server.h"
 
 namespace FLOOF::Network {
     template<typename T>
@@ -23,14 +24,16 @@ namespace FLOOF::Network {
 
         }
 
-        void ConnectToClient(uint32_t uid = 0) {
+        void ConnectToClient(Server<T>* server, uint32_t uid = 0) {
             if (mOwnerType == owner::server) {
                 if (mSocket.is_open()) {
                     id = uid;
                     ReadHeader();
+                    //server->OnClientValidated(this->shared_from_this());
                 }
             }
         }
+
 
         void ConnectToServer(const asio::ip::tcp::resolver::results_type &endpoints) {
             if (mOwnerType == owner::client) {
