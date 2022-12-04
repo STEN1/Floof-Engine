@@ -16,10 +16,10 @@ namespace FLOOF {
         glm::mat4 LightSpaceMatrix[FLOOF_CASCADE_COUNT];
         glm::mat4 View = glm::mat4(1.f);
         glm::vec4 SplitDists = glm::vec4(0.f);
-        float sunStrenght = 15.f;
+        float sunStrenght = 45.f;
         int LightCount = 0;
         int CascadeCount = FLOOF_CASCADE_COUNT;
-        float AmbientIntensity = 1.f;
+        float AmbientIntensity = 0.2f;
         float Bias = 0.00005f;
     };
     
