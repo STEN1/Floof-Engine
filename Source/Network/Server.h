@@ -64,7 +64,7 @@ namespace FLOOF::Network {
 
                             if (OnClientConnect(Conn)) {
                                 mQConnections.push_back(std::move(Conn));
-                                std::shared_ptr<Connection<T>> con = mQConnections.back();
+                                //std::shared_ptr<Connection<T>> con = mQConnections.back();
                                 mQConnections.back()->ConnectToClient(this, IDCounter++);
                                 std::cout << "[" << mQConnections.back()->GetID() << "]" << " Connection Approved" << std::endl;
                             } else {
@@ -119,8 +119,6 @@ namespace FLOOF::Network {
                 auto msg = mQMessageIn.pop_front();
 
                 OnMessage(msg.remote, msg.msg);
-
-                std::cout << "Server update called with data " << msg << std::endl;
 
                 Messagecount++;
             }

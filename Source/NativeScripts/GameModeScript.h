@@ -22,16 +22,16 @@ namespace FLOOF {
 
             }
             if(Client){
-                Network::message<FloofMsgHeaders> msg;
-                msg.header.id = FloofMsgHeaders::GameUpdatePlayer;
-                PlayerData data;
+                //Network::message<FloofMsgHeaders> msg;
+                //msg.header.id = FloofMsgHeaders::GameUpdatePlayer;
+                //PlayerData data;
                 auto v = m_Scene->GetRegistry().view<PlayerControllerComponent,TransformComponent>();
                 for(auto[ent, player,tform]: v.each()){
-                    if(player.mPlayer == Client->GetID()){
-                        data.Transform = tform;
-                        msg << data;
+                //    if(player.mPlayer == Client->GetID()){
+                //        data.Transform = tform;
+                 //       msg << data;
                         //todo fix Client->Send(msg);
-                    }
+                 //   }
                 }
             }
 
@@ -47,29 +47,29 @@ namespace FLOOF {
             auto &Server = Application::Get().server;
             auto &Client = Application::Get().client;
             if (Server) {
-                for (auto &client: Server->MarkedPlayerForInitialize) {
+                //for (auto &client: Server->MarkedPlayerForInitialize) {
                     // make Players
                     {
-                        std::string Player = "Player : ";
-                        Player += std::to_string(client->GetID());
-                        auto ent = m_Scene->CreateEntity(Player);
-                        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 10.f * (client->GetID()-999.f))), m_Scene, ent);
-                        m_Scene->AddComponent<PlayerControllerComponent>(ent, client->GetID());
+                        //std::string Player = "Player : ";
+                       // Player += std::to_string(client->GetID());
+                      //  auto ent = m_Scene->CreateEntity(Player);
+                     //   m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 10.f * (client->GetID()-999.f))), m_Scene, ent);
+                    //    m_Scene->AddComponent<PlayerControllerComponent>(ent, client->GetID());
 
-                        Server->ActivePlayers.emplace_back(client);
+                  //      Server->ActivePlayers.emplace_back(client);
                     }
-                }
+                //}
                 //cleanup initializevector
-               Server->MarkedPlayerForInitialize.clear();
+               //Server->MarkedPlayerForInitialize.clear();
                 //remove Players
-                for (auto &client: Server->MarkedPlayerForRemove) {
-                    //todo remove entity on disconnect
+                //for (auto &client: Server->MarkedPlayerForRemove) {
+                 //   //todo remove entity on disconnect
 
-                }
-                Server->MarkedPlayerForRemove.clear();
+                //}
+                //Server->MarkedPlayerForRemove.clear();
 
             } else if (Client && Client->IsConnected()) {
-                m_Scene->ActivePlayer = Client->GetID();
+              //  m_Scene->ActivePlayer = Client->GetID();
             }
 
         }

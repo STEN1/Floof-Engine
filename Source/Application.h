@@ -6,7 +6,8 @@
 #include <memory>
 #include <unordered_map>
 #include "ApplicationLayer.h"
-#include "Network/FloofNetworking.h"
+//#include "Network/FloofNetworking.h"
+#include "Network/TestNetwork"
 
 namespace FLOOF {
     class Application {
@@ -32,7 +33,7 @@ namespace FLOOF {
         void CleanApplication();
 
     public:
-        std::unique_ptr<FloofClient> client;
+        std::unique_ptr<TestClient> client;
         std::unique_ptr<FloofServer> server;
     private:
 

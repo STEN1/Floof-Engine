@@ -20,7 +20,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
                 auto &Server = Application::Get().server;
 
                 Server = std::make_unique<FloofServer>(Port);
-                Server->mScene = m_EditorLayer->GetScene();
+                //Server->mScene = m_EditorLayer->GetScene();
 
                 Server->Start();
                 Active = true;
@@ -43,7 +43,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
             ImGui::InputInt("Port", &Port, 1, 2, 0);
             if (ImGui::Button("Join Game")) {
                 auto &cli = Application::Get().client;
-                cli = std::make_unique<FloofClient>();
+                cli = std::make_unique<TestClient>();
                 cli->Connect(Ip, Port);
                 Active = true;
                 con = Type::Client;
@@ -71,7 +71,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
                     txt += std::to_string(Port);
                     ImGui::Text(txt.c_str());
                     txt = "Clients Connected : ";
-                    txt += std::to_string(Server->ConnectionCount());
+                    //txt += std::to_string(Server->ConnectionCount());
                     ImGui::Text(txt.c_str());
                     break;
                 case Type::Client:

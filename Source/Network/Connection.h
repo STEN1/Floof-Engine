@@ -67,10 +67,6 @@ namespace FLOOF::Network {
             return mSocket.is_open();
         }
 
-        void StartListening(){
-            ReadHeader();
-        }
-
         void Send(const message<T> &msg) {
             std::cout <<"Sending message " << msg << std::endl;
             asio::post(mContext,
@@ -115,7 +111,6 @@ namespace FLOOF::Network {
 
 
         void ReadHeader() {
-            std::cout << "Reading header called" << std::endl;
             asio::async_read(mSocket, asio::buffer(&tmpMessage.header, sizeof(messageHeader<T>)),
                              [this](std::error_code ec, std::size_t length) {
                                  if (!ec) {
