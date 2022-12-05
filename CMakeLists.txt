@@ -92,6 +92,7 @@ add_executable(Floof
         Source/CameraComponent.cpp
         Source/CameraComponent.h
         Source/PointLightComponent.h
+        Source/NativeScripts/NativeScript.cpp
         Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Network/Server.h Source/Network/Message.h Source/Network/Client.h Source/Network/Queue.h Source/Network/Connection.h Source/Network/FloofNetworking.h Source/Editor/EditorPanels/NetworkPanel.cpp Source/Editor/EditorPanels/NetworkPanel.h Source/NativeScripts/GameModeScript.h Source/Network/OlcNet.h Source/LineMeshComponent.h Source/LineMeshComponent.cpp)
 
 
@@ -113,7 +114,7 @@ set(BULLET_PHYSICS_SOURCE_DIR ../../)
 #add_compile_definitions(__BT_DISABLE_SSE__) #disable sse on all systems, fix bullet LinearMath not compiling
 add_compile_definitions(BT_USE_SSE_IN_API) #enable SSE
 set(Bullet_Dir Libs/bullet3)
-add_library(Bullet STATIC Assets/TorusMesh.h Source/Network/TestNetwork)
+add_library(Bullet STATIC)
 target_include_directories(Bullet PUBLIC ${Bullet_Dir}/src)
 target_sources(Bullet PRIVATE
         ${Bullet_Dir}/src/btBulletDynamicsAll.cpp
