@@ -1,8 +1,8 @@
-﻿cmake_minimum_required(VERSION 3.14)
-project(Floof)
+﻿cmake_minimum_required (VERSION 3.14)
+project (Floof)
 set(CMAKE_CXX_STANDARD 20)
 
-add_compile_definitions(FLOOF_DEVELOPER_PATH= "${CMAKE_CURRENT_SOURCE_DIR}")
+add_compile_definitions(FLOOF_DEVELOPER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(Floof
         Source/Floof.cpp
@@ -77,13 +77,7 @@ add_executable(Floof
         Source/Renderer/Skybox.cpp
         Source/Editor/EditorPanels/SoundSettingsPanel.h
         Source/Editor/EditorPanels/SoundSettingsPanel.cpp
-        Source/HeightField.cpp Source/HeightField.h
-        "Source/Renderer/IBL.h"
-        "Source/Renderer/Framebuffer.h"
-        "Source/Renderer/Framebuffer.cpp"
-        "Source/Renderer/IBL.cpp"
-        Source/NativeScripts/WonderBaumScript.cpp
-        Source/NativeScripts/WonderBaumScript.h
+        Source/HeightField.cpp Source/HeightField.h "Source/Renderer/IBL.h" "Source/Renderer/Framebuffer.h" "Source/Renderer/Framebuffer.cpp" "Source/Renderer/IBL.cpp" Source/NativeScripts/WonderBaumScript.cpp Source/NativeScripts/WonderBaumScript.h
         Source/HeightField.cpp Source/HeightField.h
         Source/Renderer/IBL.h
         Source/Renderer/Framebuffer.h
@@ -93,25 +87,13 @@ add_executable(Floof
         Source/Editor/EditorPanels/SoundClipPanel.cpp
         Source/Editor/EditorPanels/SoundSourcesPanel.cpp
         Source/Editor/EditorPanels/SoundSourcesPanel.h
-        Source/Editor/EditorPanels/NetworkPanel.cpp
-        Source/Editor/EditorPanels/NetworkPanel.h
-        Source/NativeScripts/GameModeScript.h
-        "Source/NativeScripts/LightSwarm.h"
-        "Source/NativeScripts/LightSwarm.cpp"
-        "Source/NativeScripts/NativeScript.cpp"
-        "Source/CameraComponent.h"
-        "Source/CameraComponent.cpp"
-        "Source/PointLightComponent.h"
-        Source/CollisionDispatcher.cpp
-        Source/CollisionDispatcher.h
-        Source/Network/Server.h
-        Source/Network/Message.h
-        Source/Network/Client.h
-        Source/Network/Queue.h
-        Source/Network/Connection.h
-        Source/Network/FloofNetworking.h
-        Source/Network/OlcNet.h
-        )
+        Source/NativeScripts/LightSwarm.cpp
+        Source/NativeScripts/LightSwarm.h
+        Source/CameraComponent.cpp
+        Source/CameraComponent.h
+        Source/PointLightComponent.h
+        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Network/Server.h Source/Network/Message.h Source/Network/Client.h Source/Network/Queue.h Source/Network/Connection.h Source/Network/FloofNetworking.h Source/Editor/EditorPanels/NetworkPanel.cpp Source/Editor/EditorPanels/NetworkPanel.h Source/NativeScripts/GameModeScript.h Source/Network/OlcNet.h)
+
 
 
 find_package(Vulkan REQUIRED)
@@ -204,10 +186,11 @@ add_compile_definitions(ASIO_STANDALONE)
 target_include_directories(Floof PUBLIC "Libs/asio/asio/include")
 
 
+
 #if compiled with xcode, not supporting release yet
-if (CMAKE_GENERATOR STREQUAL Xcode)
-    set(CMAKE_CURRENT_BINARY_DIR "Debug/")
-endif ()
+if(CMAKE_GENERATOR STREQUAL Xcode)
+    set(CMAKE_CURRENT_BINARY_DIR  "Debug/")
+endif()
 
 execute_process(
         #OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}
@@ -215,15 +198,15 @@ execute_process(
 )
 
 #set current binary dir c++ variable
-add_compile_definitions(BINARY_DIR= "${CMAKE_CURRENT_BINARY_DIR}")
-add_compile_definitions(SOURCE_DIR= "${CMAKE_CURRENT_SOURCE_DIR}")
+add_compile_definitions(BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
+add_compile_definitions(SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 #check for imgui file if not set default
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini")
-else ()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini")
+else()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/ImguiDefault/imgui.ini
             ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
             )
-endif ()
+endif()
