@@ -4,7 +4,8 @@
 #include "VulkanBuffer.h"
 #include "Skybox.h"
 #include "IBL.h"
-#include "../Components.h"
+#include "../CameraComponent.h"
+#include "../PointLightComponent.h"
 
 namespace FLOOF {
 #define FLOOF_CASCADE_COUNT 4

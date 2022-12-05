@@ -41,14 +41,14 @@ namespace FLOOF {
 
 				node_flags = base_flags;
 
-				if (m_EditorLayer->GetScene()->m_SelectedClip == clip.second)
+				if (m_EditorLayer->GetScene()->m_SelectedClip == clip.second.get())
 					node_flags |= ImGuiTreeNodeFlags_Selected;
 
 				node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 				ImGui::TreeNodeEx((void*)&clip, node_flags, clip.second->m_Path.c_str());
 				if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
 					m_EditorLayer->GetScene()->m_SelectedEntity = entity;
-					m_EditorLayer->GetScene()->m_SelectedClip = clip.second;
+					m_EditorLayer->GetScene()->m_SelectedClip = clip.second.get();
 				}
 			}
 			ImGui::TreePop();

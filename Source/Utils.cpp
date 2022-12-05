@@ -184,6 +184,13 @@ namespace FLOOF {
         btVector3 glmTobt(const glm::vec3 b) {
             return btVector3(b.x,b.y,b.z);
         }
+
+        glm::vec3 ColorFromScalar(float t) {
+            float colorX = sin(t + glm::quarter_pi<float>()) * 0.5f + 0.5f;
+            float colorY = sin(t + glm::half_pi<float>() + glm::quarter_pi<float>()) * 0.5f + 0.5f;
+            float colorZ = sin(t) * 0.5f + 0.5f;
+            return glm::vec3(colorX, colorY, colorZ);
+        }
     }
 }
 

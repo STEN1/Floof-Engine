@@ -4,7 +4,7 @@
 #include <entt/entt.hpp>
 #include "PhysicsSystem.h"
 #include "Renderer/SceneRenderer.h"
-#include "Components.h"
+#include "CameraComponent.h"
 
 namespace FLOOF {
 
@@ -95,7 +95,7 @@ namespace FLOOF {
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
-        std::shared_ptr<SoundSourceComponent::SoundClip> m_SelectedClip;
+        class SoundClip* m_SelectedClip = nullptr;
         entt::entity m_LastSelectedEntity = entt::null;
 
         std::unique_ptr<SceneRenderer> m_SceneRenderer;

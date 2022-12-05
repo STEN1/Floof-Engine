@@ -12,6 +12,7 @@
 #include "EditorPanels/SoundSourcesPanel.h"
 
 #include "../NativeScripts/MonsterTruckScript.h"
+#include "../NativeScripts/LightSwarm.h"
 #include "../NativeScripts/WonderBaumScript.h"
 #include "../NativeScripts/GameModeScript.h"
 #include "imgui_internal.h"
@@ -557,6 +558,8 @@ namespace FLOOF {
         m_Scene = std::make_unique<Scene>();
         const auto entity = m_Scene->CreateEntity();
         m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
+        const auto lightSwarmEntity = m_Scene->CreateEntity();
+        m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
     }
 
     void EditorLayer::MakePhysicsPlayGround() {

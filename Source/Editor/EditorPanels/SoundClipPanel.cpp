@@ -1,6 +1,7 @@
 #include "SoundClipPanel.h"
 #include "../../Application.h"
 #include "../EditorLayer.h"
+#include "../../Components.h"
 
 namespace FLOOF {
 	void SoundClipPanel::DrawPanel() {

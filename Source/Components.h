@@ -15,6 +15,8 @@
 #include "BulletSoftBody/btSoftBody.h"
 #include "NativeScripts/NativeScript.h"
 #include "TransformComponent.h"
+#include "CameraComponent.h"
+#include "PointLightComponent.h"
 #include "HeightmapLoader.h"
 
 #include <pytypedefs.h>
@@ -58,36 +60,6 @@ namespace FLOOF {
 
         VulkanBufferData VertexBuffer{};
         uint32_t VertexCount{};
-    };
-
-    struct CameraComponent {
-        CameraComponent();
-        CameraComponent(glm::vec3 position);
-
-        glm::mat4 GetVP(float fov, float aspect, float near, float far);
-        glm::mat4 GetView();
-        glm::mat4 GetPerspective(float fov, float aspect, float near, float far);
-
-        void Lookat(const glm::vec3 eye, const glm::vec3 center);
-
-        void MoveForward(float amount);
-
-        void MoveRight(float amount);
-
-        void MoveUp(float amount);
-
-        void Pitch(float amount);
-
-        void Yaw(float amount);
-
-        glm::vec3 Position;
-        glm::vec3 Forward;
-        glm::vec3 Up;
-        glm::vec3 Right;
-        float FOV = 1.f;
-        float Near = 0.1f;
-        float Far = 100.f;
-        float Aspect = 16.f / 9.f;
     };
 
     class BSplineComponent {
@@ -201,6 +173,29 @@ namespace FLOOF {
 
     };
 
+    class SoundClip {
+    public:
+        SoundClip(const std::string& path);
+        void NewDeviceReload();
+        ~SoundClip();
+        void Volume();
+        void Volume(float volume);
+        void Pitch();
+        void UpdateStatus();
+        void Play();
+        void Stop();
+        void Looping(bool looping);
+
+        ALuint m_Source;
+        ALuint m_Sound;
+        std::string m_Path;
+        std::string m_Name;
+        float m_Volume{ 1.f };
+        float m_Pitch{ 1.f };
+        bool isPlaying{ false };
+        bool isLooping{ false };
+    };
+
     struct SoundSourceComponent {
         friend class SoundManager;
 
@@ -219,29 +214,6 @@ namespace FLOOF {
         
         float m_Volume{1.f};
 
-        class SoundClip {
-        public:
-            SoundClip(const std::string& path);
-            void NewDeviceReload();
-            ~SoundClip();
-            void Volume();
-            void Volume(float volume);
-            void Pitch();
-            void UpdateStatus();
-            void Play();
-            void Stop();
-            void Looping(bool looping);
-            
-            ALuint m_Source;
-            ALuint m_Sound;
-            std::string m_Path;
-            std::string m_Name;
-            float m_Volume{ 1.f };
-            float m_Pitch{ 1.f };
-            bool isPlaying{ false };
-            bool isLooping{ false };
-        };
-
         std::unordered_map<std::string, std::shared_ptr<SoundClip>> mClips;
         std::shared_ptr<SoundClip> GetClip(const std::string& name);
 
@@ -250,22 +222,7 @@ namespace FLOOF {
 
     };
 
-    struct PointLightComponent {
-        glm::vec4 diffuse = {1.0f, 0.7f, 0.5f, 0.f};
-        glm::vec4 ambient = glm::vec4(0.4f, 0.4f, 0.4f, 0.f) * 0.1f;
-
-        float lightRange = 50.f;
-
-        struct PointLight {
-            glm::vec4 position;
-            glm::vec4 diffuse;
-            glm::vec4 ambient;
-            float linear;
-            float quadratic;
-            float lightRange;
-            float pad;
-        };
-    };
+    
 
     struct NativeScriptComponent {
         NativeScriptComponent() = delete;

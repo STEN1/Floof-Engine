@@ -14,5 +14,7 @@ namespace FLOOF {
 
         glm::vec3 btToglm(const btVector3);
         btVector3 glmTobt(const glm::vec3);
+
+        glm::vec3 ColorFromScalar(float t);
     }
 }
