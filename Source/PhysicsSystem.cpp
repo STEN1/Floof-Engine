@@ -9,6 +9,7 @@
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "Scene.h"
 #include "CollisionDispatcher.h"
+#include "LineMeshComponent.h"
 
 #define GravitationalConstant -9.81
 

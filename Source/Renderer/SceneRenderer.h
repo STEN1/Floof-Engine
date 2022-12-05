@@ -6,6 +6,7 @@
 #include "IBL.h"
 #include "../CameraComponent.h"
 #include "../PointLightComponent.h"
+#include "../LineMeshComponent.h"
 
 namespace FLOOF {
 #define FLOOF_CASCADE_COUNT 4

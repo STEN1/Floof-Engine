@@ -33,50 +33,9 @@
 
 
 namespace FLOOF {
-    LineMeshComponent::LineMeshComponent(const std::vector<ColorVertex> &vertexData) {
-        auto renderer = VulkanRenderer::Get();
 
-        VertexCount = vertexData.size();
-        MaxVertexCount = VertexCount;
-        VkBufferCreateInfo bufCreateInfo = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-        bufCreateInfo.size = sizeof(ColorVertex) * VertexCount;
-        bufCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-        VmaAllocationCreateInfo allocCreateInfo = {};
-        allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-        allocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-                                VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
-        vmaCreateBuffer(renderer->m_Allocator, &bufCreateInfo, &allocCreateInfo, &VertexBuffer.Buffer,
-                        &VertexBuffer.Allocation, &VertexBuffer.AllocationInfo);
-
-        // Buffer is already mapped. You can access its memory.
-        memcpy(VertexBuffer.AllocationInfo.pMappedData, vertexData.data(), sizeof(ColorVertex) * VertexCount);
-    }
-
-    LineMeshComponent::~LineMeshComponent() {
-        auto renderer = VulkanRenderer::Get();
-        if (VertexBuffer.Buffer != VK_NULL_HANDLE)
-            vmaDestroyBuffer(renderer->m_Allocator, VertexBuffer.Buffer, VertexBuffer.Allocation);
-    }
-
-    void LineMeshComponent::Draw(VkCommandBuffer commandBuffer) {
-        if (VertexCount == 0)
-            return;
-
-        VkDeviceSize offset{0};
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &VertexBuffer.Buffer, &offset);
-        vkCmdDraw(commandBuffer, VertexCount, 1, 0, 0);
-    }
-
-    void LineMeshComponent::UpdateBuffer(const std::vector<ColorVertex> &vertexData) {
-        VertexCount = vertexData.size();
-        if (VertexCount > MaxVertexCount) {
-            VertexCount = MaxVertexCount;
-        }
-        // Buffer is already mapped. You can access its memory.
-        memcpy(VertexBuffer.AllocationInfo.pMappedData, vertexData.data(), sizeof(ColorVertex) * VertexCount);
-    }
 
     
 

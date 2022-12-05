@@ -4,6 +4,8 @@
 #include <iostream>
 #include "../PhysicsSystem.h"
 #include "../Scene.h"
+#include "../Components.h"
+#include "../LineMeshComponent.h"
 
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {

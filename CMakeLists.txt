@@ -92,7 +92,7 @@ add_executable(Floof
         Source/CameraComponent.cpp
         Source/CameraComponent.h
         Source/PointLightComponent.h
-        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Network/Server.h Source/Network/Message.h Source/Network/Client.h Source/Network/Queue.h Source/Network/Connection.h Source/Network/FloofNetworking.h Source/Editor/EditorPanels/NetworkPanel.cpp Source/Editor/EditorPanels/NetworkPanel.h Source/NativeScripts/GameModeScript.h Source/Network/OlcNet.h)
+        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Network/Server.h Source/Network/Message.h Source/Network/Client.h Source/Network/Queue.h Source/Network/Connection.h Source/Network/FloofNetworking.h Source/Editor/EditorPanels/NetworkPanel.cpp Source/Editor/EditorPanels/NetworkPanel.h Source/NativeScripts/GameModeScript.h Source/Network/OlcNet.h Source/LineMeshComponent.h Source/LineMeshComponent.cpp)
 
 
 

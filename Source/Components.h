@@ -37,20 +37,6 @@ namespace FLOOF {
         std::string Tag = "Entity";
     };
 
-    struct LineMeshComponent {
-        LineMeshComponent(const std::vector<ColorVertex> &vertexData);
-
-        ~LineMeshComponent();
-
-        void Draw(VkCommandBuffer commandBuffer);
-
-        void UpdateBuffer(const std::vector<ColorVertex> &vertexData);
-
-        VulkanBufferData VertexBuffer{};
-        uint32_t VertexCount{};
-        uint32_t MaxVertexCount{};
-    };
-
     struct PointCloudComponent {
         PointCloudComponent(const std::vector<ColorVertex> &vertexData);
 

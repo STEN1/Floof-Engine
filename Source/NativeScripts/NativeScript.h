@@ -3,7 +3,7 @@
 #include "../Scene.h"
 
 namespace FLOOF {
-	class Scene;
+    class Scene;
 	class NativeScript{
 	public:
 		virtual void OnCreate(Scene* scene, entt::entity entity) { m_Scene = scene; m_Entity = entity; };
