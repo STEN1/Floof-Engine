@@ -560,6 +560,7 @@ namespace FLOOF {
         m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
         const auto lightSwarmEntity = m_Scene->CreateEntity();
         m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
+        m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y = 400.f;
     }
 
     void EditorLayer::MakePhysicsPlayGround() {

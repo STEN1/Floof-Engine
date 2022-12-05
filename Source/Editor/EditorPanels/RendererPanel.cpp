@@ -55,7 +55,7 @@ namespace FLOOF {
 
 		// Ambient intensity
 		float ambientIntensity = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.AmbientIntensity;
-		if (ImGui::DragFloat("Ambient intensity", &ambientIntensity, 0.05f, 0.f, 100.f)) {
+		if (ImGui::DragFloat("Ambient intensity", &ambientIntensity, 0.01f, 0.f, 2.f)) {
 			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.AmbientIntensity = ambientIntensity;
 			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.AmbientIntensity = ambientIntensity;
 		}

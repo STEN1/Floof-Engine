@@ -97,12 +97,16 @@ void main() {
     {
         vec3 lighgPos = lightSSBO.lights[i].position.xyz;
         vec3 lightColor = lightSSBO.lights[i].diffuse.xyz;
+        float distance    = length(lighgPos - fragPos);
         // calculate per-light radiance
         vec3 L = normalize(lighgPos - fragPos);
         vec3 H = normalize(V + L);
-        float distance    = length(lighgPos - fragPos);
+        float range = lightSSBO.lights[i].lightRange * 0.001;
+        float t = smoothstep(range + 20.0, range, distance);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance     = lightColor * attenuation * lightSSBO.lights[i].lightRange;      
+        attenuation *= t;
+        vec3 radiance     = lightColor * attenuation * lightSSBO.lights[i].lightRange * 0.5;
+        
         
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);        

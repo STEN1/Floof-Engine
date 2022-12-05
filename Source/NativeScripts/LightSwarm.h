@@ -8,5 +8,6 @@ namespace FLOOF {
         virtual void OnUpdate(float deltaTime) override;
     private:
         std::vector<entt::entity> m_Lights;
+        glm::vec3 m_Extents;
     };
 }
