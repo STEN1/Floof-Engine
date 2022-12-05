@@ -53,6 +53,7 @@ namespace FLOOF {
             while (!Incoming().empty()) {
                 auto msg = Incoming().pop_front().msg;
 
+                std::cout << "Client recieved " << msg << std::endl;
                 switch (msg.header.id) {
                     case FloofMsgHeaders::ServerGetStatus:
                         break;
@@ -61,9 +62,15 @@ namespace FLOOF {
                         std::chrono::system_clock::time_point timeThen;
                         msg >> timeThen;
                         scene->ping = std::chrono::duration<double>(timeNow-timeThen).count();
+
+                        timeNow = std::chrono::system_clock::now();
+                        msg.body.clear();
+                        msg << timeThen;
+                        Send(msg);
                         break;
                     }
                     case FloofMsgHeaders::ClientAccepted: {
+                        mConnection->IsValidated = true;
                         Network::message<FloofMsgHeaders> sendMsg;
                         sendMsg.header.id = FloofMsgHeaders::ClientRegisterWithServer;
                         //tood send spawnlocation
@@ -72,12 +79,22 @@ namespace FLOOF {
                         data.id = GetID();
                         sendMsg << data;
                         Send(sendMsg);
+
+                        PingServer();
                         break;
                     }
                     case FloofMsgHeaders::ClientAssignID:{
                         PlayerData Data;
                         msg >> Data;
                         scene->ActivePlayer = Data.id;
+
+                        Network::message<FloofMsgHeaders> msg;
+                        msg.header.id = FloofMsgHeaders::ServerGetPing;
+
+                        auto timeNow = std::chrono::system_clock::now();
+                        msg << timeNow;
+
+                        Send(msg);
                         break;
                     }
 
@@ -140,16 +157,27 @@ namespace FLOOF {
             return true;
         }
     public:
+        void PingClients() {
+            Network::message<FloofMsgHeaders> msg;
+            msg.header.id = FloofMsgHeaders::ServerGetPing;
+
+            auto timeNow = std::chrono::system_clock::now();
+            msg << timeNow;
+
+            MessageAllClients(msg);
+        }
         virtual void OnClientValidated(std::shared_ptr<Network::Connection<FloofMsgHeaders>> client) override {
+            Server::OnClientValidated(client);
+
             std::cout << "Added Client [" << client->GetID() << "]" << std::endl;
 
             Network::message<FloofMsgHeaders> msg;
             msg.header.id = FloofMsgHeaders::ClientAccepted;
-            client->Send(msg);
+            MessageClient(client, msg);
         }
     protected:
         virtual void OnClientDisconnect(std::shared_ptr<Network::Connection<FloofMsgHeaders>> client) override {
-
+            Server::OnClientConnect(client);
 
             std::cout << "Removing Client [" << client->GetID() << "]" << std::endl;
 
@@ -159,12 +187,12 @@ namespace FLOOF {
 
         virtual void OnMessage(std::shared_ptr<Network::Connection<FloofMsgHeaders>> client,
                                Network::message<FloofMsgHeaders> &msg) override {
+            std::cout << "OnMessage call " << msg << std::endl;
             switch (msg.header.id) {
                 case FloofMsgHeaders::ServerGetStatus:
                     break;
                 case FloofMsgHeaders::ServerGetPing:{
-
-                    client->Send(msg);
+                    MessageClient(client, msg);
                     break;
                 }
                 case FloofMsgHeaders::ClientAccepted:

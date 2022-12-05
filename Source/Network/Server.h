@@ -64,6 +64,7 @@ namespace FLOOF::Network {
 
                             if (OnClientConnect(Conn)) {
                                 mQConnections.push_back(std::move(Conn));
+                                std::shared_ptr<Connection<T>> con = mQConnections.back();
                                 mQConnections.back()->ConnectToClient(this, IDCounter++);
                                 std::cout << "[" << mQConnections.back()->GetID() << "]" << " Connection Approved" << std::endl;
                             } else {
@@ -109,13 +110,17 @@ namespace FLOOF::Network {
 
         void Update(size_t MaxMessages = -1, bool wait = false) {
 
-            if(wait) mQMessageIn.wait();
+            if (wait) mQMessageIn.wait();
+            if(mContext.stopped())
+                std::cout << "Asio contexed Stopped!!!!" << std::endl;
 
             size_t Messagecount = 0;
             while (Messagecount < MaxMessages && !mQMessageIn.empty()) {
                 auto msg = mQMessageIn.pop_front();
 
                 OnMessage(msg.remote, msg.msg);
+
+                std::cout << "Server update called with data " << msg << std::endl;
 
                 Messagecount++;
             }
@@ -134,7 +139,7 @@ namespace FLOOF::Network {
 
     public:
         virtual void OnClientValidated(std::shared_ptr<Connection<T>> client) {
-
+            client->IsValidated = true;
         }
 
     protected:

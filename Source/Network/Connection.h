@@ -21,7 +21,7 @@ namespace FLOOF::Network {
             switch (mOwnerType) {
                 case owner::server: {
                     //mValidationOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count()); // just some changing data
-                    mValidationOut = uint64_t("FLOOF"); // just some validation data
+                    mValidationOut = uint64_t("I Am A Real FLOOF"); // just some validation data
                     mValidationCheck = scramble(mValidationOut);
                     break;
                 }
@@ -59,15 +59,20 @@ namespace FLOOF::Network {
         }
 
         void Disconnect() {
-            asio::post(mContext, [this]() { mSocket.close(); });
+            if(IsConnected())
+                asio::post(mContext, [this]() { mSocket.close(); });
         }
 
         bool IsConnected() const {
             return mSocket.is_open();
         }
 
+        void StartListening(){
+            ReadHeader();
+        }
 
         void Send(const message<T> &msg) {
+            std::cout <<"Sending message " << msg << std::endl;
             asio::post(mContext,
                        [this, msg]() {
                            bool writing = !mQMessageOut.empty();
@@ -88,6 +93,7 @@ namespace FLOOF::Network {
         }
 
 
+        bool IsValidated{false};
     private:
         //validation check
         uint64_t mValidationOut = 0;
@@ -109,6 +115,7 @@ namespace FLOOF::Network {
 
 
         void ReadHeader() {
+            std::cout << "Reading header called" << std::endl;
             asio::async_read(mSocket, asio::buffer(&tmpMessage.header, sizeof(messageHeader<T>)),
                              [this](std::error_code ec, std::size_t length) {
                                  if (!ec) {
@@ -178,11 +185,14 @@ namespace FLOOF::Network {
         }
 
         void AddToMsgInQueue() {
+            std::cout << "Add msg to in queue " << tmpMessage << std::endl;
+
             if (mOwnerType == owner::server) {
                 mQMessageIn.push_back({this->shared_from_this(), tmpMessage});
             } else {
                 mQMessageIn.push_back({nullptr, tmpMessage});
             }
+
             ReadHeader();
         }
 
@@ -205,7 +215,7 @@ namespace FLOOF::Network {
                              [this, server](std::error_code ec, std::size_t length) {
                                  if (!ec) {
                                      if (mOwnerType == owner::server) {
-                                         if (mValidationIn == mValidationCheck || true) {
+                                         if (mValidationIn == mValidationCheck) {
                                              std::cout << "Client Validated" << std::endl;
                                              server->OnClientValidated(this->shared_from_this());
 

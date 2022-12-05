@@ -92,6 +92,10 @@ void FLOOF::NetworkPanel::DrawPanel() {
         }
         switch (con) {
             case Type::Server:
+                if (ImGui::Button("Ping All clients")) {
+                    auto &Server = Application::Get().server;
+                    Server->PingClients();
+                }
                 if (ImGui::Button("Stop Server")) {
                     auto &Server = Application::Get().server;
                     Server->Stop();
@@ -100,6 +104,10 @@ void FLOOF::NetworkPanel::DrawPanel() {
                 }
                 break;
             case Type::Client:
+                if (ImGui::Button("Ping Server")) {
+                    auto &cli = Application::Get().client;
+                    cli->PingServer();
+                }
                 if (ImGui::Button("Stop Client")) {
                     auto &cli = Application::Get().client;
                     cli->Disconnect();

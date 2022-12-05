@@ -30,7 +30,7 @@ namespace FLOOF {
                     if(player.mPlayer == Client->GetID()){
                         data.Transform = tform;
                         msg << data;
-                        Client->Send(msg);
+                        //todo fix Client->Send(msg);
                     }
                 }
             }
