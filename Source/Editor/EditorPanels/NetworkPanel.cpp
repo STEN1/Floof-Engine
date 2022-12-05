@@ -82,11 +82,20 @@ void FLOOF::NetworkPanel::DrawPanel() {
                     txt += " :  ";
                     txt += std::to_string(Port);
                     ImGui::Text(txt.c_str());
+
+                    txt = "Ping : ";
+                    txt += std::to_string(m_EditorLayer->GetScene()->ping);
+                    txt += " m/s";
+                    ImGui::Text(txt.c_str());
                     break;
             }
         }
         switch (con) {
             case Type::Server:
+                if (ImGui::Button("Ping All clients")) {
+                    auto &Server = Application::Get().server;
+                    Server->PingClients();
+                }
                 if (ImGui::Button("Stop Server")) {
                     auto &Server = Application::Get().server;
                     Server->Stop();
@@ -95,6 +104,10 @@ void FLOOF::NetworkPanel::DrawPanel() {
                 }
                 break;
             case Type::Client:
+                if (ImGui::Button("Ping Server")) {
+                    auto &cli = Application::Get().client;
+                    cli->PingServer();
+                }
                 if (ImGui::Button("Stop Client")) {
                     auto &cli = Application::Get().client;
                     cli->Disconnect();

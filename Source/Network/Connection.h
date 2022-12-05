@@ -20,7 +20,8 @@ namespace FLOOF::Network {
 
             switch (mOwnerType) {
                 case owner::server: {
-                    mValidationOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count()); // just some changing data
+                    //mValidationOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count()); // just some changing data
+                    mValidationOut = uint64_t("I Am A Real FLOOF"); // just some validation data
                     mValidationCheck = scramble(mValidationOut);
                     break;
                 }
@@ -58,15 +59,16 @@ namespace FLOOF::Network {
         }
 
         void Disconnect() {
-            asio::post(mContext, [this]() { mSocket.close(); });
+            if(IsConnected())
+                asio::post(mContext, [this]() { mSocket.close(); });
         }
 
         bool IsConnected() const {
             return mSocket.is_open();
         }
 
-
         void Send(const message<T> &msg) {
+            std::cout <<"Sending message " << msg << std::endl;
             asio::post(mContext,
                        [this, msg]() {
                            bool writing = !mQMessageOut.empty();
@@ -87,6 +89,7 @@ namespace FLOOF::Network {
         }
 
 
+        bool IsValidated{false};
     private:
         //validation check
         uint64_t mValidationOut = 0;
@@ -177,11 +180,14 @@ namespace FLOOF::Network {
         }
 
         void AddToMsgInQueue() {
+            std::cout << "Add msg to in queue " << tmpMessage << std::endl;
+
             if (mOwnerType == owner::server) {
                 mQMessageIn.push_back({this->shared_from_this(), tmpMessage});
             } else {
                 mQMessageIn.push_back({nullptr, tmpMessage});
             }
+
             ReadHeader();
         }
 

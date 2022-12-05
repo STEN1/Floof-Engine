@@ -68,6 +68,10 @@ namespace FLOOF::Network {
                 blocking.wait(ul);
             }
         }
+        size_t count(){
+            std::scoped_lock lock(muxBlocking);
+            return deqQueue.size();
+        }
 
     private:
         std::mutex muxQueue;

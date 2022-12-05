@@ -10,7 +10,7 @@ namespace FLOOF::Network {
     template<typename T>
     class Client {
     public:
-        Client() : mSocket(mContext) {
+        Client() {
 
         };
 
@@ -25,7 +25,7 @@ namespace FLOOF::Network {
                 asio::ip::tcp::resolver resolver(mContext);
                 auto endpoints = resolver.resolve(host, std::to_string(port));
 
-                mConnection = std::make_unique<Connection<T>>(Connection<T>::owner::client,mContext,asio::ip::tcp::socket(mContext),mQMessageIn);
+                mConnection = std::make_unique<Connection<T>>(Connection<T>::owner::client, mContext, asio::ip::tcp::socket(mContext), mQMessageIn);
 
                 mConnection->ConnectToServer(endpoints);
 
@@ -56,26 +56,30 @@ namespace FLOOF::Network {
                 return false;
         }
 
-        void Send(const message<T>& msg){
-            if(IsConnected()){
+        bool IsValidated() {
+            return IsConnected() && mConnection->IsValidated;
+
+        }
+
+        void Send(const message<T> &msg) {
+            if (IsConnected()) {
                 mConnection->Send(msg);
             }
         }
 
-        Queue<ownedMessage<T>>& Incoming() {
+        Queue<ownedMessage<T>> &Incoming() {
             return mQMessageIn;
         }
 
-        uint32_t GetID(){
+        uint32_t GetID() {
             return mConnection->GetID();
         }
 
-        virtual void Update(){if(!IsConnected())return;};
+        virtual void Update() { if (!IsConnected())return; };
     protected:
 
         asio::io_context mContext;
         std::thread threadContext;
-        asio::ip::tcp::socket mSocket;
 
         std::unique_ptr<Connection<T>> mConnection;
 

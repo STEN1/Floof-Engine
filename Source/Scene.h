@@ -85,6 +85,7 @@ namespace FLOOF {
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
 
         int ActivePlayer{0};
+        double ping{0};
     private:
         void OnUpdate(float deltaTime);
         void OnEditorUpdate(float deltaTime);

@@ -48,7 +48,7 @@ namespace FLOOF {
             Server->Update(); // todo should set a max nmb
         }
         auto& Client = Application::Get().client;
-        if(Client){
+        if(Client && Client->IsConnected()){
             Client->Update(m_Scene.get());
         }
 

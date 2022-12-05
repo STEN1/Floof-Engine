@@ -1,0 +1,127 @@
+#ifndef FLOOF_TESTNETWORK_
+#define FLOOF_TESTNETWORK_
+
+#include "OlcNet.h"
+#include "../Scene.h"
+
+enum class Header : uint32_t {
+    ServerGetStatus,
+    ServerGetPing,
+
+    ClientAccepted,
+    ClientRegisterWithServer,
+    ClientUnRegisterWithServer,
+};
+
+class TestClient : public olc::net::client_interface<Header> {
+public:
+    TestClient() : client_interface() {
+
+    };
+
+    void PingServer() {
+        olc::net::message<Header> msg;
+        msg.header.id = Header::ServerGetPing;
+
+        auto timeNow = std::chrono::system_clock::now();
+        msg << timeNow;
+
+        Send(msg);
+    }
+
+    void Update(FLOOF::Scene* scene) {
+
+        while (!Incoming().empty()) {
+            auto msg = Incoming().pop_front().msg;
+
+            //std::cout << "Client recieved " << msg << std::endl;
+            switch (msg.header.id) {
+                case Header::ServerGetStatus:
+                    break;
+                case Header::ServerGetPing: {
+                    auto timeNow = std::chrono::system_clock::now();
+                    std::chrono::system_clock::time_point timeThen;
+                    msg >> timeThen;
+                    scene->ping =std::chrono::duration<double>(timeNow - timeThen).count();
+                    PingServer();
+                    break;
+                }
+                case Header::ClientAccepted: {
+                    olc::net::message<Header> sendMsg;
+                    sendMsg.header.id = Header::ClientRegisterWithServer;;
+                    Send(sendMsg);
+                    PingServer();
+                    break;
+                }
+                case Header::ClientRegisterWithServer:
+                    break;
+                case Header::ClientUnRegisterWithServer:
+                    break;
+
+            }
+
+        }
+
+
+    }
+
+};
+
+class FloofServer : public olc::net::server_interface<Header> {
+public:
+    FloofServer(uint16_t port) : olc::net::server_interface<Header>(port) {
+
+    };
+
+protected:
+    virtual bool OnClientConnect(std::shared_ptr<olc::net::connection<Header>> client) override {
+        return true;
+    }
+
+public:
+    void PingClients() {
+        olc::net::message<Header> msg;
+        msg.header.id = Header::ServerGetPing;
+
+        auto timeNow = std::chrono::system_clock::now();
+        msg << timeNow;
+
+        MessageAllClients(msg);
+    }
+
+    virtual void OnClientValidated(std::shared_ptr<olc::net::connection<Header>> client) override {
+        std::cout << "Added Client [" << client->GetID() << "]" << std::endl;
+
+        olc::net::message<Header> msg;
+        msg.header.id = Header::ClientAccepted;
+        MessageClient(client, msg);
+    }
+
+protected:
+    virtual void OnClientDisconnect(std::shared_ptr<olc::net::connection<Header>> client) override {
+        std::cout << "Removing Client [" << client->GetID() << "]" << std::endl;
+
+    }
+
+    virtual void OnMessage(std::shared_ptr<olc::net::connection<Header>> client,
+                           olc::net::message<Header> &msg) override {
+        //std::cout << "OnMessage call " << msg << std::endl;
+        switch (msg.header.id) {
+            case Header::ServerGetStatus:
+                break;
+            case Header::ServerGetPing: {
+                MessageClient(client, msg);
+                break;
+            }
+            case Header::ClientAccepted:
+                break;
+
+            case Header::ClientRegisterWithServer: {
+                break;
+            }
+            case Header::ClientUnRegisterWithServer:
+                break;
+        }
+    }
+};
+#endif //FLOOF_TESTNETWORK_
