@@ -704,6 +704,9 @@ namespace olc
             }
 
         public:
+            uint32_t GetID(){
+                return m_connection->GetID();
+            }
             // Connect to server with hostname/ip-address and port
             bool Connect(const std::string& host, const uint16_t port)
             {
