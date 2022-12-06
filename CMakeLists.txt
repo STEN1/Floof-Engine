@@ -77,7 +77,13 @@ add_executable(Floof
         Source/Renderer/Skybox.cpp
         Source/Editor/EditorPanels/SoundSettingsPanel.h
         Source/Editor/EditorPanels/SoundSettingsPanel.cpp
-        Source/HeightField.cpp Source/HeightField.h "Source/Renderer/IBL.h" "Source/Renderer/Framebuffer.h" "Source/Renderer/Framebuffer.cpp" "Source/Renderer/IBL.cpp" Source/NativeScripts/WonderBaumScript.cpp Source/NativeScripts/WonderBaumScript.h
+        Source/HeightField.cpp Source/HeightField.h
+        "Source/Renderer/IBL.h"
+        "Source/Renderer/Framebuffer.h"
+        "Source/Renderer/Framebuffer.cpp"
+        "Source/Renderer/IBL.cpp"
+        Source/NativeScripts/WonderBaumScript.cpp
+        Source/NativeScripts/WonderBaumScript.h
         Source/HeightField.cpp Source/HeightField.h
         Source/Renderer/IBL.h
         Source/Renderer/Framebuffer.h
@@ -93,7 +99,18 @@ add_executable(Floof
         Source/CameraComponent.h
         Source/PointLightComponent.h
         Source/NativeScripts/NativeScript.cpp
-        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h Source/Network/Server.h Source/Network/Message.h Source/Network/Client.h Source/Network/Queue.h Source/Network/Connection.h Source/Network/FloofNetworking.h Source/Editor/EditorPanels/NetworkPanel.cpp Source/Editor/EditorPanels/NetworkPanel.h Source/NativeScripts/GameModeScript.h Source/Network/OlcNet.h Source/LineMeshComponent.h Source/LineMeshComponent.cpp)
+        Source/CollisionDispatcher.cpp Source/CollisionDispatcher.h
+        Source/Network/Server.h
+        Source/Network/Message.h
+        Source/Network/Client.h
+        Source/Network/Queue.h
+        Source/Network/Connection.h
+        Source/Network/FloofNetworking.h
+        Source/Editor/EditorPanels/NetworkPanel.cpp
+        Source/Editor/EditorPanels/NetworkPanel.h
+        Source/NativeScripts/GameModeScript.h
+        Source/Network/OlcNet.h
+        Source/LineMeshComponent.h Source/LineMeshComponent.cpp)
 
 
 
