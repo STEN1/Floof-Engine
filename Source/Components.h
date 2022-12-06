@@ -245,7 +245,8 @@ namespace FLOOF {
         std::unordered_map<std::string, std::shared_ptr<SoundClip>> mClips;
         std::shared_ptr<SoundClip> GetClip(const std::string& name);
 
-        void Play(const std::string& name);
+        bool IsPlaying(const std::string& name);
+        void Play(const std::string& name); // call add clip if not exist
         void Play(SoundClip* clip);
         //std::shared_ptr<SoundClip> m_SelectedClip;
 

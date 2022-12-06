@@ -109,8 +109,8 @@ namespace FLOOF {
             return it->second;
         }
         else {
-            auto test = mClips.insert(std::pair<std::string, std::shared_ptr<SoundClip>>(path, std::make_shared<SoundClip>(path)));
-            return AddClip(path);
+            mClips.insert(std::pair<std::string, std::shared_ptr<SoundClip>>(path, std::make_shared<SoundClip>(path)));
+            return mClips[path];
         }
 		
 	}

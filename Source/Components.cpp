@@ -470,6 +470,7 @@ namespace FLOOF {
     }
 
     void SoundSourceComponent::AddClip(const std::string& path) {
+        // Check if already exists with find
         mClips.insert(std::pair<std::string, std::shared_ptr<SoundClip>>(path, std::make_shared<SoundClip>(path)));
     }
 
@@ -552,10 +553,16 @@ namespace FLOOF {
     }
 
     void SoundSourceComponent::Play(const std::string& name) {
-        if (mClips[name])
-        	mClips[name]->Play();
-        else
-            return;
+        auto it = mClips.find(name);
+        if (it != mClips.end()) {
+            it->second->Play();
+        }
+        else {
+            AddClip(name);
+            mClips[name]->Play();
+        }
+            
+			
     }
 
 

@@ -66,6 +66,9 @@ namespace FLOOF {
 		inline static ALCdevice* s_Device{ nullptr };
 		inline static ALCcontext* s_Context{ nullptr };
 		inline static bool needsReload{ false };
+
+
+		// factory pfunctuion return uniquie potre to clips
 		
 
 	};
