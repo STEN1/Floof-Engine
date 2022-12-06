@@ -60,6 +60,7 @@ struct CarData;
         void EngineUi();
         void SetTransformData(CarData data);
         CarData GetTransformData();
+        void AddToPhysicsWorld();
     private:
 
         const glm::vec3 SpawnLocation;

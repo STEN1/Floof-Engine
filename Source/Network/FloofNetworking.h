@@ -7,7 +7,6 @@
 #include <chrono>
 #include "../Scene.h"
 #include "../NativeScripts/MonsterTruckScript.h"
-
 #include "OlcNet.h"
 
 namespace FLOOF {
@@ -23,23 +22,21 @@ namespace FLOOF {
         GameAddPlayer,
         GameRemovePlayer,
         GameUpdatePlayer,
-        GameUpdateWorld
+        GameUpdateWorld,
+
+        ServerStartPlay
     };
 
-    struct PlayerData{
-        TransformComponent Transform;
-        uint32_t id;
-    };
-    struct CarData{
+    struct CarData {
         TransformComponent MainTform;
         TransformComponent WheelTformFL;
         TransformComponent WheelTformFR;
         TransformComponent WheelTformBL;
         TransformComponent WheelTformBR;
-        
+
         uint32_t id;
     };
-    struct LevelData{
+    struct LevelData {
         Scene scene;
     };
 
@@ -50,6 +47,7 @@ namespace FLOOF {
         };
 
         bool Initialized{false};
+        bool Play{false};
 
         void PingServer() {
             olc::net::message<FloofMsgHeaders> msg;
@@ -61,7 +59,7 @@ namespace FLOOF {
             Send(msg);
         }
 
-        void Update(FLOOF::Scene* scene) {
+        void Update(FLOOF::Scene *scene) {
 
             while (!Incoming().empty()) {
                 auto msg = Incoming().pop_front().msg;
@@ -73,16 +71,22 @@ namespace FLOOF {
                         auto timeNow = std::chrono::system_clock::now();
                         std::chrono::system_clock::time_point timeThen;
                         msg >> timeThen;
-                        scene->ping =std::chrono::duration<double>(timeNow - timeThen).count();
-                        //PingServer();
+                        scene->ping = std::chrono::duration<double>(timeNow - timeThen).count();
                         break;
                     }
                     case FloofMsgHeaders::ClientAccepted: {
                         Initialized = true;
                         olc::net::message<FloofMsgHeaders> sendMsg;
                         sendMsg.header.id = FloofMsgHeaders::ClientRegisterWithServer;
-                        PlayerData data;
-                        data.Transform.Position = glm::vec3(0.f, -40.f, 10.f * (GetID() - 999.f));
+                        CarData data;
+
+                        auto v = scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+                        for (auto [ent, player, script]: v.each()) {
+                            if (player.mPlayer == scene->ActivePlayer) {
+                                auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
+                                data = car->GetTransformData();
+                            }
+                        }
                         data.id = GetID();
                         sendMsg << data;
                         Send(sendMsg);
@@ -94,16 +98,52 @@ namespace FLOOF {
                     case FloofMsgHeaders::ClientUnRegisterWithServer:
                         break;
 
-                    case FloofMsgHeaders::ClientAssignID:
+                    case FloofMsgHeaders::ClientAssignID: {
+                        CarData data;
+                        msg >> data;
+                        auto v = scene->GetRegistry().view<PlayerControllerComponent>();
+                        for (auto [ent, player]: v.each()) {
+                            if (player.mPlayer == scene->ActivePlayer) {
+                                player.mPlayer = GetID();
+                                scene->ActivePlayer = GetID();
+                            }
+                        }
+
                         break;
-                    case FloofMsgHeaders::GameAddPlayer:
+                    }
+                    case FloofMsgHeaders::GameAddPlayer: {
+                        CarData data;
+                        msg >> data;
+                        std::string Player = "Player : ";
+                        Player += std::to_string(data.id);
+                        auto ent = scene->CreateEntity(Player);
+                        scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), scene, ent);
+                        scene->AddComponent<PlayerControllerComponent>(ent, data.id);
+                        auto script = scene->GetComponent<NativeScriptComponent>(ent).Script.get();
+                        auto car = dynamic_cast<MonsterTruckScript *>(script);
+                        car->SetTransformData(data);
+                        //car->AddToPhysicsWorld();
                         break;
+                    }
                     case FloofMsgHeaders::GameRemovePlayer:
                         break;
-                    case FloofMsgHeaders::GameUpdatePlayer:
+                    case FloofMsgHeaders::GameUpdatePlayer: {
+                        CarData data;
+                        msg >> data;
+                        auto v = scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+                        for (auto [ent, player, script]: v.each()) {
+                            if (player.mPlayer == data.id) {
+                                auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
+                                car->SetTransformData(data);
+                            }
+                        }
                         break;
+                    }
                     case FloofMsgHeaders::GameUpdateWorld:
                         break;
+                    case FloofMsgHeaders::ServerStartPlay: {
+                        msg >> Play;
+                    }
                 }
 
             }
@@ -117,7 +157,7 @@ namespace FLOOF {
         FloofServer(uint16_t port) : olc::net::server_interface<FloofMsgHeaders>(port) {
 
         };
-        Scene * mScene;
+        Scene *mScene;
     protected:
         virtual bool OnClientConnect(std::shared_ptr<olc::net::connection<FloofMsgHeaders>> client) override {
             return true;
@@ -128,9 +168,19 @@ namespace FLOOF {
         std::vector<uint32_t> MarkedPlayerForRemove;
         std::vector<std::shared_ptr<olc::net::connection<FloofMsgHeaders>>> MarkedPlayerForInitialize;
 
-        size_t ConnectionCount(){
+        size_t ConnectionCount() {
             return ActivePlayers.size();
         }
+
+        void StartPressed(bool Start) {
+            olc::net::message<FloofMsgHeaders> msg;
+            msg.header.id = FloofMsgHeaders::ServerStartPlay;
+
+            msg << Start;
+
+            MessageAllClients(msg);
+        };
+
         void PingClients() {
             olc::net::message<FloofMsgHeaders> msg;
             msg.header.id = FloofMsgHeaders::ServerGetPing;
@@ -169,7 +219,7 @@ namespace FLOOF {
                     break;
 
                 case FloofMsgHeaders::ClientRegisterWithServer: {
-                    PlayerData data;
+                    CarData data;
                     msg >> data;
                     data.id = client->GetID();
 
@@ -178,20 +228,22 @@ namespace FLOOF {
                     sendMsg << data;
                     MessageClient(client, sendMsg);
 
-                    sendMsg.header.id = FloofMsgHeaders::GameAddPlayer;
-                    sendMsg.body.clear();
-                    sendMsg << data;
-                    MessageAllClients(sendMsg);
-
                     //add old players
-                    auto v = mScene->GetRegistry().view<PlayerControllerComponent, TransformComponent>();
-                    for(auto[ent, player, trans]: v.each()){
-                        if(player.mPlayer != client->GetID()){
-                            data.Transform = trans;
-                            sendMsg.body.clear();
-                            sendMsg << data;
-                            MessageClient(client,sendMsg);
+                    CarData cData;
+                    sendMsg.header.id = FloofMsgHeaders::GameAddPlayer;
+
+                    auto v = mScene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+                    for (auto [ent, player, script]: v.each()) {
+                        if (player.mPlayer == mScene->ActivePlayer) {
+                                player.mPlayer = 1;
+                                mScene->ActivePlayer = 1;
                         }
+                        auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
+                        cData = car->GetTransformData();
+                        cData.id = player.mPlayer;
+                        sendMsg.body.clear();
+                        sendMsg << cData;
+                        MessageClient(client,sendMsg);
                     }
 
                     MarkedPlayerForInitialize.emplace_back(client); // todo find better sollution for server representation
@@ -205,19 +257,19 @@ namespace FLOOF {
                     break;
                 case FloofMsgHeaders::GameRemovePlayer:
                     break;
-                case FloofMsgHeaders::GameUpdatePlayer:{
-                    MessageAllClients(msg,client);
-
+                case FloofMsgHeaders::GameUpdatePlayer: {
                     //update server
                     CarData data;
                     msg >> data;
                     auto v = mScene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                     for (auto [ent, player, script]: v.each()) {
-                        if (player.mPlayer == client->GetID()) {
-                            auto car = dynamic_cast<MonsterTruckScript*>(script.Script.get());
+                        if (player.mPlayer == data.id) {
+                            auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
                             car->SetTransformData(data);
+                            data = car->GetTransformData();
                         }
                     }
+                    MessageAllClients(msg, client);
                     break;
                 }
                 case FloofMsgHeaders::GameUpdateWorld:

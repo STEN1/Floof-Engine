@@ -710,7 +710,26 @@ FLOOF::CarData FLOOF::MonsterTruckScript::GetTransformData() {
     data.WheelTformBR = Wheelbrtf;
     data.WheelTformFL = Wheelfltf;
     data.WheelTformFR = Wheelfrtf;
+
     return data;
+}
+
+void FLOOF::MonsterTruckScript::AddToPhysicsWorld() {
+
+    auto &frameBody = m_Scene->GetComponent<RigidBodyComponent>(frame);
+    auto &WheelfrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_fr);
+    auto &WheelflBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_fl);
+    auto &WheelbrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_br);
+    auto &WheelblBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_bl);
+
+    auto physics = m_Scene->GetPhysicSystem();
+
+    physics->AddRigidBody(frameBody.RigidBody.get());
+    physics->AddRigidBody(WheelfrBody.RigidBody.get());
+    physics->AddRigidBody(WheelflBody.RigidBody.get());
+    physics->AddRigidBody(WheelbrBody.RigidBody.get());
+    physics->AddRigidBody(WheelblBody.RigidBody.get());
+
 }
 
 

@@ -35,7 +35,7 @@ namespace FLOOF {
         for (auto [entity,controller] : view.each()) {
             Players++;
         }
-        ImGui::DragInt("Active Player", &m_EditorLayer->GetScene()->ActivePlayer, 1.f,0, Players-1);
+        ImGui::DragInt("Active Player", &m_EditorLayer->GetScene()->ActivePlayer, 1.f,0);
 
         ImGui::End();
 	}
