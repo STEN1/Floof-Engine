@@ -695,6 +695,11 @@ void FLOOF::MonsterTruckScript::SetTransformData(FLOOF::CarData data) {
     Wheelfltf = data.WheelTformFL;
     Wheelfrtf = data.WheelTformFR;
 
+    frameBody.transform(data.MainTform.Position,data.MainTform.Rotation,data.MainTform.Scale);
+    WheelblBody.transform(data.WheelTformBL.Position,data.WheelTformBL.Rotation,data.WheelTformBL.Scale);
+    WheelbrBody.transform(data.WheelTformBR.Position,data.WheelTformBR.Rotation,data.WheelTformBR.Scale);
+    WheelflBody.transform(data.WheelTformFL.Position,data.WheelTformFL.Rotation,data.WheelTformFL.Scale);
+    WheelfrBody.transform(data.WheelTformFR.Position,data.WheelTformFR.Rotation,data.WheelTformFR.Scale);
 }
 
 FLOOF::CarData FLOOF::MonsterTruckScript::GetTransformData() {

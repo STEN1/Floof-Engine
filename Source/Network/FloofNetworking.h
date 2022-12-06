@@ -104,8 +104,8 @@ namespace FLOOF {
                         auto v = scene->GetRegistry().view<PlayerControllerComponent>();
                         for (auto [ent, player]: v.each()) {
                             if (player.mPlayer == scene->ActivePlayer) {
-                                player.mPlayer = GetID();
-                                scene->ActivePlayer = GetID();
+                                player.mPlayer = data.id;
+                                scene->ActivePlayer = data.id;
                             }
                         }
 
@@ -122,7 +122,7 @@ namespace FLOOF {
                         auto script = scene->GetComponent<NativeScriptComponent>(ent).Script.get();
                         auto car = dynamic_cast<MonsterTruckScript *>(script);
                         car->SetTransformData(data);
-                        //car->AddToPhysicsWorld();
+                        car->AddToPhysicsWorld();
                         break;
                     }
                     case FloofMsgHeaders::GameRemovePlayer:
@@ -266,7 +266,6 @@ namespace FLOOF {
                         if (player.mPlayer == data.id) {
                             auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
                             car->SetTransformData(data);
-                            data = car->GetTransformData();
                         }
                     }
                     MessageAllClients(msg, client);

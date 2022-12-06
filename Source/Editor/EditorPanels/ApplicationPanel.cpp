@@ -36,7 +36,7 @@ namespace FLOOF {
             Players++;
         }
         std::string txt = "Player ID : ";
-        txt += m_EditorLayer->GetScene()->ActivePlayer;
+        txt +=std::to_string(m_EditorLayer->GetScene()->ActivePlayer);
         ImGui::Text(txt.c_str());
 
         ImGui::End();

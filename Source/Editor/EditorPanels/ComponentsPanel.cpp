@@ -213,7 +213,7 @@ namespace FLOOF {
                 ImGui::Separator();
                 ImGui::Text("Player Controller Component");
                 std::string txt = "Player ID: ";
-                txt += PlayerComponent->mPlayer;
+                txt += std::to_string(PlayerComponent->mPlayer);
                 ImGui::Text(txt.c_str());
             }
 

@@ -77,11 +77,11 @@ namespace FLOOF {
                         std::string Player = "Player : ";
                         Player += std::to_string(client->GetID());
                         auto ent = m_Scene->CreateEntity(Player);
-                        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 10.f * (client->GetID() - 999.f))), m_Scene, ent);
+                        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), m_Scene, ent);
                         m_Scene->AddComponent<PlayerControllerComponent>(ent, client->GetID());
                         auto script = m_Scene->GetComponent<NativeScriptComponent>(ent).Script.get();
                         auto car = dynamic_cast<MonsterTruckScript *>(script);
-                        //car->AddToPhysicsWorld();
+                        car->AddToPhysicsWorld();
                         Server->ActivePlayers.emplace_back(client);
 
                         olc::net::message<FloofMsgHeaders> sendMsg;
@@ -101,15 +101,17 @@ namespace FLOOF {
 
                 }
                 Server->MarkedPlayerForRemove.clear();
+
+                //update location from hosters car
                 olc::net::message<FloofMsgHeaders> msg;
                 msg.header.id = FloofMsgHeaders::GameUpdatePlayer;
                 CarData data;
                 auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                 for (auto [ent, player, script]: v.each()) {
-                    if (player.mPlayer == 1) {
+                    if (player.mPlayer == m_Scene->ActivePlayer) {
                         auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
                         data = car->GetTransformData();
-                        data.id = 1;
+                        data.id = player.mPlayer;
                         msg << data;
                         Server->MessageAllClients(msg);
                     }
@@ -127,10 +129,10 @@ namespace FLOOF {
                 CarData data;
                 auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                 for (auto [ent, player, script]: v.each()) {
-                    if (player.mPlayer == Client->GetID()) {
+                    if (player.mPlayer == m_Scene->ActivePlayer) {
                         auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
                         data = car->GetTransformData();
-                        data.id = Client->GetID();
+                        data.id = player.mPlayer;
                         msg << data;
                         Client->Send(msg);
                     }
