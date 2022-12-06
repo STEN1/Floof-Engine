@@ -77,6 +77,44 @@ namespace FLOOF {
 	SoundComponent::SoundComponent() {
 	}
 
+	SoundComponent::SoundComponent(const std::string& path){
+        AddClip(path);
+	}
+
+	SoundComponent::SoundComponent(std::initializer_list<std::string> clips) {
+        for (auto clip : clips) {
+            AddClip(clip);
+        }
+	}
+
+	SoundComponent::SoundComponent(std::vector<std::string> clips) {
+        for (auto clip : clips) {
+            AddClip(clip);
+        }
+	}
+
+	SoundComponent::~SoundComponent() {
+	}
+
+	void SoundComponent::NewDeviceReload() {
+        for (auto it = mClips.begin(); it != mClips.end(); it++)
+            (*it).second->NewDeviceReload();
+    }
+
+	std::shared_ptr<SoundClip> SoundComponent::AddClip(const std::string& path) {
+
+        auto it = mClips.find(path);
+
+        if (it != mClips.end()) {
+            return it->second;
+        }
+        else {
+            auto test = mClips.insert(std::pair<std::string, std::shared_ptr<SoundClip>>(path, std::make_shared<SoundClip>(path)));
+            return AddClip(path);
+        }
+		
+	}
+
 	void SoundComponent::Play(SoundClip* clip) {
         clip->Play();
         m_SourcesPlaying.push_back(clip);
@@ -107,9 +145,6 @@ namespace FLOOF {
 		}
 	}
 
-	void SoundComponent::NewDeviceReload() {
-        for (auto it = m_SourcesPlaying.begin(); it != m_SourcesPlaying.end(); it++)
-            (*it)->NewDeviceReload();
-	}
+	
 }
 
