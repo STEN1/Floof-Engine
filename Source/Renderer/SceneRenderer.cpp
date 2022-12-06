@@ -45,6 +45,9 @@ namespace FLOOF {
             DrawDebugCameraLines(activeCamera);
             m_DrawDebugCameraLines = false;
         }
+        auto* renderer = VulkanRenderer::Get();
+        auto* window = renderer->GetVulkanWindow();
+        auto frameIndex = window->FrameIndex;
         {
             std::vector<PointLightComponent::PointLight> pointLights;
             auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
@@ -52,13 +55,12 @@ namespace FLOOF {
                 PointLightComponent::PointLight light;
                 light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
                 light.diffuse = lightComp.diffuse;
-                light.ambient = lightComp.ambient;
-                light.lightRange = lightComp.lightRange;
-                light.linear = 4.5f / light.lightRange;
-                light.quadratic = 75.f / (light.lightRange * light.lightRange);
+                light.intensity = lightComp.intensity;
+                light.innerRange = lightComp.innerRange;
+                light.outerRange = lightComp.outerRange;
                 pointLights.push_back(light);
             }
-            m_LightSSBO.Update(pointLights);
+            m_LightSSBO[frameIndex].Update(pointLights);
 
             m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
             m_SceneFrameData.LightCount = pointLights.size();
@@ -68,9 +70,6 @@ namespace FLOOF {
 
         waitSemaphore = ShadowPass(waitSemaphore, scene, camera);
 
-        auto* renderer = VulkanRenderer::Get();
-        auto* window = renderer->GetVulkanWindow();
-        auto frameIndex = window->FrameIndex;
         auto& frameData = window->Frames[frameIndex];
         auto signalSemaphore = m_MainPassSignalSemaphores[frameIndex];
         auto commandBuffer = renderer->AllocateCommandBuffer();
@@ -115,7 +114,7 @@ namespace FLOOF {
         // Draw models
         {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, drawMode);
-            auto lightDescriptor = m_LightSSBO.GetDescriptorSet();
+            auto lightDescriptor = m_LightSSBO[frameIndex].GetDescriptorSet();
             if (drawMode == RenderPipelineKeys::PBR) {
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
                     &lightDescriptor, 0, nullptr);
@@ -184,7 +183,7 @@ namespace FLOOF {
         // Draw landscape
         {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
-            auto lightDescriptor = m_LightSSBO.GetDescriptorSet();
+            auto lightDescriptor = m_LightSSBO[frameIndex].GetDescriptorSet();
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
                 &lightDescriptor, 0, nullptr);
@@ -486,6 +485,7 @@ namespace FLOOF {
         m_ShadowDepthBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_SceneDataUBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_DebugLineMesh.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_LightSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         for (auto& shadowDB : m_ShadowDepthBuffers) {
             shadowDB = std::make_unique<DepthFramebuffer>(m_ShadowRes, m_ShadowRes, m_SceneFrameData.CascadeCount);
         }

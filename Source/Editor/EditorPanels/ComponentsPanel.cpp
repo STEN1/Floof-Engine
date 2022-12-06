@@ -165,7 +165,9 @@ namespace FLOOF {
 				ImGui::Separator();
 				ImGui::Text("Point light component");
 				ImGui::ColorPicker3("Light color", &pointLight->diffuse[0]);
-				ImGui::DragFloat("Light range", &pointLight->lightRange, 0.01f, 1.f);
+				ImGui::DragFloat("Intensity", &pointLight->intensity);
+				ImGui::DragFloat("Inner range", &pointLight->innerRange, 1.f, 0.f, pointLight->outerRange - 1.f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+				ImGui::DragFloat("Outer range", &pointLight->outerRange, 1.f, pointLight->innerRange + 1.f, FLT_MAX, "%.3f", ImGuiSliderFlags_AlwaysClamp);
 			}
 			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
