@@ -209,7 +209,15 @@ namespace FLOOF {
 					scriptComponent->RunScript();
 				}
 			}
-		}
+		    if(auto* PlayerComponent = m_EditorLayer->GetScene()->TryGetComponent<PlayerControllerComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)){
+                ImGui::Separator();
+                ImGui::Text("Player Controller Component");
+                std::string txt = "Player ID: ";
+                txt += PlayerComponent->mPlayer;
+                ImGui::Text(txt.c_str());
+            }
+
+        }
 		// end Components
 		ImGui::End();
 	}
