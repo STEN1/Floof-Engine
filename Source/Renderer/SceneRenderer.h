@@ -89,7 +89,7 @@ namespace FLOOF {
 
         SceneFrameData m_SceneFrameData;
         std::vector<VulkanUBO<SceneFrameData>> m_SceneDataUBO{};
-        VulkanSSBO<PointLightComponent::PointLight> m_LightSSBO{};
+        std::vector<VulkanSSBO<PointLightComponent::PointLight>> m_LightSSBO{};
         std::unique_ptr<Skybox> m_Skybox;
         VulkanTexture m_IrradienceMap;
         VulkanTexture m_PrefilterMap;

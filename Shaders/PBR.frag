@@ -17,10 +17,9 @@ layout (set = 0, binding = 5) uniform sampler2D opacityTexture;
 struct PointLight {    
     vec4 position;
     vec4 diffuse;
-    vec4 ambient;
-    float linear;
-    float quadratic;
-    float lightRange;
+    float intensity;
+    float innerRange;
+    float outerRange;
     float pad;
 };  
 
@@ -101,11 +100,10 @@ void main() {
         // calculate per-light radiance
         vec3 L = normalize(lighgPos - fragPos);
         vec3 H = normalize(V + L);
-        float range = lightSSBO.lights[i].lightRange * 0.001;
-        float t = smoothstep(range + 20.0, range, distance);
         float attenuation = 1.0 / (distance * distance);
+        float t = smoothstep(lightSSBO.lights[i].outerRange, lightSSBO.lights[i].innerRange, distance);
         attenuation *= t;
-        vec3 radiance     = lightColor * attenuation * lightSSBO.lights[i].lightRange * 0.5;
+        vec3 radiance     = lightColor * attenuation * lightSSBO.lights[i].intensity;
         
         
         // cook-torrance brdf

@@ -161,7 +161,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
             //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            light.lightRange = 20.f;
+            light.intensity = 20.f;
             light.diffuse = glm::vec4(1.f, 0.f, 0.f, 1.f);
 
             auto &transform = scene->GetComponent<TransformComponent>(BreakLight);
@@ -176,7 +176,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
             //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            light.lightRange = 10.f;
+            light.intensity = 10.f;
 
             auto &transform = scene->GetComponent<TransformComponent>(HeadLightR);
             transform.Position = glm::vec3(1.3f, 0.35f, -0.4f);
@@ -190,7 +190,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
             //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
             //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-            light.lightRange = 10.f;
+            light.intensity = 10.f;
 
             auto &transform = scene->GetComponent<TransformComponent>(HeadLightL);
             transform.Position = glm::vec3(1.3f, 0.35f, 0.4f);
@@ -471,25 +471,25 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
         }
         if (Input::Key(ImGuiKey_Space) && windowIsActive) {
             auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
-            bl.lightRange = 100.f;
+            bl.intensity = 100.f;
             //todo brake
             engine.breakingForce = engine.maxBreakingForce;
         } else {
             //reset lights
             auto &bl = scene->GetComponent<PointLightComponent>(BreakLight);
 
-            bl.lightRange = 20.f;
+            bl.intensity = 20.f;
         }
         if (ImGui::IsKeyPressed(ImGuiKey_F, false) && windowIsActive) {
             auto &fhr = scene->GetComponent<PointLightComponent>(HeadLightR);
             auto &fhl = scene->GetComponent<PointLightComponent>(HeadLightL);
 
-            if (fhr.lightRange > 50) {
-                fhr.lightRange = 10.f;
-                fhl.lightRange = 10.f;
+            if (fhr.intensity > 50) {
+                fhr.intensity = 10.f;
+                fhl.intensity = 10.f;
             } else {
-                fhr.lightRange = 100.f;
-                fhl.lightRange = 100.f;
+                fhr.intensity = 100.f;
+                fhl.intensity = 100.f;
             }
         }
         if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
