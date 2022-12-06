@@ -10,7 +10,6 @@ namespace FLOOF {
 		virtual void OnUpdate(float deltaTime) {};
         virtual void LastUpdate(float deltaTime) {};
         virtual void EditorUpdate(float deltaTime){};
-
 		entt::entity CreateEntity(const std::string& tag = "Entity", entt::entity parent = entt::null);
 
 		template<typename Type>

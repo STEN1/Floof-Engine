@@ -6,6 +6,7 @@
 #include "../Application.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "../Utils.h"
+#include "../Network/FloofNetworking.h"
 
 FLOOF::MonsterTruckScript::MonsterTruckScript(glm::vec3 Pos):SpawnLocation(Pos) {
 
@@ -674,6 +675,43 @@ void FLOOF::MonsterTruckScript::LastUpdate(float deltaTime) {
 
 }
 
+void FLOOF::MonsterTruckScript::SetTransformData(FLOOF::CarData data) {
+
+    auto &frameBody = m_Scene->GetComponent<RigidBodyComponent>(frame);
+    auto &WheelfrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_fr);
+    auto &WheelflBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_fl);
+    auto &WheelbrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_br);
+    auto &WheelblBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_bl);
+
+    auto &frametf = m_Scene->GetComponent<TransformComponent>(frame);
+    auto &Wheelfrtf = m_Scene->GetComponent<TransformComponent>(Wheel_fr);
+    auto &Wheelfltf = m_Scene->GetComponent<TransformComponent>(Wheel_fl);
+    auto &Wheelbrtf = m_Scene->GetComponent<TransformComponent>(Wheel_br);
+    auto &Wheelbltf = m_Scene->GetComponent<TransformComponent>(Wheel_bl);
+
+    frametf = data.MainTform;
+    Wheelbltf = data.WheelTformBL;
+    Wheelbrtf = data.WheelTformBR;
+    Wheelfltf = data.WheelTformFL;
+    Wheelfrtf = data.WheelTformFR;
+
+}
+
+FLOOF::CarData FLOOF::MonsterTruckScript::GetTransformData() {
+    CarData data;
+    auto &frametf = m_Scene->GetComponent<TransformComponent>(frame);
+    auto &Wheelfrtf = m_Scene->GetComponent<TransformComponent>(Wheel_fr);
+    auto &Wheelfltf = m_Scene->GetComponent<TransformComponent>(Wheel_fl);
+    auto &Wheelbrtf = m_Scene->GetComponent<TransformComponent>(Wheel_br);
+    auto &Wheelbltf = m_Scene->GetComponent<TransformComponent>(Wheel_bl);
+
+    data.MainTform =  frametf ;
+    data.WheelTformBL= Wheelbltf;
+    data.WheelTformBR = Wheelbrtf;
+    data.WheelTformFL = Wheelfltf;
+    data.WheelTformFR = Wheelfrtf;
+    return data;
+}
 
 
 void FLOOF::MonsterTruckScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {

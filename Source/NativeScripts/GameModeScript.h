@@ -33,12 +33,13 @@ namespace FLOOF {
 
                 olc::net::message<FloofMsgHeaders> msg;
                 msg.header.id = FloofMsgHeaders::GameUpdatePlayer;
-                PlayerData data;
-                auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, TransformComponent>();
-                for (auto [ent, player, tform]: v.each()) {
+                CarData data;
+                auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+                for (auto [ent, player, script]: v.each()) {
                     if (player.mPlayer == Client->GetID()) {
+                        auto car = dynamic_cast<MonsterTruckScript*>(script.Script.get());
+                        data = car->GetTransformData();
                         data.id = Client->GetID();
-                        data.Transform = tform;
                         msg << data;
                         Client->Send(msg);
                     }
@@ -72,7 +73,7 @@ namespace FLOOF {
                 Server->MarkedPlayerForInitialize.clear();
                 //remove Players
                 for (auto &client: Server->MarkedPlayerForRemove) {
-                //   //todo remove entity on disconnect
+                    //   //todo remove entity on disconnect
 
                 }
                 Server->MarkedPlayerForRemove.clear();

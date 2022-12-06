@@ -7,6 +7,7 @@
 #include "../CollisionDispatcher.h"
 
 namespace FLOOF {
+struct CarData;
 
     struct Engine {
         Engine(){velocityGraph.resize(1000,0);TorqueGraph.resize(1000,0);};
@@ -57,6 +58,8 @@ namespace FLOOF {
 
         void CameraUi();
         void EngineUi();
+        void SetTransformData(CarData data);
+        CarData GetTransformData();
     private:
 
         const glm::vec3 SpawnLocation;

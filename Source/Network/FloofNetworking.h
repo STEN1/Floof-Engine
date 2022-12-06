@@ -30,6 +30,15 @@ namespace FLOOF {
         TransformComponent Transform;
         uint32_t id;
     };
+    struct CarData{
+        TransformComponent MainTform;
+        TransformComponent WheelTformFL;
+        TransformComponent WheelTformFR;
+        TransformComponent WheelTformBL;
+        TransformComponent WheelTformBR;
+        
+        uint32_t id;
+    };
     struct LevelData{
         Scene scene;
     };
@@ -200,12 +209,13 @@ namespace FLOOF {
                     MessageAllClients(msg,client);
 
                     //update server
-                    PlayerData data;
+                    CarData data;
                     msg >> data;
-                    auto v = mScene->GetRegistry().view<PlayerControllerComponent, TransformComponent>();
-                    for (auto [ent, player, tform]: v.each()) {
+                    auto v = mScene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+                    for (auto [ent, player, script]: v.each()) {
                         if (player.mPlayer == client->GetID()) {
-                            tform = data.Transform;
+                            auto car = dynamic_cast<MonsterTruckScript*>(script.Script.get());
+                            car->SetTransformData(data);
                         }
                     }
                     break;
