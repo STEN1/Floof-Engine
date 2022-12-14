@@ -16,6 +16,8 @@ namespace FLOOF
 
         VkDescriptorSet DescriptorSet = VK_NULL_HANDLE;
 
+        bool HasOpacity = false;
+
         void UpdateDescriptorSet();
 
         ~Material();

@@ -152,7 +152,7 @@ void main() {
 
     float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
 
-    outColor = vec4(color, 1.0);
+    outColor = vec4(color, alpha);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)

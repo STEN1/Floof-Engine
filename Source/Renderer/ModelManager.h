@@ -33,5 +33,6 @@ namespace FLOOF {
 
         inline static VulkanBufferData s_SkyboxCube{};
         inline static VulkanBufferData s_NDCRect{};
+        inline static VulkanBufferData s_NDCRectFlipped{};
     };
 }

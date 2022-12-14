@@ -59,6 +59,7 @@ namespace FLOOF {
         AlphaBlend = 1 << 0,
         DepthPass = 1 << 1,
         MSAA = 1 << 2,
+        DepthRead = 1 << 3,
     };
 
     enum class RenderPipelineKeys : uint32_t {
@@ -82,6 +83,8 @@ namespace FLOOF {
         Prefilter,
         BRDF,
         ShadowPass,
+        AlphaClear,
+        PBRAlpha,
     };
 
     enum class RenderSetLayouts : uint32_t {

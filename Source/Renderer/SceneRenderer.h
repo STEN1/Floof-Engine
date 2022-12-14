@@ -47,7 +47,8 @@ namespace FLOOF {
 
     private:
         VkSemaphore ShadowPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera);
-        VkSemaphore MainPass(VkSemaphore waitSemaphore, Scene* scene, const glm::mat4& cameraProjection, const glm::mat4& cameraView);
+        VkSemaphore MainPass(VkSemaphore waitSemaphore, Scene* scene, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer);
+        VkSemaphore AlphaClearPass(VkSemaphore waitSemaphore);
 
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
@@ -58,6 +59,7 @@ namespace FLOOF {
         void CreateDepthBuffer();
         void CreateResolveBuffer();
         void CreateFrameBufferTextures();
+        void CreateOffscreenFrameBuffer();
         void CreateFrameBuffers();
         void CreateSyncObjects();
 
@@ -77,16 +79,21 @@ namespace FLOOF {
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
 
         std::vector<VkSemaphore> m_ShadowPassSignalSemaphores;
-        std::vector<VkSemaphore> m_MainPassSignalSemaphores;      
+        std::vector<VkSemaphore> m_MainPassSignalSemaphores;
+        std::vector<VkSemaphore> m_AlphaClearPassSignalSemaphores;
 
-        VulkanImageData m_ResolveBuffer{};
+        VulkanImageData m_ResolveImageData{};
         VkImageView m_ResolveImageView = VK_NULL_HANDLE;
 
+        TextureFrameBuffer m_OffscreenFrameBuffer{};
+
         VkFormat m_DepthFormat{};
-        std::vector<VulkanImageData> m_DepthBuffers;
-        std::vector<VkImageView> m_DepthBufferImageViews;
+        VulkanImageData m_DepthBuffer;
+        VkImageView m_DepthBufferImageView = VK_NULL_HANDLE;
 
         glm::vec2 m_Extent{ 0.f, 0.f };
+
+        RenderPipelineKeys m_DrawMode = RenderPipelineKeys::PBR;
 
         SceneFrameData m_SceneFrameData;
         std::vector<VulkanUBO<SceneFrameData>> m_SceneDataUBO{};

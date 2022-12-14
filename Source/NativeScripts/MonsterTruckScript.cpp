@@ -99,6 +99,8 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
                         mesh.meshes[i].MeshMaterial.Normals = Texture(norm);
                         break;
                     default :
+                        if (textureorder[i] == CyberTruckTexture::glass)
+                            mesh.meshes[i].MeshMaterial.HasOpacity = true;
 
                         diff += textureNames[textureorder[i]];
                         diff += diffuse;

@@ -36,5 +36,6 @@ namespace FLOOF {
     private:
         inline static std::unordered_map<std::string, VulkanTexture> s_TextureCache;
         inline static std::unordered_map<TextureColor, VulkanTexture> s_ColorTextureCache;
+        inline static VulkanTexture s_BRDFLut;
     };
 }

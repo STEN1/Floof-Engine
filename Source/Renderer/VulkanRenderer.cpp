@@ -1167,6 +1167,9 @@ namespace FLOOF {
         if (params.Flags & RenderPipelineFlags::DepthPass) {
             depthStencilStateInfo.depthTestEnable = VK_TRUE;
             depthStencilStateInfo.depthWriteEnable = VK_TRUE;
+        } else if (params.Flags & RenderPipelineFlags::DepthRead) {
+            depthStencilStateInfo.depthTestEnable = VK_TRUE;
+            depthStencilStateInfo.depthWriteEnable = VK_FALSE;
         } else {
             depthStencilStateInfo.depthTestEnable = VK_FALSE;
             depthStencilStateInfo.depthWriteEnable = VK_FALSE;

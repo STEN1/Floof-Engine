@@ -24,6 +24,8 @@ namespace FLOOF {
 
         if (!Opacity.IsValid())
             Opacity = Texture(TextureColor::White);
+        else if (Opacity.IsValid() && Opacity.Color == TextureColor::None)
+            HasOpacity = true;
 
         std::vector<VkDescriptorImageInfo> imageInfos{
             { sampler, Diffuse.VkTexture.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },

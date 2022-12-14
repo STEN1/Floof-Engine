@@ -21,6 +21,9 @@ namespace FLOOF {
             renderer->FreeTextureDescriptorSet(val.DesctriptorSet);
         }
         s_ColorTextureCache.clear();
+        renderer->FreeTextureDescriptorSet(s_BRDFLut.DesctriptorSet);
+        vkDestroyImageView(renderer->GetDevice(), s_BRDFLut.ImageView, nullptr);
+        vmaDestroyImage(renderer->GetAllocator(), s_BRDFLut.Image, s_BRDFLut.Allocation);
     }
 
     VulkanTexture TextureManager::GetTextureFromPath(const std::string &path, bool flip, bool glNormal) {
@@ -324,6 +327,9 @@ namespace FLOOF {
     }
 
     VulkanTexture TextureManager::GetBRDFLut() {
+        if (s_BRDFLut.Image != VK_NULL_HANDLE)
+            return s_BRDFLut;
+
         auto *renderer = VulkanRenderer::Get();
 
         VulkanTexture brdfLut;
@@ -458,6 +464,8 @@ namespace FLOOF {
         writeSet.pImageInfo = &lutImageInfo;
 
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeSet, 0, nullptr);
+
+        s_BRDFLut = brdfLut;
 
         return brdfLut;
     }
