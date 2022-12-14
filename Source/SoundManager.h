@@ -69,3 +69,4 @@ namespace FLOOF {
 
 		// factory function return uniquie pointer to clips
 	};
+}

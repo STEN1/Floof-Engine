@@ -35,6 +35,8 @@ namespace FLOOF {
 		void OnUpdate(); // Check if device reloaded
 		void NewDeviceReload();
 
+		SoundComponent* m_SoundComponent;
+
 	private:
 		void Play(); // Can only play when attached to a sound component
 
@@ -67,9 +69,9 @@ namespace FLOOF {
 
 
 		// TODO Implement queue
-//void AddToQueue(const std::string& name);
-//void PlayQueue();
-//std::queue<SoundClip*> m_PlayQueue;
+			//void AddToQueue(const std::string& name);
+			//void PlayQueue();
+			//std::queue<SoundClip*> m_PlayQueue;
 
 	};
 

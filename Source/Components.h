@@ -201,57 +201,6 @@ namespace FLOOF {
 
     };
 
-    struct SoundSourceComponent {
-        friend class SoundManager;
-
-    public:
-        SoundSourceComponent();
-        SoundSourceComponent(const std::string& path);
-
-        SoundSourceComponent(std::initializer_list<std::string> clips);
-        SoundSourceComponent(std::vector<std::string> clips);
-
-
-        void NewDeviceReload();
-        ~SoundSourceComponent();
-
-        void AddClip(const std::string& path);
-        
-        float m_Volume{1.f};
-
-        class SoundClip {
-        public:
-            SoundClip(const std::string& path);
-            void NewDeviceReload();
-            ~SoundClip();
-            void Volume();
-            void Volume(float volume);
-            void Pitch();
-            void UpdateStatus();
-            void Play();
-            void Stop();
-            void Looping(bool looping);
-            
-            ALuint m_Source;
-            ALuint m_Sound;
-            std::string m_Path;
-            std::string m_Name;
-            float m_Volume{ 1.f };
-            float m_Pitch{ 1.f };
-            bool isPlaying{ false };
-            bool isLooping{ false };
-        };
-
-        std::unordered_map<std::string, std::shared_ptr<SoundClip>> mClips;
-        std::shared_ptr<SoundClip> GetClip(const std::string& name);
-
-        bool IsPlaying(const std::string& name);
-        void Play(const std::string& name); // call add clip if not exist
-        void Play(SoundClip* clip);
-        //std::shared_ptr<SoundClip> m_SelectedClip;
-
-    };
-
     struct PointLightComponent {
         glm::vec4 diffuse = {1.0f, 0.7f, 0.5f, 0.f};
         glm::vec4 ambient = glm::vec4(0.4f, 0.4f, 0.4f, 0.f) * 0.1f;

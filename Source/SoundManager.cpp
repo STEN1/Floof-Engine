@@ -166,8 +166,6 @@ namespace FLOOF {
         }
         if (needsReload == true) { needsReload = false; }
 
-        // TODO add saving what sound is playing
-
     }
 
     void SoundManager::UpdateVolume() {

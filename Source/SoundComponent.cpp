@@ -80,7 +80,7 @@ namespace FLOOF {
 	}
 
 	SoundComponent::SoundComponent(const std::string& path){
-        m_DefaultSoundClip = AddClip(path);
+        AddClip(path);
 	}
 
 	SoundComponent::SoundComponent(std::initializer_list<std::string> clips) {
@@ -111,11 +111,24 @@ namespace FLOOF {
             return it->second;
         }
         else {
+            if (m_DefaultSoundClip.empty()) { m_DefaultSoundClip = path; }
             mClips.insert(std::pair<std::string, std::shared_ptr<SoundClip>>(path, std::make_shared<SoundClip>(path)));
+            mClips[path]->m_SoundComponent = this;
             return mClips[path];
         }
 		
 	}
+
+    std::shared_ptr<SoundClip> SoundComponent::GetClip(const std::string& name) {
+        auto it = mClips.find(name);
+
+        if (it != mClips.end()) {
+            return mClips[name];
+        }
+        else {
+            return nullptr;
+        }
+    }
 
     bool SoundComponent::Play(const std::string& name) {
         auto it = mClips.find(name);

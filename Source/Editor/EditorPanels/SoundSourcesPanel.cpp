@@ -6,7 +6,7 @@ namespace FLOOF {
 	void SoundSourcesPanel::DrawPanel() {
 		ImGui::Begin("Sounds Sources");
 
-		auto view = m_EditorLayer->GetScene()->GetRegistry().view<SoundSourceComponent, TagComponent, Relationship>();
+		auto view = m_EditorLayer->GetScene()->GetRegistry().view<SoundComponent, TagComponent, Relationship>();
 		for (auto [entity, soundsource, tag, rel] : view.each()) {
 			// only care about entitys without parent.
 			// deal with child entitys later.
@@ -37,7 +37,7 @@ namespace FLOOF {
 
 
 		if (node_open) {
-			for (auto& clip : m_EditorLayer->GetScene()->GetRegistry().try_get<SoundSourceComponent>(entity)->mClips) {
+			for (auto& clip : m_EditorLayer->GetScene()->GetRegistry().try_get<SoundComponent>(entity)->mClips) {
 
 				node_flags = base_flags;
 

@@ -95,7 +95,7 @@ namespace FLOOF {
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
-        std::shared_ptr<SoundSourceComponent::SoundClip> m_SelectedClip;
+        std::shared_ptr<SoundClip> m_SelectedClip;
         entt::entity m_LastSelectedEntity = entt::null;
 
         std::unique_ptr<SceneRenderer> m_SceneRenderer;
