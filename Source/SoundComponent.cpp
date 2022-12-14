@@ -14,20 +14,20 @@ namespace FLOOF {
         SoundManager::DeleteSource(this);
 	}
 
-    void SoundSourceComponent::SoundClip::Volume() {
+    void SoundClip::Volume() {
         alec(alSourcef(m_Source, AL_GAIN, m_Volume));
     }
 
-    void SoundSourceComponent::SoundClip::Volume(float volume) {
+    void SoundClip::Volume(float volume) {
         m_Volume = volume;
         alec(alSourcef(m_Source, AL_GAIN, volume));
     }
 
-    void SoundSourceComponent::SoundClip::Pitch() {
+    void SoundClip::Pitch() {
         alec(alSourcef(m_Source, AL_PITCH, m_Pitch));
     }
 
-    void SoundSourceComponent::SoundClip::UpdateStatus() {
+    bool SoundClip::UpdateIsPlaying() {
 
         ALint sourceState;
         alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState))
@@ -38,20 +38,22 @@ namespace FLOOF {
             else {
                 isPlaying = false;
             }
+        return isPlaying;
+
     }
 
-    void SoundSourceComponent::SoundClip::Play() {
+    void SoundClip::Play() {
         isPlaying = true;
         alec(alSourcePlay(m_Source));
     }
 
-    void SoundSourceComponent::SoundClip::Stop() {
+    void SoundClip::Stop() {
         isPlaying = false;
         alec(alSourceStop(m_Source));
 
     }
 
-    void SoundSourceComponent::SoundClip::Looping(bool looping) {
+    void SoundClip::Looping(bool looping) {
         if (looping) {
             alec(alSourcei(m_Source, AL_LOOPING, AL_TRUE));
             isLooping = true;
@@ -78,7 +80,7 @@ namespace FLOOF {
 	}
 
 	SoundComponent::SoundComponent(const std::string& path){
-        AddClip(path);
+        m_DefaultSoundClip = AddClip(path);
 	}
 
 	SoundComponent::SoundComponent(std::initializer_list<std::string> clips) {
@@ -115,36 +117,37 @@ namespace FLOOF {
 		
 	}
 
-	void SoundComponent::Play(SoundClip* clip) {
-        clip->Play();
-        m_SourcesPlaying.push_back(clip);
-        if (m_DefaultSoundClip = nullptr){
-            m_DefaultSoundClip = clip;
-        }
-	}
+    bool SoundComponent::Play(const std::string& name) {
+        auto it = mClips.find(name);
 
-	void SoundComponent::OnUpdate() {
-		CheckPlaying();
-	}
+        if (it != mClips.end()) {
+            it->second->Play();
+			m_SourcesPlaying.push_back(it->second);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    bool SoundComponent::SetDefaultClip(const std::string& name) {
+
+        auto it = mClips.find(name);
+
+        if (it != mClips.end()) {
+            m_DefaultSoundClip = name;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
 	void SoundComponent::OnPlay() {
 		if (PlayOnPlay){
             Play(m_DefaultSoundClip);
 		}
 	}
-
-	void SoundComponent::CheckPlaying() {
-        for (auto it = m_SourcesPlaying.begin(); it != m_SourcesPlaying.end();) {
-            ALint sourceState;
-            alec(alGetSourcei((*it)->m_Source, AL_SOURCE_STATE, &sourceState))
-
-            if (sourceState != AL_PLAYING)
-                m_SourcesPlaying.erase(it);
-            
-            else ++it;
-		}
-	}
-
 	
 }
 

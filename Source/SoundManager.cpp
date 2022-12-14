@@ -6,8 +6,7 @@
 #include "Application.h"
 
 namespace FLOOF {
-	WavFile WavFile::ReadWav(std::string path)
-	{
+    WavFile WavFile::ReadWav(std::string path) {
         WavFile soundData;
         // Read PCM frames to short 16 to a heap allocated array of data
         drwav_int16* pSamleData = drwav_open_file_and_read_pcm_frames_s16(path.c_str(), &soundData.channels, &soundData.sampleRate, &soundData.totalPCMFrameCount, nullptr);
@@ -35,7 +34,7 @@ namespace FLOOF {
         // Free the memory allocated by drwav
         drwav_free(pSamleData, nullptr);
         return soundData;
-	}
+    }
 
     void SoundManager::SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up) {
         alec(alListener3f(AL_POSITION, position.x, position.y, position.z));
@@ -48,16 +47,15 @@ namespace FLOOF {
 
     void SoundManager::InitOpenAL(std::string device) {
 
-		UpdateDeviceList();
-		if (device != "DEFAULT")
-        {
+        UpdateDeviceList();
+        if (device != "DEFAULT") {
             bool deviceExist{ false };
             for (auto it : s_DeviceList) {
                 if (it == device) { deviceExist = true; break; };
             }
 
             if (deviceExist) {
-				s_Device = alcOpenDevice(device.c_str());
+                s_Device = alcOpenDevice(device.c_str());
                 needsReload = true;
             }
             else { device = "DEFAULT"; }
@@ -69,7 +67,7 @@ namespace FLOOF {
 
         }
 
-    	if (!s_Device) { std::cerr << "Failed to get the default device for OpenAL" << std::endl; return; }
+        if (!s_Device) { std::cerr << "Failed to get the default device for OpenAL" << std::endl; return; }
 
         // Log name of device
         std::cout << "OpenAL Device: " << alcGetString(s_Device, ALC_DEFAULT_DEVICE_SPECIFIER) << std::endl;
@@ -92,11 +90,11 @@ namespace FLOOF {
 
         //auto view = registry.view<SoundSourceComponent>();
         //for (auto [entity, soundsource] : view.each()) {
-	       // if (soundsource.isPlaying)
+           // if (soundsource.isPlaying)
         //    {
         //        soundsource.Stop();
-		      //  
-	       // }
+              //  
+           // }
         //}
 
         // Make the current context null
@@ -110,9 +108,9 @@ namespace FLOOF {
         return s_DeviceList;
     }
 
-	void SoundManager::UpdateDeviceList() {
+    void SoundManager::UpdateDeviceList() {
         s_DeviceList = GetAvailableDevices();
-	}
+    }
 
     std::vector<std::string> SoundManager::GetAvailableDevices() {
         const ALCchar* devices;
@@ -149,47 +147,52 @@ namespace FLOOF {
         float globalRefDistance = 125.0f;
         float globalMaxDistance = 1250.0f;
 
-		SetListener(camera->Position, glm::vec3(0.f), camera->Forward, camera->Up);
+        SetListener(camera->Position, glm::vec3(0.f), camera->Forward, camera->Up);
 
         auto view = scene->GetRegistry().view<TransformComponent, SoundComponent>();
         for (auto [entity, transform, soundsource] : view.each()) {
-	        //if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
+            if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();
 
             for (auto it = soundsource.m_SourcesPlaying.begin(); it != soundsource.m_SourcesPlaying.end(); it++) {
-	            alec(alSource3f((*it)->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
-	            alSourcef((*it)->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
-	            alSourcef((*it)->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
-                (*it)->UpdateStatus();
+                alec(alSource3f((*it)->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
+                alSourcef((*it)->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
+                alSourcef((*it)->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
+                          
+                if (!(*it)->UpdateIsPlaying()); {
+					soundsource.m_SourcesPlaying.erase(it);
+                }
             }
         }
         if (needsReload == true) { needsReload = false; }
 
+        // TODO add saving what sound is playing
+
     }
 
     void SoundManager::UpdateVolume() {
-	    if (!Muted) {
+        if (!Muted) {
             alec(alec(alListenerf(AL_GAIN, MasterVolume)));
-	    }
+        }
     }
 
     void SoundManager::UpdateMute() {
 
-	    if (!Muted) {
+        if (!Muted) {
             alec(alec(alListenerf(AL_GAIN, 0.f)));
             Muted = true;
-	    }
+        }
         else if (Muted) {
-        	alec(alec(alListenerf(AL_GAIN, MasterVolume)));
+            alec(alec(alListenerf(AL_GAIN, MasterVolume)));
             Muted = false;
-	    }
+        }
     }
 
     ALuint SoundManager::LoadWav(std::string sound) {
 
         std::string path = "Assets/Sounds/" + sound;
         // Check if sound already loaded
-		if (auto it = s_Sounds.find(path); it != s_Sounds.end())
+        if (auto it = s_Sounds.find(path); it != s_Sounds.end())
             return it->second;
 
         // Read file
@@ -206,7 +209,7 @@ namespace FLOOF {
             soundData.pcmData.size() * 2, // Multiplied by two since vector is stored in 16 bits and data is read in bytes
             soundData.sampleRate)); // The sample rate, obiously
 
-		s_Sounds[sound] = buffer;
+        s_Sounds[sound] = buffer;
         return buffer;
     }
 
@@ -228,8 +231,7 @@ namespace FLOOF {
         }
     }
 
-    std::vector<std::string> GetAvailableDevices()
-	{
+    std::vector<std::string> GetAvailableDevices() {
         const ALCchar* devices;
         std::vector<std::string> devicesVec;
 
@@ -251,23 +253,19 @@ namespace FLOOF {
         } while (*devices != '\0' && *(devices + 1) != '\0');
 
         return devicesVec;
-	}
+    }
 
-    void PrintDevices(const ALCchar* list)
-    {
+    void PrintDevices(const ALCchar* list) {
         ALCchar* ptr, * nptr;
 
         ptr = (ALCchar*)list;
         printf("list of all available input devices:\n");
-        if (!list)
-        {
+        if (!list) {
             printf("none\n");
         }
-        else
-        {
+        else {
             nptr = ptr;
-            while (*(nptr += strlen(ptr) + 1) != 0)
-            {
+            while (*(nptr += strlen(ptr) + 1) != 0) {
                 printf("  %s\n", ptr);
                 ptr = nptr;
             }
