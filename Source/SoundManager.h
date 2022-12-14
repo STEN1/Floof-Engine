@@ -67,9 +67,5 @@ namespace FLOOF {
 		inline static ALCcontext* s_Context{ nullptr };
 		inline static bool needsReload{ false };
 
-
-		// factory pfunctuion return uniquie potre to clips
-		
-
+		// factory function return uniquie pointer to clips
 	};
-
