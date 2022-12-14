@@ -1,6 +1,6 @@
 #include "Scene.h"
 #include "Components.h"
-
+#include "SoundComponent.h"
 #include "Application.h"
 #include "SoundManager.h"
 

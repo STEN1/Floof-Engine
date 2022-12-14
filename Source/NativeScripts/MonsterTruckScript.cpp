@@ -7,7 +7,7 @@
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "../Utils.h"
 #include "../Network/FloofNetworking.h"
-
+#include "../SoundComponent.h"
 FLOOF::MonsterTruckScript::MonsterTruckScript(glm::vec3 Pos):SpawnLocation(Pos) {
 
 }

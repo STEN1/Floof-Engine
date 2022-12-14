@@ -1,7 +1,7 @@
 #include "SoundSourcesPanel.h"
 #include "../../Application.h"
 #include "../EditorLayer.h"
-
+#include "../../SoundComponent.h"
 namespace FLOOF {
 	void SoundSourcesPanel::DrawPanel() {
 		ImGui::Begin("Sounds Sources");

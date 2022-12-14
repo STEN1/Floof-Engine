@@ -17,6 +17,7 @@
 #include "../NativeScripts/GameModeScript.h"
 #include "imgui_internal.h"
 #include "EditorPanels/NetworkPanel.h"
+#include "../SoundComponent.h"
 
 namespace FLOOF {
     EditorLayer::EditorLayer() {
