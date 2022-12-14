@@ -110,7 +110,9 @@ add_executable(Floof
         Source/Editor/EditorPanels/NetworkPanel.h
         Source/NativeScripts/GameModeScript.h
         Source/Network/OlcNet.h
-        Source/LineMeshComponent.h Source/LineMeshComponent.cpp)
+        Source/LineMeshComponent.h Source/LineMeshComponent.cpp
+        Source/SoundComponent.h
+        Source/SoundComponent.cpp)
 
 
 

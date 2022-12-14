@@ -12,6 +12,7 @@
 #include "al.h"
 #include "alc.h"
 #include "Components.h"
+#include "SoundComponent.h"
 #include "dr_libs/dr_wav.h"
 
 // Check for errors
@@ -37,7 +38,7 @@ namespace FLOOF {
 	};
 
 	class SoundManager {
-		friend class SoundSourceComponent;
+		friend class SoundComponent;
 		friend class SoundClip;
 	public:
 		static void SetListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
@@ -64,56 +65,7 @@ namespace FLOOF {
 		inline static ALCdevice* s_Device{ nullptr };
 		inline static ALCcontext* s_Context{ nullptr };
 		inline static bool needsReload{ false };
-		
 
+		// factory function return uniquie pointer to clips
 	};
-
-	// This class contains all audio code at the moment.
-	// The plan is to move a lot into an audio component
-	// This is just to get it up and running for the time being
-	class OldSoundManager {
-		public:
-			OldSoundManager();
-			void testSound();
-			int loadPath(std::string path); // Could contain the whole component instead
-			void loadAssets();
-			void updatePlayer(glm::vec3 pos, glm::vec3 vel, glm::vec3 forward, glm::vec3 up); // Every tick
-			void PlaySounds();
-			void newTest();
-		private:
-			void readSounds();
-			void openDevice();
-			void createContext();
-			void createListener();
-			std::vector<std::string> devices;
-			ALCdevice* device;
-			ALCcontext* context;
-			glm::vec3 playerPosition{ 0.f,0.f,0.f };
-			glm::vec3 playerVelocity{ 0.f,0.f,0.f };
-			glm::vec3 playerForward{ 1.f,0.f,0.f };
-			glm::vec3 playerUp{ 0.f,1.f,0.f };
-			std::vector<WavFile> soundData;
-
-			std::vector<std::string> paths;
-	};
-
-	
-
 }
-
-
-/*
- * in run:
- *
- * iterate through soundcomponents
- * for every:
- * component.getID(soundmanager.loadPath(component.getPath));
- *
- * in draw
- * iterate through soundcomponents
- * save in vector of pointers and send to soundmanager
- * soundmanager.PlaySounds(std::vector<SoundSourceComponent*> sounds);
- *
- * in soundmanager 
-
- */

@@ -5,7 +5,7 @@
 #include "PhysicsSystem.h"
 #include "Renderer/SceneRenderer.h"
 #include "CameraComponent.h"
-
+#include "SoundComponent.h"
 namespace FLOOF {
 
     enum DebugScenes {
@@ -98,7 +98,7 @@ namespace FLOOF {
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
-        class SoundClip* m_SelectedClip = nullptr;
+        std::shared_ptr<SoundClip> m_SelectedClip;
         entt::entity m_LastSelectedEntity = entt::null;
 
         std::unique_ptr<SceneRenderer> m_SceneRenderer;
