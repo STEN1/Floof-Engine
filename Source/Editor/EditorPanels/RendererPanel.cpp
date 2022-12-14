@@ -78,6 +78,11 @@ namespace FLOOF {
 			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.Bias = shadowBias;
 			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.Bias = shadowBias;
 		}
+		float shadowZOffset = m_EditorLayer->GetEditorRenderer()->m_ShadowZExtentOffset;
+		if (ImGui::DragFloat("Shadow z offset", &shadowZOffset, 1.f, 0.f, 10000.f)) {
+			m_EditorLayer->GetEditorRenderer()->m_ShadowZExtentOffset = shadowZOffset;
+			m_EditorLayer->GetPlayRenderer()->m_ShadowZExtentOffset = shadowZOffset;
+		}
 
 		// Shadowmap visualization. only showing first cascade.
 		ImVec2 imageSize(200.f, 200.f);

@@ -12,16 +12,16 @@ namespace FLOOF {
 #define FLOOF_CASCADE_COUNT 4
     struct SceneFrameData {
         glm::vec4 CameraPos = glm::vec4(0.f);
-        glm::vec4 SunPosition = glm::vec4(0.1f, 1.f, 0.1f, 1.f);
+        glm::vec4 SunPosition = glm::vec4(0.2f, 1.f, 0.2f, 1.f);
         glm::vec4 SunColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.f);
         glm::mat4 VP = glm::mat4(1.f);
         glm::mat4 LightSpaceMatrix[FLOOF_CASCADE_COUNT];
         glm::mat4 View = glm::mat4(1.f);
         glm::vec4 SplitDists = glm::vec4(0.f);
-        float sunStrenght = 45.f;
+        float sunStrenght = 25.f;
         int LightCount = 0;
         int CascadeCount = FLOOF_CASCADE_COUNT;
-        float AmbientIntensity = 0.2f;
+        float AmbientIntensity = 0.5f;
         float Bias = 0.00005f;
     };
     
@@ -47,6 +47,7 @@ namespace FLOOF {
 
     private:
         VkSemaphore ShadowPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera);
+        VkSemaphore MainPass(VkSemaphore waitSemaphore, Scene* scene, const glm::mat4& cameraProjection, const glm::mat4& cameraView);
 
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
@@ -69,9 +70,9 @@ namespace FLOOF {
         VkRenderPass m_RenderPass;
 
         uint32_t m_ShadowRes = 4096;
-        float m_ShadowZExtentOffset = 1000.f;
+        float m_ShadowZExtentOffset = 2048.f;
         std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
-        float m_ShadowFarClip = 5000.f;
+        float m_ShadowFarClip = 2048.f;
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
 

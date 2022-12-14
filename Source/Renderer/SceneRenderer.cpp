@@ -475,6 +475,11 @@ namespace FLOOF {
         return m_ShadowPassSignalSemaphores[frameIndex];
     }
 
+    VkSemaphore SceneRenderer::MainPass(VkSemaphore waitSemaphore, Scene* scene, const glm::mat4& cameraProjection, const glm::mat4& cameraView)
+    {
+        return VkSemaphore();
+    }
+
     void SceneRenderer::CreateTextureRenderer() {
         auto *renderer = VulkanRenderer::Get();
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);

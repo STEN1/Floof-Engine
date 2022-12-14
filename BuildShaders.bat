@@ -22,3 +22,4 @@ glslc Shaders/Landscape.vert -o Shaders/Landscape.vert.spv
 glslc Shaders/Landscape.frag -o Shaders/Landscape.frag.spv
 glslc Shaders/Shadow.vert -o Shaders/Shadow.vert.spv
 glslc Shaders/Shadow.frag -o Shaders/Shadow.frag.spv
+glslc Shaders/AlphaClear.frag -o Shaders/AlphaClear.frag.spv
