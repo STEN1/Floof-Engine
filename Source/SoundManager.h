@@ -38,7 +38,6 @@ namespace FLOOF {
 	};
 
 	class SoundManager {
-		friend class SoundSourceComponent;
 		friend class SoundComponent;
 		friend class SoundClip;
 	public:

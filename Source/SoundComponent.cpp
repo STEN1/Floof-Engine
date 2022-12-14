@@ -113,7 +113,6 @@ namespace FLOOF {
         else {
             if (m_DefaultSoundClip.empty()) { m_DefaultSoundClip = path; }
             mClips.insert(std::pair<std::string, std::shared_ptr<SoundClip>>(path, std::make_shared<SoundClip>(path)));
-            mClips[path]->m_SoundComponent = this;
             return mClips[path];
         }
 		
@@ -135,7 +134,6 @@ namespace FLOOF {
 
         if (it != mClips.end()) {
             it->second->Play();
-			m_SourcesPlaying.push_back(it->second);
             return true;
         }
         else {

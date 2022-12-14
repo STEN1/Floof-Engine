@@ -16,13 +16,11 @@
 #include "NativeScripts/NativeScript.h"
 #include "TransformComponent.h"
 #include "HeightmapLoader.h"
-
+//#include "SoundComponent.h"
 #include <pytypedefs.h>
 #include "HeightField.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include <unordered_map>
-
-class SoundManager;
 
 namespace FLOOF {
 

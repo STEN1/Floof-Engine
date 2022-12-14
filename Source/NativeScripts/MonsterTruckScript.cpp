@@ -128,7 +128,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         body.setCollisionDispatcher(TruckCallback.get());
-        auto &sound = scene->AddComponent<SoundSourceComponent>(frame, "Vehicles_idle2.wav");
+        auto &sound = scene->AddComponent<SoundComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
         sound.AddClip("pinchcliffe.wav");
 
@@ -201,7 +201,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     {
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
 
-        auto& sound = scene->AddComponent<SoundSourceComponent>(Wheel_fr, "Vehicles_idle2.wav");
+        auto& sound = scene->AddComponent<SoundComponent>(Wheel_fr, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/Wheels/tuner-wheel/source/tunerWheelRight.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
         mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
@@ -234,7 +234,7 @@ void FLOOF::MonsterTruckScript::OnCreate(Scene* scene, entt::entity entity) {
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
-        auto& sound = scene->AddComponent<SoundSourceComponent>(Wheel_fl, "Vehicles_idle2.wav");
+        auto& sound = scene->AddComponent<SoundComponent>(Wheel_fl, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/Wheels/tuner-wheel/source/tunerWheelLeft.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
         mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
@@ -568,7 +568,7 @@ void FLOOF::MonsterTruckScript::OnUpdate(float deltaTime) {
     }
 
     //audio todo fix sound
-    auto& sound = m_Scene->GetComponent<SoundSourceComponent>(frame);
+    auto& sound = m_Scene->GetComponent<SoundComponent>(frame);
 
 
 }

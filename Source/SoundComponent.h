@@ -35,9 +35,6 @@ namespace FLOOF {
 		void OnUpdate(); // Check if device reloaded
 		void NewDeviceReload();
 
-		SoundComponent* m_SoundComponent;
-
-	private:
 		void Play(); // Can only play when attached to a sound component
 
 	};
@@ -61,10 +58,8 @@ namespace FLOOF {
 		bool SetDefaultClip(const std::string& name);
 		void OnPlay();
 		
-		std::vector<std::shared_ptr<SoundClip>> m_SourcesPlaying; // Only here when playing
 		bool PlayOnPlay{ true };
 		std::string m_DefaultSoundClip;
-		std::shared_ptr<SoundClip> m_SelectedClip;
 		float m_Volume{ 1.f };
 
 

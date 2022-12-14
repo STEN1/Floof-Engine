@@ -11,7 +11,6 @@ namespace FLOOF {
 			
 			ImGui::Separator();
 			ImGui::Text("Sound Component");
-			const std::string sound = m_EditorLayer->GetScene()->m_SelectedClip->m_Path;
 			ImGui::Text(m_EditorLayer->GetScene()->m_SelectedClip->m_Path.c_str());
 
 			if (ImGui::DragFloat("Volume", &m_EditorLayer->GetScene()->m_SelectedClip->m_Volume, 0.001f, 0.f, 1.f)) {
@@ -22,7 +21,7 @@ namespace FLOOF {
 			}
 
 			if (m_EditorLayer->GetScene()->m_SelectedClip->isPlaying) { if (ImGui::Button("Stop")) { m_EditorLayer->GetScene()->m_SelectedClip->Stop(); } }
-			if (!m_EditorLayer->GetScene()->m_SelectedClip->isPlaying) { if (ImGui::Button("Play")) { m_EditorLayer->GetScene()->m_SelectedClip->m_SoundComponent->Play(sound); } }
+			if (!m_EditorLayer->GetScene()->m_SelectedClip->isPlaying) { if (ImGui::Button("Play")) { m_EditorLayer->GetScene()->m_SelectedClip->Play(); } }
 			if (m_EditorLayer->GetScene()->m_SelectedClip->isLooping) { if (ImGui::Button("Looping")) { m_EditorLayer->GetScene()->m_SelectedClip->Looping(false); } }
 			if (!m_EditorLayer->GetScene()->m_SelectedClip->isLooping) { if (ImGui::Button("Not Looping")) { m_EditorLayer->GetScene()->m_SelectedClip->Looping(true); } }
 			m_EditorLayer->GetScene()->m_SelectedClip->UpdateIsPlaying();

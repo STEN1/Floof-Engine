@@ -154,14 +154,11 @@ namespace FLOOF {
             if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();
 
-            for (auto it = soundsource.m_SourcesPlaying.begin(); it != soundsource.m_SourcesPlaying.end(); it++) {
-                alec(alSource3f((*it)->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
-                alSourcef((*it)->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
-                alSourcef((*it)->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
-                          
-                if (!(*it)->UpdateIsPlaying()); {
-					soundsource.m_SourcesPlaying.erase(it);
-                }
+            for (auto it = soundsource.mClips.begin(); it != soundsource.mClips.end(); it++) {
+                if (!it->second->UpdateIsPlaying()) { continue; } // Only update if sound is playing
+                alec(alSource3f(it->second->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
+                alSourcef(it->second->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
+                alSourcef(it->second->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
             }
         }
         if (needsReload == true) { needsReload = false; }
@@ -270,8 +267,7 @@ namespace FLOOF {
             printf("  %s\n", ptr);
         }
     }
-
-
+}
 
 
   

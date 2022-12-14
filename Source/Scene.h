@@ -5,8 +5,7 @@
 #include "PhysicsSystem.h"
 #include "Renderer/SceneRenderer.h"
 #include "Components.h"
-
-
+#include "SoundComponent.h"
 namespace FLOOF {
 
     enum DebugScenes {
