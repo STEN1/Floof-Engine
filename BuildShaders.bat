@@ -1,25 +1,25 @@
-glslc Shaders/Color.vert -o Shaders/Color.vert.spv
-glslc Shaders/Color.frag -o Shaders/Color.frag.spv
-glslc Shaders/Wireframe.vert -o Shaders/Wireframe.vert.spv
-glslc Shaders/Wireframe.frag -o Shaders/Wireframe.frag.spv
-glslc Shaders/Normals.vert -o Shaders/Normals.vert.spv
-glslc Shaders/Normals.frag -o Shaders/Normals.frag.spv
-glslc Shaders/UV.vert -o Shaders/UV.vert.spv
-glslc Shaders/UV.frag -o Shaders/UV.frag.spv
-glslc Shaders/UnLit.vert -o Shaders/UnLit.vert.spv
-glslc Shaders/UnLit.frag -o Shaders/UnLit.frag.spv
-glslc Shaders/PBR.vert -o Shaders/PBR.vert.spv
-glslc Shaders/PBR.frag -o Shaders/PBR.frag.spv
-glslc Shaders/Skybox.vert -o Shaders/Skybox.vert.spv
-glslc Shaders/Skybox.frag -o Shaders/Skybox.frag.spv
-glslc Shaders/Cubemap.vert -o Shaders/Cubemap.vert.spv
-glslc Shaders/EquiToCube.frag -o Shaders/EquiToCube.frag.spv
-glslc Shaders/IrradianceConv.frag -o Shaders/IrradianceConv.frag.spv
-glslc Shaders/Prefilter.frag -o Shaders/Prefilter.frag.spv
-glslc Shaders/BRDF.vert -o Shaders/BRDF.vert.spv
-glslc Shaders/BRDF.frag -o Shaders/BRDF.frag.spv
-glslc Shaders/Landscape.vert -o Shaders/Landscape.vert.spv
-glslc Shaders/Landscape.frag -o Shaders/Landscape.frag.spv
-glslc Shaders/Shadow.vert -o Shaders/Shadow.vert.spv
-glslc Shaders/Shadow.frag -o Shaders/Shadow.frag.spv
-glslc Shaders/AlphaClear.frag -o Shaders/AlphaClear.frag.spv
+glslc Shaders/Color.vert -o Shaders/Color.vert.spv -g
+glslc Shaders/Color.frag -o Shaders/Color.frag.spv -g
+glslc Shaders/Wireframe.vert -o Shaders/Wireframe.vert.spv -g
+glslc Shaders/Wireframe.frag -o Shaders/Wireframe.frag.spv -g
+glslc Shaders/Normals.vert -o Shaders/Normals.vert.spv -g
+glslc Shaders/Normals.frag -o Shaders/Normals.frag.spv -g
+glslc Shaders/UV.vert -o Shaders/UV.vert.spv -g
+glslc Shaders/UV.frag -o Shaders/UV.frag.spv -g
+glslc Shaders/UnLit.vert -o Shaders/UnLit.vert.spv -g
+glslc Shaders/UnLit.frag -o Shaders/UnLit.frag.spv -g
+glslc Shaders/PBR.vert -o Shaders/PBR.vert.spv -g
+glslc Shaders/PBR.frag -o Shaders/PBR.frag.spv -g
+glslc Shaders/Skybox.vert -o Shaders/Skybox.vert.spv -g
+glslc Shaders/Skybox.frag -o Shaders/Skybox.frag.spv -g
+glslc Shaders/Cubemap.vert -o Shaders/Cubemap.vert.spv -g
+glslc Shaders/EquiToCube.frag -o Shaders/EquiToCube.frag.spv -g
+glslc Shaders/IrradianceConv.frag -o Shaders/IrradianceConv.frag.spv -g
+glslc Shaders/Prefilter.frag -o Shaders/Prefilter.frag.spv -g
+glslc Shaders/BRDF.vert -o Shaders/BRDF.vert.spv -g
+glslc Shaders/BRDF.frag -o Shaders/BRDF.frag.spv -g
+glslc Shaders/Landscape.vert -o Shaders/Landscape.vert.spv -g
+glslc Shaders/Landscape.frag -o Shaders/Landscape.frag.spv -g
+glslc Shaders/Shadow.vert -o Shaders/Shadow.vert.spv -g
+glslc Shaders/Shadow.frag -o Shaders/Shadow.frag.spv -g
+glslc Shaders/AlphaClear.frag -o Shaders/AlphaClear.frag.spv -g

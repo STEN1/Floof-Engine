@@ -95,8 +95,11 @@ void main() {
     for(int i = 0; i < sceneFrameUBO.lightCount; ++i) 
     {
         vec3 lighgPos = lightSSBO.lights[i].position.xyz;
-        vec3 lightColor = lightSSBO.lights[i].diffuse.xyz;
         float distance    = length(lighgPos - fragPos);
+        if (distance > lightSSBO.lights[i].outerRange) {
+            continue;
+        }
+        vec3 lightColor = lightSSBO.lights[i].diffuse.xyz;
         // calculate per-light radiance
         vec3 L = normalize(lighgPos - fragPos);
         vec3 H = normalize(V + L);
