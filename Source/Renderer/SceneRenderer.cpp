@@ -287,7 +287,7 @@ namespace FLOOF {
         auto commandBuffer = renderer->AllocateCommandBuffer();
         renderer->BeginSingleUseCommandBuffer(commandBuffer);
 
-        VkExtent2D vkExtent = { m_Extent.x, m_Extent.y };
+        VkExtent2D vkExtent = { static_cast<uint32_t>(m_Extent.x), static_cast<uint32_t>(m_Extent.y) };
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -574,7 +574,7 @@ namespace FLOOF {
         auto commandBuffer = renderer->AllocateCommandBuffer();
         renderer->BeginSingleUseCommandBuffer(commandBuffer);
 
-        VkExtent2D vkExtent = { m_Extent.x, m_Extent.y };
+        VkExtent2D vkExtent = { static_cast<uint32_t>(m_Extent.x), static_cast<uint32_t>(m_Extent.y) };
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
