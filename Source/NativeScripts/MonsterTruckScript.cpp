@@ -702,6 +702,13 @@ void FLOOF::MonsterTruckScript::SetTransformData(FLOOF::CarData data) {
     WheelbrBody.transform(data.WheelTformBR.Position,data.WheelTformBR.Rotation,data.WheelTformBR.Scale);
     WheelflBody.transform(data.WheelTformFL.Position,data.WheelTformFL.Rotation,data.WheelTformFL.Scale);
     WheelfrBody.transform(data.WheelTformFR.Position,data.WheelTformFR.Rotation,data.WheelTformFR.Scale);
+
+    frameBody.RigidBody->setAngularVelocity(data.AvFrame);
+    WheelblBody.RigidBody->setAngularVelocity(data.AvWheelBL);
+    WheelbrBody.RigidBody->setAngularVelocity(data.AvWheelBR);
+    WheelflBody.RigidBody->setAngularVelocity(data.AvWheelFL);
+    WheelfrBody.RigidBody->setAngularVelocity(data.AvWheelFR);
+
 }
 
 FLOOF::CarData FLOOF::MonsterTruckScript::GetTransformData() {
@@ -717,6 +724,18 @@ FLOOF::CarData FLOOF::MonsterTruckScript::GetTransformData() {
     data.WheelTformBR = Wheelbrtf;
     data.WheelTformFL = Wheelfltf;
     data.WheelTformFR = Wheelfrtf;
+
+    auto &frameBody = m_Scene->GetComponent<RigidBodyComponent>(frame);
+    auto &WheelfrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_fr);
+    auto &WheelflBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_fl);
+    auto &WheelbrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_br);
+    auto &WheelblBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_bl);
+
+    data.AvFrame =  frameBody.RigidBody->getAngularVelocity();
+    data.AvWheelBL = WheelblBody.RigidBody->getAngularVelocity();
+    data.AvWheelBR = WheelbrBody.RigidBody->getAngularVelocity();
+    data.AvWheelFL = WheelflBody.RigidBody->getAngularVelocity();
+    data.AvWheelFR = WheelfrBody.RigidBody->getAngularVelocity();
 
     return data;
 }

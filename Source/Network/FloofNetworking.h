@@ -28,11 +28,18 @@ namespace FLOOF {
     };
 
     struct CarData {
+
         TransformComponent MainTform;
         TransformComponent WheelTformFL;
         TransformComponent WheelTformFR;
         TransformComponent WheelTformBL;
         TransformComponent WheelTformBR;
+
+        btVector3 AvFrame;
+        btVector3 AvWheelFR;
+        btVector3 AvWheelFL;
+        btVector3 AvWheelBR;
+        btVector3 AvWheelBL;
 
         uint32_t id;
     };
