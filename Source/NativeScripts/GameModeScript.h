@@ -4,7 +4,7 @@
 #include "../Scene.h"
 #include "NativeScript.h"
 #include "../Application.h"
-#include "MonsterTruckScript.h"
+#include "CarBaseScript.h"
 #include "../Timer.h"
 
 namespace FLOOF {
@@ -30,7 +30,7 @@ namespace FLOOF {
                 auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                 for (auto [ent, player, script]: v.each()) {
                     if (player.mPlayer == 1) {
-                        auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
+                        auto car = dynamic_cast<CarBaseScript *>(script.Script.get());
                         data = car->GetTransformData();
                         data.id = 1;
                         msg << data;
@@ -51,7 +51,7 @@ namespace FLOOF {
                 auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                 for (auto [ent, player, script]: v.each()) {
                     if (player.mPlayer == Client->GetID()) {
-                        auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
+                        auto car = dynamic_cast<CarBaseScript *>(script.Script.get());
                         data = car->GetTransformData();
                         data.id = Client->GetID();
                         msg << data;
@@ -77,10 +77,10 @@ namespace FLOOF {
                         std::string Player = "Player : ";
                         Player += std::to_string(client->GetID());
                         auto ent = m_Scene->CreateEntity(Player);
-                        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), m_Scene, ent);
+                        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CarBaseScript>(glm::vec3(0.f)), m_Scene, ent);
                         m_Scene->AddComponent<PlayerControllerComponent>(ent, client->GetID());
                         auto script = m_Scene->GetComponent<NativeScriptComponent>(ent).Script.get();
-                        auto car = dynamic_cast<MonsterTruckScript *>(script);
+                        auto car = dynamic_cast<CarBaseScript *>(script);
                         car->AddToPhysicsWorld();
                         Server->ActivePlayers.emplace_back(client);
 
@@ -109,7 +109,7 @@ namespace FLOOF {
                 auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                 for (auto [ent, player, script]: v.each()) {
                     if (player.mPlayer == m_Scene->ActivePlayer) {
-                        auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
+                        auto car = dynamic_cast<CarBaseScript *>(script.Script.get());
                         data = car->GetTransformData();
                         data.id = player.mPlayer;
                         msg << data;
@@ -130,7 +130,7 @@ namespace FLOOF {
                 auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                 for (auto [ent, player, script]: v.each()) {
                     if (player.mPlayer == m_Scene->ActivePlayer) {
-                        auto car = dynamic_cast<MonsterTruckScript *>(script.Script.get());
+                        auto car = dynamic_cast<CarBaseScript *>(script.Script.get());
                         data = car->GetTransformData();
                         data.id = player.mPlayer;
                         msg << data;

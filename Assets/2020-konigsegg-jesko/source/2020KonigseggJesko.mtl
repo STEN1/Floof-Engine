@@ -1,0 +1,387 @@
+# Blender 3.3.1 MTL File: '2020 Konigsegg Jesko.blend'
+# www.blender.org
+
+newmtl Fg1Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.002586 0.002586 0.002586
+Ks 0.001024 0.001024 0.001024
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.400000
+illum 9
+map_Bump Meshpart1_nmap.png
+
+newmtl G1Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.002586 0.002586 0.002586
+Ks 0.001024 0.001024 0.001024
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.701961
+illum 9
+map_Bump Meshpart1_nmap.png
+
+newmtl L1Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.940601 0.940601 0.940601
+Ks 0.372552 0.372552 0.372552
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl L3Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd L3_diff.png
+map_d L3_diff.png
+
+newmtl L5Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd L5_diff.png
+map_d L5_diff.png
+
+newmtl L6Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.180144 0.000000 0.000000
+Ks 0.023784 0.023784 0.023784
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl L7Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd L7_diff.png
+map_d L7_diff.png
+
+newmtl Meshpart10Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.041452 0.004116
+Ks 0.138042 0.138042 0.138042
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart11Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart11_diff.png
+map_d Meshpart11_diff.png
+
+newmtl Meshpart12Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart12_diff.png
+map_d Meshpart12_diff.png
+
+newmtl Meshpart13Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.027755 0.027755 0.027755
+Ks 0.010993 0.010993 0.010993
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart14Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart14_diff.png
+map_d Meshpart14_diff.png
+
+newmtl Meshpart15Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart15_diff.png
+map_d Meshpart15_diff.png
+
+newmtl Meshpart18Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.009696 0.009696 0.009696
+Ks 0.003841 0.003841 0.003841
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart19Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart19_diff.png
+map_d Meshpart19_diff.png
+
+newmtl Meshpart1Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.002263 0.442323
+Ks 0.058697 0.058697 0.058697
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart20Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart20_diff.png
+map_d Meshpart20_diff.png
+
+newmtl Meshpart21Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart21_diff.png
+map_d Meshpart21_diff.png
+
+newmtl Meshpart24Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart24_diff.png
+map_d Meshpart24_diff.png
+
+newmtl Meshpart26Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.022013 0.022013 0.022013
+Ks 0.008719 0.008719 0.008719
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart27Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart27_diff.png
+map_d Meshpart27_diff.png
+
+newmtl Meshpart2Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.030257 0.275833 0.047776
+Ks 0.046719 0.046719 0.046719
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart30Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart30_diff.png
+map_d Meshpart30_diff.png
+
+newmtl Meshpart31Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart31_diff.png
+map_d Meshpart31_diff.png
+
+newmtl Meshpart33Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart33_diff.png
+map_d Meshpart33_diff.png
+
+newmtl Meshpart37Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.016988 0.016988 0.016988
+Ks 0.006729 0.006729 0.006729
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart38Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart38_diff.png
+map_d Meshpart38_diff.png
+
+newmtl Meshpart39Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart39_diff.png
+map_d Meshpart39_diff.png
+
+newmtl Meshpart3Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.867136 0.487765 0.035614
+Ks 0.183584 0.183584 0.183584
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart41Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.066667 0.066667 0.066667
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart41_diff.png
+map_d Meshpart41_diff.png
+
+newmtl Meshpart42Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart42_diff.png
+map_d Meshpart42_diff.png
+
+newmtl Meshpart43Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart43_diff.png
+map_d Meshpart43_diff.png
+
+newmtl Meshpart45Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart45_diff.png
+map_d Meshpart45_diff.png
+
+newmtl Meshpart4Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.373615 0.368591 0.383775
+Ks 0.148659 0.148659 0.148659
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Meshpart1_nmap.png
+
+newmtl Meshpart6Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.396078 0.396078 0.396078
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd Meshpart6_diff.png
+map_d Meshpart6_diff.png
+
+newmtl Rg1Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.180144 0.000000 0.000000
+Ks 0.023784 0.023784 0.023784
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.301961
+illum 9
+map_Bump Meshpart1_nmap.png
+
+newmtl Rg2Mtl
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.002586 0.002586 0.002586
+Ks 0.001024 0.001024 0.001024
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.301961
+illum 9
+map_Bump Meshpart1_nmap.png

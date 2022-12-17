@@ -10,16 +10,15 @@
 #include "EditorPanels/SoundSettingsPanel.h"
 #include "EditorPanels/SoundClipPanel.h"
 #include "EditorPanels/SoundSourcesPanel.h"
-
-#include "../NativeScripts/MonsterTruckScript.h"
 #include "../NativeScripts/LightSwarm.h"
-#include "../NativeScripts/WonderBaumScript.h"
 #include "../NativeScripts/GameModeScript.h"
 #include "imgui_internal.h"
 #include "EditorPanels/NetworkPanel.h"
 #include "../SoundComponent.h"
 #include "../NativeScripts/CheckPointScript.h"
 #include "../NativeScripts/RaceTrackScript.h"
+#include "../NativeScripts/CarScripts/MonsterTruckScript.h"
+#include "../NativeScripts/CarScripts/RaceCarScript.h"
 
 namespace FLOOF {
     EditorLayer::EditorLayer() {
@@ -766,7 +765,7 @@ namespace FLOOF {
         // make monstertruck
         {
             auto ent = m_Scene->CreateEntity("Local Player");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene.get(), ent);
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<RaceCarScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene.get(), ent);
             m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
         }
     }

@@ -1,0 +1,388 @@
+# Blender MTL File: '2020 Lamborghini Sian.blend'
+# Material Count: 35
+
+newmtl Badges
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\BadgeA_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\BadgeA_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\BadgeA_opac.png
+
+newmtl Black
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.008016 0.008016 0.008016
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Body
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.294100 0.352900 0.109800
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Brake_Lights
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.259326 0.033418
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Buttons
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.250000 0.250000 0.250000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Caliper_Badge
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\CalliperBadgeA_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\CalliperBadgeA_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\CalliperBadgeA_opac.png
+
+newmtl Carbon
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.080012 0.080012 0.080012
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Chrome
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Dark_Glass_2
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.160000 0.160000 0.160000
+Ks 0.021669 0.021669 0.021669
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.500000
+illum 2
+
+newmtl Day_Lights
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Engine
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\EngineA_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\EngineA_diff.png
+
+newmtl Glass
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.014710 0.010748 0.102472
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.250000
+illum 2
+
+newmtl Grey
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.098504 0.098504 0.098504
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Grille_1
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille1A_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille1A_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille1A_opac.png
+
+newmtl Grille_2
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille2A_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille2A_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille2A_opac.png
+
+newmtl Grille_4
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille4A_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille4A_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille4A_opac.png
+
+newmtl Grille_5
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille5A_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille5A_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille5A_opac.png
+
+newmtl Grille_6
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille6A_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille6A_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille6A_opac.png
+
+newmtl High_Beams
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.165593 0.075840
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Interior
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\InteriorA_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\InteriorA_diff.png
+
+newmtl Interior_Stitches
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.125000 0.125000 0.125000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Left_Signal
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.027693 0.024832
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Orange
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.320000 0.014768
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Pribors
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.067096 0.024758
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Red
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.000000 0.000000
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Reverse_Lights
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.250000 0.250000 0.250000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Right_Signal
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.067532 0.169489
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl SpecularTintA
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\SpecularTintA_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\SpecularTintA_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\SpecularTintA_opac.png
+
+newmtl Taillight_Glass
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.352900 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.750000
+illum 2
+
+newmtl Taillights
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.463740 0.025153
+Ks 0.125000 0.125000 0.125000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Wheel
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\Wheel1A_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\Wheel1A_diff.png
+
+newmtl mirror
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl si_grille3A
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille3A_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille3A_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\Grille3A_opac.png
+
+newmtl si_interior_o
+Ns 9.803922
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Ka C:\\Games\\BeamNG.drive\\vehicles\\sian\\InteriorA_diff.png
+map_Kd C:\\Games\\BeamNG.drive\\vehicles\\sian\\InteriorA_diff.png
+map_d C:\\Games\\BeamNG.drive\\vehicles\\sian\\InteriorA_opac.png
+
+newmtl si_platelight
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.055763 0.234610 0.640000
+Ks 0.062500 0.062500 0.062500
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2

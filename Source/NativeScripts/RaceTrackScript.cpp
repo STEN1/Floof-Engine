@@ -9,8 +9,8 @@ void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) 
 
 
     //make checkpoints;
-    for (int i{0}; i <= 10; i++) {
-        CheckPoints.emplace_back(glm::vec3(Math::RandFloat(-100.f, 100.f), -35.f, Math::RandFloat(-100.f, 100.f)));
+    for (int i{0}; i <= 5; i++) {
+        CheckPoints.emplace_back(glm::vec3(Math::RandFloat(-100.f, 100.f), -45.f, Math::RandFloat(-100.f, 100.f)));
     }
 
     //bspline generate racetrack

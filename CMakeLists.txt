@@ -62,8 +62,8 @@ add_executable(Floof
         Source/Editor/EditorPanels/ApplicationPanel.h
         Source/Editor/EditorPanels/ApplicationPanel.cpp
         Source/HeightmapLoader.cpp
-        Source/NativeScripts/MonsterTruckScript.cpp
-        Source/NativeScripts/MonsterTruckScript.h
+        Source/NativeScripts/CarBaseScript.cpp
+        Source/NativeScripts/CarBaseScript.h
         Source/Editor/EditorPanels/PhysicsPanel.cpp
         Source/Editor/EditorPanels/PhysicsPanel.h
         Source/Editor/EditorPanels/RendererPanel.h
@@ -112,7 +112,7 @@ add_executable(Floof
         Source/Network/OlcNet.h
         Source/LineMeshComponent.h Source/LineMeshComponent.cpp
         Source/SoundComponent.h
-        Source/SoundComponent.cpp Source/NativeScripts/CheckPointScript.cpp Source/NativeScripts/CheckPointScript.h Source/NativeScripts/RaceTrackScript.cpp Source/NativeScripts/RaceTrackScript.h)
+        Source/SoundComponent.cpp Source/NativeScripts/CheckPointScript.cpp Source/NativeScripts/CheckPointScript.h Source/NativeScripts/RaceTrackScript.cpp Source/NativeScripts/RaceTrackScript.h Source/NativeScripts/CarScripts/MonsterTruckScript.cpp Source/NativeScripts/CarScripts/MonsterTruckScript.h Source/NativeScripts/CarScripts/RaceCarScript.cpp Source/NativeScripts/CarScripts/RaceCarScript.h)
 
 
 
