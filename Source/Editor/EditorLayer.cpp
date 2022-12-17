@@ -766,6 +766,7 @@ namespace FLOOF {
         {
             auto ent = m_Scene->CreateEntity("Local Player");
             m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<RaceCarScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene.get(), ent);
+            //m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene.get(), ent);
             m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
         }
     }

@@ -36,7 +36,7 @@ namespace FLOOF {
         float suspensionRestLength = 0.8;
 
         float TurnLowSpeed = SIMD_PI * 0.2f;
-        float TurnHighSpeed = -SIMD_PI * 0.1f;
+        float TurnHighSpeed = SIMD_PI * 0.1f;
 
         std::vector<btHinge2Constraint *> axles;
 

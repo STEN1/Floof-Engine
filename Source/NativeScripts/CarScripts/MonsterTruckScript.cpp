@@ -170,27 +170,28 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
 
         auto& sound = scene->AddComponent<SoundComponent>(Wheel_fr, "Vehicles_idle2.wav");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/Wheels/tuner-wheel/source/tunerWheelRight.fbx");
-        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
-        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
-        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
-        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_WheelRight.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture(TextureColor::DarkGrey);
+        mesh.meshes[1].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=B.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=G.png");
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fr);
         transform.Position = glm::vec3(5.5f, -0.5f, -2.5f) + SpawnLocation;
-        transform.Scale = glm::vec3(2.5f);
+        transform.Scale = glm::vec3(8.f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
@@ -203,26 +204,27 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
         auto& sound = scene->AddComponent<SoundComponent>(Wheel_fl, "Vehicles_idle2.wav");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/Wheels/tuner-wheel/source/tunerWheelLeft.fbx");
-        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
-        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
-        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
-        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_WheelLeft.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture(TextureColor::DarkGrey);
+        mesh.meshes[1].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=B.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=G.png");
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
         transform.Position = glm::vec3(5.5f, -0.5f, 2.5f)+ SpawnLocation;
-        transform.Scale = glm::vec3(2.5f);
+        transform.Scale = glm::vec3(8.f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
@@ -234,26 +236,27 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
     }
     {
         Wheel_br = scene->CreateEntity("Wheel Back right");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/Wheels/tuner-wheel/source/tunerWheelRight.fbx");
-        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
-        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
-        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
-        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_br, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_WheelRight.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture(TextureColor::DarkGrey);
+        mesh.meshes[1].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=B.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=G.png");
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_br);
         transform.Position = glm::vec3(-5.0f, -0.5f, -2.5f) + SpawnLocation;
-        transform.Scale = glm::vec3(2.5f);
+        transform.Scale = glm::vec3(8.f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
@@ -265,26 +268,27 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
     }
     {
         Wheel_bl = scene->CreateEntity("Wheel back left");
-        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/Wheels/tuner-wheel/source/tunerWheelLeft.fbx");
-        mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
-        mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
-        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tuner-wheel/textures/TireNorm1.png");
-        mesh.meshes[1].MeshMaterial.Roughness = Texture(TextureColor::White);
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_bl, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_WheelLeft.fbx");
+        mesh.meshes[1].MeshMaterial.Diffuse = Texture(TextureColor::DarkGrey);
+        mesh.meshes[1].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[1].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[1].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[1].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
+        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_normal.png");
+        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=G.png");
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
-        mesh.meshes[2].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseColor1.png");
-        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseMetallic1.png");
-        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tuner-wheel/textures/WheelBaseRoughness1.png");
+        mesh.meshes[2].MeshMaterial.Diffuse = Texture(TextureColor::Black);
+        mesh.meshes[2].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=B.png");
+        mesh.meshes[2].MeshMaterial.Roughness = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/lastik_metallicRoughness_png@channels=G.png");
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
         transform.Position = glm::vec3(-5.0f, -0.5f, 2.5f) + SpawnLocation;
-        transform.Scale = glm::vec3(2.5f);
+        transform.Scale = glm::vec3(8.f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.3f, 0.6f, 1.3f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
