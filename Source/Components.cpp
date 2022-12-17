@@ -447,9 +447,6 @@ namespace FLOOF {
 
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, DefaultMotionState.get(), CollisionShape.get(), localInertia);
         RigidBody = std::make_shared<btRigidBody>(rbInfo);
-        RigidBody->setFriction(0.5f);
-        RigidBody->setRollingFriction(0.3f);
-        RigidBody->setSpinningFriction(0.3f);
 
         RigidBody->setUserPointer(nullptr);
         RigidBody->setCollisionFlags(RigidBody->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK | btCollisionObject::CF_NO_CONTACT_RESPONSE);

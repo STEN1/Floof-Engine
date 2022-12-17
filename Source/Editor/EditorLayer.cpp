@@ -18,6 +18,8 @@
 #include "imgui_internal.h"
 #include "EditorPanels/NetworkPanel.h"
 #include "../SoundComponent.h"
+#include "../NativeScripts/CheckPointScript.h"
+#include "../NativeScripts/RaceTrackScript.h"
 
 namespace FLOOF {
     EditorLayer::EditorLayer() {
@@ -691,6 +693,13 @@ namespace FLOOF {
             transform.Position = glm::vec4(0.f, 10.f, -0.5f, 1.f);
             m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
         }
+
+        //make test volume
+        {
+            const auto entity = m_Scene->CreateEntity("RaceTrack");
+            m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<RaceTrackScript>(),m_Scene.get(),entity);
+        }
+
         //make flooring
         {
             auto location = glm::vec3(0.f, -50.f, 0.f);

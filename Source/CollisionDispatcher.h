@@ -18,10 +18,10 @@ namespace FLOOF{
             isOverlapping = false;
         };
 
-    private:
-        Scene* mScene;
+    protected:
         entt::entity& mEntity;
         bool isOverlapping = false;
+        Scene* mScene;
     };
 }
 

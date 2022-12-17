@@ -112,7 +112,7 @@ add_executable(Floof
         Source/Network/OlcNet.h
         Source/LineMeshComponent.h Source/LineMeshComponent.cpp
         Source/SoundComponent.h
-        Source/SoundComponent.cpp)
+        Source/SoundComponent.cpp Source/NativeScripts/CheckPointScript.cpp Source/NativeScripts/CheckPointScript.h Source/NativeScripts/RaceTrackScript.cpp Source/NativeScripts/RaceTrackScript.h)
 
 
 
