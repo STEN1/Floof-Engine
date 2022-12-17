@@ -13,6 +13,7 @@
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "Application.h"
 
+/*tmp Remove Python
 //pulls in python api
 // The python headers must be included last!
 // Fucks up some defines for the STL on MSVC debug builds.
@@ -30,7 +31,7 @@
 #include <python.h>
 
 #endif
-
+*/
 
 namespace FLOOF {
 
@@ -282,6 +283,7 @@ namespace FLOOF {
 
     }
 
+    /* temp Disable python scripting
     ScriptComponent::ScriptComponent(const std::string PyScript) : Script(PyScript) {
 
 
@@ -352,6 +354,7 @@ namespace FLOOF {
         Pname = PyUnicode_FromString(ModuleName.c_str());
         Pmodule = PyImport_Import(Pname);
     }
+*/
 
     LandscapeComponent::LandscapeComponent(const char *map, const char *texture) {
         landscape = new HeightmapLoader(map);

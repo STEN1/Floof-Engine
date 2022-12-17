@@ -149,10 +149,10 @@ add_subdirectory(${Bullet_Dir}/src/Bullet3Collision)
 target_link_libraries(Floof BulletSoftBody Bullet3Common Bullet3Collision)
 
 #pybinding
-find_package(Python)
-find_package(Python COMPONENTS Interpreter Development REQUIRED)
-target_include_directories(Floof PUBLIC ${Python_INCLUDE_DIRS})
-target_link_libraries(Floof ${Python_LIBRARIES})
+#find_package(Python)
+#find_package(Python COMPONENTS Interpreter Development REQUIRED)
+#target_include_directories(Floof PUBLIC ${Python_INCLUDE_DIRS})
+#target_link_libraries(Floof ${Python_LIBRARIES})
 
 target_compile_definitions(Floof PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 

@@ -169,6 +169,7 @@ namespace FLOOF {
 				ImGui::DragFloat("Inner range", &pointLight->innerRange, 1.f, 0.f, pointLight->outerRange - 1.f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
 				ImGui::DragFloat("Outer range", &pointLight->outerRange, 1.f, pointLight->innerRange + 1.f, FLT_MAX, "%.3f", ImGuiSliderFlags_AlwaysClamp);
 			}
+            /* tmp remove python
 			if (auto* scriptComponent = m_EditorLayer->GetScene()->TryGetComponent<ScriptComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)) {
 				ImGui::Separator();
 				ImGui::Text("Script Component");
@@ -209,6 +210,7 @@ namespace FLOOF {
 					scriptComponent->RunScript();
 				}
 			}
+            */
 		    if(auto* PlayerComponent = m_EditorLayer->GetScene()->TryGetComponent<PlayerControllerComponent>(m_EditorLayer->GetScene()->m_SelectedEntity)){
                 ImGui::Separator();
                 ImGui::Text("Player Controller Component");

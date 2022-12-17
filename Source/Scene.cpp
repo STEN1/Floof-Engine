@@ -22,20 +22,20 @@ namespace FLOOF {
     Scene::~Scene() {
     }
 
-    entt::entity Scene::CreateEntity(const std::string& tag, entt::entity parent) {
+    entt::entity Scene::CreateEntity(const std::string &tag, entt::entity parent) {
         entt::entity entity = m_Registry.create();
 
-        auto& transform = m_Registry.emplace<TransformComponent>(entity);
-        auto& rel = m_Registry.emplace<Relationship>(entity);
-        auto& tagComponent = m_Registry.emplace<TagComponent>(entity);
+        auto &transform = m_Registry.emplace<TransformComponent>(entity);
+        auto &rel = m_Registry.emplace<Relationship>(entity);
+        auto &tagComponent = m_Registry.emplace<TagComponent>(entity);
 
         tagComponent.Tag = tag;
 
         if (parent != entt::null) {
             rel.Parent = parent;
 
-            auto& parentRel = m_Registry.get<Relationship>(parent);
-            auto& parentTransform = m_Registry.get<TransformComponent>(parent);
+            auto &parentRel = m_Registry.get<Relationship>(parent);
+            auto &parentTransform = m_Registry.get<TransformComponent>(parent);
 
             transform.Parent = &parentTransform;
             parentRel.Children.push_back(entity);
@@ -44,21 +44,20 @@ namespace FLOOF {
         return entity;
     }
 
-    entt::registry& Scene::GetCulledScene() {
+    entt::registry &Scene::GetCulledScene() {
         return m_Registry;
     }
 
-    entt::registry& Scene::GetRegistry() {
+    entt::registry &Scene::GetRegistry() {
         return m_Registry;
     }
 
-    CameraComponent* Scene::GetFirstSceneCamera()
-    {
-        CameraComponent* camera = &m_EditorCamera;
+    CameraComponent *Scene::GetFirstSceneCamera() {
+        CameraComponent *camera = &m_EditorCamera;
 
         auto view = m_Registry.view<CameraComponent>();
-        for (auto [entity, cameraComp] : view.each()) {
-                camera = &cameraComp;
+        for (auto [entity, cameraComp]: view.each()) {
+            camera = &cameraComp;
             break;
         }
 
@@ -67,39 +66,42 @@ namespace FLOOF {
 
     void Scene::OnUpdate(float deltaTime) {
         auto nativeScriptView = m_Registry.view<NativeScriptComponent>();
-        for (auto [entity, nativeScript] : nativeScriptView.each()) {
+        for (auto [entity, nativeScript]: nativeScriptView.each()) {
             nativeScript.Script->OnUpdate(deltaTime);
         }
+        /* tmp remove Python
         auto PythonScriptView = m_Registry.view<ScriptComponent>();
         for (auto [entity, Script] : PythonScriptView.each()) {
             Script.OnUpdate(deltaTime);
         }
-
+*/
         m_PhysicSystem->OnUpdate(deltaTime);
 
         SoundManager::Update(this, GetActiveCamera());
 
-        for (auto [entity, nativeScript] : nativeScriptView.each()) {
+        for (auto [entity, nativeScript]: nativeScriptView.each()) {
             nativeScript.Script->LastUpdate(deltaTime);
         }
     }
 
     void Scene::OnCreate() {
+        /* tmp remove python
         auto PythonScriptView = m_Registry.view<ScriptComponent>();
-        for (auto [entity, Script] : PythonScriptView.each()) {
+        for (auto [entity, Script]: PythonScriptView.each()) {
             Script.OnCreate();
         }
+         */
     }
 
     CameraComponent *Scene::GetActiveCamera() {
-        CameraComponent* camera = &m_EditorCamera;
+        CameraComponent *camera = &m_EditorCamera;
 
         auto view = m_Registry.view<PlayerControllerComponent, Relationship>();
-        for (auto [entity, controller, rel] : view.each()) {
-            if(controller.mPlayer == ActivePlayer){
-                for(auto ent : rel.Children){
-                    auto* cam = TryGetComponent<CameraComponent>(ent);
-                    if(cam)
+        for (auto [entity, controller, rel]: view.each()) {
+            if (controller.mPlayer == ActivePlayer) {
+                for (auto ent: rel.Children) {
+                    auto *cam = TryGetComponent<CameraComponent>(ent);
+                    if (cam)
                         camera = cam;
                 }
                 break;
@@ -111,7 +113,7 @@ namespace FLOOF {
 
     void Scene::OnEditorUpdate(float deltaTime) {
         auto nativeScriptView = m_Registry.view<NativeScriptComponent>();
-        for (auto [entity, nativeScript] : nativeScriptView.each()) {
+        for (auto [entity, nativeScript]: nativeScriptView.each()) {
             nativeScript.Script->EditorUpdate(deltaTime);
         }
     }

@@ -218,9 +218,6 @@ const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::
 
     auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
 
-    //test python script
-    auto &script = m_Scene->AddComponent<ScriptComponent>(entity, "Scripts/example.py");
-
     transform.Position = Location;
     transform.Scale = Scale;
 

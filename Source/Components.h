@@ -19,7 +19,7 @@
 #include "PointLightComponent.h"
 #include "HeightmapLoader.h"
 //#include "SoundComponent.h"
-#include <pytypedefs.h>
+// tmp remove python #include <pytypedefs.h>
 #include "HeightField.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include <unordered_map>
@@ -136,6 +136,7 @@ namespace FLOOF {
         std::shared_ptr<btCollisionShape> CollisionShape{nullptr};
     };
 
+    /* Temp removed Python scripting
     struct ScriptComponent {
         ScriptComponent(const std::string PyScript);
 
@@ -156,8 +157,7 @@ namespace FLOOF {
         void OnUpdate(const float deltatime);
 
     };
-
-
+*/
 
 
     struct NativeScriptComponent {
