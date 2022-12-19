@@ -221,21 +221,6 @@ vec3 getNormal()
 	return normalize(TBN * tangentNormal);
 }
 
-float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex)
-{
-	float shadow = 1.0;
-    float baseBias = sceneFrameUBO.bias * (float(cascadeIndex) + 1.0);
-	float bias = max((baseBias * 10.0) * (1.0 - dot(normalize(fragNormal), normalize(sceneFrameUBO.sunPosition.xyz))), baseBias);
-    //float bias = sceneFrameUBO.bias;
-	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
-		float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
-		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
-			shadow = 0.0;
-		}
-	}
-	return shadow;
-}
-
 const vec2 PoissonSamples[64] = vec2[64]
 (
     vec2(-0.5119625, -0.4827938),
@@ -304,6 +289,19 @@ const vec2 PoissonSamples[64] = vec2[64]
     vec2(-0.1020106, 0.672446f)
 );
 
+float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex, float bias)
+{
+	float shadow = 1.0;
+    
+	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
+		float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
+		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
+			shadow = 0.0;
+		}
+	}
+	return shadow;
+}
+
 float filterPCF(vec4 sc, int cascadeIndex)
 {
 	float texDim = textureSize(shadowMap, 0).x;
@@ -311,8 +309,11 @@ float filterPCF(vec4 sc, int cascadeIndex)
 
 	float shadowFactor = 0.0;
 
+    float baseBias = sceneFrameUBO.bias * (float(cascadeIndex) + 1.0);
+	float bias = max((baseBias * 10.0) * (1.0 - dot(normalize(fragNormal), normalize(sceneFrameUBO.sunPosition.xyz))), baseBias);
+
     for (int i = 0; i < 64; i += 2) {
-        shadowFactor += textureProjection(sc, PoissonSamples[i] * scale, cascadeIndex);
+        shadowFactor += textureProjection(sc, PoissonSamples[i] * scale, cascadeIndex, bias);
     }
 
 	return shadowFactor / 64;
