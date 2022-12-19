@@ -7,6 +7,9 @@ namespace FLOOF{
     class RaceCarScript : public CarBaseScript{
     public:
         RaceCarScript(glm::vec3 spawnLocation): CarBaseScript(spawnLocation){};
+
+        virtual ~RaceCarScript(){};
+
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
 
         virtual void OnUpdate(float deltaTime) override;

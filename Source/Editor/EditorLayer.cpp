@@ -693,7 +693,7 @@ namespace FLOOF {
             m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
         }
 
-        //make test volume
+        //make race track
         {
             const auto entity = m_Scene->CreateEntity("RaceTrack");
             m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<RaceTrackScript>(),m_Scene.get(),entity);

@@ -60,6 +60,8 @@ namespace FLOOF {
     public:
         CarBaseScript(glm::vec3 Pos);
 
+        virtual ~CarBaseScript();
+
         virtual void OnCreate(Scene *scene, entt::entity entity) override;
 
         virtual void OnUpdate(float deltaTime) override;

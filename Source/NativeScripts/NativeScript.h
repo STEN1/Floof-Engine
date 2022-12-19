@@ -6,11 +6,12 @@ namespace FLOOF {
     class Scene;
 	class NativeScript{
 	public:
+        virtual ~NativeScript(){};
+
 		virtual void OnCreate(Scene* scene, entt::entity entity) { m_Scene = scene; m_Entity = entity; };
 		virtual void OnUpdate(float deltaTime) {};
         virtual void LastUpdate(float deltaTime) {};
         virtual void EditorUpdate(float deltaTime){};
-
 		entt::entity CreateEntity(const std::string& tag = "Entity", entt::entity parent = entt::null);
 
 		void DestroyEntity(entt::entity entity) { m_Scene->DestroyEntity(entity); }

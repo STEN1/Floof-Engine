@@ -6,6 +6,7 @@ namespace FLOOF{
     class MonsterTruckScript : public CarBaseScript{
     public:
         MonsterTruckScript(glm::vec3 spawnLocation): CarBaseScript(spawnLocation){};
+       virtual  ~MonsterTruckScript(){};
         virtual void OnCreate(Scene* scene, entt::entity entity) override;
 
         virtual void OnUpdate(float deltaTime) override;

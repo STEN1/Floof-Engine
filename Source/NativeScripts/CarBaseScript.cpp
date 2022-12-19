@@ -456,6 +456,15 @@ void FLOOF::CarBaseScript::AddToPhysicsWorld() {
 
 }
 
+FLOOF::CarBaseScript::~CarBaseScript() {
+
+    m_Scene->DestroyEntity(Wheel_bl);
+    m_Scene->DestroyEntity(Wheel_br);
+    m_Scene->DestroyEntity(Wheel_fl);
+    m_Scene->DestroyEntity(Wheel_fr);
+
+}
+
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
     std::cout << "On Begin Overlap" << std::endl;
