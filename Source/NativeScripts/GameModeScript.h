@@ -23,14 +23,15 @@ namespace FLOOF {
                 if (ImGui::Button("Koenigsegg")) {
                     //get Player ent
                     auto view = m_Scene->GetRegistry().view<PlayerControllerComponent>();
-                    for(auto[ent, player]: view.each()){
-                        if(player.mPlayer == m_Scene->ActivePlayer){
+                    for (auto [ent, player]: view.each()) {
+                        if (player.mPlayer == m_Scene->ActivePlayer) {
                             PlayerEnt = ent;
                         }
                     }
-                    m_Scene->DestroyEntity(PlayerEnt);
+                    if (PlayerEnt != entt::null)
+                        m_Scene->DestroyEntity(PlayerEnt);
                     PlayerEnt = m_Scene->CreateEntity("Local Player");
-                    auto& script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<RaceCarScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene, PlayerEnt);
+                    auto &script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<RaceCarScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene, PlayerEnt);
                     m_Scene->AddComponent<PlayerControllerComponent>(PlayerEnt, m_Scene->ActivePlayer);
                     auto cpScript = dynamic_cast<CarBaseScript *>(script.Script.get());
                     if (cpScript)
@@ -39,14 +40,15 @@ namespace FLOOF {
                 if (ImGui::Button("Cybertruck")) {
                     //get Player ent
                     auto view = m_Scene->GetRegistry().view<PlayerControllerComponent>();
-                    for(auto[ent, player]: view.each()){
-                        if(player.mPlayer == m_Scene->ActivePlayer){
+                    for (auto [ent, player]: view.each()) {
+                        if (player.mPlayer == m_Scene->ActivePlayer) {
                             PlayerEnt = ent;
                         }
                     }
-                    m_Scene->DestroyEntity(PlayerEnt);
+                    if (PlayerEnt != entt::null)
+                        m_Scene->DestroyEntity(PlayerEnt);
                     PlayerEnt = m_Scene->CreateEntity("Local Player");
-                    auto& script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene, PlayerEnt);
+                    auto &script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene, PlayerEnt);
                     m_Scene->AddComponent<PlayerControllerComponent>(PlayerEnt, m_Scene->ActivePlayer);
                     auto cpScript = dynamic_cast<CarBaseScript *>(script.Script.get());
                     if (cpScript)
@@ -58,7 +60,7 @@ namespace FLOOF {
 
     private:
         std::chrono::high_resolution_clock::time_point lastPing = Timer::GetTime();
-        entt::entity PlayerEnt;
+        entt::entity PlayerEnt{entt::null};
 
     public:
         void OnUpdate(float deltaTime) override {
@@ -80,10 +82,17 @@ namespace FLOOF {
                     //make Players
                     {
                         std::string Player = "Player : ";
-                        Player += std::to_string(client->GetID());
+                        Player += std::to_string(client.first->GetID());
                         auto ent = m_Scene->CreateEntity(Player);
-                        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CarBaseScript>(glm::vec3(0.f)), m_Scene, ent);
-                        m_Scene->AddComponent<PlayerControllerComponent>(ent, client->GetID());
+                        switch (client.second) {
+                            case 1 : //racecar
+                                m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<RaceCarScript>(glm::vec3(0.f)), m_Scene, ent);
+                                break;
+                            case 2: //cybertruck
+                                m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), m_Scene, ent);
+                                break;
+                        }
+                        m_Scene->AddComponent<PlayerControllerComponent>(ent, client.first->GetID());
                         auto script = m_Scene->GetComponent<NativeScriptComponent>(ent).Script.get();
                         auto car = dynamic_cast<CarBaseScript *>(script);
                         car->AddToPhysicsWorld();
@@ -93,17 +102,21 @@ namespace FLOOF {
                         sendMsg.header.id = FloofMsgHeaders::GameAddPlayer;
                         CarData cData;
                         cData = car->GetTransformData();
-                        cData.id = client->GetID();
+                        cData.id = client.first->GetID();
                         sendMsg << cData;
-                        Server->MessageAllClients(sendMsg, client);
+                        Server->MessageAllClients(sendMsg, client.first);
                     }
                 }
                 //cleanup initializevector
                 Server->MarkedPlayerForInitialize.clear();
                 //remove Players
                 for (auto &client: Server->MarkedPlayerForRemove) {
-                    //   //todo remove entity on disconnect
-
+                    auto v = m_Scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+                    for (auto [ent, player, script]: v.each()) {
+                        if (player.mPlayer == client) {
+                            m_Scene->DestroyEntity(ent);
+                        }
+                    }
                 }
                 Server->MarkedPlayerForRemove.clear();
 

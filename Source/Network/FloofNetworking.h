@@ -8,6 +8,8 @@
 #include "../Scene.h"
 #include "../NativeScripts/CarBaseScript.h"
 #include "OlcNet.h"
+#include "../NativeScripts/CarScripts/RaceCarScript.h"
+#include "../NativeScripts/CarScripts/MonsterTruckScript.h"
 
 namespace FLOOF {
     enum class FloofMsgHeaders : uint32_t {
@@ -42,6 +44,7 @@ namespace FLOOF {
         btVector3 AvWheelBL;
 
         uint32_t id;
+        uint32_t CarType;
     };
     struct LevelData {
         Scene scene;
@@ -124,7 +127,15 @@ namespace FLOOF {
                         std::string Player = "Player : ";
                         Player += std::to_string(data.id);
                         auto ent = scene->CreateEntity(Player);
-                        scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CarBaseScript>(glm::vec3(0.f)), scene, ent);
+
+                        switch (data.CarType) {
+                            case 1 : //racecar
+                                scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<RaceCarScript>(glm::vec3(0.f)), scene, ent);
+                                break;
+                            case 2: //cybertruck
+                                scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), scene, ent);
+                                break;
+                        }
                         scene->AddComponent<PlayerControllerComponent>(ent, data.id);
                         auto script = scene->GetComponent<NativeScriptComponent>(ent).Script.get();
                         auto car = dynamic_cast<CarBaseScript *>(script);
@@ -171,9 +182,9 @@ namespace FLOOF {
         }
 
     public:
-        std::vector<std::shared_ptr<olc::net::connection<FloofMsgHeaders>>> ActivePlayers;
+        std::vector<std::pair<std::shared_ptr<olc::net::connection<FloofMsgHeaders>>,uint32_t>> ActivePlayers;
         std::vector<uint32_t> MarkedPlayerForRemove;
-        std::vector<std::shared_ptr<olc::net::connection<FloofMsgHeaders>>> MarkedPlayerForInitialize;
+        std::vector<std::pair<std::shared_ptr<olc::net::connection<FloofMsgHeaders>>,uint32_t>> MarkedPlayerForInitialize;
 
         size_t ConnectionCount() {
             return ActivePlayers.size();
@@ -208,6 +219,8 @@ namespace FLOOF {
 
     protected:
         virtual void OnClientDisconnect(std::shared_ptr<olc::net::connection<FloofMsgHeaders>> client) override {
+            MarkedPlayerForRemove.emplace_back(client->GetID());
+
             std::cout << "Removing Client [" << client->GetID() << "]" << std::endl;
 
         }
@@ -253,7 +266,7 @@ namespace FLOOF {
                         MessageClient(client,sendMsg);
                     }
 
-                    MarkedPlayerForInitialize.emplace_back(client); // todo find better sollution for server representation
+                    MarkedPlayerForInitialize.emplace_back(client, cData.CarType);
                     break;
                 }
                 case FloofMsgHeaders::ClientUnRegisterWithServer:

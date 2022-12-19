@@ -78,6 +78,7 @@ namespace FLOOF {
 
         void AddToPhysicsWorld();
 
+        uint32_t CarType{0};
     protected:
 
         const glm::vec3 SpawnLocation;

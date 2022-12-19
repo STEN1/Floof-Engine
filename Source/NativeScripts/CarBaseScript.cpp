@@ -126,6 +126,10 @@ void FLOOF::CarBaseScript::OnCreate(Scene* scene, entt::entity entity) {
         }
     }
 
+    auto camTrans = m_Scene->TryGetComponent<TransformComponent>(Camera);
+    camTrans->Position = CamLocations[0].CamLoc;
+    auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
+    camtargetTrans->Position = CamLocations[0].CamTarget;
 }
 
 void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
@@ -411,6 +415,9 @@ void FLOOF::CarBaseScript::SetTransformData(FLOOF::CarData data) {
 
 FLOOF::CarData FLOOF::CarBaseScript::GetTransformData() {
     CarData data;
+
+    data.CarType = CarType;
+
     auto &frametf = m_Scene->GetComponent<TransformComponent>(frame);
     auto &Wheelfrtf = m_Scene->GetComponent<TransformComponent>(Wheel_fr);
     auto &Wheelfltf = m_Scene->GetComponent<TransformComponent>(Wheel_fl);

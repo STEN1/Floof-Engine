@@ -4,7 +4,7 @@
 void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
 
     frame = entity;
-
+    CarType = 1;
 
     BackWheelTurn = false;
 
