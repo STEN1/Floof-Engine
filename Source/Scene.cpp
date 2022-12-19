@@ -44,6 +44,33 @@ namespace FLOOF {
         return entity;
     }
 
+    void Scene::DestroyEntity(entt::entity entity)
+    {
+        auto& rel = m_Registry.get<Relationship>(entity);
+
+        if (rel.Parent != entt::null) {
+            auto& parentRel = m_Registry.get<Relationship>(rel.Parent);
+            std::remove(parentRel.Children.begin(), parentRel.Children.end(), entity);
+        }
+
+        for (auto childEntity : rel.Children) {
+            DestroyChildEntity(childEntity);
+        }
+
+        m_Registry.destroy(entity);
+    }
+
+    void Scene::DestroyChildEntity(entt::entity entity)
+    {
+        auto& rel = m_Registry.get<Relationship>(entity);
+
+        for (auto childEntity : rel.Children) {
+            DestroyChildEntity(childEntity);
+        }
+
+        m_Registry.destroy(entity);
+    }
+
     entt::registry &Scene::GetCulledScene() {
         return m_Registry;
     }

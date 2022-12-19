@@ -64,6 +64,8 @@ namespace FLOOF {
         */
         entt::entity CreateEntity(const std::string& tag = "Entity", entt::entity parent = entt::null);
 
+        void DestroyEntity(entt::entity entity);
+
         /**
          * @brief Adds component to the given entity with constructor args.
          * @return Reference to the added component.
@@ -92,6 +94,9 @@ namespace FLOOF {
         void OnUpdate(float deltaTime);
         void OnEditorUpdate(float deltaTime);
         void OnCreate();
+
+        // Recursive utility for DestroyEntity()
+        void DestroyChildEntity(entt::entity entity);
     private:
         entt::registry m_Registry;
         std::unique_ptr<PhysicsSystem> m_PhysicSystem;       
