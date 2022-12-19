@@ -29,22 +29,28 @@ namespace FLOOF {
         ServerStartPlay
     };
 
+    struct Tform{
+        glm::vec3 Position = glm::vec3(0.f);
+        glm::vec3 Rotation = glm::vec3(0.f);
+        glm::vec3 Scale = glm::vec3(1.f);
+    };
+
     struct CarData {
 
-        TransformComponent MainTform;
-        TransformComponent WheelTformFL;
-        TransformComponent WheelTformFR;
-        TransformComponent WheelTformBL;
-        TransformComponent WheelTformBR;
+        Tform MainTform;
+        Tform WheelTformFL;
+        Tform WheelTformFR;
+        Tform WheelTformBL;
+        Tform WheelTformBR;
 
-        btVector3 AvFrame;
-        btVector3 AvWheelFR;
-        btVector3 AvWheelFL;
-        btVector3 AvWheelBR;
-        btVector3 AvWheelBL;
+        btVector3 AvFrame = btVector3(0,0,0);
+        btVector3 AvWheelFR = btVector3(0,0,0);
+        btVector3 AvWheelFL = btVector3(0,0,0);
+        btVector3 AvWheelBR = btVector3(0,0,0);
+        btVector3 AvWheelBL = btVector3(0,0,0);
 
-        uint32_t id;
-        uint32_t CarType;
+        uint32_t id{0};
+        uint32_t CarType{0};
     };
     struct LevelData {
         Scene scene;
@@ -147,6 +153,7 @@ namespace FLOOF {
                         break;
                     case FloofMsgHeaders::GameUpdatePlayer: {
                         CarData data;
+                        if(msg.size() == 0) break; // no message just break
                         msg >> data;
                         auto v = scene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
                         for (auto [ent, player, script]: v.each()) {
@@ -243,6 +250,8 @@ namespace FLOOF {
                     msg >> data;
                     data.id = client->GetID();
 
+                    MarkedPlayerForInitialize.emplace_back(client, data.CarType);
+
                     olc::net::message<FloofMsgHeaders> sendMsg;
                     sendMsg.header.id = FloofMsgHeaders::ClientAssignID;
                     sendMsg << data;
@@ -266,7 +275,6 @@ namespace FLOOF {
                         MessageClient(client,sendMsg);
                     }
 
-                    MarkedPlayerForInitialize.emplace_back(client, cData.CarType);
                     break;
                 }
                 case FloofMsgHeaders::ClientUnRegisterWithServer:
@@ -274,6 +282,7 @@ namespace FLOOF {
                 case FloofMsgHeaders::ClientAssignID:
                     break;
                 case FloofMsgHeaders::GameAddPlayer:
+
                     break;
                 case FloofMsgHeaders::GameRemovePlayer:
                     break;

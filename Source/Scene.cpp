@@ -57,15 +57,18 @@ namespace FLOOF {
 
         }
         //remove from physics
-        auto *rigid = TryGetComponent<RigidBodyComponent>(entity);
-        if (rigid) {
-            for(int i {0}; i < rigid->RigidBody->getNumConstraintRefs(); i++){
-               auto* ref = rigid->RigidBody->getConstraintRef(i);
-               m_PhysicSystem->GetWorld()->removeConstraint(ref);
-            }
+        if(m_PhysicSystem){
+            auto *rigid = TryGetComponent<RigidBodyComponent>(entity);
+            if (rigid) {
+                for(int i {0}; i < rigid->RigidBody->getNumConstraintRefs(); i++){
+                    auto* ref = rigid->RigidBody->getConstraintRef(i);
+                    m_PhysicSystem->GetWorld()->removeConstraint(ref);
+                }
 
-            m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
+                m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
+            }
         }
+
         m_Registry.destroy(entity);
     }
 
@@ -75,16 +78,18 @@ namespace FLOOF {
         for (auto childEntity: rel.Children) {
             DestroyChildEntity(childEntity);
         }
-
         //remove from physics
-        auto *rigid = TryGetComponent<RigidBodyComponent>(entity);
-        if (rigid) {
-            for(int i {0}; i < rigid->RigidBody->getNumConstraintRefs(); i++){
-                auto* ref = rigid->RigidBody->getConstraintRef(i);
-                m_PhysicSystem->GetWorld()->removeConstraint(ref);
+        if(m_PhysicSystem){
+            auto *rigid = TryGetComponent<RigidBodyComponent>(entity);
+            if (rigid) {
+                for(int i {0}; i < rigid->RigidBody->getNumConstraintRefs(); i++){
+                    auto* ref = rigid->RigidBody->getConstraintRef(i);
+                    m_PhysicSystem->GetWorld()->removeConstraint(ref);
+                }
+                m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
             }
-            m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
         }
+
         m_Registry.destroy(entity);
     }
 

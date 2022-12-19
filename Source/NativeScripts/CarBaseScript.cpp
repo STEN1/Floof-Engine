@@ -8,11 +8,12 @@
 #include "../Utils.h"
 #include "../Network/FloofNetworking.h"
 #include "../SoundComponent.h"
-FLOOF::CarBaseScript::CarBaseScript(glm::vec3 Pos):SpawnLocation(Pos) {
+
+FLOOF::CarBaseScript::CarBaseScript(glm::vec3 Pos) : SpawnLocation(Pos) {
 
 }
 
-void FLOOF::CarBaseScript::OnCreate(Scene* scene, entt::entity entity) {
+void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
     TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
     {
@@ -23,14 +24,14 @@ void FLOOF::CarBaseScript::OnCreate(Scene* scene, entt::entity entity) {
             scene->AddComponent<CameraComponent>(Camera);
 
             auto &tf = scene->GetComponent<TransformComponent>(Camera);
-            tf.Position = glm::vec3(-3.f,1.7f,0.f);
+            tf.Position = glm::vec3(-3.f, 1.7f, 0.f);
             tf.Scale = glm::vec3(0.1f);
             //scene->AddComponent<StaticMeshComponent>(Camera,"Assets/LowPolySphere.fbx");
         }
         {
-            CamTarget = scene->CreateEntity("CameraTarget",frame);
+            CamTarget = scene->CreateEntity("CameraTarget", frame);
             auto &tf = scene->GetComponent<TransformComponent>(CamTarget);
-            tf.Position = glm::vec3(2.4f,0.4f,0.f);
+            tf.Position = glm::vec3(2.4f, 0.4f, 0.f);
             tf.Scale = glm::vec3(0.1f);
             //scene->AddComponent<StaticMeshComponent>(CamTarget,"Assets/LowPolySphere.fbx");
 
@@ -81,7 +82,7 @@ void FLOOF::CarBaseScript::OnCreate(Scene* scene, entt::entity entity) {
         anchor = WheelblBody.RigidBody->getWorldTransform().getOrigin();
         btHinge2Constraint *Hinge4 = new btHinge2Constraint(*frameBody.RigidBody.get(), *WheelblBody.RigidBody.get(), anchor, parentAxis, childAxis);
         scene->GetPhysicSystem()->AddConstraint(Hinge4, true);
-        
+
         axles.emplace_back(Hinge1);
         axles.emplace_back(Hinge2);
         axles.emplace_back(Hinge3);
@@ -99,7 +100,7 @@ void FLOOF::CarBaseScript::OnCreate(Scene* scene, entt::entity entity) {
             // Steering engine.
             hinge->enableMotor(5, true);
             hinge->setServo(5, true);
-            hinge->setMaxMotorForce(5, engine.maxEngineForce*2.f);
+            hinge->setMaxMotorForce(5, engine.maxEngineForce * 2.f);
             hinge->setTargetVelocity(5, 10.f);
 
             hinge->setParam(BT_CONSTRAINT_CFM, 0.15f, 1);
@@ -117,9 +118,9 @@ void FLOOF::CarBaseScript::OnCreate(Scene* scene, entt::entity entity) {
 
 
             //back wheels
-             if (hinge == Hinge3 || hinge == Hinge4) {
+            if (hinge == Hinge3 || hinge == Hinge4) {
                 hinge->setLowerLimit(-SIMD_HALF_PI * 0.1f);
-               hinge->setUpperLimit(SIMD_HALF_PI * 0.1f);
+                hinge->setUpperLimit(SIMD_HALF_PI * 0.1f);
             }
 
             hinge->setDbgDrawSize(btScalar(1.5f));
@@ -135,15 +136,15 @@ void FLOOF::CarBaseScript::OnCreate(Scene* scene, entt::entity entity) {
 void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
     NativeScript::OnUpdate(deltaTime);
 
-    auto* scene = m_Scene;
+    auto *scene = m_Scene;
     auto &car = scene->GetComponent<RigidBodyComponent>(frame);
     bool windowIsActive = scene->IsActiveScene();
 
     bool turnKeyPressed{false};
     bool GasKeyPressed{false};
 
-    auto* controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
-    if(controller && controller->mPlayer == m_Scene->ActivePlayer){
+    auto *controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
+    if (controller && controller->mPlayer == m_Scene->ActivePlayer) {
 
         CameraUi();
         EngineUi();
@@ -151,14 +152,14 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
         if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
             turnKeyPressed |= true;
             engine.servoTarget -= engine.steeringIncrement;
-            if(engine.servoTarget <= -engine.steeringClamp){
+            if (engine.servoTarget <= -engine.steeringClamp) {
                 engine.servoTarget = -engine.steeringClamp;
             }
         }
         if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
             turnKeyPressed |= true;
             engine.servoTarget += engine.steeringIncrement;
-            if(engine.servoTarget >= engine.steeringClamp){
+            if (engine.servoTarget >= engine.steeringClamp) {
                 engine.servoTarget = engine.steeringClamp;
             }
         }
@@ -195,17 +196,17 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
                 fhl.intensity = 100.f;
             }
         }
-        if(ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive){
+        if (ImGui::IsKeyPressed(ImGuiKey_E, false) && windowIsActive) {
             engine.CurrentGear++;
-            if(engine.Gears.size() <= engine.CurrentGear){
-                engine.CurrentGear = engine.Gears.size()-1;
+            if (engine.Gears.size() <= engine.CurrentGear) {
+                engine.CurrentGear = engine.Gears.size() - 1;
             }
             engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
         }
-        if(ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive){
+        if (ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive) {
             engine.CurrentGear--;
-            if(0 >= engine.CurrentGear){
+            if (0 >= engine.CurrentGear) {
                 engine.CurrentGear = 0;
             }
             engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
@@ -218,10 +219,9 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
 
         axle->setMaxMotorForce(3, engine.getEngineForce(abs(axle->getRigidBodyB().getLinearVelocity().length())));
 
-        if(engine.breakingForce <= 0){
+        if (engine.breakingForce <= 0) {
             axle->setTargetVelocity(3, engine.targetVelocity);
-        }
-        else {
+        } else {
             axle->setTargetVelocity(3, 0);
         }
 
@@ -229,22 +229,21 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
     //turning
     {
         //front wheels
-        axles[0]->setServoTarget(5,engine.servoTarget);
+        axles[0]->setServoTarget(5, engine.servoTarget);
         axles[1]->setServoTarget(5, engine.servoTarget);
 
         //back axles
         //turn other way if fast car
-        if(axles[2]->getRigidBodyB().getLinearVelocity().length() > 15.f){
+        if (axles[2]->getRigidBodyB().getLinearVelocity().length() > 15.f) {
             //smaller sterring radius in big speed
             axles[0]->setLowerLimit(-engine.TurnHighSpeed);
             axles[0]->setUpperLimit(engine.TurnHighSpeed);
             axles[1]->setLowerLimit(-engine.TurnHighSpeed);
             axles[1]->setUpperLimit(engine.TurnHighSpeed);
-        }
-        else{
-            if(BackWheelTurn){
-                axles[2]->setServoTarget(5,-engine.servoTarget/2.f);
-                axles[3]->setServoTarget(5, -engine.servoTarget/2.f);
+        } else {
+            if (BackWheelTurn) {
+                axles[2]->setServoTarget(5, -engine.servoTarget / 2.f);
+                axles[3]->setServoTarget(5, -engine.servoTarget / 2.f);
             }
             //bigger sterring radius in big speed
             axles[0]->setLowerLimit(-engine.TurnLowSpeed);
@@ -254,11 +253,11 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
         }
 
     }
-    if(graphnumb > 999)
+    if (graphnumb > 999)
         graphnumb = 0;
     engine.velocityGraph[graphnumb] = car.RigidBody->getLinearVelocity().length();
     engine.TorqueGraph[graphnumb] = engine.getEngineForce(car.RigidBody->getLinearVelocity().length());
-    if(car.RigidBody->getLinearVelocity().length() <= 0.f){
+    if (car.RigidBody->getLinearVelocity().length() <= 0.f) {
         engine.TorqueGraph[graphnumb] = 0.f;
     }
     engine.GraphOffset = graphnumb;
@@ -268,12 +267,12 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
     engine.targetVelocity = 0.f;
 
     //reset steering
-    if(!turnKeyPressed){
-       engine.servoTarget = 0.f;
+    if (!turnKeyPressed) {
+        engine.servoTarget = 0.f;
     }
 
     //audio todo fix sound
-    auto& sound = m_Scene->GetComponent<SoundComponent>(frame);
+    auto &sound = m_Scene->GetComponent<SoundComponent>(frame);
 
 
 }
@@ -282,9 +281,9 @@ void FLOOF::CarBaseScript::CameraUi() {
     ImGui::Begin("Play Camera");
 
     static int p{0};
-    std::vector<const char*> camNames(CamLocations.size());
+    std::vector<const char *> camNames(CamLocations.size());
 
-    for(int i{0}; i < CamLocations.size(); i++) {
+    for (int i{0}; i < CamLocations.size(); i++) {
         camNames[i] = CamLocations[i].name.c_str();
     }
 
@@ -305,44 +304,44 @@ void FLOOF::CarBaseScript::EngineUi() {
     ImGui::Text("Press 'F' to Toggle Headlights");
     ImGui::Text("Press 'Space' to Break");
     ImGui::Text("Press 'E' 'Q' to change Gear");
-    auto* controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
-    if(controller){
+    auto *controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
+    if (controller) {
         std::string txt = "Player : ";
-        txt +=std::to_string(controller->mPlayer);
+        txt += std::to_string(controller->mPlayer);
         ImGui::Text(txt.c_str());
     }
 
-        if (ImGui::CollapsingHeader("engine Graph")) {
-            ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 90.f, ImVec2(200, 100.0f));
-            ImGui::PlotLines("Torque", engine.TorqueGraph.data(), engine.TorqueGraph.size(), engine.GraphOffset, "N", 1000.0f, 20000.f, ImVec2(200, 100.0f));
-        }
-        bool transformChanged{false};
-        if (ImGui::CollapsingHeader("engine Controls")) {
+    if (ImGui::CollapsingHeader("engine Graph")) {
+        ImGui::PlotLines("Velocity", engine.velocityGraph.data(), engine.velocityGraph.size(), engine.GraphOffset, "m/s", 0.0f, 90.f, ImVec2(200, 100.0f));
+        ImGui::PlotLines("Torque", engine.TorqueGraph.data(), engine.TorqueGraph.size(), engine.GraphOffset, "N", 1000.0f, 20000.f, ImVec2(200, 100.0f));
+    }
+    bool transformChanged{false};
+    if (ImGui::CollapsingHeader("engine Controls")) {
 
-            transformChanged |= ImGui::DragFloat("Max Velocity", &engine.maxVelocity);
-            transformChanged |= ImGui::DragFloat("Max Torque", &engine.maxEngineForce);
-            transformChanged |= ImGui::DragFloat("Max Breaking Force", &engine.maxBreakingForce);
+        transformChanged |= ImGui::DragFloat("Max Velocity", &engine.maxVelocity);
+        transformChanged |= ImGui::DragFloat("Max Torque", &engine.maxEngineForce);
+        transformChanged |= ImGui::DragFloat("Max Breaking Force", &engine.maxBreakingForce);
 
-        }
-        if (ImGui::CollapsingHeader("Suspension Control")) {
-            transformChanged |= ImGui::DragFloat("Suspension Stiffness", &engine.suspensionStiffness);
-            transformChanged |= ImGui::DragFloat("Suspension Damping", &engine.suspensionDamping);
-            transformChanged |= ImGui::DragFloat("Suspension Length", &engine.suspensionRestLength, 0.01, 0, 3);
-        }
-        if (ImGui::CollapsingHeader("Wheel Controls")) {
-            transformChanged |= ImGui::DragFloat("Wheel Friction", &engine.WheelFriction, 0.1, 0.1, 100);
-        }
-        if (ImGui::CollapsingHeader("Gearing")) {
-            std::string gear = "Current Gear : ";
-            gear += std::to_string(engine.CurrentGear + 1);
-            ImGui::Text(gear.c_str());
+    }
+    if (ImGui::CollapsingHeader("Suspension Control")) {
+        transformChanged |= ImGui::DragFloat("Suspension Stiffness", &engine.suspensionStiffness);
+        transformChanged |= ImGui::DragFloat("Suspension Damping", &engine.suspensionDamping);
+        transformChanged |= ImGui::DragFloat("Suspension Length", &engine.suspensionRestLength, 0.01, 0, 3);
+    }
+    if (ImGui::CollapsingHeader("Wheel Controls")) {
+        transformChanged |= ImGui::DragFloat("Wheel Friction", &engine.WheelFriction, 0.1, 0.1, 100);
+    }
+    if (ImGui::CollapsingHeader("Gearing")) {
+        std::string gear = "Current Gear : ";
+        gear += std::to_string(engine.CurrentGear + 1);
+        ImGui::Text(gear.c_str());
 
-            int i = 1;
-            for(auto& [speed, torque] : engine.Gears){
-                std::string stats = "Gear " + std::to_string(i)  + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "Gear Ratio";
-                ImGui::Text(stats.c_str());
-                i++;
-            }
+        int i = 1;
+        for (auto &[speed, torque]: engine.Gears) {
+            std::string stats = "Gear " + std::to_string(i) + " : " + std::to_string(speed) + " m/s " + std::to_string(torque) + "Gear Ratio";
+            ImGui::Text(stats.c_str());
+            i++;
+        }
 
 
         if (transformChanged) {
@@ -375,7 +374,7 @@ void FLOOF::CarBaseScript::LastUpdate(float deltaTime) {
     auto camtargetTrans = m_Scene->TryGetComponent<TransformComponent>(CamTarget);
 
     auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
-    cam->Lookat(camTrans->GetWorldPosition(),camtargetTrans->GetWorldPosition());
+    cam->Lookat(camTrans->GetWorldPosition(), camtargetTrans->GetWorldPosition());
 
 }
 
@@ -393,17 +392,37 @@ void FLOOF::CarBaseScript::SetTransformData(FLOOF::CarData data) {
     auto &Wheelbrtf = m_Scene->GetComponent<TransformComponent>(Wheel_br);
     auto &Wheelbltf = m_Scene->GetComponent<TransformComponent>(Wheel_bl);
 
-    frametf = data.MainTform;
-    Wheelbltf = data.WheelTformBL;
-    Wheelbrtf = data.WheelTformBR;
-    Wheelfltf = data.WheelTformFL;
-    Wheelfrtf = data.WheelTformFR;
+    frametf.Position = data.MainTform.Position;
+    frametf.Rotation = data.MainTform.Rotation;
+    //if(data.MainTform.Scale != glm::vec3(1.f))
+    //  frametf.Scale = data.MainTform.Scale;
 
-    frameBody.transform(data.MainTform.Position,data.MainTform.Rotation,data.MainTform.Scale);
-    WheelblBody.transform(data.WheelTformBL.Position,data.WheelTformBL.Rotation,data.WheelTformBL.Scale);
-    WheelbrBody.transform(data.WheelTformBR.Position,data.WheelTformBR.Rotation,data.WheelTformBR.Scale);
-    WheelflBody.transform(data.WheelTformFL.Position,data.WheelTformFL.Rotation,data.WheelTformFL.Scale);
-    WheelfrBody.transform(data.WheelTformFR.Position,data.WheelTformFR.Rotation,data.WheelTformFR.Scale);
+    Wheelbltf.Position = data.WheelTformBL.Position;
+    Wheelbltf.Rotation = data.WheelTformBL.Rotation;
+    //if(data.WheelTformBL.Scale != glm::vec3(1.f))
+    //Wheelbltf.Scale = data.WheelTformBL.Scale;
+
+    Wheelbrtf.Position = data.WheelTformBR.Position;
+    Wheelbrtf.Rotation = data.WheelTformBR.Rotation;
+    //if(data.WheelTformBR.Scale != glm::vec3(1.f))
+    //Wheelbrtf.Scale = data.WheelTformBR.Scale;
+
+    Wheelfltf.Rotation = data.WheelTformFL.Rotation;
+    Wheelfltf.Position = data.WheelTformFL.Position;
+    // if(data.WheelTformFL.Scale != glm::vec3(1.f))
+    //Wheelfltf.Scale = data.WheelTformFL.Scale;
+
+    Wheelfrtf.Position = data.WheelTformFR.Position;
+    Wheelfrtf.Rotation = data.WheelTformFR.Rotation;
+    //if(data.WheelTformFR.Scale != glm::vec3(1.f))
+    //Wheelfrtf.Scale = data.WheelTformFR.Scale;
+
+
+    frameBody.transform(data.MainTform.Position, data.MainTform.Rotation, data.MainTform.Scale);
+    WheelblBody.transform(data.WheelTformBL.Position, data.WheelTformBL.Rotation, data.WheelTformBL.Scale);
+    WheelbrBody.transform(data.WheelTformBR.Position, data.WheelTformBR.Rotation, data.WheelTformBR.Scale);
+    WheelflBody.transform(data.WheelTformFL.Position, data.WheelTformFL.Rotation, data.WheelTformFL.Scale);
+    WheelfrBody.transform(data.WheelTformFR.Position, data.WheelTformFR.Rotation, data.WheelTformFR.Scale);
 
     frameBody.RigidBody->setAngularVelocity(data.AvFrame);
     WheelblBody.RigidBody->setAngularVelocity(data.AvWheelBL);
@@ -424,11 +443,25 @@ FLOOF::CarData FLOOF::CarBaseScript::GetTransformData() {
     auto &Wheelbrtf = m_Scene->GetComponent<TransformComponent>(Wheel_br);
     auto &Wheelbltf = m_Scene->GetComponent<TransformComponent>(Wheel_bl);
 
-    data.MainTform =  frametf ;
-    data.WheelTformBL= Wheelbltf;
-    data.WheelTformBR = Wheelbrtf;
-    data.WheelTformFL = Wheelfltf;
-    data.WheelTformFR = Wheelfrtf;
+    data.MainTform.Position = frametf.Position;
+    data.MainTform.Rotation = frametf.Rotation;
+    //data.MainTform.Scale = frametf.Scale;
+
+    data.WheelTformBL.Position = Wheelbltf.Position;
+    data.WheelTformBL.Rotation = Wheelbltf.Rotation;
+    //data.WheelTformBL.Scale = Wheelbltf.Scale;
+
+    data.WheelTformBR.Position = Wheelbrtf.Position;
+    data.WheelTformBR.Rotation = Wheelbrtf.Rotation;
+    //data.WheelTformBR.Scale = Wheelbrtf.Scale;
+
+    data.WheelTformFL.Rotation = Wheelfltf.Rotation;
+    data.WheelTformFL.Position = Wheelfltf.Position;
+    //data.WheelTformFL.Scale = Wheelfltf.Scale;
+
+    data.WheelTformFR.Position = Wheelfrtf.Position;
+    data.WheelTformFR.Rotation = Wheelfrtf.Rotation;
+    //data.WheelTformFR.Scale = Wheelfrtf.Scale;
 
     auto &frameBody = m_Scene->GetComponent<RigidBodyComponent>(frame);
     auto &WheelfrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_fr);
@@ -436,7 +469,7 @@ FLOOF::CarData FLOOF::CarBaseScript::GetTransformData() {
     auto &WheelbrBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_br);
     auto &WheelblBody = m_Scene->GetComponent<RigidBodyComponent>(Wheel_bl);
 
-    data.AvFrame =  frameBody.RigidBody->getAngularVelocity();
+    data.AvFrame = frameBody.RigidBody->getAngularVelocity();
     data.AvWheelBL = WheelblBody.RigidBody->getAngularVelocity();
     data.AvWheelBR = WheelbrBody.RigidBody->getAngularVelocity();
     data.AvWheelFL = WheelflBody.RigidBody->getAngularVelocity();

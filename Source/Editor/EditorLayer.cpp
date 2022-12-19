@@ -304,12 +304,6 @@ namespace FLOOF {
             body->setFriction(1.f);
             m_Scene->GetPhysicSystem()->AddRigidBody(body);
         }
-        // make monstertruck
-        {
-            auto ent = m_Scene->CreateEntity("MonsterTruck");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f)), m_Scene.get(), ent);
-            m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
-        }
         {
             auto music = m_Scene->CreateEntity("Background Music");
             auto& sound = m_Scene->AddComponent<SoundComponent>(music);
@@ -843,16 +837,6 @@ namespace FLOOF {
             const auto lightSwarmEntity = m_Scene->CreateEntity();
             m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
             m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y = 400.f;
-        }
-
-
-
-
-        // make monstertruck
-        {
-            auto ent = m_Scene->CreateEntity("Local Player");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(100.f, 0.f, 0.f)), m_Scene.get(), ent);
-            m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
         }
     }
 }
