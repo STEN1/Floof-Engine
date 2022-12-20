@@ -152,6 +152,8 @@ namespace olc
                 std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
 
                 // Shrink the vector to remove read bytes, and reset end position
+                if (i > msg.body.size())
+                    i = msg.body.size();
                 msg.body.resize(i);
 
                 // Recalculate the message size
