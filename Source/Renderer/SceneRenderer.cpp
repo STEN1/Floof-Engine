@@ -237,6 +237,11 @@ namespace FLOOF {
             {
                 auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
                 for (auto [entity, transform, landscape] : view.each()) {
+                    if (landscape.TestMaterial.DescriptorSet == VK_NULL_HANDLE) {
+                        landscape.TestMaterial.UpdateDescriptorSet();
+                    }
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        1, 1, &landscape.TestMaterial.DescriptorSet, 0, nullptr);
                     DepthPushConstants constants;
                     glm::mat4 modelMat = transform.GetTransform();
                     constants.Model = modelMat;
@@ -1298,8 +1303,7 @@ namespace FLOOF {
 
     void SceneRenderer::DrawDebugCameraLines(CameraComponent* camera) const
     {
-        DebugDrawLine(camera->Position, camera->Position + camera->Forward * 10.f, glm::vec3(1.f, 0.f, 0.f));
-        DebugDrawLine(camera->Position + camera->Forward * 2.f, (camera->Position + camera->Forward * 2.f) + camera->Up, glm::vec3(1.f, 0.f, 0.f));
+        DebugDrawLine(camera->Position, camera->Position + camera->Forward * camera->Near, glm::vec3(1.f, 0.f, 0.f));
         uint32_t SHADOW_MAP_CASCADE_COUNT = m_SceneFrameData.CascadeCount;
         static constexpr float cascadeSplitLambda = 0.95f;
 

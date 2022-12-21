@@ -20,6 +20,12 @@ namespace FLOOF {
     }
 
     Scene::~Scene() {
+        
+        auto view = m_Registry.view<NativeScriptComponent>();
+        for (auto [entity, script] : view.each()) {
+            m_Registry.remove<NativeScriptComponent>(entity);
+        }
+        m_Registry.clear();
     }
 
     entt::entity Scene::CreateEntity(const std::string &tag, entt::entity parent) {

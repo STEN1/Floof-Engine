@@ -61,7 +61,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 vec3 getNormal(vec3);
-float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex);
+float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex, float bias);
 float filterPCF(vec4 sc, int cascadeIndex);
 vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float metallic, vec3 F0);
 
@@ -248,12 +248,78 @@ vec3 getNormal(vec3 tangentNormal)
 	return normalize(TBN * tangentNormal);
 }
 
-float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex)
+const vec2 PoissonSamples[64] = vec2[64]
+(
+    vec2(-0.5119625, -0.4827938),
+    vec2(-0.2171264, -0.4768726),
+    vec2(-0.7552931, -0.2426507),
+    vec2(-0.7136765, -0.4496614),
+    vec2(-0.5938849, -0.6895654),
+    vec2(-0.3148003, -0.7047654),
+    vec2(-0.42215, -0.2024607),
+    vec2(-0.9466816, -0.2014508),
+    vec2(-0.8409063, -0.03465778),
+    vec2(-0.6517572, -0.07476326),
+    vec2(-0.1041822, -0.02521214),
+    vec2(-0.3042712, -0.02195431),
+    vec2(-0.5082307, 0.1079806),
+    vec2(-0.08429877, -0.2316298),
+    vec2(-0.9879128, 0.1113683),
+    vec2(-0.3859636, 0.3363545),
+    vec2(-0.1925334, 0.1787288),
+    vec2(0.003256182, 0.138135),
+    vec2(-0.8706837, 0.3010679),
+    vec2(-0.6982038, 0.1904326),
+    vec2(0.1975043, 0.2221317),
+    vec2(0.1507788, 0.4204168),
+    vec2(0.3514056, 0.09865579),
+    vec2(0.1558783, -0.08460935),
+    vec2(-0.0684978, 0.4461993),
+    vec2(0.3780522, 0.3478679),
+    vec2(0.3956799, -0.1469177),
+    vec2(0.5838975, 0.1054943),
+    vec2(0.6155105, 0.3245716),
+    vec2(0.3928624, -0.4417621),
+    vec2(0.1749884, -0.4202175),
+    vec2(0.6813727, -0.2424808),
+    vec2(-0.6707711, 0.4912741),
+    vec2(0.0005130528, -0.8058334),
+    vec2(0.02703013, -0.6010728),
+    vec2(-0.1658188, -0.9695674),
+    vec2(0.4060591, -0.7100726),
+    vec2(0.7713396, -0.4713659),
+    vec2(0.573212, -0.51544),
+    vec2(-0.3448896, -0.9046497),
+    vec2(0.1268544, -0.9874692),
+    vec2(0.7418533, -0.6667366),
+    vec2(0.3492522, 0.5924662),
+    vec2(0.5679897, 0.5343465),
+    vec2(0.5663417, 0.7708698),
+    vec2(0.7375497, 0.6691415),
+    vec2(0.2271994, -0.6163502),
+    vec2(0.2312844, 0.8725659),
+    vec2(0.4216993, 0.9002838),
+    vec2(0.4262091, -0.9013284),
+    vec2(0.2001408, -0.808381),
+    vec2(0.149394, 0.6650763),
+    vec2(-0.09640376, 0.9843736),
+    vec2(0.7682328, -0.07273844),
+    vec2(0.04146584, 0.8313184),
+    vec2(0.9705266, -0.1143304),
+    vec2(0.9670017, 0.1293385),
+    vec2(0.9015037, -0.3306949),
+    vec2(-0.5085648, 0.7534177),
+    vec2(0.9055501, 0.3758393),
+    vec2(0.7599946, 0.1809109),
+    vec2(-0.2483695, 0.7942952),
+    vec2(-0.4241052, 0.5581087),
+    vec2(-0.1020106, 0.672446f)
+);
+
+float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex, float bias)
 {
 	float shadow = 1.0;
-	float baseBias = sceneFrameUBO.bias * (float(cascadeIndex) + 1.0);
-	float bias = max((baseBias * 10.0) * (1.0 - dot(normalize(fragNormal), normalize(sceneFrameUBO.sunPosition.xyz))), baseBias);
-    //float bias = sceneFrameUBO.bias;
+    
 	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
 		float dist = texture(shadowMap, vec3(shadowCoord.st + offset, cascadeIndex)).r;
 		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
@@ -265,22 +331,19 @@ float textureProjection(vec4 shadowCoord, vec2 offset, int cascadeIndex)
 
 float filterPCF(vec4 sc, int cascadeIndex)
 {
-	ivec2 texDim = textureSize(shadowMap, 0).xy;
-	float scale = 0.75;
-	float dx = scale * 1.0 / float(texDim.x);
-	float dy = scale * 1.0 / float(texDim.y);
+	float texDim = textureSize(shadowMap, 0).x;
+	float scale = (0.45 * (sceneFrameUBO.cascadeCount - cascadeIndex + 1)) / texDim;
 
 	float shadowFactor = 0.0;
-	int count = 0;
-	int range = 1;
-	
-	for (int x = -range; x <= range; x++) {
-		for (int y = -range; y <= range; y++) {
-			shadowFactor += textureProjection(sc, vec2(dx*x, dy*y), cascadeIndex);
-			count++;
-		}
-	}
-	return shadowFactor / count;
+
+    float baseBias = sceneFrameUBO.bias * (float(cascadeIndex) + 1.0);
+	float bias = max((baseBias * 10.0) * (1.0 - dot(normalize(fragNormal), normalize(sceneFrameUBO.sunPosition.xyz))), baseBias);
+
+    for (int i = 0; i < 64; i += 2) {
+        shadowFactor += textureProjection(sc, PoissonSamples[i] * scale, cascadeIndex, bias);
+    }
+
+	return shadowFactor / 64;
 }
 
 vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float metallic, vec3 F0) {
