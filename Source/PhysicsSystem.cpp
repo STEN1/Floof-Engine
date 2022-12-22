@@ -63,10 +63,10 @@ namespace FLOOF {
 
         delete mDynamicsWorld;
         delete mSolver;
+        delete mSoftbodySolver;
         delete mBroadPhase;
         delete mDispatcher;
         delete mCollisionConfiguration;
-        delete mSoftbodySolver;
 
         delete mVehicleRayCaster;
     }
@@ -167,6 +167,7 @@ namespace FLOOF {
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
                 btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
+                if(!obj) continue;
                 btRigidBody *body = btRigidBody::upcast(obj);
                 if(!body) continue;
                 for (int i = 0; i < body->getNumConstraintRefs(); i++) {
