@@ -8,6 +8,7 @@
 #include "../Timer.h"
 #include "CarScripts/RaceCarScript.h"
 #include "CarScripts/MonsterTruckScript.h"
+#include "RaceTrackScript.h"
 
 namespace FLOOF {
     struct GameModeScript : public NativeScript {
@@ -16,9 +17,44 @@ namespace FLOOF {
             NativeScript::OnCreate(scene, entity);
         };
 
-        void MakeUi() {
-            ImGui::Begin("Car Selection");
+        entt::entity RaceTrack{entt::null};
 
+        void MakeUi() {
+            ImGui::Begin("GameMode");
+
+            //TIMELAPSE
+
+            if (RaceTrack != entt::null) {
+                auto &script = GetComponent<NativeScriptComponent>(RaceTrack);
+                auto cpScript = dynamic_cast<RaceTrackScript *>(script.Script.get());
+                if (cpScript) {
+
+                    std::string tmp{"Fastest Lap Time : "};
+                    tmp += std::to_string(cpScript->GetFastetTime());
+                    if (cpScript->GetFastetTime() != MAXFLOAT) {
+                        ImGui::Text(tmp.c_str());
+                        ImGui::Separator();
+                    }
+                    tmp = "LapCount Time : ";
+                    tmp += std::to_string(cpScript->GetLapCount());
+                    if (cpScript->GetFastetTime() != 0) {
+                        ImGui::Text(tmp.c_str());
+                        ImGui::Separator();
+                    }
+
+                    auto Times = cpScript->GetCheckPointTimes();
+                    for (auto [nmb, time]: Times) {
+                        tmp = "Check : ";
+                        tmp += std::to_string(nmb);
+                        tmp += " time : ";
+                        tmp += std::to_string(time);
+                        ImGui::Text(tmp.c_str());
+                    }
+                }
+            }
+
+
+            //CAR SELECTION
             if (ImGui::CollapsingHeader("Car Selection")) {
                 if (ImGui::Button("Koenigsegg")) {
                     //get Player ent

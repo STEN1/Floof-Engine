@@ -12,6 +12,8 @@ void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) 
     for (int i{0}; i <= 5; i++) {
         CheckPoints.emplace_back(glm::vec3(Math::RandFloat(-100.f, 100.f), -45.f, Math::RandFloat(-100.f, 100.f)));
     }
+    TimePoints.resize(CheckPoints.size());
+    BestTimePoints.resize(CheckPoints.size());
 
     //bspline generate racetrack
     auto &spline = scene->AddComponent<BSplineComponent>(RaceTrack, CheckPoints);
@@ -44,6 +46,9 @@ void FLOOF::RaceTrackScript::OnUpdate(float deltaTime) {
 
 void FLOOF::RaceTrackScript::NextCheckPoint() {
     //disable last hit checkpoint
+    if (ActiveCheckPoint == 0) {
+        TimePoints[ActiveCheckPoint] = Timer::GetTime();
+    }
     {
         auto &script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
         auto cpScript = dynamic_cast<CheckPointScript *>(script.Script.get());
@@ -54,8 +59,16 @@ void FLOOF::RaceTrackScript::NextCheckPoint() {
     ActiveCheckPoint++;
     if (ActiveCheckPoint >= CheckPoints.size()) {
         ActiveCheckPoint = 0;
-    }
+        double LapTime = Timer::GetTimeSince(TimePoints[0]);
+        if (LapTime < FastestLapTime)
+            FastestLapTime = LapTime;
+        TotalLapRuns++;
 
+        //reset TimePoints
+        TimePoints.clear();
+        TimePoints.resize(CheckPoints.size());
+    }
+    TimePoints[ActiveCheckPoint] = Timer::GetTime();
     //activate next checkpoint
     {
         auto &script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
@@ -65,4 +78,27 @@ void FLOOF::RaceTrackScript::NextCheckPoint() {
     }
 
 
+}
+
+std::vector<std::pair<int, double>> FLOOF::RaceTrackScript::GetCheckPointTimes() {
+    std::vector<std::pair<int, double>> times;
+
+    for (int i{1}; i <= TimePoints.size(); i++) {
+        double t{0};
+
+        if (i < TimePoints.size())
+            t = Timer::Delta(TimePoints[i], TimePoints[i - 1]);
+
+        if (i - 1 == ActiveCheckPoint && i != 1)
+            t = Timer::Delta(Timer::GetTime(), TimePoints[i - 1]);
+
+        if (t > 0 && t < BestTimePoints[i]) {
+            BestTimePoints[i] = t;
+        }
+        if (t < 0)
+            t = 0;
+        times.emplace_back(i, t);
+    }
+
+    return times;
 }
