@@ -31,7 +31,7 @@ namespace FLOOF {
 
                     std::string tmp{"Fastest Lap Time : "};
                     tmp += std::to_string(cpScript->GetFastetTime());
-                    if (cpScript->GetFastetTime() != MAXFLOAT) {
+                    if (cpScript->GetFastetTime() != std::numeric_limits<double>::max()) {
                         ImGui::Text(tmp.c_str());
                         ImGui::Separator();
                     }

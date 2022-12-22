@@ -3,6 +3,7 @@
 
 #include "NativeScript.h"
 #include "../Timer.h"
+#include <limits>
 
 namespace FLOOF{
     class RaceTrackScript : public NativeScript {
@@ -27,7 +28,7 @@ namespace FLOOF{
     private:
         entt::entity RaceTrack;
 
-        double FastestLapTime{MAXFLOAT};
+        double FastestLapTime{ std::numeric_limits<double>::max() };
         int TotalLapRuns{0};
         std::vector<TimePoint> TimePoints;
         std::vector<double> BestTimePoints;
