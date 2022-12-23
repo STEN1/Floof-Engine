@@ -112,7 +112,7 @@ add_executable(Floof
         Source/Network/OlcNet.h
         Source/LineMeshComponent.h Source/LineMeshComponent.cpp
         Source/SoundComponent.h
-        Source/SoundComponent.cpp Source/NativeScripts/CheckPointScript.cpp Source/NativeScripts/CheckPointScript.h Source/NativeScripts/RaceTrackScript.cpp Source/NativeScripts/RaceTrackScript.h Source/NativeScripts/CarScripts/MonsterTruckScript.cpp Source/NativeScripts/CarScripts/MonsterTruckScript.h Source/NativeScripts/CarScripts/RaceCarScript.cpp Source/NativeScripts/CarScripts/RaceCarScript.h)
+        Source/SoundComponent.cpp Source/NativeScripts/CheckPointScript.cpp Source/NativeScripts/CheckPointScript.h Source/NativeScripts/RaceTrackScript.cpp Source/NativeScripts/RaceTrackScript.h Source/NativeScripts/CarScripts/MonsterTruckScript.cpp Source/NativeScripts/CarScripts/MonsterTruckScript.h Source/NativeScripts/CarScripts/RaceCarScript.cpp Source/NativeScripts/CarScripts/RaceCarScript.h Source/ServerLayer.cpp Source/ServerLayer.h)
 
 
 
