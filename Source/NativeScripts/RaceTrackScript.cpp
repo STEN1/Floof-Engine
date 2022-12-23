@@ -92,7 +92,7 @@ std::vector<std::pair<int, double>> FLOOF::RaceTrackScript::GetCheckPointTimes()
         if (i - 1 == ActiveCheckPoint && i != 1)
             t = Timer::Delta(Timer::GetTime(), TimePoints[i - 1]);
 
-        if (t > 0 && t < BestTimePoints[i]) {
+        if (t > 0 && t < BestTimePoints[i] && i < BestTimePoints.size()) {
             BestTimePoints[i] = t;
         }
         if (t < 0)
