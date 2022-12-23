@@ -60,6 +60,8 @@ namespace FLOOF {
 			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.AmbientIntensity = ambientIntensity;
 		}
 
+		// Light complexity
+		ImGui::Checkbox("Show light complexity", &m_EditorLayer->GetEditorRenderer()->m_DrawLightComplexity);
 
 		// Shadow options
 		ImGui::Separator();
@@ -83,6 +85,11 @@ namespace FLOOF {
 			m_EditorLayer->GetEditorRenderer()->m_ShadowZExtentOffset = shadowZOffset;
 			m_EditorLayer->GetPlayRenderer()->m_ShadowZExtentOffset = shadowZOffset;
 		}
+
+		// Camera options
+		ImGui::Separator();
+		ImGui::DragFloat("Editor FarClip", &m_EditorLayer->GetEditorRenderer()->m_FarClip);
+		ImGui::DragFloat("Play FarClip", &m_EditorLayer->GetPlayRenderer()->m_FarClip);
 
 		// Shadowmap visualization. only showing first cascade.
 		ImVec2 imageSize(200.f, 200.f);

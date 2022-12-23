@@ -7,6 +7,7 @@
 #include "../Components.h"
 #include "../LineMeshComponent.h"
 #include "ModelManager.h"
+#include "../Utils.h"
 
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {
@@ -23,21 +24,22 @@ namespace FLOOF {
     }
 
     SceneRenderFinishedData SceneRenderer::RenderToTexture(Scene* scene, glm::vec2 extent, CameraComponent* camera,
-        RenderPipelineKeys drawMode, PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore) {
+        RenderPipelineKeys drawMode, PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore, bool drawDebugLines) {
         if (extent == glm::vec2(0.f))
             return SceneRenderFinishedData();
         if (extent != m_Extent)
             ResizeBuffers(extent);
 
         m_DrawMode = drawMode;
+        m_DrawDebugLines = drawDebugLines;
 
         // Camera setup
-        glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), m_Extent.x / m_Extent.y, 1.0f, 1000000.f);
+        glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), m_Extent.x / m_Extent.y, m_NearClip, m_FarClip);
         glm::mat4 cameraView = camera->GetView();
         m_SceneFrameData.View = cameraView;
         glm::mat4 vp = cameraProjection * cameraView;
 
-        if (m_DrawDebugCameraLines) {
+        if (m_DrawDebugCameraLines && m_DrawDebugLines) {
             auto activeCamera = scene->GetActiveCamera();
             DrawDebugCameraLines(activeCamera);
             m_DrawDebugCameraLines = false;
@@ -71,9 +73,11 @@ namespace FLOOF {
             //m_SceneDataUBO.Update(m_SceneFrameData);
         }
 
+        SortLightsInTiles(scene);
+
         waitSemaphore = ShadowPass(waitSemaphore, scene, camera);
 
-        waitSemaphore = MainPass(waitSemaphore, scene, cameraProjection, cameraView, physicDrawer);
+        waitSemaphore = MainPass(waitSemaphore, scene, camera, cameraProjection, cameraView, physicDrawer);
 
         waitSemaphore = AlphaClearPass(waitSemaphore);
 
@@ -186,6 +190,14 @@ namespace FLOOF {
         clearValue.depthStencil = { 1.f, 0 };
 
         m_SceneDataUBO[frameIndex].Update(m_SceneFrameData);
+
+        std::vector<std::pair<glm::mat4, StaticMeshComponent*>> drawData;
+        {
+            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
+            for (auto [entity, transform, staticMesh] : view.each()) {
+                drawData.emplace_back(std::make_pair(transform.GetTransform(), &staticMesh));
+            }
+        }
         for (uint32_t i = 0; i < m_SceneFrameData.CascadeCount; i++) {
             auto framebuffer = m_ShadowDepthBuffers[frameIndex]->GetFramebuffer(i);
             auto commandBuffer = commandBuffers[i];
@@ -208,16 +220,15 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                 &sceneDescriptor, 0, nullptr);
             {
-                auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
-                for (auto [entity, transform, staticMesh] : view.each()) {
+                
+                for (auto& [transform, staticMesh] : drawData) {
                     DepthPushConstants constants;
-                    glm::mat4 modelMat = transform.GetTransform();
-                    constants.Model = modelMat;
-                    constants.InvModelMat = glm::inverse(modelMat);
+                    constants.Model = transform;
+                    constants.InvModelMat = glm::inverse(transform);
                     constants.cascadeIndex = i;
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                         0, sizeof(DepthPushConstants), &constants);
-                    for (auto& mesh : staticMesh.meshes) {
+                    for (auto& mesh : staticMesh->meshes) {
                         VkDeviceSize offset{ 0 };
                         if (mesh.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
                             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
@@ -278,11 +289,11 @@ namespace FLOOF {
 
     struct DrawData {
         MeshData* mesh; 
-        TransformComponent* transform;
+        glm::mat4 transform;
         float distanceToCamera2;
     };
 
-    VkSemaphore SceneRenderer::MainPass(VkSemaphore waitSemaphore, Scene* scene, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer)
+    VkSemaphore SceneRenderer::MainPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer)
     {
         auto* renderer = VulkanRenderer::Get();
         auto* window = renderer->GetVulkanWindow();
@@ -382,8 +393,8 @@ namespace FLOOF {
                         if (mesh.MeshMaterial.HasOpacity) {
                             DrawData drawData;
                             drawData.mesh = &mesh;
-                            drawData.transform = &transform;
-                            drawData.distanceToCamera2 = glm::length2(glm::vec3(cameraView[3]) - transform.Position);
+                            drawData.transform = modelMat;
+                            drawData.distanceToCamera2 = glm::length2(camera->Position - glm::vec3(modelMat[3]));
                             transparentGeometry.push_back(drawData);
                             continue;
                         }
@@ -499,9 +510,8 @@ namespace FLOOF {
 
             for (auto& drawData : transparentGeometry) {
                 MeshPushConstants constants;
-                glm::mat4 modelMat = drawData.transform->GetTransform();
-                constants.Model = modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
+                constants.Model = drawData.transform;
+                constants.InvModelMat = glm::inverse(drawData.transform);
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
                 if (drawData.mesh->MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
@@ -633,6 +643,87 @@ namespace FLOOF {
         return signalSemaphore;
     }
 
+    void SceneRenderer::SortLightsInTiles(Scene* scene)
+    {
+        auto camera = scene->GetEditorCamera();
+
+        auto invProj = glm::inverse(glm::perspective(camera->FOV, camera->Aspect, camera->Near, camera->Far) * camera->GetView());
+
+        float tileSize = 128.f;
+
+        glm::vec2 ndcTileSize = 2.f * glm::vec2(tileSize, tileSize) / m_Extent;
+
+        for (float y = -1.f; y < 1.f; y += ndcTileSize.y) {
+            for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
+                glm::vec3 frustumCorners[8] = {
+                // near
+                glm::vec3(x,                 y + ndcTileSize.y, -1.0f), // top left      0  
+                glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, -1.0f), // top right     1  
+                glm::vec3(x + ndcTileSize.x, y,                 -1.0f), // bottom right  2      
+                glm::vec3(x,                 y,                 -1.0f), // bottom left   3     
+                // far        
+                glm::vec3(x,                 y + ndcTileSize.y, 0.99999f), // top left       4 
+                glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, 0.99999f), // top right      5  
+                glm::vec3(x + ndcTileSize.x, y,                 0.99999f), // bottom right   6     
+                glm::vec3(x,                 y,                 0.99999f), // bottom left    7    
+                };
+
+                // Project frustum corners into world space
+                for (uint32_t i = 0; i < 8; i++) {
+                    glm::vec4 invCorner = invProj * glm::vec4(frustumCorners[i], 1.0f);
+                    frustumCorners[i] = invCorner / invCorner.w;
+                }
+
+                // TODO: dont need to combine and divide by 4. can simply select a corner.
+                // did this just for nice debug visuals.
+                // <face position, face normal>
+                std::pair<glm::vec3, glm::vec3> faces[6] = {
+                    // near
+                    { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[2] + frustumCorners[3]) / 4.f),
+                        glm::vec3(camera->Forward) },
+                    // left
+                    { glm::vec3((frustumCorners[0] + frustumCorners[3] + frustumCorners[4] + frustumCorners[7]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[7] - camera->Position, frustumCorners[4] - camera->Position)))  },
+                    // right
+                    { glm::vec3((frustumCorners[1] + frustumCorners[2] + frustumCorners[5] + frustumCorners[6]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[5] - camera->Position, frustumCorners[6] - camera->Position))) },
+                    // bottom
+                    { glm::vec3((frustumCorners[2] + frustumCorners[2] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[6] - camera->Position, frustumCorners[7] - camera->Position))) },
+                    // top
+                    { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[4] + frustumCorners[5]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[4] - camera->Position, frustumCorners[5] - camera->Position))) },
+                    // far
+                    { glm::vec3((frustumCorners[4] + frustumCorners[5] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+                        glm::vec3(-camera->Forward) },
+                };
+
+                if (m_DrawDebugLines && m_DrawLightComplexity) {
+                    float numLightsIntersecting = 0.f;
+                    auto view = scene->GetRegistry().view<TransformComponent, PointLightComponent>();
+                    for (auto [entity, transform, pointLight] : view.each()) {
+                        bool intersecting = true;
+                        for (auto& [pos, normal] : faces) {
+                            float distance = glm::dot(transform.Position - pos, normal);
+                            if (distance < -pointLight.outerRange) {
+                                intersecting = false;
+                                break;
+                            }
+                        }
+                        if (intersecting)
+                            numLightsIntersecting += 1.f;
+                    }
+
+                    float t = numLightsIntersecting / 16.f;
+
+                    auto frustrumColor = glm::vec3(t, 1.f - t, 0.f);
+                    DebugDrawFrustum(frustumCorners[3], frustumCorners[2], frustumCorners[0], frustumCorners[1],
+                        frustumCorners[7], frustumCorners[6], frustumCorners[4], frustumCorners[5], frustrumColor);
+                }
+            }
+        }
+    }
+
     void SceneRenderer::CreateTextureRenderer() {
         auto *renderer = VulkanRenderer::Get();
         m_TextureFrameBuffers.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
@@ -647,7 +738,7 @@ namespace FLOOF {
             shadowDB = std::make_unique<DepthFramebuffer>(m_ShadowRes, m_ShadowRes, m_SceneFrameData.CascadeCount);
         }
         for (auto& lineMesh : m_DebugLineMesh) {
-            std::vector<ColorVertex> vertexData(10000);
+            std::vector<ColorVertex> vertexData(100000);
             lineMesh = std::make_unique<LineMeshComponent>(vertexData);
         }
 
