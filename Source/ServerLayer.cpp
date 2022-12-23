@@ -4,12 +4,6 @@
 #include "NativeScripts/GameModeScript.h"
 
 FLOOF::ServerLayer::ServerLayer() {
-    auto &Server = Application::Get(FLOOF::Application::LayerType::SERVER).server;
-
-    Server = std::make_unique<FloofServer>(9012); //todo make port editable
-    Server->mScene = m_Scene.get();
-
-    Server->Start();
 
     MakeServerScene();
 }
@@ -21,13 +15,16 @@ FLOOF::ServerLayer::~ServerLayer() {
 void FLOOF::ServerLayer::OnUpdate(double deltaTime) {
     ApplicationLayer::OnUpdate(deltaTime);
 
-    auto &Server = Application::Get(FLOOF::Application::LayerType::EDITOR).server;
+    auto &Server = Application::Get().server;
+
     if (Server) {
         Server->Update();
     }
-    auto &Client = Application::Get(FLOOF::Application::LayerType::EDITOR).client;
-    if (Client && Client->IsConnected()) {
-        Client->Update(m_Scene.get());
+    else{
+        Server = std::make_unique<FloofServer>(9012); //todo make port editable
+        Server->mScene = m_Scene.get();
+
+        Server->Start();
     }
 
     m_Scene->GetPhysicSystem()->OnEditorUpdate(deltaTime);
@@ -45,6 +42,7 @@ void FLOOF::ServerLayer::OnImGuiUpdate(double deltaTime) {
 
 VkSemaphore FLOOF::ServerLayer::OnDraw(double deltaTime, VkSemaphore waitSemaphore) {
     return ApplicationLayer::OnDraw(deltaTime, waitSemaphore);
+
 }
 
 void FLOOF::ServerLayer::StartPlay() {

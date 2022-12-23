@@ -20,7 +20,7 @@ namespace FLOOF {
 	}
 
 	void SoundSourcesPanel::MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel) {
-		auto& app = Application::Get(FLOOF::Application::LayerType::EDITOR);
+		auto& app = Application::Get();
 		static ImGuiTreeNodeFlags base_flags =
 			ImGuiTreeNodeFlags_OpenOnArrow |
 			ImGuiTreeNodeFlags_OpenOnDoubleClick |

@@ -42,11 +42,11 @@ namespace FLOOF {
     }
 
     void EditorLayer::OnUpdate(double deltaTime) {
-        auto &Server = Application::Get(FLOOF::Application::LayerType::EDITOR).server;
+        auto &Server = Application::Get().server;
         if (Server) {
             Server->Update(); // todo should set a max nmb
         }
-        auto &Client = Application::Get(FLOOF::Application::LayerType::EDITOR).client;
+        auto &Client = Application::Get().client;
         if (Client && Client->IsConnected()) {
             Client->Update(m_Scene.get());
         }

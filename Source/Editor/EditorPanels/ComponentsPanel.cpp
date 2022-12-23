@@ -6,7 +6,7 @@
 
 namespace FLOOF {
 	void ComponentsPanel::DrawPanel() {
-		auto& app = Application::Get(FLOOF::Application::LayerType::EDITOR);
+		auto& app = Application::Get();
 		ImGui::Begin("Components");
 
 		static const char* componentNames[] = {

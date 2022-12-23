@@ -164,7 +164,6 @@ namespace FLOOF {
     void Application::Create(Application::LayerType layer) {
 
         // Init glfw and create window
-        if(layer != LayerType::SERVER){
             SoundManager::InitOpenAL();
             glfwInit();
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -215,7 +214,7 @@ namespace FLOOF {
             for (uint32_t i = 0; i < 3; i++) {
                 stbi_image_free(images[i].pixels);
             }
-        }
+
 
         //todo add Switch on LayerType
         switch (layer) {

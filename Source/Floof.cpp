@@ -8,20 +8,28 @@ int main(int argc, char *argv[]) {
     std::filesystem::current_path(FLOOF_DEVELOPER_PATH);
 #endif // FLOOF_DEVELOPER_PATH
 
+    std::cout << "You have entered " << argc
+         << " arguments:" << "\n";
+
+    for (int i = 0; i < argc; ++i)
+        std::cout << argv[i] << "\n";
+
     if(argc > 1){
-        if(argv[1] == "server"){
-            auto& app = FLOOF::Application::Get(FLOOF::Application::LayerType::SERVER);
+        if(strcmp(argv[1], "server") == 0){
+            std::cout << "Starting Floof Server " << std::endl;
+            auto& app = FLOOF::Application::Get();
             int result = app.Run();
             return result;
         }
-        if(argv[1] == "editor"){
-            auto& app = FLOOF::Application::Get(FLOOF::Application::LayerType::EDITOR);
+        else if(strcmp(argv[1], "editor") == 0){
+            std::cout << "Starting Floof Editor " << std::endl;
+            auto& app = FLOOF::Application::Get();
             int result = app.Run();
             return result;
         }
     }
     else{
-        auto& app = FLOOF::Application::Get(FLOOF::Application::LayerType::EDITOR);
+        auto& app = FLOOF::Application::Get();
         int result = app.Run();
         return result;
     }

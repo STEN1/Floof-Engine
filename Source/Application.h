@@ -17,10 +17,17 @@ namespace FLOOF {
         };
     private:
         Application(LayerType layer);
+        static LayerType AppLayer;
     public:
-        static Application& Get(LayerType layer) {
-            static Application app(layer);
-            return app; 
+        static void SetLayerType(LayerType layer){
+            AppLayer = layer;
+        }
+        static LayerType GetLayerType(){
+            return LayerType::SERVER;
+        }
+        static Application& Get(){
+            static Application app(LayerType::EDITOR);
+            return app;
         }
         int Run();
 

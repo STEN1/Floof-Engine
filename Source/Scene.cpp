@@ -13,16 +13,16 @@ namespace FLOOF {
 
         m_PhysicSystem = std::make_unique<PhysicsSystem>(m_Registry);
         m_PhysicsDebugDrawer = std::make_unique<PhysicsDebugDraw>();
-
         m_PhysicsDebugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);
         auto world = m_PhysicSystem->GetWorld();
         world->setDebugDrawer(m_PhysicsDebugDrawer.get());
+
     }
 
     Scene::~Scene() {
-        
+
         auto view = m_Registry.view<NativeScriptComponent>();
-        for (auto [entity, script] : view.each()) {
+        for (auto [entity, script]: view.each()) {
             m_Registry.remove<NativeScriptComponent>(entity);
         }
         m_Registry.clear();
@@ -63,11 +63,11 @@ namespace FLOOF {
 
         }
         //remove from physics
-        if(m_PhysicSystem){
+        if (m_PhysicSystem) {
             auto *rigid = TryGetComponent<RigidBodyComponent>(entity);
             if (rigid) {
-                for(int i {0}; i < rigid->RigidBody->getNumConstraintRefs(); i++){
-                    auto* ref = rigid->RigidBody->getConstraintRef(i);
+                for (int i{0}; i < rigid->RigidBody->getNumConstraintRefs(); i++) {
+                    auto *ref = rigid->RigidBody->getConstraintRef(i);
                     m_PhysicSystem->GetWorld()->removeConstraint(ref);
                 }
 
@@ -85,11 +85,11 @@ namespace FLOOF {
             DestroyChildEntity(childEntity);
         }
         //remove from physics
-        if(m_PhysicSystem){
+        if (m_PhysicSystem) {
             auto *rigid = TryGetComponent<RigidBodyComponent>(entity);
             if (rigid) {
-                for(int i {0}; i < rigid->RigidBody->getNumConstraintRefs(); i++){
-                    auto* ref = rigid->RigidBody->getConstraintRef(i);
+                for (int i{0}; i < rigid->RigidBody->getNumConstraintRefs(); i++) {
+                    auto *ref = rigid->RigidBody->getConstraintRef(i);
                     m_PhysicSystem->GetWorld()->removeConstraint(ref);
                 }
                 m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
