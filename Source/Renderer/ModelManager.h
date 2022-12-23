@@ -5,6 +5,7 @@
 #include <string>
 #include "Mesh.h"
 #include "btBulletDynamicsCommon.h"
+#include "../Objloader.h"
 
 namespace FLOOF {
     struct btModelData {
