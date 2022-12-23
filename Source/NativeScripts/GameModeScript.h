@@ -101,6 +101,8 @@ namespace FLOOF {
     public:
         void OnUpdate(float deltaTime) override {
             EditorUpdate(deltaTime);
+            MakeUi();
+
             return;
         }
 
@@ -193,7 +195,6 @@ namespace FLOOF {
                 }
             }
 
-            MakeUi();
         }
     };
 }
