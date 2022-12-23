@@ -4,6 +4,8 @@
 namespace FLOOF {
     class Timer {
     public:
+#define TimePoint  std::chrono::high_resolution_clock::time_point
+
         Timer()
             : m_Creation{ std::chrono::high_resolution_clock::now() }
             , m_DeltaPoint{ m_Creation } {
@@ -29,6 +31,10 @@ namespace FLOOF {
             std::chrono::duration<double> elapsed_seconds = currentTime - time;
             return elapsed_seconds.count();
         };
+        static double Delta(TimePoint t1, TimePoint t2){
+            std::chrono::duration<double> elapsed_seconds = t1 - t2;
+            return elapsed_seconds.count();
+        }
 
     private:
         std::chrono::high_resolution_clock::time_point m_Creation;

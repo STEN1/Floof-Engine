@@ -10,7 +10,12 @@
 
 namespace FLOOF {
     class Application {
+        enum LayerType{
+            EDITOR,
+            SERVER,
+        };
         Application();
+        Application(LayerType layer);
     public:
         static Application& Get() { 
             static Application app;

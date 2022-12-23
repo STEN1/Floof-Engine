@@ -184,7 +184,7 @@ namespace FLOOF {
             SceneRenderFinishedData sceneRenderData{};
             if (!ImGui::GetCurrentWindow()->Hidden) {
                 sceneRenderData = m_EditorRenderer->RenderToTexture(m_Scene.get(), sceneCanvasExtent, m_Scene->GetEditorCamera(),
-                                                                    m_EditorDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore);
+                                                                    m_EditorDrawMode, m_Scene->GetPhysicsDebugDrawer(), waitSemaphore, true);
             }
 
             if (sceneRenderData.Texture != VK_NULL_HANDLE) {
@@ -664,20 +664,31 @@ namespace FLOOF {
 
     void EditorLayer::MakeSponzaScene() {
         m_Scene = std::make_unique<Scene>();
-        const auto entity = m_Scene->CreateEntity();
-        m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
-        const auto lightSwarmEntity = m_Scene->CreateEntity();
-        m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
-        m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y = 400.f;
+        {
+            const auto entity = m_Scene->CreateEntity();
+            m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
+        }
+        {
+            const auto lightSwarmEntity = m_Scene->CreateEntity();
+            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
+        }
     }
 
     void EditorLayer::MakePhysicsPlayGround() {
         m_Scene = std::make_unique<Scene>();
 
+
         //Gamemode Script
         {
             auto ent = m_Scene->CreateEntity("GameMode");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<GameModeScript>(), m_Scene.get(), ent);
+           auto & script =  m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<GameModeScript>(), m_Scene.get(), ent);
+
+           const auto entity = m_Scene->CreateEntity("RaceTrack");
+           m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<RaceTrackScript>(),m_Scene.get(),entity);
+
+            auto cpScript = dynamic_cast<GameModeScript *>(script.Script.get());
+            if (cpScript)
+                cpScript->RaceTrack = entity;
         }
 
         {
@@ -689,8 +700,7 @@ namespace FLOOF {
 
         //make race track
         {
-            const auto entity = m_Scene->CreateEntity("RaceTrack");
-            m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<RaceTrackScript>(),m_Scene.get(),entity);
+
         }
 
         //make flooring
@@ -765,6 +775,10 @@ namespace FLOOF {
             m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
         }
          */
+        {
+            const auto lightSwarmEntity = m_Scene->CreateEntity();
+            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
+        }
     }
 
     void EditorLayer::MakeSponzaRacing() {
@@ -835,8 +849,7 @@ namespace FLOOF {
             const auto entity = m_Scene->CreateEntity();
             m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
             const auto lightSwarmEntity = m_Scene->CreateEntity();
-            m_Scene->AddComponent<NativeScriptComponent>(entity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
-            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y = 400.f;
+            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿#include "Application.h"
 #include <filesystem>
 
-int main() {
+//Argument for Application Layer, Default EditorLayer
+
+int main(int argc, char *argv[]) {
 #ifdef FLOOF_DEVELOPER_PATH
     std::filesystem::current_path(FLOOF_DEVELOPER_PATH);
 #endif // FLOOF_DEVELOPER_PATH

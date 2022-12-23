@@ -14,6 +14,10 @@ namespace FLOOF {
         for (uint32_t i = 0; i < numLights; i++) {
             const auto lightEntity = CreateEntity("Light", entity);
             auto& light = AddComponent<PointLightComponent>(lightEntity);
+            auto& mesh = AddComponent<StaticMeshComponent>(lightEntity, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Opacity = Texture(TextureColor::LightGrey);
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            mesh.meshes[0].MeshMaterial.HasOpacity = true;
             light.diffuse = glm::vec4(Utils::ColorFromScalar(Math::RandFloat(0.f, 1000.f)), 1.0);
             light.intensity = 500000.f;
             glm::vec3 pos;
@@ -21,6 +25,7 @@ namespace FLOOF {
             pos.y = Math::RandFloat(-m_Extents.y, m_Extents.y);
             pos.z = Math::RandFloat(-m_Extents.z, m_Extents.z);
             auto& transform = GetComponent<TransformComponent>(lightEntity);
+            transform.Scale = glm::vec3(light.outerRange * 0.1f);
             transform.Position = pos;
             m_Lights.push_back(lightEntity);
         }

@@ -160,7 +160,6 @@ namespace FLOOF {
                             if (player.mPlayer == data.id) {
                                 auto car = dynamic_cast<CarBaseScript *>(script.Script.get());
                                 car->SetTransformData(data);
-                                std::cout << "updating Player " << std::to_string(data.id) << std::endl;
                             }
                         }
                         break;

@@ -43,12 +43,14 @@ namespace FLOOF {
         SceneRenderer();
         ~SceneRenderer();
         SceneRenderFinishedData RenderToTexture(Scene* scene, glm::vec2 extent, CameraComponent* camera, RenderPipelineKeys drawMode,
-            PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore);
+            PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore, bool drawDebugLines = false);
 
     private:
         VkSemaphore ShadowPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera);
-        VkSemaphore MainPass(VkSemaphore waitSemaphore, Scene* scene, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer);
+        VkSemaphore MainPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer);
         VkSemaphore AlphaClearPass(VkSemaphore waitSemaphore);
+
+        void SortLightsInTiles(Scene* scene);
 
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
@@ -75,6 +77,9 @@ namespace FLOOF {
         float m_ShadowZExtentOffset = 2048.f;
         std::vector<std::unique_ptr<DepthFramebuffer>> m_ShadowDepthBuffers;
         float m_ShadowFarClip = 2048.f;
+
+        float m_FarClip = 1000000.f;
+        float m_NearClip = 1.f;
 
         std::vector<TextureFrameBuffer> m_TextureFrameBuffers;
 
@@ -113,5 +118,7 @@ namespace FLOOF {
         void DrawDebugCameraLines(CameraComponent* camera) const;
         void DrawDebugCameraLines();
         bool m_DrawDebugCameraLines = false;
+        bool m_DrawDebugLines = false;
+        bool m_DrawLightComplexity = false;
     };
 }
