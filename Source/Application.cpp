@@ -15,6 +15,7 @@
 #include "Editor/EditorLayer.h"
 #include "Renderer/TextureManager.h"
 #include "HeightField.h"
+#include "ServerLayer.h"
 
 // Temp OpenAL includes
 //#include <AL/al.h>
@@ -23,59 +24,8 @@
 //#include <dr_libs/dr_wav.h>
 
 namespace FLOOF {
-    Application::Application() {
-        // Init glfw and create window
-        SoundManager::InitOpenAL();
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        m_Window = glfwCreateWindow(1600, 900, "Floof    FPS: 0.0", nullptr, nullptr);
-
-        IMGUI_CHECKVERSION();
-        m_ImguiContext = ImGui::CreateContext();
-        ImGui::SetCurrentContext(m_ImguiContext);
-        ImGuiIO &io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-#ifdef WIN32
-        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
-        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
-#endif
-
-        //io.ConfigViewportsNoAutoMerge = true;
-        //io.ConfigViewportsNoTaskBarIcon = true;
-
-        ImGui::StyleColorsDark();
-
-        // Init Renderer and Imgui
-        ImGui::GetDrawData();
-        ImGui::GetDrawListSharedData();
-        ImGui_ImplGlfw_InitForVulkan(m_Window, true);
-        m_Renderer = new VulkanRenderer(m_Window);
-        auto ImguiInitInfo = m_Renderer->GetImguiInitInfo();
-        auto ImguiRenderPass = m_Renderer->GetImguiRenderPass();
-        ImGui_ImplVulkan_Init(&ImguiInitInfo, ImguiRenderPass);
-        auto commandBuffer = m_Renderer->BeginSingleUseCommandBuffer();
-        ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-        m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
-        ImGui_ImplVulkan_DestroyFontUploadObjects();
-
-        stbi_set_flip_vertically_on_load(false);
-        // Upload icons for windows and taskbar
-        GLFWimage images[3]{};
-        int channels{};
-        images[0].pixels = stbi_load("Assets/Icon16x16.png", &images[0].width, &images[0].height, &channels, 4);
-        ASSERT(channels == 4);
-        images[1].pixels = stbi_load("Assets/Icon32x32.png", &images[1].width, &images[1].height, &channels, 4);
-        ASSERT(channels == 4);
-        images[2].pixels = stbi_load("Assets/Icon48x48.png", &images[2].width, &images[2].height, &channels, 4);
-        ASSERT(channels == 4);
-        glfwSetWindowIcon(m_Window, 3, images);
-        for (uint32_t i = 0; i < 3; i++) {
-            stbi_image_free(images[i].pixels);
-        }
-        m_ApplicationLayers.emplace_back(std::make_unique<EditorLayer>());
+    Application::Application(LayerType layer) {
+        Create(layer);
     }
 
     void Application::CleanApplication() {
@@ -211,68 +161,72 @@ namespace FLOOF {
         m_Renderer->Present();
     }
 
-    Application::Application(Application::LayerType layer) {
-        // Init glfw and create window
-        SoundManager::InitOpenAL();
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        m_Window = glfwCreateWindow(1600, 900, "Floof    FPS: 0.0", nullptr, nullptr);
+    void Application::Create(Application::LayerType layer) {
 
-        IMGUI_CHECKVERSION();
-        m_ImguiContext = ImGui::CreateContext();
-        ImGui::SetCurrentContext(m_ImguiContext);
-        ImGuiIO &io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        // Init glfw and create window
+        if(layer != LayerType::SERVER){
+            SoundManager::InitOpenAL();
+            glfwInit();
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+            m_Window = glfwCreateWindow(1600, 900, "Floof    FPS: 0.0", nullptr, nullptr);
+
+            IMGUI_CHECKVERSION();
+            m_ImguiContext = ImGui::CreateContext();
+            ImGui::SetCurrentContext(m_ImguiContext);
+            ImGuiIO &io = ImGui::GetIO();
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+            //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 #ifdef WIN32
-        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
+            io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
         io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
 #endif
 
-        //io.ConfigViewportsNoAutoMerge = true;
-        //io.ConfigViewportsNoTaskBarIcon = true;
+            //io.ConfigViewportsNoAutoMerge = true;
+            //io.ConfigViewportsNoTaskBarIcon = true;
 
-        ImGui::StyleColorsDark();
+            ImGui::StyleColorsDark();
 
-        // Init Renderer and Imgui
-        ImGui::GetDrawData();
-        ImGui::GetDrawListSharedData();
-        ImGui_ImplGlfw_InitForVulkan(m_Window, true);
-        m_Renderer = new VulkanRenderer(m_Window);
-        auto ImguiInitInfo = m_Renderer->GetImguiInitInfo();
-        auto ImguiRenderPass = m_Renderer->GetImguiRenderPass();
-        ImGui_ImplVulkan_Init(&ImguiInitInfo, ImguiRenderPass);
-        auto commandBuffer = m_Renderer->BeginSingleUseCommandBuffer();
-        ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-        m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
-        ImGui_ImplVulkan_DestroyFontUploadObjects();
+            // Init Renderer and Imgui
+            ImGui::GetDrawData();
+            ImGui::GetDrawListSharedData();
+            ImGui_ImplGlfw_InitForVulkan(m_Window, true);
+            m_Renderer = new VulkanRenderer(m_Window);
+            auto ImguiInitInfo = m_Renderer->GetImguiInitInfo();
+            auto ImguiRenderPass = m_Renderer->GetImguiRenderPass();
+            ImGui_ImplVulkan_Init(&ImguiInitInfo, ImguiRenderPass);
+            auto commandBuffer = m_Renderer->BeginSingleUseCommandBuffer();
+            ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+            m_Renderer->EndSingleUseCommandBuffer(commandBuffer);
+            ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        stbi_set_flip_vertically_on_load(false);
-        // Upload icons for windows and taskbar
-        GLFWimage images[3]{};
-        int channels{};
-        images[0].pixels = stbi_load("Assets/Icon16x16.png", &images[0].width, &images[0].height, &channels, 4);
-        ASSERT(channels == 4);
-        images[1].pixels = stbi_load("Assets/Icon32x32.png", &images[1].width, &images[1].height, &channels, 4);
-        ASSERT(channels == 4);
-        images[2].pixels = stbi_load("Assets/Icon48x48.png", &images[2].width, &images[2].height, &channels, 4);
-        ASSERT(channels == 4);
-        glfwSetWindowIcon(m_Window, 3, images);
-        for (uint32_t i = 0; i < 3; i++) {
-            stbi_image_free(images[i].pixels);
+            stbi_set_flip_vertically_on_load(false);
+            // Upload icons for windows and taskbar
+            GLFWimage images[3]{};
+            int channels{};
+            images[0].pixels = stbi_load("Assets/Icon16x16.png", &images[0].width, &images[0].height, &channels, 4);
+            ASSERT(channels == 4);
+            images[1].pixels = stbi_load("Assets/Icon32x32.png", &images[1].width, &images[1].height, &channels, 4);
+            ASSERT(channels == 4);
+            images[2].pixels = stbi_load("Assets/Icon48x48.png", &images[2].width, &images[2].height, &channels, 4);
+            ASSERT(channels == 4);
+            glfwSetWindowIcon(m_Window, 3, images);
+            for (uint32_t i = 0; i < 3; i++) {
+                stbi_image_free(images[i].pixels);
+            }
         }
+
         //todo add Switch on LayerType
         switch (layer) {
-
             case EDITOR:
                 m_ApplicationLayers.emplace_back(std::make_unique<EditorLayer>());
                 break;
             case SERVER:
-
+                m_ApplicationLayers.emplace_back(std::make_unique<ServerLayer>());
                 break;
         }
+
 
     }
 }

@@ -90,9 +90,12 @@ namespace FLOOF {
 
         int ActivePlayer{0};
         double ping{0};
-    private:
+
         void OnUpdate(float deltaTime);
+
         void OnEditorUpdate(float deltaTime);
+
+    private:
         void OnCreate();
 
         // Recursive utility for DestroyEntity()

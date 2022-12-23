@@ -28,7 +28,7 @@ namespace FLOOF {
     }
 
     void SceneGraphPanel::MakeTreeNode(entt::entity entity, const char* tag, Relationship& rel) {
-        auto& app = Application::Get();
+        auto& app = Application::Get(FLOOF::Application::LayerType::EDITOR);
         static ImGuiTreeNodeFlags base_flags =
             ImGuiTreeNodeFlags_OpenOnArrow |
             ImGuiTreeNodeFlags_OpenOnDoubleClick |

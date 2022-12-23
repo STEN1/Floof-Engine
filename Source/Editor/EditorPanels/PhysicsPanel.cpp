@@ -10,7 +10,7 @@
 
 
 void FLOOF::PhysicsPanel::DrawPanel() {
-    auto &app = Application::Get();
+    auto &app = Application::Get(FLOOF::Application::LayerType::EDITOR);
     auto* m_Scene = m_EditorLayer->GetScene();
     //blank panel
     ImGui::Begin("Physics Panel");
@@ -166,7 +166,7 @@ void FLOOF::PhysicsPanel::DrawPanel() {
 
 
 const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture) {
-    auto& app = Application::Get();
+    auto& app = Application::Get(FLOOF::Application::LayerType::EDITOR);
 
     auto* m_Scene = m_EditorLayer->GetScene();
 
@@ -201,7 +201,7 @@ const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::v
 
 const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::vec3 Scale, const float mass, const std::string FilePath, const std::string texture,
                                              bt::CollisionPrimitive shape) {
-    auto& app = Application::Get();
+    auto& app = Application::Get(FLOOF::Application::LayerType::EDITOR);
 
     auto m_Scene = m_EditorLayer->GetScene();
 

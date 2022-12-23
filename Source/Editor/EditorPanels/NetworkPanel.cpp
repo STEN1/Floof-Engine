@@ -17,7 +17,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
         if (ImGui::BeginPopupModal("HostServer", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::InputInt("Port", &Port, 1, 2, 0);
             if (ImGui::Button("Start Server")) {
-                auto &Server = Application::Get().server;
+                auto &Server = Application::Get(FLOOF::Application::LayerType::EDITOR).server;
 
                 Server = std::make_unique<FloofServer>(Port);
                 Server->mScene = m_EditorLayer->GetScene();
@@ -42,7 +42,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
             ImGui::InputText("Ip", Ip.data(), Ip.size());
             ImGui::InputInt("Port", &Port, 1, 2, 0);
             if (ImGui::Button("Join Game")) {
-                auto &cli = Application::Get().client;
+                auto &cli = Application::Get(FLOOF::Application::LayerType::EDITOR).client;
                 cli = std::make_unique<FloofClient>();
                 cli->Connect(Ip, Port);
                 Active = true;
@@ -59,7 +59,7 @@ void FLOOF::NetworkPanel::DrawPanel() {
 
     }
     if (Active) {
-        auto &Server = Application::Get().server;
+        auto &Server = Application::Get(FLOOF::Application::LayerType::EDITOR).server;
         if (ImGui::CollapsingHeader("Network Stats")) {
             std::string txt{"Active Network Connection"};
             ImGui::Text(txt.c_str());
@@ -93,11 +93,11 @@ void FLOOF::NetworkPanel::DrawPanel() {
         switch (con) {
             case Type::Server:
                 if (ImGui::Button("Ping All clients")) {
-                    auto &Server = Application::Get().server;
+                    auto &Server = Application::Get(FLOOF::Application::LayerType::EDITOR).server;
                     Server->PingClients();
                 }
                 if (ImGui::Button("Stop Server")) {
-                    auto &Server = Application::Get().server;
+                    auto &Server = Application::Get(FLOOF::Application::LayerType::EDITOR).server;
                     Server->Stop();
                     Server.release();
                     Active = false;
@@ -105,11 +105,11 @@ void FLOOF::NetworkPanel::DrawPanel() {
                 break;
             case Type::Client:
                 if (ImGui::Button("Ping Server")) {
-                    auto &cli = Application::Get().client;
+                    auto &cli = Application::Get(FLOOF::Application::LayerType::EDITOR).client;
                     cli->PingServer();
                 }
                 if (ImGui::Button("Stop Client")) {
-                    auto &cli = Application::Get().client;
+                    auto &cli = Application::Get(FLOOF::Application::LayerType::EDITOR).client;
                     cli->Disconnect();
                     cli.release();
                     Active = false;

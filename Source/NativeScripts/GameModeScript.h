@@ -113,8 +113,8 @@ namespace FLOOF {
 
         void EditorUpdate(float deltaTime) override {
             //create all players;
-            auto &Server = Application::Get().server;
-            auto &Client = Application::Get().client;
+            auto &Server = Application::Get(FLOOF::Application::LayerType::EDITOR).server;
+            auto &Client = Application::Get(FLOOF::Application::LayerType::EDITOR).client;
             if (Server) {
                 for (auto &client: Server->MarkedPlayerForInitialize) {
                     //make Players

@@ -10,18 +10,18 @@
 
 namespace FLOOF {
     class Application {
+    public:
         enum LayerType{
             EDITOR,
             SERVER,
         };
-        Application();
+    private:
         Application(LayerType layer);
     public:
-        static Application& Get() { 
-            static Application app;
+        static Application& Get(LayerType layer) {
+            static Application app(layer);
             return app; 
         }
-
         int Run();
 
         void SetDrawMode(RenderPipelineKeys drawMode) { m_DrawMode = drawMode; }
@@ -40,6 +40,8 @@ namespace FLOOF {
         std::unique_ptr<FloofClient> client;
         std::unique_ptr<FloofServer> server;
     private:
+
+        void Create(LayerType layer);
 
         GLFWwindow* m_Window;
         ImGuiContext* m_ImguiContext;
