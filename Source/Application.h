@@ -9,24 +9,29 @@
 #include "Network/FloofNetworking.h"
 
 namespace FLOOF {
+    enum LayerType{
+        EDITOR,
+        SERVER,
+    };
     class Application {
     public:
-        enum LayerType{
-            EDITOR,
-            SERVER,
-        };
+
     private:
-        Application(LayerType layer);
-        static LayerType AppLayer;
+        Application();
+        LayerType AppLayer{LayerType::EDITOR};
     public:
-        static void SetLayerType(LayerType layer){
-            AppLayer = layer;
+        static Application& SetLayerType(LayerType layer){
+            const static LayerType AppLayer = layer;
+            auto& a = Get();
+            a.AppLayer = AppLayer;
+            a.Create(AppLayer);
+            return a;
         }
         static LayerType GetLayerType(){
-            return LayerType::SERVER;
+            return Get().AppLayer;
         }
         static Application& Get(){
-            static Application app(LayerType::EDITOR);
+            static Application app;
             return app;
         }
         int Run();

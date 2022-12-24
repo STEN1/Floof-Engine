@@ -101,7 +101,10 @@ namespace FLOOF {
     public:
         void OnUpdate(float deltaTime) override {
             EditorUpdate(deltaTime);
-            MakeUi();
+
+            if(Application::GetLayerType() != LayerType::SERVER){
+                MakeUi();
+            }
 
             return;
         }

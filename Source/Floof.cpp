@@ -17,19 +17,19 @@ int main(int argc, char *argv[]) {
     if(argc > 1){
         if(strcmp(argv[1], "server") == 0){
             std::cout << "Starting Floof Server " << std::endl;
-            auto& app = FLOOF::Application::Get();
+            auto& app = FLOOF::Application::SetLayerType(FLOOF::LayerType::SERVER);
             int result = app.Run();
             return result;
         }
         else if(strcmp(argv[1], "editor") == 0){
             std::cout << "Starting Floof Editor " << std::endl;
-            auto& app = FLOOF::Application::Get();
+            auto& app = FLOOF::Application::SetLayerType(FLOOF::LayerType::EDITOR);
             int result = app.Run();
             return result;
         }
     }
     else{
-        auto& app = FLOOF::Application::Get();
+        auto& app = FLOOF::Application::SetLayerType(FLOOF::LayerType::EDITOR);
         int result = app.Run();
         return result;
     }
