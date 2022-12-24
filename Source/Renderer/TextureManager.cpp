@@ -32,6 +32,8 @@ namespace FLOOF {
             return it->second;
 
         auto renderer = VulkanRenderer::Get();
+        if(!renderer)
+            return {};
         // Load texture
         int xWidth, yHeight, channels;
         stbi_set_flip_vertically_on_load(flip);
@@ -194,6 +196,9 @@ namespace FLOOF {
             return it->second;
 
         auto *renderer = VulkanRenderer::Get();
+        if(!renderer)
+            return {};
+
 
         uint32_t xWidth = 2;
         uint32_t yHeight = 2;

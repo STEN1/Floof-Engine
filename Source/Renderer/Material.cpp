@@ -4,7 +4,8 @@ namespace FLOOF {
     void Material::UpdateDescriptorSet()
     {
         auto* renderer = VulkanRenderer::Get();
-        
+       if(!renderer)
+           return;
         VkSampler sampler = renderer->GetTextureSampler();
 
         if (!Diffuse.IsValid())

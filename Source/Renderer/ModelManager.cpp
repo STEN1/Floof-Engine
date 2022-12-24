@@ -1,6 +1,7 @@
 #include "ModelManager.h"
 #include "VulkanRenderer.h"
 #include "LandscapeMesh.h"
+#include "../Application.h"
 
 namespace FLOOF {
     std::vector<MeshData> ModelManager::LoadModelMesh(const std::string& path) {
@@ -20,8 +21,10 @@ namespace FLOOF {
         for (const auto& mesh : assimpStaticMesh.meshes)
         {
             MeshData meshData;
-            meshData.VertexBuffer = renderer->CreateVertexBuffer(mesh.vertices);
-            meshData.IndexBuffer = renderer->CreateIndexBuffer(mesh.indices);
+            if(Application::GetLayerType() != LayerType::SERVER){
+                meshData.VertexBuffer = renderer->CreateVertexBuffer(mesh.vertices);
+                meshData.IndexBuffer = renderer->CreateIndexBuffer(mesh.indices);
+            }
             meshData.VertexCount = mesh.vertices.size();
             meshData.IndexCount = mesh.indices.size();
             meshData.MeshName = mesh.name;
