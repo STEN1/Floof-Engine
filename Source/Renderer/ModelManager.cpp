@@ -2,6 +2,7 @@
 #include "VulkanRenderer.h"
 #include "LandscapeMesh.h"
 #include "../Application.h"
+#include "../Objloader.h"
 
 namespace FLOOF {
     std::vector<MeshData> ModelManager::LoadModelMesh(const std::string& path) {
