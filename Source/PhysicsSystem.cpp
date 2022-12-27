@@ -50,8 +50,6 @@ namespace FLOOF {
         mSoftBodyWorldInfo.water_normal = btVector3(0, 0, 0);
         mSoftBodyWorldInfo.m_gravity.setValue(0, GravitationalConstant, 0);
 
-        mVehicleRayCaster = new btDefaultVehicleRaycaster(mDynamicsWorld);
-
         mDynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
         gContactProcessedCallback = CustomContactProcessedCallback;
@@ -67,8 +65,6 @@ namespace FLOOF {
         delete mBroadPhase;
         delete mDispatcher;
         delete mCollisionConfiguration;
-
-        delete mVehicleRayCaster;
     }
 
     void PhysicsSystem::OnUpdate(float deltaTime) {
@@ -194,10 +190,6 @@ namespace FLOOF {
             mDynamicsWorld->addConstraint(constraint, disableCollisionBetweenLinked);
     }
 
-    void PhysicsSystem::AddVehicle(btActionInterface *vehicle) {
-        if (mDynamicsWorld)
-            mDynamicsWorld->addAction(vehicle);
-    }
 
     void PhysicsSystem::AddCollisonShape(btCollisionObject *obj) {
         if (mDynamicsWorld)

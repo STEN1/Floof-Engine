@@ -25,13 +25,11 @@ namespace FLOOF {
         void AddRigidBody(btRigidBody* body);
         void AddSoftBody(btSoftBody* body);
         void AddConstraint(btTypedConstraint* constraint, bool disableCollisionBetweenLinked);
-        void AddVehicle(btActionInterface* vehicle);
         void AddCollisonShape(btCollisionObject* obj);
 
         btSoftRigidDynamicsWorld* GetWorld(){return mDynamicsWorld;}
 
         btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return &mSoftBodyWorldInfo;}
-        btDefaultVehicleRaycaster* getVehicleRayCaster(){return mVehicleRayCaster;}
     private:
         entt::registry& mScene;
         //btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
@@ -45,8 +43,6 @@ namespace FLOOF {
 
         btCollisionAlgorithmCreateFunc* mBoxBoxCF{nullptr};
         btAlignedObjectArray<btSoftRigidCollisionAlgorithm*> mSoftRigidCollisionAlgorithms;
-
-        btDefaultVehicleRaycaster* mVehicleRayCaster{nullptr};
 
     public:
         static bool CustomContactProcessedCallback(btManifoldPoint& cp,void* body0,void* body1);
