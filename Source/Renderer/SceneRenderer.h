@@ -60,7 +60,7 @@ namespace FLOOF {
         VkSemaphore MainPass(VkSemaphore waitSemaphore, const std::vector<DrawData>& drawData, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer);
         VkSemaphore AlphaClearPass(VkSemaphore waitSemaphore);
 
-        void SortLightsInTiles(Scene* scene);
+        void SortLightsInTiles(Scene* scene, CameraComponent* camera);
 
         void CreateTextureRenderer();
         void DestroyTextureRenderer();
