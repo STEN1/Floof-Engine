@@ -32,10 +32,11 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     mat4 view;
     vec4 splitDists;
     float sunStrenght;
-    int lightCount;
+    int tileSize;
     int cascadeCount;
     float ambientIntensity;
     float bias;
+    int tileCountX;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -47,6 +48,14 @@ layout (set = 4, binding = 0) uniform samplerCube prefilterMap;
 layout (set = 5, binding = 0) uniform sampler2D brdfLut;
 
 layout (set = 6, binding = 0) uniform sampler2DArray shadowMap;
+
+layout (std430, set = 7, binding = 0) readonly buffer LightCountsSSBO {
+    int counts[];
+} lightCountsSSBO;
+
+layout (std430, set = 8, binding = 0) readonly buffer LightOffsetsSSBO {
+    int offsets[];
+} lightOffsetsSSBO;
 
 const float PI = 3.14159265359;
 
@@ -91,8 +100,13 @@ void main() {
     vec3 Lo = CalcDirectionalLight(V, N, albedo, roughness, metallic, F0);
     Lo *= shadow;
 
+    ivec2 tileId = ivec2(gl_FragCoord.xy / sceneFrameUBO.tileSize);
+    int tileIndex = (tileId.y * sceneFrameUBO.tileCountX) + tileId.x;
+
     // Point lights
-    for(int i = 0; i < sceneFrameUBO.lightCount; ++i) 
+    for(int i = lightOffsetsSSBO.offsets[tileIndex];
+        i < lightCountsSSBO.counts[tileIndex] + lightOffsetsSSBO.offsets[tileIndex];
+        ++i) 
     {
         vec3 lighgPos = lightSSBO.lights[i].position.xyz;
         float distance    = length(lighgPos - fragPos);
@@ -156,6 +170,16 @@ void main() {
     float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
 
     outColor = vec4(color, alpha);
+    //outColor = vec4(gl_FragCoord.xy /
+    //        (sceneFrameUBO.tileCountX * sceneFrameUBO.tileSize), 0.0, 1.0);
+    //outColor = vec4(vec3(float(tileIndex) / (float(sceneFrameUBO.tileCountX) * float(sceneFrameUBO.tileCountX))), 1.0);
+    //outColor = vec4(vec2(tileId) / float(sceneFrameUBO.tileCountX), 0.0, 1.0);
+    //    if (tileIndex == 40) {
+    //        outColor = vec4(1.0);
+    //    } else {
+    //        outColor = vec4(color, alpha);
+    //    }
+    //outColor = vec4(vec3(lightCountsSSBO.counts[tileIndex] / 16.0), 1.0);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)

@@ -8,8 +8,8 @@ namespace FLOOF {
     {
         NativeScript::OnCreate(scene, entity);
 
-        m_Extents = glm::vec3(1200.f, 400.f, 300.f);
-        uint32_t numLights = 64;
+        m_Extents = glm::vec3(1200.f, 400.f, 1200.f);
+        uint32_t numLights = 256;
 
         for (uint32_t i = 0; i < numLights; i++) {
             const auto lightEntity = CreateEntity("Light", entity);

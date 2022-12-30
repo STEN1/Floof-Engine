@@ -36,8 +36,11 @@ namespace FLOOF {
         // Camera setup
         glm::mat4 cameraProjection = camera->GetPerspective(glm::radians(70.f), m_Extent.x / m_Extent.y, m_NearClip, m_FarClip);
         glm::mat4 cameraView = camera->GetView();
-        m_SceneFrameData.View = cameraView;
         glm::mat4 vp = cameraProjection * cameraView;
+
+        m_SceneFrameData.View = cameraView;
+        m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
+        m_SceneFrameData.VP = vp;
 
         if (m_DrawDebugCameraLines && m_DrawDebugLines) {
             auto activeCamera = scene->GetActiveCamera();
@@ -49,29 +52,29 @@ namespace FLOOF {
         auto* window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
 
-        {   // Update gpu data buffers
-            std::vector<PointLightComponent::PointLight> pointLights;
-            auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
-            for (auto [entity, transform, lightComp] : lightView.each()) {
-                PointLightComponent::PointLight light;
-                light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
-                light.diffuse = lightComp.diffuse;
-                light.intensity = lightComp.intensity;
-                light.innerRange = lightComp.innerRange;
-                light.outerRange = lightComp.outerRange;
-                pointLights.push_back(light);
-            }
-            m_LightSSBO[frameIndex].Update(pointLights);
+        //{   // Update gpu data buffers
+        //    std::vector<PointLightComponent::PointLight> pointLights;
+        //    auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
+        //    for (auto [entity, transform, lightComp] : lightView.each()) {
+        //        PointLightComponent::PointLight light;
+        //        light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
+        //        light.diffuse = lightComp.diffuse;
+        //        light.intensity = lightComp.intensity;
+        //        light.innerRange = lightComp.innerRange;
+        //        light.outerRange = lightComp.outerRange;
+        //        pointLights.push_back(light);
+        //    }
+        //    m_LightSSBO[frameIndex].Update(pointLights);
 
-            m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
-            m_SceneFrameData.LightCount = pointLights.size();
-            m_SceneFrameData.VP = vp;
-            // Actual update is done inside shadowpass.
-            // This is because it need to calculate VP matrix fro each cascade.
-            // TODO: maby move everything including frustum calculations to its own function,
-            // and let "Pass" function do only renderpasses?
-            //m_SceneDataUBO.Update(m_SceneFrameData);
-        }
+        //    m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
+        //    m_SceneFrameData.LightCount = pointLights.size();
+        //    m_SceneFrameData.VP = vp;
+        //    // Actual update is done inside shadowpass.
+        //    // This is because it need to calculate VP matrix fro each cascade.
+        //    // TODO: maby move everything including frustum calculations to its own function,
+        //    // and let "Pass" function do only renderpasses?
+        //    //m_SceneDataUBO.Update(m_SceneFrameData);
+        //}
 
         SortLightsInTiles(scene);
 
@@ -364,9 +367,16 @@ namespace FLOOF {
                     &m_BRDFLut.DesctriptorSet, 0, nullptr);
 
                 auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
-
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
                     &shadowDescriptor, 0, nullptr);
+
+                auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
+                    &lightCountDescriptor, 0, nullptr);
+
+                auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
+                    &lightOffsetDescriptor, 0, nullptr);
             }
             if (m_DrawMode == RenderPipelineKeys::Wireframe || m_DrawMode == RenderPipelineKeys::UV) {
                 auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
@@ -507,6 +517,14 @@ namespace FLOOF {
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
                 &shadowDescriptor, 0, nullptr);
+
+            auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
+                &lightCountDescriptor, 0, nullptr);
+
+            auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
+                &lightOffsetDescriptor, 0, nullptr);
 
             for (auto& drawData : transparentGeometry) {
                 MeshPushConstants constants;
@@ -649,12 +667,31 @@ namespace FLOOF {
 
         auto invProj = glm::inverse(glm::perspective(camera->FOV, camera->Aspect, camera->Near, camera->Far) * camera->GetView());
 
-        float tileSize = 128.f;
+        float tileSize = m_SceneFrameData.TileSize;
 
         glm::vec2 ndcTileSize = 2.f * glm::vec2(tileSize, tileSize) / m_Extent;
 
+        std::vector<PointLightComponent::PointLight> tempPointLights;
+        auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
+        for (auto [entity, transform, lightComp] : lightView.each()) {
+            PointLightComponent::PointLight light;
+            light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
+            light.diffuse = lightComp.diffuse;
+            light.intensity = lightComp.intensity;
+            light.innerRange = lightComp.innerRange;
+            light.outerRange = lightComp.outerRange;
+            tempPointLights.push_back(light);
+        }
+
+        std::vector<PointLightComponent::PointLight> pointLights;
+        std::vector<int> lightCounts;
+        std::vector<int> offsets;
+        int offset{};
+
         for (float y = -1.f; y < 1.f; y += ndcTileSize.y) {
+            int tileCountX = 0;
             for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
+                tileCountX++;
                 glm::vec3 frustumCorners[8] = {
                 // near
                 glm::vec3(x,                 y + ndcTileSize.y, -1.0f), // top left      0  
@@ -698,30 +735,46 @@ namespace FLOOF {
                         glm::vec3(-camera->Forward) },
                 };
 
-                if (m_DrawDebugLines && m_DrawLightComplexity) {
-                    float numLightsIntersecting = 0.f;
-                    auto view = scene->GetRegistry().view<TransformComponent, PointLightComponent>();
-                    for (auto [entity, transform, pointLight] : view.each()) {
-                        bool intersecting = true;
-                        for (auto& [pos, normal] : faces) {
-                            float distance = glm::dot(transform.Position - pos, normal);
-                            if (distance < -pointLight.outerRange) {
-                                intersecting = false;
-                                break;
-                            }
-                        }
-                        if (intersecting)
-                            numLightsIntersecting += 1.f;
-                    }
+                int lightCount{};
 
-                    float t = numLightsIntersecting / 16.f;
+                for (auto& light : tempPointLights) {
+                    bool intersecting = true;
+                    for (auto& [pos, normal] : faces) {
+                        float distance = glm::dot(glm::vec3(light.position) - pos, normal);
+                        if (distance < -light.outerRange) {
+                            intersecting = false;
+                            break;
+                        }
+                    }
+                    if (intersecting) {
+                        lightCount++;
+                        pointLights.push_back(light);
+                    }
+                }
+
+                offsets.push_back(offset);
+                offset += lightCount;
+                lightCounts.push_back(lightCount);
+
+                if (m_DrawDebugLines && m_DrawLightComplexity) {
+                    float t = lightCount / 64.f;
 
                     auto frustrumColor = glm::vec3(t, 1.f - t, 0.f);
                     DebugDrawFrustum(frustumCorners[3], frustumCorners[2], frustumCorners[0], frustumCorners[1],
                         frustumCorners[7], frustumCorners[6], frustumCorners[4], frustumCorners[5], frustrumColor);
                 }
             }
+            m_SceneFrameData.TileCountX = tileCountX;
         }
+
+        // Update gpu data
+        auto* renderer = VulkanRenderer::Get();
+        auto* window = renderer->GetVulkanWindow();
+        auto frameIndex = window->FrameIndex;
+
+        m_LightCountsSSBO[frameIndex].Update(lightCounts);
+        m_LightOffsetsSSBO[frameIndex].Update(offsets);
+        m_LightSSBO[frameIndex].Update(pointLights);
     }
 
     void SceneRenderer::CreateTextureRenderer() {
@@ -734,6 +787,8 @@ namespace FLOOF {
         m_SceneDataUBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_DebugLineMesh.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_LightSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_LightCountsSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_LightOffsetsSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         for (auto& shadowDB : m_ShadowDepthBuffers) {
             shadowDB = std::make_unique<DepthFramebuffer>(m_ShadowRes, m_ShadowRes, m_SceneFrameData.CascadeCount);
         }
@@ -790,7 +845,7 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(7);
+            params.DescriptorSetLayoutBindings.resize(9);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
@@ -798,6 +853,8 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
@@ -813,7 +870,7 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(7);
+            params.DescriptorSetLayoutBindings.resize(9);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
@@ -821,6 +878,8 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);

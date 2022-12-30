@@ -14,7 +14,7 @@ namespace FLOOF {
             float intensity;
             float innerRange;
             float outerRange;
-            float pad;
+            float pad = 0.f;
         };
     };
 }

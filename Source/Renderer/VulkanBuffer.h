@@ -98,7 +98,7 @@ namespace FLOOF {
     inline VulkanSSBO<T>::VulkanSSBO() {
         // TODO: REMOVE DEFAULT CONSTRUCTOR. THIS IS BAD!
         m_SetLayout = RenderSetLayouts::LightSSBO;
-        m_Size = sizeof(T) * 1024;
+        m_Size = sizeof(T);
         MakeMappedBuffer();
     }
     template<typename T>
@@ -153,7 +153,7 @@ namespace FLOOF {
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = m_Data.Buffer;
         bufferInfo.offset = 0;
-        bufferInfo.range = VK_WHOLE_SIZE;
+        bufferInfo.range = m_Size;
 
         VkWriteDescriptorSet writeDescriptorSet{};
         writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

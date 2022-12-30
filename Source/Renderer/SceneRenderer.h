@@ -19,10 +19,11 @@ namespace FLOOF {
         glm::mat4 View = glm::mat4(1.f);
         glm::vec4 SplitDists = glm::vec4(0.f);
         float sunStrenght = 25.f;
-        int LightCount = 0;
+        int TileSize = 128;
         int CascadeCount = FLOOF_CASCADE_COUNT;
         float AmbientIntensity = 0.5f;
         float Bias = 0.00005f;
+        int TileCountX = 0;
     };
     
     struct SceneRenderFinishedData {
@@ -101,8 +102,12 @@ namespace FLOOF {
         RenderPipelineKeys m_DrawMode = RenderPipelineKeys::PBR;
 
         SceneFrameData m_SceneFrameData;
+
         std::vector<VulkanUBO<SceneFrameData>> m_SceneDataUBO{};
         std::vector<VulkanSSBO<PointLightComponent::PointLight>> m_LightSSBO{};
+        std::vector<VulkanSSBO<int>> m_LightCountsSSBO{};
+        std::vector<VulkanSSBO<int>> m_LightOffsetsSSBO{};
+
         std::unique_ptr<Skybox> m_Skybox;
         VulkanTexture m_IrradienceMap;
         VulkanTexture m_PrefilterMap;
