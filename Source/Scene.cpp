@@ -25,6 +25,8 @@ namespace FLOOF {
 
     Scene::~Scene() {
 
+        m_PhysicSystem->clear();
+
         auto view = m_Registry.view<NativeScriptComponent>();
         for (auto [entity, script]: view.each()) {
             m_Registry.remove<NativeScriptComponent>(entity);
