@@ -61,7 +61,16 @@ namespace FLOOF {
 		}
 
 		// Light complexity
-		ImGui::Checkbox("Show light complexity", &m_EditorLayer->GetEditorRenderer()->m_DrawLightComplexity);
+		bool showLightComplexity = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowLightComplexity == 1 ? true : false;
+		if (ImGui::Checkbox("Show light complexity", &showLightComplexity)) {
+			if (showLightComplexity) {
+				m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowLightComplexity = 1;
+				m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.ShowLightComplexity = 1;
+			} else {
+				m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowLightComplexity = 0;
+				m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.ShowLightComplexity = 0;
+			}
+		}
 
 		int tileSize = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.TileSize;
 		if (ImGui::DragInt("TileSize", &tileSize, 8, 8, 10000)) {

@@ -15,7 +15,7 @@ namespace FLOOF {
     private:
         void MakeMappedBuffer();
         VulkanBufferData m_Data{};
-        VkDescriptorSet m_DescriptorSet;
+        VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
         RenderSetLayouts m_SetLayout;
     };
     template<typename T>
@@ -33,7 +33,6 @@ namespace FLOOF {
     template<typename T>
     inline VulkanUBO<T>::~VulkanUBO() {
         auto* renderer = VulkanRenderer::Get();
-        renderer->FinishAllFrames();
         renderer->DestroyVulkanBuffer(&m_Data);
         renderer->FreeUBODescriptorSet(m_DescriptorSet);
     }
@@ -60,6 +59,9 @@ namespace FLOOF {
 
         vmaCreateBuffer(renderer->GetAllocator(), &bufCreateInfo, &allocCreateInfo, &m_Data.Buffer, &m_Data.Allocation, &m_Data.AllocationInfo);
 
+        if (m_DescriptorSet != VK_NULL_HANDLE)
+            renderer->FreeUBODescriptorSet(m_DescriptorSet);
+
         m_DescriptorSet = renderer->AllocateUBODescriptorSet(renderer->GetDescriptorSetLayout(m_SetLayout));
 
         VkDescriptorBufferInfo bufferInfo{};
@@ -75,7 +77,6 @@ namespace FLOOF {
         writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         writeDescriptorSet.pBufferInfo = &bufferInfo;
 
-        renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeDescriptorSet, 0, nullptr);
     }
 
@@ -91,7 +92,7 @@ namespace FLOOF {
         void Resize(uint32_t newSize);
         void MakeMappedBuffer();
         VulkanBufferData m_Data{};
-        VkDescriptorSet m_DescriptorSet;
+        VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
         RenderSetLayouts m_SetLayout;
         uint32_t m_Size{};
     };
@@ -112,7 +113,6 @@ namespace FLOOF {
     template<typename T>
     inline VulkanSSBO<T>::~VulkanSSBO() {
         auto* renderer = VulkanRenderer::Get();
-        renderer->FinishAllFrames();
         renderer->DestroyVulkanBuffer(&m_Data);
         renderer->FreeShaderStorageDescriptorSet(m_DescriptorSet);
     }
@@ -129,7 +129,6 @@ namespace FLOOF {
     template<typename T>
     inline void VulkanSSBO<T>::Resize(uint32_t newSize) {
         auto* renderer = VulkanRenderer::Get();
-        renderer->FinishAllFrames();
         renderer->DestroyVulkanBuffer(&m_Data);
         m_Size = newSize;
         MakeMappedBuffer();
@@ -149,6 +148,9 @@ namespace FLOOF {
 
         vmaCreateBuffer(renderer->GetAllocator(), &bufCreateInfo, &allocCreateInfo, &m_Data.Buffer, &m_Data.Allocation, &m_Data.AllocationInfo);
 
+        if (m_DescriptorSet != VK_NULL_HANDLE)
+            renderer->FreeShaderStorageDescriptorSet(m_DescriptorSet);
+
         m_DescriptorSet = renderer->AllocateShaderStorageDescriptorSet(renderer->GetDescriptorSetLayout(m_SetLayout));
 
         VkDescriptorBufferInfo bufferInfo{};
@@ -164,7 +166,6 @@ namespace FLOOF {
         writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         writeDescriptorSet.pBufferInfo = &bufferInfo;
 
-        renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeDescriptorSet, 0, nullptr);
     }
 }

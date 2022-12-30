@@ -26,6 +26,7 @@ namespace FLOOF {
         float AmbientIntensity = 0.5f;
         float Bias = 0.00005f;
         int TileCountX = 0;
+        int ShowLightComplexity = 0;
     };
     
     struct DrawData {

@@ -37,6 +37,7 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     float ambientIntensity;
     float bias;
     int tileCountX;
+    int showLightComplexity;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -169,17 +170,12 @@ void main() {
 
     float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
 
+    if (sceneFrameUBO.showLightComplexity > 0) {
+        float t = lightCountsSSBO.counts[tileIndex] / 32.0;
+        color *= vec3(t, 1.0 - t, 0.0);
+    }
+
     outColor = vec4(color, alpha);
-    //outColor = vec4(gl_FragCoord.xy /
-    //        (sceneFrameUBO.tileCountX * sceneFrameUBO.tileSize), 0.0, 1.0);
-    //outColor = vec4(vec3(float(tileIndex) / (float(sceneFrameUBO.tileCountX) * float(sceneFrameUBO.tileCountX))), 1.0);
-    //outColor = vec4(vec2(tileId) / float(sceneFrameUBO.tileCountX), 0.0, 1.0);
-    //    if (tileIndex == 40) {
-    //        outColor = vec4(1.0);
-    //    } else {
-    //        outColor = vec4(color, alpha);
-    //    }
-    //outColor = vec4(vec3(lightCountsSSBO.counts[tileIndex] / 16.0), 1.0);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)

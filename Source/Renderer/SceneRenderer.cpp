@@ -8,6 +8,7 @@
 #include "../LineMeshComponent.h"
 #include "ModelManager.h"
 #include "../Utils.h"
+#include <future>
 
 namespace FLOOF {
     SceneRenderer::SceneRenderer() {
@@ -725,84 +726,179 @@ namespace FLOOF {
         std::vector<int> offsets;
         int offset{};
 
+        int tileCountX = 0;
+        for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
+            tileCountX++;
+        }
+        m_SceneFrameData.TileCountX = tileCountX;
+
+        int numTiles = 0;
         for (float y = -1.f; y < 1.f; y += ndcTileSize.y) {
-            int tileCountX = 0;
             for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
-                tileCountX++;
-                glm::vec3 frustumCorners[8] = {
-                // near
-                glm::vec3(x,                 y + ndcTileSize.y, -1.0f), // top left      0  
-                glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, -1.0f), // top right     1  
-                glm::vec3(x + ndcTileSize.x, y,                 -1.0f), // bottom right  2      
-                glm::vec3(x,                 y,                 -1.0f), // bottom left   3     
-                // far        
-                glm::vec3(x,                 y + ndcTileSize.y, 0.99999f), // top left       4 
-                glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, 0.99999f), // top right      5  
-                glm::vec3(x + ndcTileSize.x, y,                 0.99999f), // bottom right   6     
-                glm::vec3(x,                 y,                 0.99999f), // bottom left    7    
-                };
+                numTiles++;
+            }
+        }
 
-                // Project frustum corners into world space
-                for (uint32_t i = 0; i < 8; i++) {
-                    glm::vec4 invCorner = invProj * glm::vec4(frustumCorners[i], 1.0f);
-                    frustumCorners[i] = invCorner / invCorner.w;
-                }
+        std::vector<std::future<void>> futures(numTiles);
+        std::vector<std::vector<PointLightComponent::PointLight>> pointLightVectors(numTiles);
 
-                // TODO: dont need to combine and divide by 4. can simply select a corner.
-                // did this just for nice debug visuals.
-                // <face position, face normal>
-                std::pair<glm::vec3, glm::vec3> faces[6] = {
+        int tileIndex = 0;
+        for (float y = -1.f; y < 1.f; y += ndcTileSize.y) {
+            for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
+                futures[tileIndex] = std::async(std::launch::async, [x, y, ndcTileSize, camera, invProj](std::vector<PointLightComponent::PointLight>& pointLights,
+                    std::vector<PointLightComponent::PointLight>& tempPointLights) {
+
+                    glm::vec3 frustumCorners[8] = {
                     // near
-                    { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[2] + frustumCorners[3]) / 4.f),
-                        glm::vec3(camera->Forward) },
-                    // left
-                    { glm::vec3((frustumCorners[0] + frustumCorners[3] + frustumCorners[4] + frustumCorners[7]) / 4.f),
-                        glm::vec3(glm::normalize(glm::cross(frustumCorners[7] - camera->Position, frustumCorners[4] - camera->Position)))  },
-                    // right
-                    { glm::vec3((frustumCorners[1] + frustumCorners[2] + frustumCorners[5] + frustumCorners[6]) / 4.f),
-                        glm::vec3(glm::normalize(glm::cross(frustumCorners[5] - camera->Position, frustumCorners[6] - camera->Position))) },
-                    // bottom
-                    { glm::vec3((frustumCorners[2] + frustumCorners[2] + frustumCorners[6] + frustumCorners[7]) / 4.f),
-                        glm::vec3(glm::normalize(glm::cross(frustumCorners[6] - camera->Position, frustumCorners[7] - camera->Position))) },
-                    // top
-                    { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[4] + frustumCorners[5]) / 4.f),
-                        glm::vec3(glm::normalize(glm::cross(frustumCorners[4] - camera->Position, frustumCorners[5] - camera->Position))) },
-                    // far
-                    { glm::vec3((frustumCorners[4] + frustumCorners[5] + frustumCorners[6] + frustumCorners[7]) / 4.f),
-                        glm::vec3(-camera->Forward) },
-                };
+                    glm::vec3(x,                 y + ndcTileSize.y, -1.0f), // top left      0  
+                    glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, -1.0f), // top right     1  
+                    glm::vec3(x + ndcTileSize.x, y,                 -1.0f), // bottom right  2      
+                    glm::vec3(x,                 y,                 -1.0f), // bottom left   3     
+                    // far        
+                    glm::vec3(x,                 y + ndcTileSize.y, 0.99999f), // top left       4 
+                    glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, 0.99999f), // top right      5  
+                    glm::vec3(x + ndcTileSize.x, y,                 0.99999f), // bottom right   6     
+                    glm::vec3(x,                 y,                 0.99999f), // bottom left    7    
+                    };
 
-                int lightCount{};
+                    // Project frustum corners into world space
+                    for (uint32_t i = 0; i < 8; i++) {
+                        glm::vec4 invCorner = invProj * glm::vec4(frustumCorners[i], 1.0f);
+                        frustumCorners[i] = invCorner / invCorner.w;
+                    }
 
-                for (auto& light : tempPointLights) {
-                    bool intersecting = true;
-                    for (auto& [pos, normal] : faces) {
-                        float distance = glm::dot(glm::vec3(light.position) - pos, normal);
-                        if (distance < -light.outerRange) {
-                            intersecting = false;
-                            break;
+                    // TODO: dont need to combine and divide by 4. can simply select a corner.
+                    // did this just for nice debug visuals.
+                    // <face position, face normal>
+                    std::pair<glm::vec3, glm::vec3> faces[6] = {
+                        // near
+                        { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[2] + frustumCorners[3]) / 4.f),
+                            glm::vec3(camera->Forward) },
+                        // left
+                        { glm::vec3((frustumCorners[0] + frustumCorners[3] + frustumCorners[4] + frustumCorners[7]) / 4.f),
+                            glm::vec3(glm::normalize(glm::cross(frustumCorners[7] - camera->Position, frustumCorners[4] - camera->Position)))  },
+                        // right
+                        { glm::vec3((frustumCorners[1] + frustumCorners[2] + frustumCorners[5] + frustumCorners[6]) / 4.f),
+                            glm::vec3(glm::normalize(glm::cross(frustumCorners[5] - camera->Position, frustumCorners[6] - camera->Position))) },
+                        // bottom
+                        { glm::vec3((frustumCorners[2] + frustumCorners[2] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+                            glm::vec3(glm::normalize(glm::cross(frustumCorners[6] - camera->Position, frustumCorners[7] - camera->Position))) },
+                        // top
+                        { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[4] + frustumCorners[5]) / 4.f),
+                            glm::vec3(glm::normalize(glm::cross(frustumCorners[4] - camera->Position, frustumCorners[5] - camera->Position))) },
+                        // far
+                        { glm::vec3((frustumCorners[4] + frustumCorners[5] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+                            glm::vec3(-camera->Forward) },
+                    };
+
+                    int lightCount{};
+
+                    for (auto& light : tempPointLights) {
+                        bool intersecting = true;
+                        for (auto& [pos, normal] : faces) {
+                            float distance = glm::dot(glm::vec3(light.position) - pos, normal);
+                            if (distance < -light.outerRange) {
+                                intersecting = false;
+                                break;
+                            }
+                        }
+                        if (intersecting) {
+                            lightCount++;
+                            pointLights.push_back(light);
                         }
                     }
-                    if (intersecting) {
-                        lightCount++;
-                        pointLights.push_back(light);
-                    }
-                }
 
-                offsets.push_back(offset);
-                offset += lightCount;
-                lightCounts.push_back(lightCount);
-
-                if (m_DrawDebugLines && m_DrawLightComplexity) {
-                    float t = lightCount / 128.f;
-
-                    auto frustrumColor = glm::vec3(t, 1.f - t, 0.f);
-                    DebugDrawFrustum(frustumCorners[3], frustumCorners[2], frustumCorners[0], frustumCorners[1],
-                        frustumCorners[7], frustumCorners[6], frustumCorners[4], frustumCorners[5], frustrumColor);
-                }
+                    }, std::ref(pointLightVectors[tileIndex]), std::ref(tempPointLights));
+                tileIndex++;
             }
-            m_SceneFrameData.TileCountX = tileCountX;
         }
+
+        for (auto& fut : futures)
+            fut.get();
+
+        for (auto& partialLightVec : pointLightVectors) {
+            pointLights.insert(pointLights.end(), partialLightVec.begin(), partialLightVec.end());
+            offsets.push_back(offset);
+            auto lightCount = partialLightVec.size();
+            lightCounts.push_back(lightCount);
+            offset += lightCount;
+        }
+
+        //for (float y = -1.f; y < 1.f; y += ndcTileSize.y) {
+        //    for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
+        //        glm::vec3 frustumCorners[8] = {
+        //        // near
+        //        glm::vec3(x,                 y + ndcTileSize.y, -1.0f), // top left      0  
+        //        glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, -1.0f), // top right     1  
+        //        glm::vec3(x + ndcTileSize.x, y,                 -1.0f), // bottom right  2      
+        //        glm::vec3(x,                 y,                 -1.0f), // bottom left   3     
+        //        // far        
+        //        glm::vec3(x,                 y + ndcTileSize.y, 0.99999f), // top left       4 
+        //        glm::vec3(x + ndcTileSize.x, y + ndcTileSize.y, 0.99999f), // top right      5  
+        //        glm::vec3(x + ndcTileSize.x, y,                 0.99999f), // bottom right   6     
+        //        glm::vec3(x,                 y,                 0.99999f), // bottom left    7    
+        //        };
+
+        //        // Project frustum corners into world space
+        //        for (uint32_t i = 0; i < 8; i++) {
+        //            glm::vec4 invCorner = invProj * glm::vec4(frustumCorners[i], 1.0f);
+        //            frustumCorners[i] = invCorner / invCorner.w;
+        //        }
+
+        //        // TODO: dont need to combine and divide by 4. can simply select a corner.
+        //        // did this just for nice debug visuals.
+        //        // <face position, face normal>
+        //        std::pair<glm::vec3, glm::vec3> faces[6] = {
+        //            // near
+        //            { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[2] + frustumCorners[3]) / 4.f),
+        //                glm::vec3(camera->Forward) },
+        //            // left
+        //            { glm::vec3((frustumCorners[0] + frustumCorners[3] + frustumCorners[4] + frustumCorners[7]) / 4.f),
+        //                glm::vec3(glm::normalize(glm::cross(frustumCorners[7] - camera->Position, frustumCorners[4] - camera->Position)))  },
+        //            // right
+        //            { glm::vec3((frustumCorners[1] + frustumCorners[2] + frustumCorners[5] + frustumCorners[6]) / 4.f),
+        //                glm::vec3(glm::normalize(glm::cross(frustumCorners[5] - camera->Position, frustumCorners[6] - camera->Position))) },
+        //            // bottom
+        //            { glm::vec3((frustumCorners[2] + frustumCorners[2] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+        //                glm::vec3(glm::normalize(glm::cross(frustumCorners[6] - camera->Position, frustumCorners[7] - camera->Position))) },
+        //            // top
+        //            { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[4] + frustumCorners[5]) / 4.f),
+        //                glm::vec3(glm::normalize(glm::cross(frustumCorners[4] - camera->Position, frustumCorners[5] - camera->Position))) },
+        //            // far
+        //            { glm::vec3((frustumCorners[4] + frustumCorners[5] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+        //                glm::vec3(-camera->Forward) },
+        //        };
+
+        //        int lightCount{};
+
+        //        for (auto& light : tempPointLights) {
+        //            bool intersecting = true;
+        //            for (auto& [pos, normal] : faces) {
+        //                float distance = glm::dot(glm::vec3(light.position) - pos, normal);
+        //                if (distance < -light.outerRange) {
+        //                    intersecting = false;
+        //                    break;
+        //                }
+        //            }
+        //            if (intersecting) {
+        //                lightCount++;
+        //                pointLights.push_back(light);
+        //            }
+        //        }
+
+        //        offsets.push_back(offset);
+        //        offset += lightCount;
+        //        lightCounts.push_back(lightCount);
+
+        //        if (m_DrawDebugLines && m_DrawLightComplexity) {
+        //            float t = lightCount / 128.f;
+
+        //            auto frustrumColor = glm::vec3(t, 1.f - t, 0.f);
+        //            DebugDrawFrustum(frustumCorners[3], frustumCorners[2], frustumCorners[0], frustumCorners[1],
+        //                frustumCorners[7], frustumCorners[6], frustumCorners[4], frustumCorners[5], frustrumColor);
+        //        }
+        //    }
+        //}
 
         // Update gpu data
         auto* renderer = VulkanRenderer::Get();
