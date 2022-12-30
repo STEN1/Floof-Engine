@@ -9,11 +9,7 @@ namespace FLOOF {
         NativeScript::OnCreate(scene, entity);
 
         m_Extents = glm::vec3(1200.f, 400.f, 1200.f);
-<<<<<<< HEAD
         uint32_t numLights = 256;
-=======
-        uint32_t numLights = 2048;
->>>>>>> 10bfb64506904dec57c9a8726b598a6abe968f92
         m_LightCount = numLights;
 
         for (uint32_t i = 0; i < numLights; i++) {
