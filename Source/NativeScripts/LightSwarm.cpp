@@ -9,20 +9,24 @@ namespace FLOOF {
         NativeScript::OnCreate(scene, entity);
 
         m_Extents = glm::vec3(1200.f, 400.f, 1200.f);
+<<<<<<< HEAD
         uint32_t numLights = 256;
+=======
+        uint32_t numLights = 2048;
+>>>>>>> 10bfb64506904dec57c9a8726b598a6abe968f92
         m_LightCount = numLights;
 
         for (uint32_t i = 0; i < numLights; i++) {
             const auto lightEntity = CreateEntity("Light", entity);
             auto& light = AddComponent<PointLightComponent>(lightEntity);
-            auto& mesh = AddComponent<StaticMeshComponent>(lightEntity, "Assets/Ball.obj");
-            int color = Math::RandInt(1, 8);
-            int metallic = Math::RandInt(4, 7);
-            int roughness = Math::RandInt(4, 7);
-            mesh.meshes[0].MeshMaterial.Diffuse = Texture(static_cast<TextureColor>(color));
-            mesh.meshes[0].MeshMaterial.Metallic = Texture(static_cast<TextureColor>(metallic));
-            mesh.meshes[0].MeshMaterial.Roughness = Texture(static_cast<TextureColor>(roughness));
-            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            //auto& mesh = AddComponent<StaticMeshComponent>(lightEntity, "Assets/Ball.obj");
+            //int color = Math::RandInt(1, 8);
+            //int metallic = Math::RandInt(4, 7);
+            //int roughness = Math::RandInt(4, 7);
+            //mesh.meshes[0].MeshMaterial.Diffuse = Texture(static_cast<TextureColor>(color));
+            //mesh.meshes[0].MeshMaterial.Metallic = Texture(static_cast<TextureColor>(metallic));
+            //mesh.meshes[0].MeshMaterial.Roughness = Texture(static_cast<TextureColor>(roughness));
+            //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             light.diffuse = glm::vec4(Utils::ColorFromScalar(Math::RandFloat(0.f, 1000.f)), 1.0);
             glm::vec3 pos;
             pos.x = Math::RandFloat(-m_Extents.x, m_Extents.x);

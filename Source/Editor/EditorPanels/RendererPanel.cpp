@@ -73,7 +73,7 @@ namespace FLOOF {
 		}
 
 		int tileSize = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.TileSize;
-		if (ImGui::DragInt("TileSize", &tileSize, 8, 8, 10000)) {
+		if (ImGui::DragInt("TileSize", &tileSize, 8, 8, 10000, "%d", ImGuiSliderFlags_AlwaysClamp)) {
 			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.TileSize = tileSize;
 			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.TileSize = tileSize;
 		}
