@@ -63,6 +63,12 @@ namespace FLOOF {
 		// Light complexity
 		ImGui::Checkbox("Show light complexity", &m_EditorLayer->GetEditorRenderer()->m_DrawLightComplexity);
 
+		int tileSize = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.TileSize;
+		if (ImGui::DragInt("TileSize", &tileSize, 8, 8, 10000)) {
+			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.TileSize = tileSize;
+			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.TileSize = tileSize;
+		}
+
 		// Shadow options
 		ImGui::Separator();
 		static bool drawCameraLines = false;

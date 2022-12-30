@@ -671,6 +671,7 @@ namespace FLOOF {
         {
             const auto lightSwarmEntity = m_Scene->CreateEntity();
             m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
+            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 300.f;
         }
     }
 
@@ -778,6 +779,7 @@ namespace FLOOF {
         {
             const auto lightSwarmEntity = m_Scene->CreateEntity();
             m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
+            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 300.f;
         }
     }
 

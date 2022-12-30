@@ -7,6 +7,8 @@
 #include "../CameraComponent.h"
 #include "../PointLightComponent.h"
 #include "../LineMeshComponent.h"
+#include "Mesh.h"
+#include <thread>
 
 namespace FLOOF {
 #define FLOOF_CASCADE_COUNT 4
@@ -26,6 +28,12 @@ namespace FLOOF {
         int TileCountX = 0;
     };
     
+    struct DrawData {
+        StaticMeshComponent* staticMesh;
+        glm::mat4 transform;
+        glm::mat4 invTransform;
+    };
+
     struct SceneRenderFinishedData {
         VkDescriptorSet Texture = VK_NULL_HANDLE;
         VkSemaphore SceneRenderFinishedSemaphore = VK_NULL_HANDLE;
@@ -47,8 +55,8 @@ namespace FLOOF {
             PhysicsDebugDraw* physicDrawer, VkSemaphore waitSemaphore, bool drawDebugLines = false);
 
     private:
-        VkSemaphore ShadowPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera);
-        VkSemaphore MainPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer);
+        VkSemaphore ShadowPass(VkSemaphore waitSemaphore, const std::vector<DrawData>& drawData, std::thread& lightSortThread, Scene* scene, CameraComponent* camera);
+        VkSemaphore MainPass(VkSemaphore waitSemaphore, const std::vector<DrawData>& drawData, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer);
         VkSemaphore AlphaClearPass(VkSemaphore waitSemaphore);
 
         void SortLightsInTiles(Scene* scene);

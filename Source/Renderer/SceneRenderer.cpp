@@ -52,35 +52,21 @@ namespace FLOOF {
         auto* window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
 
-        //{   // Update gpu data buffers
-        //    std::vector<PointLightComponent::PointLight> pointLights;
-        //    auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
-        //    for (auto [entity, transform, lightComp] : lightView.each()) {
-        //        PointLightComponent::PointLight light;
-        //        light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
-        //        light.diffuse = lightComp.diffuse;
-        //        light.intensity = lightComp.intensity;
-        //        light.innerRange = lightComp.innerRange;
-        //        light.outerRange = lightComp.outerRange;
-        //        pointLights.push_back(light);
-        //    }
-        //    m_LightSSBO[frameIndex].Update(pointLights);
+        std::thread t(&SceneRenderer::SortLightsInTiles, this, scene);
 
-        //    m_SceneFrameData.CameraPos = glm::vec4(camera->Position, 1.f);
-        //    m_SceneFrameData.LightCount = pointLights.size();
-        //    m_SceneFrameData.VP = vp;
-        //    // Actual update is done inside shadowpass.
-        //    // This is because it need to calculate VP matrix fro each cascade.
-        //    // TODO: maby move everything including frustum calculations to its own function,
-        //    // and let "Pass" function do only renderpasses?
-        //    //m_SceneDataUBO.Update(m_SceneFrameData);
-        //}
+        std::vector<DrawData> drawData;
+        {
+            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
+            for (auto [entity, transform, staticMesh] : view.each()) {
+                auto t = transform.GetTransform();
+                auto invT = glm::inverse(t);
+                drawData.emplace_back(DrawData{ &staticMesh, t, invT });
+            }
+        }
 
-        SortLightsInTiles(scene);
+        waitSemaphore = ShadowPass(waitSemaphore, drawData, t, scene, camera);
 
-        waitSemaphore = ShadowPass(waitSemaphore, scene, camera);
-
-        waitSemaphore = MainPass(waitSemaphore, scene, camera, cameraProjection, cameraView, physicDrawer);
+        waitSemaphore = MainPass(waitSemaphore, drawData, scene, camera, cameraProjection, cameraView, physicDrawer);
 
         waitSemaphore = AlphaClearPass(waitSemaphore);
 
@@ -91,7 +77,7 @@ namespace FLOOF {
         return renderFinishedData;
     }
 
-    VkSemaphore SceneRenderer::ShadowPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera)
+    VkSemaphore SceneRenderer::ShadowPass(VkSemaphore waitSemaphore, const std::vector<DrawData>& drawData, std::thread& lightSortThread, Scene* scene, CameraComponent* camera)
     {
         uint32_t SHADOW_MAP_CASCADE_COUNT = m_SceneFrameData.CascadeCount;
         static constexpr float cascadeSplitLambda = 0.95f;
@@ -194,13 +180,6 @@ namespace FLOOF {
 
         m_SceneDataUBO[frameIndex].Update(m_SceneFrameData);
 
-        std::vector<std::pair<glm::mat4, StaticMeshComponent*>> drawData;
-        {
-            auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
-            for (auto [entity, transform, staticMesh] : view.each()) {
-                drawData.emplace_back(std::make_pair(transform.GetTransform(), &staticMesh));
-            }
-        }
         for (uint32_t i = 0; i < m_SceneFrameData.CascadeCount; i++) {
             auto framebuffer = m_ShadowDepthBuffers[frameIndex]->GetFramebuffer(i);
             auto commandBuffer = commandBuffers[i];
@@ -223,11 +202,11 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                 &sceneDescriptor, 0, nullptr);
             {
-                
-                for (auto& [transform, staticMesh] : drawData) {
+
+                for (auto& [staticMesh, transform, invTransform] : drawData) {
                     DepthPushConstants constants;
                     constants.Model = transform;
-                    constants.InvModelMat = glm::inverse(transform);
+                    constants.InvModelMat = invTransform;
                     constants.cascadeIndex = i;
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                         0, sizeof(DepthPushConstants), &constants);
@@ -273,6 +252,7 @@ namespace FLOOF {
             VkResult endResult = vkEndCommandBuffer(commandBuffer);
             ASSERT(endResult == VK_SUCCESS);
         }
+
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
         VkSubmitInfo submitInfo{};
@@ -285,18 +265,22 @@ namespace FLOOF {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &m_ShadowPassSignalSemaphores[frameIndex];
 
+        // need to sync sorting thread here since mapped gpu-cpu buffers gets synced on queue submit.
+        lightSortThread.join();
+
         renderer->QueueSubmitGraphics(1, &submitInfo);
 
         return m_ShadowPassSignalSemaphores[frameIndex];
     }
 
-    struct DrawData {
+    struct AlphaDrawData {
         MeshData* mesh; 
         glm::mat4 transform;
+        glm::mat4 invTransform;
         float distanceToCamera2;
     };
 
-    VkSemaphore SceneRenderer::MainPass(VkSemaphore waitSemaphore, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer)
+    VkSemaphore SceneRenderer::MainPass(VkSemaphore waitSemaphore, const std::vector<DrawData>& drawData, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer)
     {
         auto* renderer = VulkanRenderer::Get();
         auto* window = renderer->GetVulkanWindow();
@@ -342,7 +326,7 @@ namespace FLOOF {
             m_Skybox->Draw(commandBuffer, pipelineLayout);
         }
 
-        std::vector<DrawData> transparentGeometry;
+        std::vector<AlphaDrawData> transparentGeometry;
 
         // Draw models
         {
@@ -391,21 +375,20 @@ namespace FLOOF {
                     &sceneDescriptor, 0, nullptr);
             }
             {
-                auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
-                for (auto [entity, transform, staticMesh] : view.each()) {
+                for (auto [staticMesh, transform, invTransform] : drawData) {
                     MeshPushConstants constants;
-                    glm::mat4 modelMat = transform.GetTransform();
-                    constants.Model = modelMat;
-                    constants.InvModelMat = glm::inverse(modelMat);
+                    constants.Model = transform;
+                    constants.InvModelMat = invTransform;
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                         0, sizeof(MeshPushConstants), &constants);
-                    for (auto& mesh : staticMesh.meshes) {
+                    for (auto& mesh : staticMesh->meshes) {
                         if (mesh.MeshMaterial.HasOpacity) {
-                            DrawData drawData;
-                            drawData.mesh = &mesh;
-                            drawData.transform = modelMat;
-                            drawData.distanceToCamera2 = glm::length2(camera->Position - glm::vec3(modelMat[3]));
-                            transparentGeometry.push_back(drawData);
+                            AlphaDrawData alphaDrawData;
+                            alphaDrawData.mesh = &mesh;
+                            alphaDrawData.transform = transform;
+                            alphaDrawData.invTransform = invTransform;
+                            alphaDrawData.distanceToCamera2 = glm::length2(camera->Position - glm::vec3(transform[3]));
+                            transparentGeometry.push_back(alphaDrawData);
                             continue;
                         }
                         if (m_DrawMode == RenderPipelineKeys::PBR || m_DrawMode == RenderPipelineKeys::UnLit || m_DrawMode == RenderPipelineKeys::Normals) {
@@ -488,7 +471,7 @@ namespace FLOOF {
             }
         }
         {
-            auto sortFunc = [](const DrawData& a, const DrawData& b) -> bool {
+            auto sortFunc = [](const AlphaDrawData& a, const AlphaDrawData& b) -> bool {
                 return a.distanceToCamera2 > b.distanceToCamera2;
             };
             std::sort(transparentGeometry.begin(), transparentGeometry.end(), sortFunc);
@@ -673,14 +656,68 @@ namespace FLOOF {
 
         std::vector<PointLightComponent::PointLight> tempPointLights;
         auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
-        for (auto [entity, transform, lightComp] : lightView.each()) {
-            PointLightComponent::PointLight light;
-            light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
-            light.diffuse = lightComp.diffuse;
-            light.intensity = lightComp.intensity;
-            light.innerRange = lightComp.innerRange;
-            light.outerRange = lightComp.outerRange;
-            tempPointLights.push_back(light);
+        {
+            glm::vec3 frustumCorners[8] = {
+                // near
+                glm::vec3(-1.f, 1.f, -1.0f), // top left      0  
+                glm::vec3(1.f, 1.f, -1.0f), // top right     1  
+                glm::vec3(1.f, -1.f, -1.0f), // bottom right  2      
+                glm::vec3(-1.f, -1.f, -1.0f), // bottom left   3     
+                // far        
+                glm::vec3(-1.f, 1.f, 0.99999f), // top left       4 
+                glm::vec3(1.f, 1.f, 0.99999f), // top right      5  
+                glm::vec3(1.f, -1.f, 0.99999f), // bottom right   6     
+                glm::vec3(-1.f, -1.f, 0.99999f), // bottom left    7    
+            };
+
+            // Project frustum corners into world space
+            for (uint32_t i = 0; i < 8; i++) {
+                glm::vec4 invCorner = invProj * glm::vec4(frustumCorners[i], 1.0f);
+                frustumCorners[i] = invCorner / invCorner.w;
+            }
+
+            std::pair<glm::vec3, glm::vec3> faces[6] = {
+                    // near
+                    { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[2] + frustumCorners[3]) / 4.f),
+                        glm::vec3(camera->Forward) },
+                    // left
+                    { glm::vec3((frustumCorners[0] + frustumCorners[3] + frustumCorners[4] + frustumCorners[7]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[7] - camera->Position, frustumCorners[4] - camera->Position)))  },
+                    // right
+                    { glm::vec3((frustumCorners[1] + frustumCorners[2] + frustumCorners[5] + frustumCorners[6]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[5] - camera->Position, frustumCorners[6] - camera->Position))) },
+                    // bottom
+                    { glm::vec3((frustumCorners[2] + frustumCorners[2] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[6] - camera->Position, frustumCorners[7] - camera->Position))) },
+                    // top
+                    { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[4] + frustumCorners[5]) / 4.f),
+                        glm::vec3(glm::normalize(glm::cross(frustumCorners[4] - camera->Position, frustumCorners[5] - camera->Position))) },
+                    // far
+                    { glm::vec3((frustumCorners[4] + frustumCorners[5] + frustumCorners[6] + frustumCorners[7]) / 4.f),
+                        glm::vec3(-camera->Forward) },
+                };
+
+            for (auto [entity, transform, lightComp] : lightView.each()) {
+                PointLightComponent::PointLight light;
+                light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
+                light.diffuse = lightComp.diffuse;
+                light.intensity = lightComp.intensity;
+                light.innerRange = lightComp.innerRange;
+                light.outerRange = lightComp.outerRange;
+
+                bool intersecting = true;
+                for (auto& [pos, normal] : faces) {
+                    float distance = glm::dot(glm::vec3(light.position) - pos, normal);
+                    if (distance < -light.outerRange) {
+                        intersecting = false;
+                        break;
+                    }
+                }
+                if (intersecting) {
+                    tempPointLights.push_back(light);
+                }
+
+            }
         }
 
         std::vector<PointLightComponent::PointLight> pointLights;
@@ -757,7 +794,7 @@ namespace FLOOF {
                 lightCounts.push_back(lightCount);
 
                 if (m_DrawDebugLines && m_DrawLightComplexity) {
-                    float t = lightCount / 64.f;
+                    float t = lightCount / 128.f;
 
                     auto frustrumColor = glm::vec3(t, 1.f - t, 0.f);
                     DebugDrawFrustum(frustumCorners[3], frustumCorners[2], frustumCorners[0], frustumCorners[1],

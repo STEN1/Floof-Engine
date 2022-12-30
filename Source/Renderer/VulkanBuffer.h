@@ -75,6 +75,7 @@ namespace FLOOF {
         writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         writeDescriptorSet.pBufferInfo = &bufferInfo;
 
+        renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeDescriptorSet, 0, nullptr);
     }
 
@@ -163,6 +164,7 @@ namespace FLOOF {
         writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         writeDescriptorSet.pBufferInfo = &bufferInfo;
 
+        renderer->FinishAllFrames();
         vkUpdateDescriptorSets(renderer->GetDevice(), 1, &writeDescriptorSet, 0, nullptr);
     }
 }

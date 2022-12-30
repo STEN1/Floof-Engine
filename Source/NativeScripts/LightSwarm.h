@@ -9,5 +9,6 @@ namespace FLOOF {
     private:
         std::vector<entt::entity> m_Lights;
         glm::vec3 m_Extents;
+        float m_LightCount;
     };
 }
