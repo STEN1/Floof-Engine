@@ -45,16 +45,16 @@ layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
 } lightSSBO;
 
 layout (set = 3, binding = 0) uniform samplerCube irradianceMap;
-layout (set = 4, binding = 0) uniform samplerCube prefilterMap;
-layout (set = 5, binding = 0) uniform sampler2D brdfLut;
+layout (set = 3, binding = 1) uniform samplerCube prefilterMap;
+layout (set = 4, binding = 0) uniform sampler2D brdfLut;
 
-layout (set = 6, binding = 0) uniform sampler2DArray shadowMap;
+layout (set = 5, binding = 0) uniform sampler2DArray shadowMap;
 
-layout (std430, set = 7, binding = 0) readonly buffer LightCountsSSBO {
+layout (std430, set = 6, binding = 0) readonly buffer LightCountsSSBO {
     int counts[];
 } lightCountsSSBO;
 
-layout (std430, set = 8, binding = 0) readonly buffer LightOffsetsSSBO {
+layout (std430, set = 7, binding = 0) readonly buffer LightOffsetsSSBO {
     int offsets[];
 } lightOffsetsSSBO;
 

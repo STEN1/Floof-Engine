@@ -356,8 +356,8 @@ namespace FLOOF {
             transform.Position.z += 40.f;
         }
 
-        for (float z = -1000.f; z < 1000.f; z += 200.f) {
-            for (float x = -1000.f; x < 1000.f; x += 200.f) {
+        for (float z = -1000.f; z < 1100.f; z += 200.f) {
+            for (float x = -1000.f; x < 1100.f; x += 200.f) {
                 if (glm::abs<float>(x) < 300.f && glm::abs<float>(z) < 300.f)
                     continue;
                 const auto entity = m_Scene->CreateEntity("kalestra_the_sorceress");
@@ -374,7 +374,7 @@ namespace FLOOF {
                 transform.Rotation.y = Math::RandFloat(0.f, glm::two_pi<float>());
 
                 transform.Position.x = x;
-                transform.Position.y = 26.0f;
+                transform.Position.y = 27.0f;
                 transform.Position.z = z;
             }
         }
@@ -730,7 +730,7 @@ namespace FLOOF {
         {
             const auto lightSwarmEntity = m_Scene->CreateEntity();
             m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
-            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 300.f;
+            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 100.f;
         }
     }
 
@@ -743,7 +743,7 @@ namespace FLOOF {
         {
             const auto lightSwarmEntity = m_Scene->CreateEntity();
             m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
-            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 300.f;
+            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 200.f;
         }
     }
 

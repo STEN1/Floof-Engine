@@ -18,6 +18,29 @@ namespace FLOOF {
         m_IrradienceMap = m_Skybox->m_Cubemap.GetIrradienceMap();
         m_PrefilterMap = m_Skybox->m_Cubemap.GetPrefilterMap();
         m_BRDFLut = TextureManager::GetBRDFLut();
+
+        auto* renderer = VulkanRenderer::Get();
+
+        VkSampler sampler = renderer->GetTextureSampler();
+
+        std::vector<VkDescriptorImageInfo> imageInfos{
+            { sampler, m_IrradienceMap.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+            { sampler, m_PrefilterMap.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+        };
+
+        m_IrradiencePrefilterDescriptorSet = renderer->AllocatePBRMapsDescriptorSet(renderer->GetDescriptorSetLayout(RenderSetLayouts::PBRMaps));
+
+        std::array<VkWriteDescriptorSet, 2> writeDescriptorSets{};
+        for (uint32_t i = 0; i < imageInfos.size(); i++) {
+            writeDescriptorSets[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescriptorSets[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            writeDescriptorSets[i].descriptorCount = 1;
+            writeDescriptorSets[i].dstSet = m_IrradiencePrefilterDescriptorSet;
+            writeDescriptorSets[i].dstBinding = i;
+            writeDescriptorSets[i].pImageInfo = &imageInfos[i];
+        }
+
+        vkUpdateDescriptorSets(renderer->GetDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
     }
 
     SceneRenderer::~SceneRenderer() {
@@ -343,24 +366,21 @@ namespace FLOOF {
                     &sceneDescriptor, 0, nullptr);
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
-                    &m_IrradienceMap.DesctriptorSet, 0, nullptr);
+                    &m_IrradiencePrefilterDescriptorSet, 0, nullptr);
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
-                    &m_PrefilterMap.DesctriptorSet, 0, nullptr);
-
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                     &m_BRDFLut.DesctriptorSet, 0, nullptr);
 
                 auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                     &shadowDescriptor, 0, nullptr);
 
                 auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
                     &lightCountDescriptor, 0, nullptr);
 
                 auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
                     &lightOffsetDescriptor, 0, nullptr);
             }
             if (m_DrawMode == RenderPipelineKeys::Wireframe || m_DrawMode == RenderPipelineKeys::UV) {
@@ -426,25 +446,22 @@ namespace FLOOF {
                 &sceneDescriptor, 0, nullptr);
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
-                &m_IrradienceMap.DesctriptorSet, 0, nullptr);
+                &m_IrradiencePrefilterDescriptorSet, 0, nullptr);
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
-                &m_PrefilterMap.DesctriptorSet, 0, nullptr);
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                 &m_BRDFLut.DesctriptorSet, 0, nullptr);
 
             auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
                 &shadowDescriptor, 0, nullptr);
 
             auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 9, 1,
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
                 &lightCountDescriptor, 0, nullptr);
 
             auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 10, 1,
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 9, 1,
                 &lightOffsetDescriptor, 0, nullptr);
 
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
@@ -469,9 +486,9 @@ namespace FLOOF {
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                     0, 1, &landscape.meshData.MeshMaterial1.DescriptorSet, 0, nullptr);
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    6, 1, &landscape.meshData.MeshMaterial2.DescriptorSet, 0, nullptr);
+                    5, 1, &landscape.meshData.MeshMaterial2.DescriptorSet, 0, nullptr);
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    7, 1, &landscape.meshData.MeshMaterial3.DescriptorSet, 0, nullptr);
+                    6, 1, &landscape.meshData.MeshMaterial3.DescriptorSet, 0, nullptr);
 
                 VkDeviceSize offset{ 0 };
                 vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
@@ -497,25 +514,22 @@ namespace FLOOF {
                 &sceneDescriptor, 0, nullptr);
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
-                &m_IrradienceMap.DesctriptorSet, 0, nullptr);
+                &m_IrradiencePrefilterDescriptorSet, 0, nullptr);
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
-                &m_PrefilterMap.DesctriptorSet, 0, nullptr);
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                 &m_BRDFLut.DesctriptorSet, 0, nullptr);
 
             auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                 &shadowDescriptor, 0, nullptr);
 
             auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
                 &lightCountDescriptor, 0, nullptr);
 
             auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
                 &lightOffsetDescriptor, 0, nullptr);
 
             for (auto& drawData : transparentGeometry) {
@@ -908,16 +922,15 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(9);
+            params.DescriptorSetLayoutBindings.resize(8);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::PBRMaps];
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
-            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
-            params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
@@ -933,16 +946,15 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(9);
+            params.DescriptorSetLayoutBindings.resize(8);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::PBRMaps];
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
-            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
-            params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.CullMode = VK_CULL_MODE_NONE;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
@@ -959,18 +971,17 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(11);
+            params.DescriptorSetLayoutBindings.resize(10);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::PBRMaps];
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
-            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
-            params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
-            params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.DescriptorSetLayoutBindings[9] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[10] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
@@ -1087,6 +1098,8 @@ namespace FLOOF {
         DestroyResolveBuffer();
         DestroyRenderPass();
         DestroySyncObjects();
+
+        renderer->FreePBRMapsDescriptorSet(m_IrradiencePrefilterDescriptorSet);
 
         renderer->FreeTextureDescriptorSet(m_IrradienceMap.DesctriptorSet);
         vkDestroyImageView(renderer->GetDevice(), m_IrradienceMap.ImageView, nullptr);

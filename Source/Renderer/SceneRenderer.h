@@ -118,8 +118,11 @@ namespace FLOOF {
         std::vector<VulkanSSBO<int>> m_LightOffsetsSSBO{};
 
         std::unique_ptr<Skybox> m_Skybox;
+
         VulkanTexture m_IrradienceMap;
         VulkanTexture m_PrefilterMap;
+        VkDescriptorSet m_IrradiencePrefilterDescriptorSet;
+
         VulkanTexture m_BRDFLut;
 
         std::vector<std::unique_ptr<LineMeshComponent>> m_DebugLineMesh;

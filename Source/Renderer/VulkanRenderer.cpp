@@ -69,6 +69,7 @@ namespace FLOOF {
         vkDestroyDescriptorPool(m_LogicalDevice, m_ShaderStorageDescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_UBODescriptorPool, nullptr);
         vkDestroyDescriptorPool(m_LogicalDevice, m_MaterialDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(m_LogicalDevice, m_PBRMatDescriptorPool, nullptr);
         vkDestroyCommandPool(m_LogicalDevice, m_CommandPool, nullptr);
         for (auto& [key, val] : m_DescriptorSetLayouts) {
             vkDestroyDescriptorSetLayout(m_LogicalDevice, val, nullptr);
@@ -958,6 +959,20 @@ namespace FLOOF {
         }
         {
             std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = {
+                { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, &m_TextureSamplerClamped },
+                { 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, &m_TextureSamplerClamped },
+            };
+
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            //descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+            descriptorSetLayoutCreateInfo.bindingCount = setLayoutBindings.size();
+            descriptorSetLayoutCreateInfo.pBindings = setLayoutBindings.data();
+
+            VkResult result = vkCreateDescriptorSetLayout(m_LogicalDevice, &descriptorSetLayoutCreateInfo, nullptr, &m_DescriptorSetLayouts[RenderSetLayouts::PBRMaps]);
+        }
+        {
+            std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = {
                 { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
                 { 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
                 { 2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
@@ -1270,6 +1285,22 @@ namespace FLOOF {
             createInfo.pPoolSizes = &poolSize;
             createInfo.poolSizeCount = 1;
             VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_MaterialDescriptorPool);
+            ASSERT(result == VK_SUCCESS);
+        }
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            poolSize.descriptorCount = 100;
+
+            // Create texture descriptor pool.
+            VkDescriptorPoolCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+            createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;// |
+            //VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+            createInfo.maxSets = 100;
+            createInfo.pPoolSizes = &poolSize;
+            createInfo.poolSizeCount = 1;
+            VkResult result = vkCreateDescriptorPool(m_LogicalDevice, &createInfo, nullptr, &m_PBRMatDescriptorPool);
             ASSERT(result == VK_SUCCESS);
         }
         {
@@ -1686,6 +1717,20 @@ namespace FLOOF {
         return textureDescriptorSet;
     }
 
+    VkDescriptorSet VulkanRenderer::AllocatePBRMapsDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
+    {
+        VkDescriptorSet textureDescriptorSet{};
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = m_PBRMatDescriptorPool;
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts = &descriptorSetLayout;
+
+        VkResult result = vkAllocateDescriptorSets(m_LogicalDevice, &allocInfo, &textureDescriptorSet);
+        ASSERT(result == VK_SUCCESS);
+        return textureDescriptorSet;
+    }
+
     VkDescriptorSet VulkanRenderer::AllocateLandscapeMaterialDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
     {
         VkDescriptorSet textureDescriptorSet{};
@@ -1703,6 +1748,11 @@ namespace FLOOF {
     void VulkanRenderer::FreeMaterialDescriptorSet(VkDescriptorSet desctriptorSet)
     {
         vkFreeDescriptorSets(m_LogicalDevice, m_MaterialDescriptorPool, 1, &desctriptorSet);
+    }
+
+    void VulkanRenderer::FreePBRMapsDescriptorSet(VkDescriptorSet desctriptorSet)
+    {
+        vkFreeDescriptorSets(m_LogicalDevice, m_PBRMatDescriptorPool, 1, &desctriptorSet);
     }
 
     void VulkanRenderer::FreeLandscapeMaterialDescriptorSet(VkDescriptorSet desctriptorSet)
