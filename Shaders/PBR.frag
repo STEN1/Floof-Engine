@@ -127,7 +127,7 @@ void main() {
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);        
         float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+        vec3 F    = fresnelSchlickRoughness(max(dot(H, V), 0.0), F0, roughness);       
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
@@ -350,7 +350,7 @@ vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float me
     // cook-torrance brdf
     float NDF = DistributionGGX(N, H, roughness);        
     float G   = GeometrySmith(N, V, L, roughness);      
-    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+    vec3 F    = fresnelSchlickRoughness(max(dot(H, V), 0.0), F0, roughness);       
         
     vec3 kS = F;
     vec3 kD = vec3(1.0) - kS;

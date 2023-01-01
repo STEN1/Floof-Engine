@@ -439,6 +439,14 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
                 &shadowDescriptor, 0, nullptr);
 
+            auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 9, 1,
+                &lightCountDescriptor, 0, nullptr);
+
+            auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 10, 1,
+                &lightOffsetDescriptor, 0, nullptr);
+
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
             for (auto [entity, transform, landscape] : view.each()) {
                 MeshPushConstants constants;
@@ -950,7 +958,7 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(9);
+            params.DescriptorSetLayoutBindings.resize(11);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
@@ -960,6 +968,8 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[9] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.DescriptorSetLayoutBindings[10] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);

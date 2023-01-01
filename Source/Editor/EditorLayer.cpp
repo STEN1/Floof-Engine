@@ -660,6 +660,11 @@ namespace FLOOF {
             auto entity = m_Scene->CreateEntity(name);
             auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
         }
+        {
+            const auto lightSwarmEntity = m_Scene->CreateEntity();
+            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
+            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 300.f;
+        }
     }
 
     void EditorLayer::MakeSponzaScene() {

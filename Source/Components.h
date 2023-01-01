@@ -176,6 +176,9 @@ namespace FLOOF {
     struct LandscapeComponent {
         LandscapeComponent(const char* map, const char* texture);
         ~LandscapeComponent();
+
+        LandscapeComponent(const LandscapeComponent&) = delete;
+        LandscapeComponent& operator=(LandscapeComponent) = delete;
         
         LandscapeMesh meshData;
 

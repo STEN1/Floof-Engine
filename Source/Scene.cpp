@@ -24,7 +24,6 @@ namespace FLOOF {
     }
 
     Scene::~Scene() {
-
         m_PhysicSystem->clear();
 
         auto view = m_Registry.view<NativeScriptComponent>();

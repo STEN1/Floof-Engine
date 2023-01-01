@@ -23,10 +23,9 @@ layout (set = 7, binding = 2) uniform sampler2D roughnessTexture3;
 struct PointLight {    
     vec4 position;
     vec4 diffuse;
-    vec4 ambient;
-    float linear;
-    float quadratic;
-    float lightRange;
+    float intensity;
+    float innerRange;
+    float outerRange;
     float pad;
 };  
 
@@ -39,10 +38,12 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     mat4 view;
     vec4 splitDists;
     float sunStrenght;
-    int lightCount;
+    int tileSize;
     int cascadeCount;
     float ambientIntensity;
     float bias;
+    int tileCountX;
+    int showLightComplexity;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -54,6 +55,14 @@ layout (set = 4, binding = 0) uniform samplerCube prefilterMap;
 layout (set = 5, binding = 0) uniform sampler2D brdfLut;
 
 layout (set = 8, binding = 0) uniform sampler2DArray shadowMap;
+
+layout (std430, set = 9, binding = 0) readonly buffer LightCountsSSBO {
+    int counts[];
+} lightCountsSSBO;
+
+layout (std430, set = 10, binding = 0) readonly buffer LightOffsetsSSBO {
+    int offsets[];
+} lightOffsetsSSBO;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
@@ -127,22 +136,33 @@ void main() {
     vec3 Lo = CalcDirectionalLight(V, N, albedo, roughness, metallic, F0);
     Lo *= shadow;
 
+    ivec2 tileId = ivec2(gl_FragCoord.xy / sceneFrameUBO.tileSize);
+    int tileIndex = (tileId.y * sceneFrameUBO.tileCountX) + tileId.x;
+
     // Point lights
-    for(int i = 0; i < sceneFrameUBO.lightCount; ++i) 
+    for(int i = lightOffsetsSSBO.offsets[tileIndex];
+        i < lightCountsSSBO.counts[tileIndex] + lightOffsetsSSBO.offsets[tileIndex];
+        ++i) 
     {
         vec3 lighgPos = lightSSBO.lights[i].position.xyz;
+        float distance    = length(lighgPos - fragPos);
+        if (distance > lightSSBO.lights[i].outerRange) {
+            continue;
+        }
         vec3 lightColor = lightSSBO.lights[i].diffuse.xyz;
         // calculate per-light radiance
         vec3 L = normalize(lighgPos - fragPos);
         vec3 H = normalize(V + L);
-        float distance    = length(lighgPos - fragPos);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance     = lightColor * attenuation * lightSSBO.lights[i].lightRange;      
+        float t = smoothstep(lightSSBO.lights[i].outerRange, lightSSBO.lights[i].innerRange, distance);
+        attenuation *= t;
+        vec3 radiance     = lightColor * attenuation * lightSSBO.lights[i].intensity;
+        
         
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);        
         float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+        vec3 F    = fresnelSchlickRoughness(max(dot(H, V), 0.0), F0, roughness);       
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
@@ -182,6 +202,11 @@ void main() {
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
+
+    if (sceneFrameUBO.showLightComplexity > 0) {
+        float t = lightCountsSSBO.counts[tileIndex] / 32.0;
+        color *= vec3(t, 1.0 - t, 0.0);
+    }
 
     //outColor = vec4(brdf, 0.0, 1.0);
     outColor = vec4(color, texture(diffuseTexture, fragUv).a);
@@ -357,7 +382,7 @@ vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float me
     // cook-torrance brdf
     float NDF = DistributionGGX(N, H, roughness);        
     float G   = GeometrySmith(N, V, L, roughness);      
-    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+    vec3 F    = fresnelSchlickRoughness(max(dot(H, V), 0.0), F0, roughness);       
         
     vec3 kS = F;
     vec3 kD = vec3(1.0) - kS;
