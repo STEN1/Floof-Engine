@@ -204,7 +204,7 @@ void main() {
     color = pow(color, vec3(1.0/2.2)); 
 
     if (sceneFrameUBO.showLightComplexity > 0) {
-        float t = lightCountsSSBO.counts[tileIndex] / 32.0;
+        float t = lightCountsSSBO.counts[tileIndex] / 128.0;
         color *= vec3(t, 1.0 - t, 0.0);
     }
 
