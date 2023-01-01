@@ -433,6 +433,7 @@ namespace FLOOF {
         }
 
         // Draw landscape
+
         {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
             auto lightDescriptor = m_LightSSBO[frameIndex].GetDescriptorSet();
@@ -452,7 +453,6 @@ namespace FLOOF {
                 &m_BRDFLut.DesctriptorSet, 0, nullptr);
 
             auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
-
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
                 &shadowDescriptor, 0, nullptr);
 
@@ -461,8 +461,8 @@ namespace FLOOF {
                 &lightCountDescriptor, 0, nullptr);
 
             auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 9, 1,
-                &lightOffsetDescriptor, 0, nullptr);
+            //vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 9, 1,
+             //   &lightOffsetDescriptor, 0, nullptr);
 
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
             for (auto [entity, transform, landscape] : view.each()) {
@@ -495,6 +495,7 @@ namespace FLOOF {
                 vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
             }
+
         }
         {
             auto sortFunc = [](const AlphaDrawData& a, const AlphaDrawData& b) -> bool {
