@@ -356,6 +356,73 @@ namespace FLOOF {
             transform.Position.z += 40.f;
         }
 
+        for (float z = -1000.f; z < 1000.f; z += 200.f) {
+            for (float x = -1000.f; x < 1000.f; x += 200.f) {
+                if (glm::abs<float>(x) < 300.f && glm::abs<float>(z) < 300.f)
+                    continue;
+                const auto entity = m_Scene->CreateEntity("kalestra_the_sorceress");
+                auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/kalestra_the_sorceress/scene.gltf");
+                for (auto& mesh : sm.meshes) {
+                    if (mesh.MeshMaterial.Name == "07___Default" || mesh.MeshMaterial.Name == "magic"
+                        || mesh.MeshMaterial.Name == "Ground") {
+                        mesh.MeshMaterial.HasOpacity = true;
+                    }
+                }
+
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                transform.Rotation.x = -glm::half_pi<float>();
+                transform.Rotation.y = Math::RandFloat(0.f, glm::two_pi<float>());
+
+                transform.Position.x = x;
+                transform.Position.y = 26.0f;
+                transform.Position.z = z;
+            }
+        }
+
+        {
+            const auto entity = m_Scene->CreateEntity("dragon_warrior");
+            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/dragon_warrior/scene.gltf");
+            for (auto& mesh : sm.meshes) {
+                if (mesh.MeshMaterial.Name == "DragonWings_Cloth") {
+                    mesh.MeshMaterial.Opacity = Texture(TextureColor::LightGrey);
+                    mesh.MeshMaterial.HasOpacity = true;
+                    mesh.MeshMaterial.UpdateDescriptorSet();
+                }
+            }
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Rotation.y = 3.f;
+
+            transform.Position.x = -100.f;
+            transform.Position.y = -45.0f;
+
+            transform.Scale = glm::vec3(0.1f);
+        }
+
+        {
+            const auto entity = m_Scene->CreateEntity("dragon_warrior");
+            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/dragon_warrior/scene.gltf");
+            for (auto& mesh : sm.meshes) {
+                if (mesh.MeshMaterial.Name == "DragonWings_Cloth") {
+                    mesh.MeshMaterial.Opacity = Texture(TextureColor::LightGrey);
+                    mesh.MeshMaterial.HasOpacity = true;
+                    mesh.MeshMaterial.UpdateDescriptorSet();
+                }
+            }
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Rotation.y = 3.7f;
+
+            transform.Position.x = 175.f;
+            transform.Position.y = -45.0f;
+
+            transform.Scale = glm::vec3(0.1f);
+        }
+
+        {
+            const auto lightSwarmEntity = m_Scene->CreateEntity();
+            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
+            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 100.f;
+        }
+
         for (uint32_t i = 1; i < static_cast<uint32_t>(TextureColor::Size); i++) {
             auto color = static_cast<TextureColor>(i);
             static constexpr uint32_t yOffsetAmount = 3;
@@ -771,20 +838,6 @@ namespace FLOOF {
                 }
             }
 
-        }
-        // make monstertruck
-        /*
-        {
-            auto ent = m_Scene->CreateEntity("Local Player");
-            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<RaceCarScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene.get(), ent);
-            //m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene.get(), ent);
-            m_Scene->AddComponent<PlayerControllerComponent>(ent, 0);
-        }
-         */
-        {
-            const auto lightSwarmEntity = m_Scene->CreateEntity();
-            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
-            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 300.f;
         }
     }
 

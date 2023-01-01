@@ -1,0 +1,11 @@
+Model Information:
+* title:	Kalestra the Sorceress
+* source:	https://sketchfab.com/3d-models/kalestra-the-sorceress-87637fba3f7c41d2bf23df2987185102
+* author:	Alena (https://sketchfab.com/aed)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Kalestra the Sorceress" (https://sketchfab.com/3d-models/kalestra-the-sorceress-87637fba3f7c41d2bf23df2987185102) by Alena (https://sketchfab.com/aed) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

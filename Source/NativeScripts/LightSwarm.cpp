@@ -8,28 +8,25 @@ namespace FLOOF {
     {
         NativeScript::OnCreate(scene, entity);
 
-        m_Extents = glm::vec3(1200.f, 400.f, 1200.f);
-        uint32_t numLights = 256;
+        m_Extents = glm::vec3(1200.f, 200.f, 1200.f);
+        uint32_t numLights = 512;
         m_LightCount = numLights;
 
         for (uint32_t i = 0; i < numLights; i++) {
             const auto lightEntity = CreateEntity("Light", entity);
             auto& light = AddComponent<PointLightComponent>(lightEntity);
-            //auto& mesh = AddComponent<StaticMeshComponent>(lightEntity, "Assets/Ball.obj");
-            //int color = Math::RandInt(1, 8);
-            //int metallic = Math::RandInt(4, 7);
-            //int roughness = Math::RandInt(4, 7);
-            //mesh.meshes[0].MeshMaterial.Diffuse = Texture(static_cast<TextureColor>(color));
-            //mesh.meshes[0].MeshMaterial.Metallic = Texture(static_cast<TextureColor>(metallic));
-            //mesh.meshes[0].MeshMaterial.Roughness = Texture(static_cast<TextureColor>(roughness));
-            //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            auto& mesh = AddComponent<StaticMeshComponent>(lightEntity, "Assets/Ball.obj");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
+            mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
+            mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             light.diffuse = glm::vec4(Utils::ColorFromScalar(Math::RandFloat(0.f, 1000.f)), 1.0);
             glm::vec3 pos;
             pos.x = Math::RandFloat(-m_Extents.x, m_Extents.x);
             pos.y = Math::RandFloat(-m_Extents.y, m_Extents.y);
             pos.z = Math::RandFloat(-m_Extents.z, m_Extents.z);
             auto& transform = GetComponent<TransformComponent>(lightEntity);
-            transform.Scale = glm::vec3(light.outerRange * 0.1f);
+            transform.Scale = glm::vec3(light.outerRange * 0.01f);
             transform.Position = pos;
             m_Lights.push_back(lightEntity);
         }
