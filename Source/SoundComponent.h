@@ -28,6 +28,7 @@ namespace FLOOF {
 		void Volume();
 		void Volume(float volume);
 		void Pitch();
+		void Pitch(float pitch);
 		bool UpdateIsPlaying();
 		void Stop();
 		void Looping(bool looping);
