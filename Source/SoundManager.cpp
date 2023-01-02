@@ -186,6 +186,7 @@ namespace FLOOF {
         }
     }
 
+    /*
     void SoundManager::SetDoppler(float factor, float velocity) {
         
         // Any non-negative value 
@@ -200,7 +201,7 @@ namespace FLOOF {
         // Should be set to the projects equivalent of the real world speed of sound (around 330 m/s)
         alec(alDopplerVelocity(velocity)) 
     }
-
+*/
     ALuint SoundManager::LoadWav(std::string sound) {
 
         std::string path = "Assets/Sounds/" + sound;
