@@ -186,6 +186,21 @@ namespace FLOOF {
         }
     }
 
+    void SoundManager::SetDoppler(float factor, float velocity) {
+        
+        // Any non-negative value 
+        // 0 disables the effect;
+        // 1 will not change the effect
+        // A value between 0 and 1 minimize the effect
+        // A value greater than 1.0 will maximize the effect
+        alec(alDopplerFactor(factor))
+        
+        // Any non-negative non-zero value
+        // Speed of sound (setting how fast sound can move in the project
+        // Should be set to the projects equivalent of the real world speed of sound (around 330 m/s)
+        alec(alDopplerVelocity(velocity)) 
+    }
+
     ALuint SoundManager::LoadWav(std::string sound) {
 
         std::string path = "Assets/Sounds/" + sound;
