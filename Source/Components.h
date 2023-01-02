@@ -23,6 +23,7 @@
 #include "HeightField.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include <unordered_map>
+#include "Utils.h"
 
 namespace FLOOF {
 
@@ -109,6 +110,8 @@ namespace FLOOF {
         const bt::CollisionPrimitive Primitive;
 
         void wakeup();
+
+        glm::vec3 GetAngularVelocity(){return Utils::btToglm(RigidBody->getAngularVelocity());}
 
         //Set CollisionDispatcher
         void setCollisionDispatcher(void* ptr);
