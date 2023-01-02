@@ -53,7 +53,15 @@ namespace FLOOF {
 		static void UpdateMute();
 		inline static float MasterVolume{ 1.f };
 		inline static bool Muted{ false };
-		static void SetDoppler(float factor, float velocity);
+
+		static void UpdateDopplerFactor();
+		static void UpdateDopplerVelocity();
+
+		static void SetDopplerFactor(float factor);
+		static void SetDopplerVelocity(float velocity);
+
+		inline static float DopplerFactor{ 0.f };
+		inline static float DopplerVelocity{ 330.f };
 	private:
 		static std::vector<std::string> GetAvailableDevices();
 		static ALuint LoadWav(std::string sound);
@@ -66,8 +74,8 @@ namespace FLOOF {
 		inline static ALCcontext* s_Context{ nullptr };
 		inline static bool needsReload{ false };
 
-        static glm::vec3 CameraVelocity;
-        static glm::vec3 LastCamPos;
+		static glm::vec3 CameraVelocity;
+		static glm::vec3 LastCamPos;
 		// factory function return uniquie pointer to clips
 	};
 }

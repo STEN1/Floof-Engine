@@ -147,6 +147,7 @@ namespace FLOOF {
 
     void SoundManager::Update(Scene* scene, CameraComponent* camera) {
 
+
         float globalRefDistance = 125.0f;
         float globalMaxDistance = 1250.0f;
 
@@ -154,10 +155,16 @@ namespace FLOOF {
         LastCamPos = camera->Position;
 
         // TODO: Add listener velocity
-        SetListener(camera->Position, glm::vec3(0.f), camera->Forward, camera->Up);
+        SetListener(camera->Position, CameraVelocity, camera->Forward, camera->Up);
 
         auto view = scene->GetRegistry().view<TransformComponent, SoundComponent>();
         for (auto [entity, transform, soundsource] : view.each()) {
+
+            glm::vec3 vel{ 0.f };
+
+            auto rigid = scene->TryGetComponent<RigidBodyComponent>(entity);
+            if (rigid) { vel = rigid->GetAngularVelocity(); }
+
             if (needsReload == true) { soundsource.NewDeviceReload(); } // If device has changed
             auto pos = transform.GetWorldPosition();
 
@@ -166,7 +173,7 @@ namespace FLOOF {
                 alec(alSource3f(it->second->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
                 alSourcef(it->second->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
                 alSourcef(it->second->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
-                // TODO: Add source velocity
+                alSource3f(it->second->m_Source, AL_VELOCITY, vel.x, vel.y, vel.z);
             }
         }
         if (needsReload == true) { needsReload = false; }
@@ -191,22 +198,33 @@ namespace FLOOF {
         }
     }
 
-    /*
-    void SoundManager::SetDoppler(float factor, float velocity) {
-        
+
+    void SoundManager::UpdateDopplerFactor() {
         // Any non-negative value 
         // 0 disables the effect;
         // 1 will not change the effect
         // A value between 0 and 1 minimize the effect
         // A value greater than 1.0 will maximize the effect
-        alec(alDopplerFactor(factor))
-        
+        alec(alDopplerFactor(DopplerFactor));
+    }
+
+    void SoundManager::UpdateDopplerVelocity() {
         // Any non-negative non-zero value
         // Speed of sound (setting how fast sound can move in the project
         // Should be set to the projects equivalent of the real world speed of sound (around 330 m/s)
-        alec(alDopplerVelocity(velocity)) 
+        alec(alDopplerVelocity(DopplerVelocity));
     }
-*/
+
+    void SoundManager::SetDopplerFactor(float factor) {
+        DopplerFactor = factor;
+        UpdateDopplerFactor;
+    }
+
+    void SoundManager::SetDopplerVelocity(float velocity) {
+        DopplerVelocity = velocity;
+        UpdateDopplerVelocity;
+    }
+
     ALuint SoundManager::LoadWav(std::string sound) {
 
         std::string path = "Assets/Sounds/" + sound;
@@ -294,4 +312,3 @@ namespace FLOOF {
 }
 
 
-  
