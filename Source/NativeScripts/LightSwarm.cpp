@@ -8,8 +8,8 @@ namespace FLOOF {
     {
         NativeScript::OnCreate(scene, entity);
 
-        m_Extents = glm::vec3(1200.f, 200.f, 1200.f);
-        uint32_t numLights = 128;
+        m_Extents = glm::vec3(1000.f, 200.f, 1000.f);
+        uint32_t numLights = 2048;
         m_LightCount = numLights;
 
         for (uint32_t i = 0; i < numLights; i++) {
@@ -21,12 +21,13 @@ namespace FLOOF {
             mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
             mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             light.diffuse = glm::vec4(Utils::ColorFromScalar(Math::RandFloat(0.f, 1000.f)), 1.0);
+            light.outerRange = 128.f;
+            light.innerRange = light.outerRange * 0.5f;
             glm::vec3 pos;
             pos.x = Math::RandFloat(-m_Extents.x, m_Extents.x);
             pos.y = Math::RandFloat(-m_Extents.y, m_Extents.y);
             pos.z = Math::RandFloat(-m_Extents.z, m_Extents.z);
             auto& transform = GetComponent<TransformComponent>(lightEntity);
-            transform.Scale = glm::vec3(light.outerRange * 0.01f);
             transform.Position = pos;
             m_Lights.push_back(lightEntity);
         }

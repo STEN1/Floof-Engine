@@ -14,6 +14,7 @@ namespace FLOOF {
         Audio,
         Landscape,
         RenderingDemo,
+        RenderingDemoWithLights,
         Sponza,
         SponzaRacing
     };
@@ -23,6 +24,7 @@ namespace FLOOF {
         "Audio",
         "Landscape",
         "RenderingDemo",
+        "RenderingDemoWithLights",
         "Sponza",
         "SponzaRacing",
     };

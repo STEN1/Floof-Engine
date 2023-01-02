@@ -1,6 +1,5 @@
 #include "ServerLayer.h"
 #include "Application.h"
-#include "NativeScripts/LightSwarm.h"
 #include "NativeScripts/GameModeScript.h"
 
 FLOOF::ServerLayer::ServerLayer() {
@@ -144,9 +143,5 @@ void FLOOF::ServerLayer::MakeServerScene() {
             }
         }
 
-    }
-    {
-        const auto lightSwarmEntity = m_Scene->CreateEntity();
-        m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
     }
 }

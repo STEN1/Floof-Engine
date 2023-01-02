@@ -14,13 +14,13 @@ namespace FLOOF {
 #define FLOOF_CASCADE_COUNT 4
     struct SceneFrameData {
         glm::vec4 CameraPos = glm::vec4(0.f);
-        glm::vec4 SunPosition = glm::vec4(0.2f, 1.f, 1.2f, 1.f);
-        glm::vec4 SunColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.f);
+        glm::vec4 SunPosition = glm::vec4(-0.25f, 1.f, -0.5f, 1.f);
+        glm::vec4 SunColor = glm::vec4(1.0f, 0.85f, 0.6f, 1.f);
         glm::mat4 VP = glm::mat4(1.f);
         glm::mat4 LightSpaceMatrix[FLOOF_CASCADE_COUNT];
         glm::mat4 View = glm::mat4(1.f);
         glm::vec4 SplitDists = glm::vec4(0.f);
-        float sunStrenght = 10.f;
+        float sunStrenght = 5.f;
         int TileSize = 128;
         int CascadeCount = FLOOF_CASCADE_COUNT;
         float AmbientIntensity = 1.f;
