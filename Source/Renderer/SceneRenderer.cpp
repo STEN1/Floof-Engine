@@ -375,13 +375,9 @@ namespace FLOOF {
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                     &shadowDescriptor, 0, nullptr);
 
-                auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
+                auto lightCountDescriptor = m_LightCountOffsetsSSBO[frameIndex].GetDescriptorSet();
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
                     &lightCountDescriptor, 0, nullptr);
-
-                auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
-                    &lightOffsetDescriptor, 0, nullptr);
             }
             if (m_DrawMode == RenderPipelineKeys::Wireframe || m_DrawMode == RenderPipelineKeys::UV) {
                 auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
@@ -456,13 +452,9 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
                 &shadowDescriptor, 0, nullptr);
 
-            auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
+            auto lightCountDescriptor = m_LightCountOffsetsSSBO[frameIndex].GetDescriptorSet();
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
                 &lightCountDescriptor, 0, nullptr);
-
-            auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 9, 1,
-                &lightOffsetDescriptor, 0, nullptr);
 
             auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
             for (auto [entity, transform, landscape] : view.each()) {
@@ -524,13 +516,9 @@ namespace FLOOF {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
                 &shadowDescriptor, 0, nullptr);
 
-            auto lightCountDescriptor = m_LightCountsSSBO[frameIndex].GetDescriptorSet();
+            auto lightCountDescriptor = m_LightCountOffsetsSSBO[frameIndex].GetDescriptorSet();
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
                 &lightCountDescriptor, 0, nullptr);
-
-            auto lightOffsetDescriptor = m_LightOffsetsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
-                &lightOffsetDescriptor, 0, nullptr);
 
             for (auto& drawData : transparentGeometry) {
                 MeshPushConstants constants;
@@ -741,11 +729,6 @@ namespace FLOOF {
             }
         }
 
-        std::vector<PointLightComponent::PointLight> pointLights;
-        std::vector<int> lightCounts;
-        std::vector<int> offsets;
-        int offset{};
-
         int tileCountX = 0;
         for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
             tileCountX++;
@@ -813,6 +796,8 @@ namespace FLOOF {
 
                     int lightCount{};
 
+                    pointLights.reserve(tempPointLights.size());
+
                     for (auto& light : tempPointLights) {
                         bool intersecting = true;
                         for (auto& [pos, normal] : faces) {
@@ -836,11 +821,21 @@ namespace FLOOF {
         for (auto& fut : futures)
             fut.get();
 
+        std::vector<std::pair<int, int>> lightCountOffsets;
+        lightCountOffsets.reserve(256);
+        int offset{};
+
+        uint32_t allLightsSize{};
+        for (auto& partialLightVec : pointLightVectors)
+            allLightsSize += partialLightVec.size();
+
+        std::vector<PointLightComponent::PointLight> pointLights;
+        pointLights.reserve(allLightsSize);
+
         for (auto& partialLightVec : pointLightVectors) {
             pointLights.insert(pointLights.end(), partialLightVec.begin(), partialLightVec.end());
-            offsets.push_back(offset);
             auto lightCount = partialLightVec.size();
-            lightCounts.push_back(lightCount);
+            lightCountOffsets.emplace_back(std::make_pair(lightCount, offset));
             offset += lightCount;
         }
 
@@ -849,8 +844,7 @@ namespace FLOOF {
         auto* window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
 
-        m_LightCountsSSBO[frameIndex].Update(lightCounts);
-        m_LightOffsetsSSBO[frameIndex].Update(offsets);
+        m_LightCountOffsetsSSBO[frameIndex].Update(lightCountOffsets);
         m_LightSSBO[frameIndex].Update(pointLights);
     }
 
@@ -864,8 +858,7 @@ namespace FLOOF {
         m_SceneDataUBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_DebugLineMesh.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         m_LightSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_LightCountsSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
-        m_LightOffsetsSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
+        m_LightCountOffsetsSSBO.resize(VulkanGlobals::MAX_FRAMES_IN_FLIGHT);
         for (auto& shadowDB : m_ShadowDepthBuffers) {
             shadowDB = std::make_unique<DepthFramebuffer>(m_ShadowRes, m_ShadowRes, m_SceneFrameData.CascadeCount);
         }
@@ -922,7 +915,7 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(8);
+            params.DescriptorSetLayoutBindings.resize(7);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
@@ -930,7 +923,6 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
@@ -946,7 +938,7 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(8);
+            params.DescriptorSetLayoutBindings.resize(7);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
@@ -954,7 +946,6 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.CullMode = VK_CULL_MODE_NONE;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
@@ -971,7 +962,7 @@ namespace FLOOF {
             params.BindingDescription = MeshVertex::GetBindingDescription();
             params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
             params.PushConstantSize = sizeof(MeshPushConstants);
-            params.DescriptorSetLayoutBindings.resize(10);
+            params.DescriptorSetLayoutBindings.resize(9);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
@@ -981,7 +972,6 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LandscapeMaterial];
             params.DescriptorSetLayoutBindings[7] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.DescriptorSetLayoutBindings[8] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
-            params.DescriptorSetLayoutBindings[9] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);

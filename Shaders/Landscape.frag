@@ -56,13 +56,14 @@ layout (set = 4, binding = 0) uniform sampler2D brdfLut;
 
 layout (set = 7, binding = 0) uniform sampler2DArray shadowMap;
 
-layout (std430, set = 8, binding = 0) readonly buffer LightCountsSSBO {
-    int counts[];
-} lightCountsSSBO;
+struct LightCountOffset {
+    int count;
+    int offset;
+};
 
-layout (std430, set = 9, binding = 0) readonly buffer LightOffsetsSSBO {
-    int offsets[];
-} lightOffsetsSSBO;
+layout (std430, set = 8, binding = 0) readonly buffer LightCountOffsetsSSBO {
+    LightCountOffset countOffsets[];
+} lightCountOffsetsSSBO;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
@@ -140,8 +141,8 @@ void main() {
     int tileIndex = (tileId.y * sceneFrameUBO.tileCountX) + tileId.x;
 
     // Point lights
-    for(int i = lightOffsetsSSBO.offsets[tileIndex];
-        i < lightCountsSSBO.counts[tileIndex] + lightOffsetsSSBO.offsets[tileIndex];
+    for(int i = lightCountOffsetsSSBO.countOffsets[tileIndex].offset;
+        i < lightCountOffsetsSSBO.countOffsets[tileIndex].count + lightCountOffsetsSSBO.countOffsets[tileIndex].offset;
         ++i) 
     {
         vec3 lighgPos = lightSSBO.lights[i].position.xyz;
@@ -204,7 +205,7 @@ void main() {
     color = pow(color, vec3(1.0/2.2)); 
 
     if (sceneFrameUBO.showLightComplexity > 0) {
-        float t = lightCountsSSBO.counts[tileIndex] / 128.0;
+        float t = lightCountOffsetsSSBO.countOffsets[tileIndex].count / 64.0;
         color *= vec3(t, 1.0 - t, 0.0);
     }
 
