@@ -67,6 +67,7 @@ namespace FLOOF {
 		inline static bool needsReload{ false };
 
         static glm::vec3 CameraVelocity;
+        static glm::vec3 LastCamPos;
 		// factory function return uniquie pointer to clips
 	};
 }
