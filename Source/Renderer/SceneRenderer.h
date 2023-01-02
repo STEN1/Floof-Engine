@@ -114,8 +114,7 @@ namespace FLOOF {
 
         std::vector<VulkanUBO<SceneFrameData>> m_SceneDataUBO{};
         std::vector<VulkanSSBO<PointLightComponent::PointLight>> m_LightSSBO{};
-        std::vector<VulkanSSBO<int>> m_LightCountsSSBO{};
-        std::vector<VulkanSSBO<int>> m_LightOffsetsSSBO{};
+        std::vector<VulkanSSBO<std::pair<int, int>>> m_LightCountOffsetsSSBO{};
 
         std::unique_ptr<Skybox> m_Skybox;
 
