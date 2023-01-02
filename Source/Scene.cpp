@@ -65,8 +65,8 @@ namespace FLOOF {
 
         for (auto childEntity: rel.Children) {
             DestroyChildEntity(childEntity);
-
         }
+
         //remove from physics
         if (m_PhysicSystem) {
             auto *rigid = TryGetComponent<RigidBodyComponent>(entity);
@@ -74,6 +74,7 @@ namespace FLOOF {
                 for (int i{0}; i < rigid->RigidBody->getNumConstraintRefs(); i++) {
                     auto *ref = rigid->RigidBody->getConstraintRef(i);
                     m_PhysicSystem->GetWorld()->removeConstraint(ref);
+                    rigid->RigidBody->removeConstraintRef(ref);
                 }
 
                 m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
