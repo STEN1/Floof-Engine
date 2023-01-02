@@ -148,6 +148,7 @@ namespace FLOOF {
         float globalRefDistance = 125.0f;
         float globalMaxDistance = 1250.0f;
 
+        // TODO: Add listener velocity
         SetListener(camera->Position, glm::vec3(0.f), camera->Forward, camera->Up);
 
         auto view = scene->GetRegistry().view<TransformComponent, SoundComponent>();
@@ -160,6 +161,7 @@ namespace FLOOF {
                 alec(alSource3f(it->second->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
                 alSourcef(it->second->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
                 alSourcef(it->second->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
+                // TODO: Add source velocity
             }
         }
         if (needsReload == true) { needsReload = false; }
