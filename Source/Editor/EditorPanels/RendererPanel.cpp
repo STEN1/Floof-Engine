@@ -72,6 +72,18 @@ namespace FLOOF {
 			}
 		}
 
+		// Show cascades
+		bool showCasscades = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowCasscades == 1 ? true : false;
+		if (ImGui::Checkbox("Show casscades", &showCasscades)) {
+			if (showCasscades) {
+				m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowCasscades = 1;
+				m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.ShowCasscades = 1;
+			} else {
+				m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowCasscades = 0;
+				m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.ShowCasscades = 0;
+			}
+		}
+
 		int tileSize = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.TileSize;
 		if (ImGui::DragInt("TileSize", &tileSize, 8, 8, 10000, "%d", ImGuiSliderFlags_AlwaysClamp)) {
 			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.TileSize = tileSize;

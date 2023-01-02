@@ -44,6 +44,7 @@ layout (std140, set = 1, binding = 0) uniform SceneFrameUBO {
     float bias;
     int tileCountX;
     int showLightComplexity;
+    int showCasscades;
 } sceneFrameUBO;
 
 layout (std140, set = 2, binding = 0) readonly buffer LightSSBO {
@@ -205,8 +206,24 @@ void main() {
     color = pow(color, vec3(1.0/2.2)); 
 
     if (sceneFrameUBO.showLightComplexity > 0) {
-        float t = lightCountOffsetsSSBO.countOffsets[tileIndex].count / 64.0;
-        color *= vec3(t, 1.0 - t, 0.0);
+        float t = lightCountOffsetsSSBO.countOffsets[tileIndex].count / 32.0;
+        if (t < 0.5) {
+            color *= mix(vec3(0, 0, 1), vec3(0, 1, 0), t * 2.0);
+        } else {
+            color *= mix(vec3(0, 1, 0), vec3(1, 0, 0), (t - 0.5) * 2.0);
+        }
+    }
+
+    if (sceneFrameUBO.showCasscades > 0 ) {
+        if (cascadeIndex == 0) {
+            color *= vec3(0, 0, 1);
+        } else if (cascadeIndex == 1) {
+            color *= vec3(0, 1, 0);
+        } else if (cascadeIndex == 2) {
+            color *= vec3(1, 0, 0);
+        } else if (cascadeIndex == 3) {
+            color *= vec3(1, 0, 1);
+        }
     }
 
     //outColor = vec4(brdf, 0.0, 1.0);

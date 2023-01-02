@@ -66,8 +66,13 @@ namespace FLOOF {
 		inline static ALCcontext* s_Context{ nullptr };
 		inline static bool needsReload{ false };
 
+<<<<<<< HEAD
         //static glm::vec3 CameraVelocity;
         //static glm::vec3 LastCamPos;
+=======
+        inline static glm::vec3 CameraVelocity;
+        inline static glm::vec3 LastCamPos;
+>>>>>>> cb15025caa9473cf742b5296d2116d267390bb0e
 		// factory function return uniquie pointer to clips
 	};
 }
