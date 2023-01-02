@@ -53,7 +53,7 @@ namespace FLOOF {
 		static void UpdateMute();
 		inline static float MasterVolume{ 1.f };
 		inline static bool Muted{ false };
-
+		static void SetDoppler(float factor, float velocity);
 	private:
 		static std::vector<std::string> GetAvailableDevices();
 		static ALuint LoadWav(std::string sound);

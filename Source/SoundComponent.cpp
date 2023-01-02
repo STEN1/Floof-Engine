@@ -20,11 +20,16 @@ namespace FLOOF {
 
     void SoundClip::Volume(float volume) {
         m_Volume = volume;
-        alec(alSourcef(m_Source, AL_GAIN, volume));
+        Volume();
     }
 
     void SoundClip::Pitch() {
         alec(alSourcef(m_Source, AL_PITCH, m_Pitch));
+    }
+
+    void SoundClip::Pitch(float pitch) {
+        m_Pitch = pitch;
+        Pitch();
     }
 
     bool SoundClip::UpdateIsPlaying() {
