@@ -9,11 +9,11 @@ namespace FLOOF {
         static uint32_t sceneID = 0;
         m_SceneID = sceneID++;
 
-        if(Application::GetLayerType() != LayerType::SERVER)
+        if (Application::GetLayerType() != LayerType::SERVER)
             m_SceneRenderer = std::make_unique<SceneRenderer>();
 
         m_PhysicSystem = std::make_unique<PhysicsSystem>(m_Registry);
-        if(Application::GetLayerType() != LayerType::SERVER){
+        if (Application::GetLayerType() != LayerType::SERVER) {
             m_PhysicsDebugDrawer = std::make_unique<PhysicsDebugDraw>();
             m_PhysicsDebugDrawer->setDebugMode(btIDebugDraw::DBG_NoDebug);
             auto world = m_PhysicSystem->GetWorld();
@@ -78,6 +78,9 @@ namespace FLOOF {
                 }
 
                 //todo find out why refcount on m_constraintref is not 0
+                if (rigid->RigidBody->getNumConstraintRefs() != 0)
+                    std::cout << "Constraints Refcount not 0 " << std::endl;
+
                 m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
             }
         }
