@@ -62,6 +62,10 @@ namespace FLOOF {
 
 		inline static float DopplerFactor{ 0.f };
 		inline static float DopplerVelocity{ 330.f };
+
+		static glm::vec3 CameraVelocity;
+		static glm::vec3 LastCamPos;
+		
 	private:
 		static std::vector<std::string> GetAvailableDevices();
 		static ALuint LoadWav(std::string sound);
@@ -74,8 +78,7 @@ namespace FLOOF {
 		inline static ALCcontext* s_Context{ nullptr };
 		inline static bool needsReload{ false };
 
-		static glm::vec3 CameraVelocity;
-		static glm::vec3 LastCamPos;
+
 		// factory function return uniquie pointer to clips
 	};
 }
