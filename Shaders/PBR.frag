@@ -173,7 +173,7 @@ void main() {
     float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
 
     if (sceneFrameUBO.showLightComplexity > 0) {
-        float t = lightCountOffsetsSSBO.countOffsets[tileIndex].count / 64.0;
+        float t = lightCountOffsetsSSBO.countOffsets[tileIndex].count / 32.0;
         if (t < 0.5) {
             color *= mix(vec3(0, 0, 1), vec3(0, 1, 0), t * 2.0);
         } else {
