@@ -77,6 +77,7 @@ namespace FLOOF {
                     rigid->RigidBody->removeConstraintRef(ref);
                 }
 
+                //todo find out why refcount on m_constraintref is not 0
                 m_PhysicSystem->GetWorld()->removeRigidBody(rigid->RigidBody.get());
             }
         }
