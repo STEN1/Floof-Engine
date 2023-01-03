@@ -121,8 +121,6 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         body.setCollisionDispatcher(TruckCallback.get());
 
-
-
     }
     //Breaklight
     {
