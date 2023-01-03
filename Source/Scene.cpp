@@ -139,7 +139,7 @@ namespace FLOOF {
 */
         m_PhysicSystem->OnUpdate(deltaTime);
 
-        SoundManager::Update(this, GetActiveCamera());
+        SoundManager::Update(this, &m_EditorCamera);
 
         for (auto [entity, nativeScript]: nativeScriptView.each()) {
             nativeScript.Script->LastUpdate(deltaTime);
