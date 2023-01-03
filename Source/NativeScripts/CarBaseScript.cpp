@@ -45,6 +45,8 @@ void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
         auto &sound = scene->AddComponent<SoundComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
         sound.AddClip("pinchcliffe.wav");
+        ImpactSound = sound.AddClip("metal_impact_mono.wav");
+
     }
 
     //hinge car togheter
@@ -508,7 +510,9 @@ FLOOF::CarBaseScript::~CarBaseScript() {
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
     std::cout << "On Begin Overlap" << std::endl;
-
+        
+    SoundClip impact("metal_impact_mono.wav");
+	impact.Play();
 }
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *obj2) {

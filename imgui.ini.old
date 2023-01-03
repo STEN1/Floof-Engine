@@ -1,0 +1,165 @@
+[Window][Dock space]
+Pos=0,0
+Size=1600,900
+Collapsed=0
+
+[Window][Debug##Default]
+Pos=60,60
+Size=400,400
+Collapsed=0
+
+[Window][Scene graph]
+Pos=1276,19
+Size=324,412
+Collapsed=0
+DockId=0x00000003,1
+
+[Window][Components]
+Pos=1276,433
+Size=324,467
+Collapsed=0
+DockId=0x00000004,0
+
+[Window][Application]
+Pos=1276,19
+Size=324,412
+Collapsed=0
+DockId=0x00000003,0
+
+[Window][Scene renderer]
+Pos=0,19
+Size=2855,1267
+Collapsed=0
+DockId=0x00000001,0
+
+[Window][Scripts]
+Pos=1172,19
+Size=340,410
+Collapsed=0
+DockId=0x00000003,2
+
+[Window][Spawn Rigid Bodies]
+Pos=776,532
+Size=359,215
+Collapsed=0
+DockId=0x00000006,1
+
+[Window][Spawn Soft Bodies]
+Pos=929,442
+Size=359,435
+Collapsed=0
+DockId=0x00000006,0
+
+[Window][DebugDraw]
+Pos=819,329
+Size=200,80
+Collapsed=0
+
+[Window][Physics Panel]
+Pos=1276,433
+Size=324,467
+Collapsed=0
+DockId=0x00000004,1
+
+[Window][Dear ImGui Demo]
+Pos=458,46
+Size=550,680
+Collapsed=0
+
+[Window][Engine Panel]
+Pos=1099,401
+Size=413,430
+Collapsed=0
+DockId=0x00000004,2
+
+[Window][Sounds Settings]
+Pos=1276,433
+Size=324,467
+Collapsed=0
+DockId=0x00000004,2
+
+[Window][Renderer]
+Pos=1276,19
+Size=324,412
+Collapsed=0
+DockId=0x00000003,2
+
+[Window][Scene renderer0]
+Pos=0,19
+Size=1210,881
+Collapsed=0
+DockId=0x00000001,0
+
+[Window][Scene renderer1]
+Pos=0,19
+Size=1210,881
+Collapsed=0
+DockId=0x00000001,0
+
+[Window][Scene renderer2]
+Pos=0,19
+Size=1210,881
+Collapsed=0
+DockId=0x00000001,0
+
+[Window][Play view]
+Pos=299,19
+Size=887,812
+Collapsed=0
+DockId=0x00000001,1
+
+[Window][Editor view]
+Pos=0,19
+Size=1274,881
+Collapsed=0
+DockId=0x00000001,0
+
+[Window][Stacked 1]
+Pos=551,329
+Size=409,172
+Collapsed=0
+
+[Window][Delete?]
+Pos=600,356
+Size=311,118
+Collapsed=0
+
+[Window][Play Camera]
+Pos=0,19
+Size=297,84
+Collapsed=0
+DockId=0x00000007,0
+
+[Window][engine Panel]
+Pos=0,105
+Size=297,726
+Collapsed=0
+DockId=0x00000008,0
+
+[Window][Sound Clip]
+Pos=60,60
+Size=32,35
+Collapsed=0
+
+[Window][NetworkPanel]
+Pos=258,129
+Size=87,77
+Collapsed=0
+
+[Window][Sounds Sources]
+Pos=82,206
+Size=185,161
+Collapsed=0
+
+[Docking][Data]
+DockNode        ID=0x00000006 Pos=1849,597 Size=359,435
+DockSpace       ID=0xB3F6B5FE Window=0xC8280D8F Pos=137,102 Size=1600,881 Split=X Selected=0xD99FCECE
+  DockNode      ID=0x00000005 Parent=0xB3F6B5FE SizeRef=297,812 Split=Y Selected=0xF5B71BA7
+    DockNode    ID=0x00000007 Parent=0x00000005 SizeRef=298,54 Selected=0xF5B71BA7
+    DockNode    ID=0x00000008 Parent=0x00000005 SizeRef=298,464 Selected=0xD6C63FBB
+  DockNode      ID=0x00000009 Parent=0xB3F6B5FE SizeRef=1213,812 Split=X
+    DockNode    ID=0x00000001 Parent=0x00000009 SizeRef=887,815 CentralNode=1 Selected=0x69CDF2B5
+    DockNode    ID=0x00000002 Parent=0x00000009 SizeRef=324,815 Split=Y Selected=0xF5BE1C77
+      DockNode  ID=0x00000003 Parent=0x00000002 SizeRef=359,380 Selected=0xD4E24632
+      DockNode  ID=0x00000004 Parent=0x00000002 SizeRef=359,430 Selected=0xC85E17C7
+

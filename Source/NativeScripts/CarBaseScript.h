@@ -79,6 +79,8 @@ namespace FLOOF {
         void AddToPhysicsWorld();
 
         uint32_t CarType{0};
+        std::shared_ptr<SoundClip> ImpactSound;
+
     protected:
 
         const glm::vec3 SpawnLocation;
@@ -97,6 +99,7 @@ namespace FLOOF {
         entt::entity BreakLight;
         entt::entity HeadLightR;
         entt::entity HeadLightL;
+
 
         std::vector<btHinge2Constraint *> axles;
         int graphnumb = 0;
