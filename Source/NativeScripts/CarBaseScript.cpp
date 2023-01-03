@@ -224,6 +224,7 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
         auto clip = scene->GetComponent<SoundComponent>(frame).GetClip("Vehicles_idle2.wav");
 
         float pitch = engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce / engine.Gears[engine.CurrentGear].second;
+        pitch = engine.getEnginePitch(glm::length(car.GetLinearVelocity()));
         clip->Pitch(pitch);
 
 
@@ -532,29 +533,27 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, vo
 
     auto *ptr = reinterpret_cast<btRigidBody *>(obj1)->getUserPointer();
     if (ptr != nullptr) {
-        auto *dispatcher = reinterpret_cast<CollisionDispatcher *>(ptr);
-        if(dispatcher != nullptr){
-            auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(dispatcher->mEntity);
-            if(checkpoint){
-                auto *cp = reinterpret_cast<CheckPointScript *>(checkpoint->Script.get());
-                if (cp) {
-                    Blacklist |= true;
-                }
+        auto *dispatcher = static_cast<CollisionDispatcher *>(ptr);
+        auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(dispatcher->mEntity);
+        if (checkpoint) {
+            auto *cp = dynamic_cast<CheckPointScript *>(checkpoint->Script.get());
+            if (cp) {
+                Blacklist |= true;
+
             }
         }
     }
     ptr = reinterpret_cast<btRigidBody *>(obj2)->getUserPointer();
     if (ptr != nullptr) {
-        auto *dispatcher = reinterpret_cast<CollisionDispatcher *>(ptr);
-        if(dispatcher != nullptr){
-            auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(dispatcher->mEntity);
-            if(checkpoint){
-                auto *cp = reinterpret_cast<CheckPointScript *>(checkpoint->Script.get());
-                if (cp) {
-                    Blacklist |= true;
-                }
+        auto *dispatcher = static_cast<CollisionDispatcher *>(ptr);
+        auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(dispatcher->mEntity);
+        if (checkpoint) {
+            auto *cp = dynamic_cast<CheckPointScript *>(checkpoint->Script.get());
+            if (cp) {
+                Blacklist |= true;
             }
         }
+
     }
 
     if (ImpactSound && !Blacklist) { ImpactSound->Play(); }

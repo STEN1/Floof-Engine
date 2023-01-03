@@ -55,6 +55,9 @@ namespace FLOOF {
         int CurrentGear{0};
         std::vector<std::pair<float, float>> Gears; // max velocity, max torque
 
+        float getEnginePitch(float velocity){
+            return 1+(velocity/Gears[CurrentGear].first);
+        }
     };
 
     class CarBaseScript : public NativeScript {
