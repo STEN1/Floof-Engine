@@ -526,7 +526,7 @@ FLOOF::CarBaseScript::~CarBaseScript() {
 
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
-    std::cout << "On Begin Overlap" << std::endl;
+    //std::cout << "On Begin Overlap" << std::endl;
     //todo blacklist checkpoint
     bool Blacklist{false};
 
@@ -543,7 +543,6 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, vo
             }
         }
     }
-
     ptr = reinterpret_cast<btRigidBody *>(obj2)->getUserPointer();
     if (ptr != nullptr) {
         auto *dispatcher = reinterpret_cast<CollisionDispatcher *>(ptr);
@@ -567,5 +566,5 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *o
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onEndOverlap(void *obj) {
     CollisionDispatcher::onEndOverlap(obj);
-    std::cout << "On End Overlap" << std::endl;
+    //std::cout << "On End Overlap" << std::endl;
 }
