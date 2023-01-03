@@ -154,8 +154,10 @@ namespace FLOOF {
         CameraVelocity = LastCamPos - camera->Position;
         LastCamPos = camera->Position;
 
+        float velScale{ 1.f };
+
         // TODO: Add listener velocity
-        SetListener(camera->Position, CameraVelocity, camera->Forward, camera->Up);
+        SetListener(camera->Position, CameraVelocity * velScale, camera->Forward, camera->Up);
 
         auto view = scene->GetRegistry().view<TransformComponent, SoundComponent>();
         for (auto [entity, transform, soundsource] : view.each()) {
@@ -173,7 +175,7 @@ namespace FLOOF {
                 alec(alSource3f(it->second->m_Source, AL_POSITION, pos.x, pos.y, pos.z));
                 alSourcef(it->second->m_Source, AL_REFERENCE_DISTANCE, globalRefDistance);
                 alSourcef(it->second->m_Source, AL_MAX_DISTANCE, globalMaxDistance);
-                alSource3f(it->second->m_Source, AL_VELOCITY, vel.x, vel.y, vel.z);
+                alSource3f(it->second->m_Source, AL_VELOCITY, vel.x * velScale, vel.y * velScale, vel.z * velScale);
             }
         }
         if (needsReload == true) { needsReload = false; }

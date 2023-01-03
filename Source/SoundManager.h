@@ -63,8 +63,8 @@ namespace FLOOF {
 		inline static float DopplerFactor{ 0.f };
 		inline static float DopplerVelocity{ 330.f };
 
-		static glm::vec3 CameraVelocity;
-		static glm::vec3 LastCamPos;
+		inline static glm::vec3 CameraVelocity;
+		inline static glm::vec3 LastCamPos;
 		
 	private:
 		static std::vector<std::string> GetAvailableDevices();
