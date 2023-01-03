@@ -221,8 +221,12 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
         }
         
         auto clip = scene->GetComponent<SoundComponent>(frame).GetClip("Vehicles_idle2.wav");
-		clip->Pitch(1.f + engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce);
-		std::cout << "Engine force: " << engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce << std::endl;
+
+        float pitch = engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce / engine.Gears[engine.CurrentGear].second;
+		clip->Pitch(pitch);
+
+        
+		std::cout << "Engine force: " << pitch << std::endl;
         
     }
 
