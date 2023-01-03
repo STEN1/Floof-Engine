@@ -30,7 +30,7 @@ namespace FLOOF {
 
 		void MakePhysicsScene();
 		void MakePhysicsPlayGround();
-		void MakeRenderingDemoScene();
+		void MakeRenderingDemoScene(bool withLightSwarm);
 		void MakeAudioTestScene();
 		void MakeLandscapeScene();
 		void MakeSponzaScene();

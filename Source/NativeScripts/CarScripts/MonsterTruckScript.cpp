@@ -3,7 +3,7 @@
 
 void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     frame = entity;
-
+    TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
     CarType = 2;
 
     auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx", false);

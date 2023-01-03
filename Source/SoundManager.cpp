@@ -48,7 +48,7 @@ namespace FLOOF {
 
     void SoundManager::InitOpenAL(std::string device) {
 
-        LastCamPos = glm::vec3(0.f);
+        //LastCamPos = glm::vec3(0.f);
 
         UpdateDeviceList();
         if (device != "DEFAULT") {
@@ -151,8 +151,8 @@ namespace FLOOF {
         float globalRefDistance = 125.0f;
         float globalMaxDistance = 1250.0f;
 
-        CameraVelocity = LastCamPos - camera->Position;
-        LastCamPos = camera->Position;
+        //CameraVelocity = LastCamPos - camera->Position;
+        //LastCamPos = camera->Position;
 
         float velScale{ 1.f };
 

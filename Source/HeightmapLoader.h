@@ -18,6 +18,7 @@ namespace FLOOF {
 
         int height, width;
 	private:
+
 		const char* filepath;
 
 		float zScale{ 1.0f };

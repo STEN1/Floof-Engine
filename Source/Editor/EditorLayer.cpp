@@ -258,7 +258,12 @@ namespace FLOOF {
                 break;
             }
             case DebugScenes::RenderingDemo: {
-                MakeRenderingDemoScene();
+                MakeRenderingDemoScene(false);
+                break;
+            }
+            case DebugScenes::RenderingDemoWithLights:
+            {
+                MakeRenderingDemoScene(true);
                 break;
             }
             case DebugScenes::Audio: {
@@ -314,7 +319,7 @@ namespace FLOOF {
         }
     }
 
-    void EditorLayer::MakeRenderingDemoScene() {
+    void EditorLayer::MakeRenderingDemoScene(bool withLightSwarm) {
         m_Scene = std::make_unique<Scene>();
 
         {
@@ -352,50 +357,87 @@ namespace FLOOF {
             auto &transform = m_Scene->GetComponent<TransformComponent>(ent);
             transform.Rotation.x = -1.f;
             transform.Rotation.y += glm::pi<float>() / 2.f;
-            transform.Position.y += 55.f;
-            transform.Position.z += 40.f;
+
+            transform.Position.x = -93.f;
+            transform.Position.y += 64.f;
+            transform.Position.z += 350.f;
         }
 
-        for (float z = -1000.f; z < 1100.f; z += 200.f) {
-            for (float x = -1000.f; x < 1100.f; x += 200.f) {
-                if (glm::abs<float>(x) < 300.f && glm::abs<float>(z) < 300.f)
-                    continue;
-                const auto entity = m_Scene->CreateEntity("kalestra_the_sorceress");
-                auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/kalestra_the_sorceress/scene.gltf");
-                for (auto& mesh : sm.meshes) {
-                    if (mesh.MeshMaterial.Name == "07___Default" || mesh.MeshMaterial.Name == "magic"
-                        || mesh.MeshMaterial.Name == "Ground") {
-                        mesh.MeshMaterial.HasOpacity = true;
-                    }
-                }
-
-                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
-                transform.Rotation.x = -glm::half_pi<float>();
-                transform.Rotation.y = Math::RandFloat(0.f, glm::two_pi<float>());
-
-                transform.Position.x = x;
-                transform.Position.y = 27.0f;
-                transform.Position.z = z;
-            }
-        }
-
-        {
-            const auto entity = m_Scene->CreateEntity("dragon_warrior");
-            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/dragon_warrior/scene.gltf");
+         {
+            const auto entity = m_Scene->CreateEntity("kalestra_the_sorceress");
+            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/kalestra_the_sorceress/scene.gltf");
             for (auto& mesh : sm.meshes) {
-                if (mesh.MeshMaterial.Name == "DragonWings_Cloth") {
-                    mesh.MeshMaterial.Opacity = Texture(TextureColor::LightGrey);
+                if (mesh.MeshMaterial.Name == "07___Default" || mesh.MeshMaterial.Name == "magic"
+                    || mesh.MeshMaterial.Name == "Ground") {
                     mesh.MeshMaterial.HasOpacity = true;
-                    mesh.MeshMaterial.UpdateDescriptorSet();
                 }
             }
+
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
-            transform.Rotation.y = 3.f;
+            transform.Rotation.x = -glm::half_pi<float>();
+            transform.Rotation.y = glm::pi<float>();
 
-            transform.Position.x = -100.f;
-            transform.Position.y = -45.0f;
+            transform.Position.x = -26.f;
+            transform.Position.y = -9.3f;
+            transform.Position.z = 190.f;
 
-            transform.Scale = glm::vec3(0.1f);
+            transform.Scale = glm::vec3(0.5f);
+
+            { // ball light
+                const auto lightEntity = m_Scene->CreateEntity("Ball light", entity);
+                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                transform.Position.x = 40.2f;
+                transform.Position.y = -30.5f;
+                transform.Position.z = 10.7f;
+
+                light.innerRange = 11.f;
+                light.outerRange = 43.f;
+                light.intensity = 40000.f;
+                light.diffuse = glm::vec4(0.5f, 1.f, 1.f, 1.f);
+            }
+
+            { // ball light
+                const auto lightEntity = m_Scene->CreateEntity("Ball light", entity);
+                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                transform.Position.x = 72.2f;
+                transform.Position.y = 4.5f;
+                transform.Position.z = 23.7f;
+
+                light.innerRange = 11.f;
+                light.outerRange = 43.f;
+                light.intensity = 40000.f;
+                light.diffuse = glm::vec4(0.5f, 1.f, 1.f, 1.f);
+            }
+
+            { // ball light
+                const auto lightEntity = m_Scene->CreateEntity("Ball light", entity);
+                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                transform.Position.x = 32.2f;
+                transform.Position.y = 45.5f;
+                transform.Position.z = 34.7f;
+
+                light.innerRange = 11.f;
+                light.outerRange = 43.f;
+                light.intensity = 40000.f;
+                light.diffuse = glm::vec4(0.5f, 1.f, 1.f, 1.f);
+            }
+
+            { // book light
+                const auto lightEntity = m_Scene->CreateEntity("Book light", entity);
+                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                transform.Position.x = -43.8f;
+                transform.Position.y = -29.5f;
+                transform.Position.z = 66.3f;
+
+                light.innerRange = 0.f;
+                light.outerRange = 62.f;
+                light.intensity = 4000.f;
+                light.diffuse = glm::vec4(0.5f, 1.f, 1.f, 1.f);
+            }
         }
 
         {
@@ -411,13 +453,47 @@ namespace FLOOF {
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Rotation.y = 3.7f;
 
-            transform.Position.x = 175.f;
+            transform.Position.x = 80.f;
             transform.Position.y = -45.0f;
+            transform.Position.z = 330.f;
 
-            transform.Scale = glm::vec3(0.1f);
+            transform.Scale = glm::vec3(0.05f);
         }
 
-        {
+        for (float z = -700.f; z < 1000.f; z += 300.f) {
+            const auto entity = m_Scene->CreateEntity("torii_gate");
+            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/torii_gate/scene.gltf");
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Rotation.y = glm::pi<float>();
+            transform.Scale = glm::vec3(3.f);
+            transform.Position.y = -43.3f;
+            transform.Position.z = z;
+
+            { // add light
+                const auto lightEntity = m_Scene->CreateEntity("Light", entity);
+                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                transform.Position.x = 61.7f;
+                transform.Position.y = 77.2f;
+
+                light.innerRange = 256.f;
+                light.outerRange = 512.f;
+                light.intensity = 200000.f;
+            }
+            { // add light
+                const auto lightEntity = m_Scene->CreateEntity("Light", entity);
+                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                transform.Position.x = -58.5f;
+                transform.Position.y = 77.2f;
+
+                light.innerRange = 256.f;
+                light.outerRange = 512.f;
+                light.intensity = 200000.f;
+            }
+        }
+
+        if (withLightSwarm) {
             const auto lightSwarmEntity = m_Scene->CreateEntity();
             m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
             m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 100.f;
@@ -727,11 +803,6 @@ namespace FLOOF {
             auto entity = m_Scene->CreateEntity(name);
             auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
         }
-        {
-            const auto lightSwarmEntity = m_Scene->CreateEntity();
-            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
-            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 100.f;
-        }
     }
 
     void EditorLayer::MakeSponzaScene() {
@@ -739,11 +810,6 @@ namespace FLOOF {
         {
             const auto entity = m_Scene->CreateEntity();
             m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
-        }
-        {
-            const auto lightSwarmEntity = m_Scene->CreateEntity();
-            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
-            m_Scene->GetComponent<TransformComponent>(lightSwarmEntity).Position.y += 200.f;
         }
     }
 
@@ -905,11 +971,8 @@ namespace FLOOF {
 
         //make sponza graphics
         {
-
             const auto entity = m_Scene->CreateEntity();
             m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Sponza/sponza.obj");
-            const auto lightSwarmEntity = m_Scene->CreateEntity();
-            m_Scene->AddComponent<NativeScriptComponent>(lightSwarmEntity, std::make_unique<LightSwarm>(), m_Scene.get(), lightSwarmEntity);
         }
     }
 }

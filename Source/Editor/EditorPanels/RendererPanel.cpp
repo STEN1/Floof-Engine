@@ -46,6 +46,14 @@ namespace FLOOF {
 			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.SunColor = sunColor;
 		}
 
+		// Sun position option
+		ImGui::Separator();
+		glm::vec4 sunPosition = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.SunPosition;
+		if (ImGui::DragFloat3("Sun position", &sunPosition[0], 0.05f)) {
+			m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.SunPosition = sunPosition;
+			m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.SunPosition = sunPosition;
+		}
+
 		// Sun intensity
 		float sunIntensity = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.sunStrenght;
 		if (ImGui::DragFloat("Sun intensity", &sunIntensity, 0.2f, 0.f, 1000.f)) {
@@ -69,6 +77,18 @@ namespace FLOOF {
 			} else {
 				m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowLightComplexity = 0;
 				m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.ShowLightComplexity = 0;
+			}
+		}
+
+		// Show cascades
+		bool showCasscades = m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowCasscades == 1 ? true : false;
+		if (ImGui::Checkbox("Show casscades", &showCasscades)) {
+			if (showCasscades) {
+				m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowCasscades = 1;
+				m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.ShowCasscades = 1;
+			} else {
+				m_EditorLayer->GetEditorRenderer()->m_SceneFrameData.ShowCasscades = 0;
+				m_EditorLayer->GetPlayRenderer()->m_SceneFrameData.ShowCasscades = 0;
 			}
 		}
 
