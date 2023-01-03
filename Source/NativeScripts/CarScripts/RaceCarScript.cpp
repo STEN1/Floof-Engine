@@ -4,6 +4,7 @@
 void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
 
     frame = entity;
+    TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
     CarType = 1;
 
     BackWheelTurn = false;
