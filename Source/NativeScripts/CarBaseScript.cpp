@@ -41,7 +41,9 @@ void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
     //sound
     {
         auto &sound = scene->AddComponent<SoundComponent>(frame, "Vehicles_idle2.wav");
+        sound.GetClip("Vehicles_idle2.wav")->Play();
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
+        sound.GetClip("Vehicles_idle2.wav")->Play();
         sound.AddClip("pinchcliffe.wav");
         TruckCallback->SetImpactSound(sound.AddClip("metal_impact_mono.wav"));
         sound.AddClip("honk.wav");
@@ -217,6 +219,11 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
             engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
         }
+        
+        auto clip = scene->GetComponent<SoundComponent>(frame).GetClip("Vehicles_idle2.wav");
+		clip->Pitch(1.f + engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce);
+		std::cout << "Engine force: " << engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce << std::endl;
+        
     }
 
 
