@@ -7,7 +7,6 @@
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "../Utils.h"
 #include "../Network/FloofNetworking.h"
-#include "../SoundComponent.h"
 
 FLOOF::CarBaseScript::CarBaseScript(glm::vec3 Pos) : SpawnLocation(Pos) {
 
@@ -44,7 +43,8 @@ void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
         auto &sound = scene->AddComponent<SoundComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
         sound.AddClip("pinchcliffe.wav");
-        ImpactSound = sound.AddClip("metal_impact_mono.wav");
+        TruckCallback->SetImpactSound(sound.AddClip("metal_impact_mono.wav"));
+        sound.AddClip("honk.wav");
 
     }
 
@@ -204,6 +204,10 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
             }
             engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+            
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_W, false) && windowIsActive) { 
+            scene->GetComponent<SoundComponent>(frame).GetClip("honk.wav")->Play();
         }
         if (ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive) {
             engine.CurrentGear--;
@@ -509,9 +513,7 @@ FLOOF::CarBaseScript::~CarBaseScript() {
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
     std::cout << "On Begin Overlap" << std::endl;
-        
-    SoundClip impact("metal_impact_mono.wav");
-	impact.Play();
+    if (ImpactSound) { ImpactSound->Play(); }
 }
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *obj2) {

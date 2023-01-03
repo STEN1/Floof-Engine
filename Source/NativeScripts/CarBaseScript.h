@@ -4,6 +4,7 @@
 
 #include "NativeScript.h"
 #include "../Components.h"
+#include "../SoundComponent.h"
 #include "../CollisionDispatcher.h"
 
 namespace FLOOF {
@@ -79,7 +80,6 @@ namespace FLOOF {
         void AddToPhysicsWorld();
 
         uint32_t CarType{0};
-        std::shared_ptr<SoundClip> ImpactSound;
 
     protected:
 
@@ -129,6 +129,9 @@ namespace FLOOF {
             virtual void onOverlap(void *obj1, void *obj2) override;
 
             virtual void onEndOverlap(void *obj) override;
+
+            std::shared_ptr<SoundClip> ImpactSound;
+			void SetImpactSound(std::shared_ptr<SoundClip> impact) { ImpactSound = impact; };
         };
 
         std::shared_ptr<TruckCollisionCallback> TruckCallback;
