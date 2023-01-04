@@ -153,26 +153,26 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
         CameraUi();
         EngineUi();
 
-        if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_RightArrow) || Input::Key(ImGuiKey_D) && windowIsActive) {
             turnKeyPressed |= true;
             engine.servoTarget -= engine.steeringIncrement;
             if (engine.servoTarget <= -engine.steeringClamp) {
                 engine.servoTarget = -engine.steeringClamp;
             }
         }
-        if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_LeftArrow) || Input::Key(ImGuiKey_A) && windowIsActive) {
             turnKeyPressed |= true;
             engine.servoTarget += engine.steeringIncrement;
             if (engine.servoTarget >= engine.steeringClamp) {
                 engine.servoTarget = engine.steeringClamp;
             }
         }
-        if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_UpArrow) || Input::Key(ImGuiKey_W) && windowIsActive) {
             GasKeyPressed |= true;
             engine.targetVelocity = engine.maxVelocity;
             engine.breakingForce = 0.f;
         }
-        if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_DownArrow) || Input::Key(ImGuiKey_S) && windowIsActive) {
             GasKeyPressed |= true;
             engine.targetVelocity = -engine.maxVelocity;
             engine.breakingForce = 0.f;
