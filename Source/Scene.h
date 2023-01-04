@@ -20,6 +20,7 @@ namespace FLOOF {
         SponzaRacing
     };
     static const char* DebugSceneNames[] = {
+            "Demo Scene",
         "Physics",
         "Physics Playground",
         "Audio",

@@ -27,11 +27,17 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     for (auto &m: mesh.meshes) {
         if (m.MeshMaterial.Name == "Material_10.001") {
             m.MeshMaterial.HasOpacity = true;
-            m.MeshMaterial.Opacity = Texture(TextureColor::Grey);
-        }
-        if (m.MeshMaterial.Name == "Material_19.001") {
+            m.MeshMaterial.Opacity = Texture(TextureColor::LightGrey);
             m.MeshMaterial.Metallic = Texture(TextureColor::White);
             m.MeshMaterial.Roughness = Texture(TextureColor::Grey);
+
+        } else if (m.MeshMaterial.Name == "Material_19.001") {
+            m.MeshMaterial.Metallic = Texture(TextureColor::Grey);
+            m.MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
+
+        } else if (m.MeshMaterial.Name == "Material_14.001") {
+            m.MeshMaterial.Metallic = Texture(TextureColor::Grey);
+            m.MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
         }
         m.MeshMaterial.UpdateDescriptorSet();
     }
