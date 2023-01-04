@@ -18,12 +18,23 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     engine.WheelFriction = 4.f;
 
     engine.suspensionRestLength = 0.4;
-    engine.TurnLowSpeed = SIMD_PI*0.1f;
-    engine.TurnHighSpeed = SIMD_PI*0.05f;
+    engine.TurnLowSpeed = SIMD_PI * 0.1f;
+    engine.TurnHighSpeed = SIMD_PI * 0.05f;
 
 
     auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/2020_koenigsegg_jesco/jeskoNoWheel.gltf");
 
+    for (auto &m: mesh.meshes) {
+        if (m.MeshMaterial.Name == "Material_10.001") {
+            m.MeshMaterial.HasOpacity = true;
+            m.MeshMaterial.Opacity = Texture(TextureColor::Grey);
+        }
+        if (m.MeshMaterial.Name == "Material_19.001") {
+            m.MeshMaterial.Metallic = Texture(TextureColor::White);
+            m.MeshMaterial.Roughness = Texture(TextureColor::Grey);
+        }
+        m.MeshMaterial.UpdateDescriptorSet();
+    }
     {
         auto &transform = scene->GetComponent<TransformComponent>(frame);
         transform.Scale = glm::vec3(1.f);
@@ -32,7 +43,6 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 1500.f, "Assets/2020_koenigsegg_jesco/jeskoNoWheel.gltf");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         body.setCollisionDispatcher(TruckCallback.get());
-
 
 
     }
@@ -55,7 +65,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     {
         HeadLightR = scene->CreateEntity("Right Headlight", frame);
         auto &light = scene->AddComponent<PointLightComponent>(HeadLightR);
-        auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightR,"Assets/LowPolySphere.fbx");
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(HeadLightR, "Assets/LowPolySphere.fbx");
         mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
@@ -69,7 +79,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     {
         HeadLightL = scene->CreateEntity("Left Headlight", frame);
         auto &light = scene->AddComponent<PointLightComponent>(HeadLightL);
-        auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightL,"Assets/LowPolySphere.fbx");
+        auto &mesh = scene->AddComponent<StaticMeshComponent>(HeadLightL, "Assets/LowPolySphere.fbx");
         mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
@@ -84,7 +94,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     {
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
 
-        auto& sound = scene->AddComponent<SoundComponent>(Wheel_fr, "Vehicles_idle2.wav");
+        auto &sound = scene->AddComponent<SoundComponent>(Wheel_fr, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/Wheels/tuner-wheel/source/tunerWheelRight.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
         mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
@@ -110,14 +120,14 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
         glm::vec3 scale = glm::vec3(1.4f, 0.6f, 1.4f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fr, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
+        RigidBody->setAnisotropicFriction(btVector3(1.f, 0.5f, 0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
         RigidBody->setSpinningFriction(1);
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
-        auto& sound = scene->AddComponent<SoundComponent>(Wheel_fl, "Vehicles_idle2.wav");
+        auto &sound = scene->AddComponent<SoundComponent>(Wheel_fl, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/Wheels/tuner-wheel/source/tunerWheelLeft.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture("Assets/Wheels/tuner-wheel/textures/TireColor2.png");
         mesh.meshes[1].MeshMaterial.Metallic = Texture(TextureColor::Black);
@@ -136,13 +146,13 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
-        transform.Position = glm::vec3(5.8f, 0.6f, 3.1f)+ SpawnLocation;
+        transform.Position = glm::vec3(5.8f, 0.6f, 3.1f) + SpawnLocation;
         transform.Scale = glm::vec3(2.8f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.4f, 0.6f, 1.4f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_fl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
+        RigidBody->setAnisotropicFriction(btVector3(1.f, 0.5f, 0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
         RigidBody->setSpinningFriction(1);
@@ -173,7 +183,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
         glm::vec3 scale = glm::vec3(1.4f, 0.6f, 1.4f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_br, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
+        RigidBody->setAnisotropicFriction(btVector3(1.f, 0.5f, 0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
         RigidBody->setSpinningFriction(1);
@@ -204,7 +214,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
         glm::vec3 scale = glm::vec3(1.4f, 0.6f, 1.4f);
         auto &body = scene->AddComponent<RigidBodyComponent>(Wheel_bl, transform.Position, scale, transform.Rotation, 300.f, bt::CollisionPrimitive::Cylinder);
         auto &RigidBody = body.RigidBody;
-        RigidBody->setAnisotropicFriction(btVector3(1.f,0.5f,0.5f));
+        RigidBody->setAnisotropicFriction(btVector3(1.f, 0.5f, 0.5f));
         RigidBody->setFriction(engine.WheelFriction);
         RigidBody->setRollingFriction(1);
         RigidBody->setSpinningFriction(1);
@@ -212,22 +222,22 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
 
     //make gears
     {
-        engine.Gears.emplace_back(20.f,3.f);
-        engine.Gears.emplace_back(30.f,2.f);
-        engine.Gears.emplace_back(40.f,1.5f);
-        engine.Gears.emplace_back(50.f,1.f);
-        engine.Gears.emplace_back(70.f,0.5f);
-        engine.Gears.emplace_back(90.f,0.25f);
+        engine.Gears.emplace_back(20.f, 3.f);
+        engine.Gears.emplace_back(30.f, 2.f);
+        engine.Gears.emplace_back(40.f, 1.5f);
+        engine.Gears.emplace_back(50.f, 1.f);
+        engine.Gears.emplace_back(70.f, 0.5f);
+        engine.Gears.emplace_back(90.f, 0.25f);
 
         engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
     }
     //camera locations
     {
-        CamLocations.emplace_back("Third Person",glm::vec3(-2.5f,1.2f,0.f)*8.f,glm::vec3(2.f,0.4f,0.f)*8.f);
-        CamLocations.emplace_back("Close Third Person",glm::vec3(-1.5f,0.8f,0.f)*8.f,glm::vec3(1.f,0.1f,0.f)*8.f);
-        CamLocations.emplace_back("First Person",glm::vec3(0.0f,0.4f,-0.15f)*8.f,glm::vec3(2.4f,0.4f,0.f)*8.f);
-        CamLocations.emplace_back("Cinematic",glm::vec3(-2.f,1.f,-1.f)*8.f,glm::vec3(2.f,0.4f,0.f)*8.f);
-        CamLocations.emplace_back("G T FUCKING A ",glm::vec3(0.2f,0.0f,-0.5f)*8.f,glm::vec3(4.2f,0.5f,0.f)*8.f);
+        CamLocations.emplace_back("Third Person", glm::vec3(-2.5f, 1.2f, 0.f) * 8.f, glm::vec3(2.f, 0.4f, 0.f) * 8.f);
+        CamLocations.emplace_back("Close Third Person", glm::vec3(-1.5f, 0.8f, 0.f) * 8.f, glm::vec3(1.f, 0.1f, 0.f) * 8.f);
+        CamLocations.emplace_back("First Person", glm::vec3(0.0f, 0.4f, -0.15f) * 8.f, glm::vec3(2.4f, 0.4f, 0.f) * 8.f);
+        CamLocations.emplace_back("Cinematic", glm::vec3(-2.f, 1.f, -1.f) * 8.f, glm::vec3(2.f, 0.4f, 0.f) * 8.f);
+        CamLocations.emplace_back("G T FUCKING A ", glm::vec3(0.2f, 0.0f, -0.5f) * 8.f, glm::vec3(4.2f, 0.5f, 0.f) * 8.f);
     }
 
     //parent oncreate last since it needs to hinge car togheter
