@@ -27,11 +27,17 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     for (auto &m: mesh.meshes) {
         if (m.MeshMaterial.Name == "Material_10.001") {
             m.MeshMaterial.HasOpacity = true;
-            m.MeshMaterial.Opacity = Texture(TextureColor::Grey);
-        }
-        if (m.MeshMaterial.Name == "Material_19.001") {
+            m.MeshMaterial.Opacity = Texture(TextureColor::LightGrey);
             m.MeshMaterial.Metallic = Texture(TextureColor::White);
             m.MeshMaterial.Roughness = Texture(TextureColor::Grey);
+
+        } else if (m.MeshMaterial.Name == "Material_19.001") {
+            m.MeshMaterial.Metallic = Texture(TextureColor::Grey);
+            m.MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
+
+        } else if (m.MeshMaterial.Name == "Material_14.001") {
+            m.MeshMaterial.Metallic = Texture(TextureColor::Grey);
+            m.MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
         }
         m.MeshMaterial.UpdateDescriptorSet();
     }
@@ -235,9 +241,9 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     {
         CamLocations.emplace_back("Third Person", glm::vec3(-2.5f, 1.2f, 0.f) * 8.f, glm::vec3(2.f, 0.4f, 0.f) * 8.f);
         CamLocations.emplace_back("Close Third Person", glm::vec3(-1.5f, 0.8f, 0.f) * 8.f, glm::vec3(1.f, 0.1f, 0.f) * 8.f);
-        CamLocations.emplace_back("First Person", glm::vec3(0.0f, 0.4f, -0.15f) * 8.f, glm::vec3(2.4f, 0.4f, 0.f) * 8.f);
+        CamLocations.emplace_back("First Person", glm::vec3(0.3f, 2.9f, -1.f), glm::vec3(2.4f, 0.4f, 0.f) * 8.f);
         CamLocations.emplace_back("Cinematic", glm::vec3(-2.f, 1.f, -1.f) * 8.f, glm::vec3(2.f, 0.4f, 0.f) * 8.f);
-        CamLocations.emplace_back("G T FUCKING A ", glm::vec3(0.2f, 0.0f, -0.5f) * 8.f, glm::vec3(4.2f, 0.5f, 0.f) * 8.f);
+        CamLocations.emplace_back("G T FUCKING A ", glm::vec3(1.2f, 0.0f, -4.8f), glm::vec3(4.2f, 0.5f, 0.f) * 8.f);
     }
 
     //parent oncreate last since it needs to hinge car togheter
