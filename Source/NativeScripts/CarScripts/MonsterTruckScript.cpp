@@ -3,7 +3,7 @@
 
 void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     frame = entity;
-
+    TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
     CarType = 2;
 
     auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx", false);
@@ -120,8 +120,6 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
         auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 3000.f, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_Frame.fbx");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         body.setCollisionDispatcher(TruckCallback.get());
-
-
 
     }
     //Breaklight

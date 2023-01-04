@@ -1,6 +1,7 @@
 #include "PhysicsPanel.h"
 #include "../../Application.h"
 #include "../../Components.h"
+#include "../../SoundComponent.h"
 #include "../../Renderer/ModelManager.h"
 #include "../../bullet3/src/BulletSoftBody/btSoftBodyHelpers.h"
 
@@ -193,6 +194,12 @@ const entt::entity FLOOF::PhysicsPanel::SpawnSoftMesh(glm::vec3 Location, glm::v
 
     transform.Position = Location;
     transform.Scale = Scale;
+    
+    auto& sound = m_Scene->AddComponent<SoundComponent>(entity, "energy_force_mono.wav");
+    auto clip = sound.GetClip("energy_force_mono.wav");
+    clip->Looping(true);
+    clip->Play();
+
 
     return entity;
 
@@ -221,5 +228,10 @@ const entt::entity FLOOF::PhysicsPanel::SpawnRigidMesh(glm::vec3 Location, glm::
     transform.Position = Location;
     transform.Scale = Scale;
 
+    auto& sound = m_Scene->AddComponent<SoundComponent>(entity, "energy_force_mono.wav");
+    auto clip = sound.GetClip("energy_force_mono.wav");
+    clip->Looping(true);
+    clip->Play();
+    
     return entity;
 }

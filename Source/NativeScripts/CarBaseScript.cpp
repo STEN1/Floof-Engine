@@ -7,7 +7,7 @@
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "../Utils.h"
 #include "../Network/FloofNetworking.h"
-#include "../SoundComponent.h"
+#include "CheckPointScript.h"
 
 FLOOF::CarBaseScript::CarBaseScript(glm::vec3 Pos) : SpawnLocation(Pos) {
 
@@ -15,7 +15,6 @@ FLOOF::CarBaseScript::CarBaseScript(glm::vec3 Pos) : SpawnLocation(Pos) {
 
 void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
-    TruckCallback = std::make_shared<TruckCollisionCallback>(scene, entity);
     {
 
         //camera
@@ -43,8 +42,13 @@ void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
     //sound
     {
         auto &sound = scene->AddComponent<SoundComponent>(frame, "Vehicles_idle2.wav");
+        sound.GetClip("Vehicles_idle2.wav")->Play();
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
+        sound.GetClip("Vehicles_idle2.wav")->Play();
         sound.AddClip("pinchcliffe.wav");
+        TruckCallback->SetImpactSound(sound.AddClip("metal_impact_mono.wav"));
+        sound.AddClip("honk.wav");
+
     }
 
     //hinge car togheter
@@ -203,6 +207,10 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
             }
             engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
+
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_R, false) && windowIsActive) {
+            scene->GetComponent<SoundComponent>(frame).GetClip("honk.wav")->Play();
         }
         if (ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive) {
             engine.CurrentGear--;
@@ -212,6 +220,16 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
             engine.maxVelocity = engine.Gears[engine.CurrentGear].first;
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
         }
+
+        auto clip = scene->GetComponent<SoundComponent>(frame).GetClip("Vehicles_idle2.wav");
+
+        float pitch = engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce / engine.Gears[engine.CurrentGear].second;
+        pitch = engine.getEnginePitch(glm::length(car.GetLinearVelocity()));
+        clip->Pitch(pitch);
+
+
+        std::cout << "Engine force: " << pitch << std::endl;
+
     }
 
 
@@ -300,10 +318,12 @@ void FLOOF::CarBaseScript::CameraUi() {
 
 void FLOOF::CarBaseScript::EngineUi() {
 
-    ImGui::Begin("engine Panel");
+    ImGui::Begin("Engine Panel");
     ImGui::Text("Press 'F' to Toggle Headlights");
     ImGui::Text("Press 'Space' to Break");
     ImGui::Text("Press 'E' 'Q' to change Gear");
+    ImGui::Text("Press 'R' to honk the horn");
+
     auto *controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
     if (controller) {
         std::string txt = "Player : ";
@@ -507,8 +527,36 @@ FLOOF::CarBaseScript::~CarBaseScript() {
 
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, void *obj2) {
-    std::cout << "On Begin Overlap" << std::endl;
+    //std::cout << "On Begin Overlap" << std::endl;
+    //todo blacklist checkpoint
+    bool Blacklist{false};
 
+    auto *ptr = reinterpret_cast<btRigidBody *>(obj1)->getUserPointer();
+    if (ptr != nullptr) {
+        auto *dispatcher = static_cast<CollisionDispatcher *>(ptr);
+        auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(dispatcher->mEntity);
+        if (checkpoint) {
+            auto *cp = dynamic_cast<CheckPointScript *>(checkpoint->Script.get());
+            if (cp) {
+                Blacklist |= true;
+
+            }
+        }
+    }
+    ptr = reinterpret_cast<btRigidBody *>(obj2)->getUserPointer();
+    if (ptr != nullptr) {
+        auto *dispatcher = static_cast<CollisionDispatcher *>(ptr);
+        auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(dispatcher->mEntity);
+        if (checkpoint) {
+            auto *cp = dynamic_cast<CheckPointScript *>(checkpoint->Script.get());
+            if (cp) {
+                Blacklist |= true;
+            }
+        }
+
+    }
+
+    if (ImpactSound && !Blacklist) { ImpactSound->Play(); }
 }
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *obj2) {
@@ -517,5 +565,5 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *o
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onEndOverlap(void *obj) {
     CollisionDispatcher::onEndOverlap(obj);
-    std::cout << "On End Overlap" << std::endl;
+    //std::cout << "On End Overlap" << std::endl;
 }

@@ -19,7 +19,9 @@ namespace FLOOF{
         };
 
     protected:
+    public:
         entt::entity& mEntity;
+    protected:
         bool isOverlapping = false;
         Scene* mScene;
     };

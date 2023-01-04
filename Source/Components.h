@@ -112,6 +112,7 @@ namespace FLOOF {
         void wakeup();
 
         glm::vec3 GetAngularVelocity(){return Utils::btToglm(RigidBody->getAngularVelocity());}
+        glm::vec3 GetLinearVelocity(){return Utils::btToglm(RigidBody->getLinearVelocity());}
 
         //Set CollisionDispatcher
         void setCollisionDispatcher(void* ptr);

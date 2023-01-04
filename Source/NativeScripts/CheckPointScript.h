@@ -16,6 +16,7 @@ namespace FLOOF {
         entt::entity Trigger;
 
         entt::entity Pole;
+    public:
 
         class CheckPointCollision : public CollisionDispatcher {
         public:
@@ -29,9 +30,9 @@ namespace FLOOF {
 
             bool IsActive{false};
         };
-
+    private:
         std::shared_ptr<CheckPointCollision> mCheckPointCollision;
-
+    public:
         bool ActiveCheckPoint{false};
     };
 }
