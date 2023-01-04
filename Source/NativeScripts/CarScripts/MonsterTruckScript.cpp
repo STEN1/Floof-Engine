@@ -170,7 +170,6 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
     {
         Wheel_fr = scene->CreateEntity("Wheel Front Right");
 
-        auto& sound = scene->AddComponent<SoundComponent>(Wheel_fr, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fr, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_WheelRight.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture(TextureColor::DarkGrey);
         mesh.meshes[1].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
@@ -204,7 +203,6 @@ void FLOOF::MonsterTruckScript::OnCreate(FLOOF::Scene *scene, entt::entity entit
     }
     {
         Wheel_fl = scene->CreateEntity("Wheel Front Left");
-        auto& sound = scene->AddComponent<SoundComponent>(Wheel_fl, "Vehicles_idle2.wav");
         auto &mesh = scene->AddComponent<StaticMeshComponent>(Wheel_fl, "Assets/Wheels/tesla-cybertruck-technic-animation-studios/source/Cybertruck_WheelLeft.fbx");
         mesh.meshes[1].MeshMaterial.Diffuse = Texture(TextureColor::DarkGrey);
         mesh.meshes[1].MeshMaterial.Metallic = Texture("Assets/Wheels/tesla-cybertruck-technic-animation-studios/textures/ring_plus_metallicRoughness_png@channels=B.png");
