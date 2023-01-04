@@ -35,16 +35,16 @@ namespace FLOOF {
     bool SoundClip::UpdateIsPlaying() {
 
         ALint sourceState;
-        alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState))
-
-            if (sourceState == AL_PLAYING) {
-                isPlaying = true;
-            }
-            else {
-                isPlaying = false;
-            }
+        alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState));
+    
+        if (isPlaying && sourceState == AL_STOPPED) {
+            isPlaying = false;
+        }
+               
+        else if (!isPlaying && sourceState == AL_PLAYING) {
+            isPlaying = true;
+        }
         return isPlaying;
-
     }
 
     void SoundClip::Play() {
@@ -79,6 +79,12 @@ namespace FLOOF {
         m_Sound = SoundManager::LoadWav(m_Name);
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
+        
+        Looping(isLooping);
+		Volume(m_Volume);
+		Pitch(m_Pitch);
+        if (isPlaying) { Play(); }
+        
 	}
 
 	SoundComponent::SoundComponent() {

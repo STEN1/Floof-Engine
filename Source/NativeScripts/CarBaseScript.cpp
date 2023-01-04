@@ -42,12 +42,10 @@ void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
     //sound
     {
         auto &sound = scene->AddComponent<SoundComponent>(frame, "Vehicles_idle2.wav");
-        sound.GetClip("Vehicles_idle2.wav")->Play();
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
-        sound.GetClip("Vehicles_idle2.wav")->Play();
-        sound.AddClip("pinchcliffe.wav");
-        TruckCallback->SetImpactSound(sound.AddClip("metal_impact_mono.wav"));
         sound.AddClip("honk.wav");
+        TruckCallback->SetImpactSound(sound.AddClip("metal_impact_mono.wav"));
+
 
     }
 
@@ -376,7 +374,6 @@ void FLOOF::CarBaseScript::EngineUi() {
                 hinge->getRigidBodyB().setFriction(engine.WheelFriction);
 
             }
-
         }
     }
 
@@ -394,6 +391,18 @@ void FLOOF::CarBaseScript::LastUpdate(float deltaTime) {
     auto cam = m_Scene->TryGetComponent<CameraComponent>(Camera);
     cam->Lookat(camTrans->GetWorldPosition(), camtargetTrans->GetWorldPosition());
 
+}
+
+void FLOOF::CarBaseScript::OnPlay() {
+    auto sound = m_Scene->GetComponent<SoundComponent>(frame);
+    sound.GetClip("Vehicles_idle2.wav")->Play();
+}
+
+void FLOOF::CarBaseScript::OnStop() {
+	auto sound = m_Scene->GetComponent<SoundComponent>(frame);
+    for (auto& clip : sound.mClips) {
+        clip.second->Stop();
+    }
 }
 
 void FLOOF::CarBaseScript::SetTransformData(FLOOF::CarData data) {

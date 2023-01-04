@@ -47,16 +47,6 @@ namespace FLOOF {
 
 	void EnvironmentSoundScript::OnUpdate(float deltaTime) {
 		NativeScript::OnUpdate(deltaTime);
-
-
-
-		if (!PlayMode) {
-			PlayMode = true;
-			//radio.Play("pinchcliffe.wav");
-			RadioChannel = 0;
-			crowd.Play("crowd.wav");
-			ambience.Play("wind.wav");
-		}
  
 		auto* scene = m_Scene;
 
@@ -114,29 +104,36 @@ namespace FLOOF {
 	}
 
 	void EnvironmentSoundScript::EditorUpdate(float deltaTime) {
-	
+		NativeScript::EditorUpdate(deltaTime);
+
+	}
+
+	void EnvironmentSoundScript::OnPlay() {
+		RadioChannel = 0;
+		crowd.Play("crowd.wav");
+		ambience.Play("wind.wav");
+	}
+
+	void EnvironmentSoundScript::OnStop() {
 
 		// Stop all sounds in this script from playing
-		if (PlayMode) {
-			PlayMode = false;
-			auto rel = m_Scene->TryGetComponent<Relationship>(m_Entity);
+		auto rel = m_Scene->TryGetComponent<Relationship>(m_Entity);
 
-			if (rel) {
-				for (auto& childEntity : rel->Children) {
-					auto& childSound = m_Scene->GetComponent<SoundComponent>(childEntity);
-					for (auto& clip : childSound.mClips) {
-						clip.second->Stop();
-					}
+		if (rel) {
+			for (auto& childEntity : rel->Children) {
+				auto& childSound = m_Scene->GetComponent<SoundComponent>(childEntity);
+				for (auto& clip : childSound.mClips) {
+					clip.second->Stop();
 				}
 			}
 		}
-
 	}
 
 
 	void EnvironmentSoundScript::TerrainCollisionCallback::onBeginOverlap(void* obj1, void* obj2) {
 		if (RollingSound) {
 			RollingSound->Play();
+			muted = false;
 		}
 	}
 
@@ -157,18 +154,14 @@ namespace FLOOF {
 						if (velocity < 2.f && !muted) {
 							RollingSound->Stop();
 							muted = true;
-
 						}
 
 						else if (velocity > 2.f && muted) {
 							RollingSound->Play();
 							muted = false;
 						}
-
-							
-							//todo here you got carscript get velocity play sounds etc
                     }
-                    }
+                }
             }
         }
 
@@ -178,6 +171,7 @@ namespace FLOOF {
 		CollisionDispatcher::onEndOverlap(obj);
 		if (RollingSound) {
 			RollingSound->Stop();
+			muted = true;
 		}
 	}
 
