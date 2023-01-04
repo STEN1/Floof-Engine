@@ -36,6 +36,7 @@ namespace FLOOF {
 		void MakeLandscapeScene();
 		void MakeSponzaScene();
         void MakeSponzaRacing();
+        void MakeDemoScene();
 
 		std::unordered_map<std::string, std::unique_ptr<EditorPanel>> m_EditorPanels;
 

@@ -7,17 +7,26 @@
 #include <string>
 #include "Renderer/SceneRenderer.h"
 #include "Scene.h"
-namespace FLOOF{
+
+namespace FLOOF {
     class ServerLayer : public ApplicationLayer {
     public:
         ServerLayer();
+
         ~ServerLayer();
+
         virtual void OnUpdate(double deltaTime) override;
+
         virtual void OnImGuiUpdate(double deltaTime) override;
+
         virtual VkSemaphore OnDraw(double deltaTime, VkSemaphore waitSemaphore) override;
-        Scene* GetScene() { return m_Scene.get(); }
+
+        Scene *GetScene() { return m_Scene.get(); }
+
         void StartPlay();
+
         void StopPlay();
+
         bool IsPlaying() { return m_PlayModeActive; }
 
     private:
@@ -28,7 +37,6 @@ namespace FLOOF{
 
     };
 }
-
 
 
 #endif //FLOOF_SERVERLAYER_H

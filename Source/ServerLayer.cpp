@@ -56,6 +56,8 @@ void FLOOF::ServerLayer::MakeServerScene() {
     m_Scene = std::make_unique<Scene>();
 
 
+    //todo remember to copy the demo scene here
+
     //Gamemode Script
     {
         auto ent = m_Scene->CreateEntity("GameMode");

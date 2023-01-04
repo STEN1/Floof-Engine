@@ -30,7 +30,10 @@ namespace FLOOF {
         btSoftRigidDynamicsWorld* GetWorld(){return mDynamicsWorld;}
 
         btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return &mSoftBodyWorldInfo;}
+
+        static bool BmarkedForClear;
     private:
+
         entt::registry& mScene;
         //btDefaultCollisionConfiguration* mCollisionConfiguration{nullptr};
         btSoftBodyRigidBodyCollisionConfiguration* mCollisionConfiguration{nullptr};

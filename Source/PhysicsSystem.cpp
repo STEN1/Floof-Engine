@@ -15,6 +15,8 @@
 
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry &scene) : mScene(scene) {
+        BmarkedForClear = true;
+
         mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
@@ -159,6 +161,7 @@ namespace FLOOF {
     }
 
     void PhysicsSystem::clear() {
+        BmarkedForClear = true;
 
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
@@ -202,6 +205,9 @@ namespace FLOOF {
 
     bool PhysicsSystem::CustomContactProcessedCallback(btManifoldPoint &cp, void *body0, void *body1) {
         //body0 == body1, dont ask why just bullet things
+        if(BmarkedForClear)
+            return false;
+
         bool ret = false;
         {
             auto *ptr = reinterpret_cast<btRigidBody *>(body0)->getUserPointer();
@@ -224,6 +230,9 @@ namespace FLOOF {
     }
 
     void PhysicsSystem::CustomContactEndedCallback(btPersistentManifold *const &manifold) {
+
+        if(BmarkedForClear)
+            return;
 
         auto body0 = manifold->getBody0();
         if (body0->getUserPointer() != nullptr) {
