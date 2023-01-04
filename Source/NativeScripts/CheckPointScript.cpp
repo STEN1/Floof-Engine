@@ -26,6 +26,9 @@ void FLOOF::CheckPointScript::OnCreate(FLOOF::Scene *scene, entt::entity entity)
         mesh.meshes[0].MeshMaterial.Normals = Texture(TextureColor::FlatNormal);
         mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+        
+        auto &sound = scene->AddComponent<SoundComponent>(Pole, "checkpoint.wav");
+		mCheckPointCollision->SetImpactSound(sound.GetClip("checkpoint.wav"));
 
     }
     //add to physics world
@@ -69,6 +72,8 @@ void FLOOF::CheckPointScript::CheckPointCollision::onBeginOverlap(void *obj1, vo
         if (cpScript)
             cpScript->NextCheckPoint();
     }
+
+    if (ImpactSound) { ImpactSound->Play(); }
 
 }
 

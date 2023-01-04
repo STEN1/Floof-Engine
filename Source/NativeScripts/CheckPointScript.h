@@ -3,6 +3,7 @@
 
 #include "NativeScript.h"
 #include "../CollisionDispatcher.h"
+#include "../SoundComponent.h"
 
 namespace FLOOF {
     class CheckPointScript : public NativeScript {
@@ -29,6 +30,9 @@ namespace FLOOF {
             void onEndOverlap(void *obj) override;
 
             bool IsActive{false};
+
+            std::shared_ptr<SoundClip> ImpactSound;
+            void SetImpactSound(std::shared_ptr<SoundClip> impact) { ImpactSound = impact; };
         };
     private:
         std::shared_ptr<CheckPointCollision> mCheckPointCollision;
