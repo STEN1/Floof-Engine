@@ -10,8 +10,8 @@ namespace FLOOF {
 		for (auto [entity, soundsource, tag, rel] : view.each()) {
 			// only care about entitys without parent.
 			// deal with child entitys later.
-			if (rel.Parent != entt::null)
-				continue;
+			//if (rel.Parent != entt::null)
+			//	continue;
 
 			MakeTreeNode(entity, tag.Tag.c_str(), rel);
 		}
