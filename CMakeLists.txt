@@ -78,10 +78,10 @@ add_executable(Floof
         Source/Editor/EditorPanels/SoundSettingsPanel.h
         Source/Editor/EditorPanels/SoundSettingsPanel.cpp
         Source/HeightField.cpp Source/HeightField.h
-        "Source/Renderer/IBL.h"
-        "Source/Renderer/Framebuffer.h"
-        "Source/Renderer/Framebuffer.cpp"
-        "Source/Renderer/IBL.cpp"
+        Source/Renderer/IBL.h
+        Source/Renderer/Framebuffer.h
+        Source/Renderer/Framebuffer.cpp
+        Source/Renderer/IBL.cpp
         Source/NativeScripts/WonderBaumScript.cpp
         Source/NativeScripts/WonderBaumScript.h
         Source/HeightField.cpp Source/HeightField.h
@@ -112,7 +112,19 @@ add_executable(Floof
         Source/Network/OlcNet.h
         Source/LineMeshComponent.h Source/LineMeshComponent.cpp
         Source/SoundComponent.h
-        Source/SoundComponent.cpp Source/NativeScripts/CheckPointScript.cpp Source/NativeScripts/CheckPointScript.h Source/NativeScripts/RaceTrackScript.cpp Source/NativeScripts/RaceTrackScript.h Source/NativeScripts/CarScripts/MonsterTruckScript.cpp Source/NativeScripts/CarScripts/MonsterTruckScript.h Source/NativeScripts/CarScripts/RaceCarScript.cpp Source/NativeScripts/CarScripts/RaceCarScript.h Source/ServerLayer.cpp Source/ServerLayer.h)
+        Source/SoundComponent.cpp
+        Source/NativeScripts/CheckPointScript.cpp
+        Source/NativeScripts/CheckPointScript.h
+        Source/NativeScripts/RaceTrackScript.cpp
+        Source/NativeScripts/RaceTrackScript.h
+        Source/NativeScripts/CarScripts/MonsterTruckScript.cpp
+        Source/NativeScripts/CarScripts/MonsterTruckScript.h
+        Source/NativeScripts/CarScripts/RaceCarScript.cpp
+        Source/NativeScripts/CarScripts/RaceCarScript.h
+        Source/ServerLayer.cpp 
+        Source/ServerLayer.h
+        Source/NativeScripts/EnvironmentSoundScript.h
+        Source/NativeScripts/EnvironmentSoundScript.cpp)
 
 
 
