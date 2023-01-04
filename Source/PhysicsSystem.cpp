@@ -168,6 +168,7 @@ namespace FLOOF {
                 if (!obj) continue;
                 btRigidBody *body = btRigidBody::upcast(obj);
                 if (!body) continue;
+                body->setUserPointer(nullptr);
                 for (int i = 0; i < body->getNumConstraintRefs(); i++) {
                     auto constraint = body->getConstraintRef(i);
                     mDynamicsWorld->removeConstraint(constraint);
