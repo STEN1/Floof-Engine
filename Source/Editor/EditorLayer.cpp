@@ -19,6 +19,7 @@
 #include "../NativeScripts/RaceTrackScript.h"
 #include "../NativeScripts/CarScripts/MonsterTruckScript.h"
 #include "../NativeScripts/CarScripts/RaceCarScript.h"
+#include "../NativeScripts/EnvironmentSoundScript.h"
 
 namespace FLOOF {
     EditorLayer::EditorLayer() {
@@ -825,7 +826,7 @@ namespace FLOOF {
 
         //Gamemode Script
         {
-            auto ent = m_Scene->CreateEntity("GameMode");
+           auto ent = m_Scene->CreateEntity("GameMode");
            auto & script =  m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<GameModeScript>(), m_Scene.get(), ent);
 
            const auto entity = m_Scene->CreateEntity("RaceTrack");
@@ -834,6 +835,12 @@ namespace FLOOF {
             auto cpScript = dynamic_cast<GameModeScript *>(script.Script.get());
             if (cpScript)
                 cpScript->RaceTrack = entity;
+        }
+
+        {
+            auto ent = m_Scene->CreateEntity("EnviromentSound");
+            auto& script = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<EnviromentSoundScript>(), m_Scene.get(), ent);
+
         }
 
         {

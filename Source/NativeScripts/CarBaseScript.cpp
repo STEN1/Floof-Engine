@@ -153,26 +153,26 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
         CameraUi();
         EngineUi();
 
-        if (Input::Key(ImGuiKey_RightArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_RightArrow) || Input::Key(ImGuiKey_D) && windowIsActive) {
             turnKeyPressed |= true;
             engine.servoTarget -= engine.steeringIncrement;
             if (engine.servoTarget <= -engine.steeringClamp) {
                 engine.servoTarget = -engine.steeringClamp;
             }
         }
-        if (Input::Key(ImGuiKey_LeftArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_LeftArrow) || Input::Key(ImGuiKey_A) && windowIsActive) {
             turnKeyPressed |= true;
             engine.servoTarget += engine.steeringIncrement;
             if (engine.servoTarget >= engine.steeringClamp) {
                 engine.servoTarget = engine.steeringClamp;
             }
         }
-        if (Input::Key(ImGuiKey_UpArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_UpArrow) || Input::Key(ImGuiKey_W) && windowIsActive) {
             GasKeyPressed |= true;
             engine.targetVelocity = engine.maxVelocity;
             engine.breakingForce = 0.f;
         }
-        if (Input::Key(ImGuiKey_DownArrow) && windowIsActive) {
+        if (Input::Key(ImGuiKey_DownArrow) || Input::Key(ImGuiKey_S) && windowIsActive) {
             GasKeyPressed |= true;
             engine.targetVelocity = -engine.maxVelocity;
             engine.breakingForce = 0.f;
@@ -209,7 +209,7 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
 
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_R, false) && windowIsActive) {
+        if (ImGui::IsKeyPressed(ImGuiKey_LeftShift, false) && windowIsActive) {
             scene->GetComponent<SoundComponent>(frame).GetClip("honk.wav")->Play();
         }
         if (ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive) {
@@ -322,7 +322,9 @@ void FLOOF::CarBaseScript::EngineUi() {
     ImGui::Text("Press 'F' to Toggle Headlights");
     ImGui::Text("Press 'Space' to Break");
     ImGui::Text("Press 'E' 'Q' to change Gear");
-    ImGui::Text("Press 'R' to honk the horn");
+    ImGui::Text("Press 'Left Shift' to honk the horn");
+    ImGui::Text("Press 'Number keys' to change radio channel");
+    ImGui::Text("Scroll 'Mouse wheel' to adjust radio volume");
 
     auto *controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
     if (controller) {
@@ -556,7 +558,10 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, vo
 
     }
 
-    if (ImpactSound && !Blacklist) { ImpactSound->Play(); }
+    if (ImpactSound && !Blacklist) {
+        ImpactSound->Play(); 
+        AllowOnEndOverlap = true;
+    }
 }
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *obj2) {
@@ -566,4 +571,9 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *o
 void FLOOF::CarBaseScript::TruckCollisionCallback::onEndOverlap(void *obj) {
     CollisionDispatcher::onEndOverlap(obj);
     //std::cout << "On End Overlap" << std::endl;
+    
+    if (ImpactSound && AllowOnEndOverlap) {
+        ImpactSound->Play();
+		AllowOnEndOverlap = false;
+    }
 }
