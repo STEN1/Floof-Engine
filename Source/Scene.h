@@ -88,7 +88,9 @@ namespace FLOOF {
             return m_Registry.try_get<Type>(entity);
         }
 
-        PhysicsSystem* GetPhysicSystem(){return m_PhysicSystem.get();}
+        PhysicsSystem* GetPhysicSystem(){
+            if(m_PhysicSystem)return m_PhysicSystem.get();
+        else return nullptr;}
         PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
 
         int ActivePlayer{0};

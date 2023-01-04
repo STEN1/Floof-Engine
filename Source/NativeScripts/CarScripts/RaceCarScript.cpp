@@ -22,14 +22,14 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     engine.TurnHighSpeed = SIMD_PI*0.05f;
 
 
-    auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/2020-konigsegg-jesko/source/2020KonigseggJesko.obj");
+    auto &mesh = scene->AddComponent<StaticMeshComponent>(frame, "Assets/2020_koenigsegg_jesco/jeskoNoWheel.gltf");
 
     {
         auto &transform = scene->GetComponent<TransformComponent>(frame);
         transform.Scale = glm::vec3(1.f);
         transform.Position = SpawnLocation;
 
-        auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 1500.f, "Assets/2020-konigsegg-jesko/source/2020KonigseggJesko.obj");
+        auto &body = scene->AddComponent<RigidBodyComponent>(frame, transform.Position, transform.Scale, transform.Rotation, 1500.f, "Assets/2020_koenigsegg_jesco/jeskoNoWheel.gltf");
         //body.RigidBody->setCollisionFlags(body.RigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         body.setCollisionDispatcher(TruckCallback.get());
 
@@ -55,9 +55,9 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     {
         HeadLightR = scene->CreateEntity("Right Headlight", frame);
         auto &light = scene->AddComponent<PointLightComponent>(HeadLightR);
-        //auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightR,"Assets/LowPolySphere.fbx");
-        //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
-        //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+        auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightR,"Assets/LowPolySphere.fbx");
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
+        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
         light.intensity = 10.f;
 
@@ -69,9 +69,9 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     {
         HeadLightL = scene->CreateEntity("Left Headlight", frame);
         auto &light = scene->AddComponent<PointLightComponent>(HeadLightL);
-        //auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightL,"Assets/LowPolySphere.fbx");
-        //mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
-        //mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+        auto & mesh = scene->AddComponent<StaticMeshComponent>(HeadLightL,"Assets/LowPolySphere.fbx");
+        mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
+        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
 
         light.intensity = 10.f;
 
@@ -136,7 +136,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_fl);
-        transform.Position = glm::vec3(5.8f, 0.6f, 3.5f)+ SpawnLocation;
+        transform.Position = glm::vec3(5.8f, 0.6f, 3.1f)+ SpawnLocation;
         transform.Scale = glm::vec3(2.8f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.4f, 0.6f, 1.4f);
@@ -198,7 +198,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
         mesh.meshes[2].MeshMaterial.UpdateDescriptorSet();
 
         auto &transform = scene->GetComponent<TransformComponent>(Wheel_bl);
-        transform.Position = glm::vec3(-4.7f, 0.6f, 3.5f) + SpawnLocation;
+        transform.Position = glm::vec3(-4.7f, 0.6f, 3.1f) + SpawnLocation;
         transform.Scale = glm::vec3(2.8f);
         transform.Rotation = glm::vec3(glm::pi<float>() / 2.f, 0.f, 0.f);
         glm::vec3 scale = glm::vec3(1.4f, 0.6f, 1.4f);
