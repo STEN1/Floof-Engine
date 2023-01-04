@@ -25,6 +25,11 @@ namespace FLOOF {
 		SoundComponent radio;
 		SoundComponent ambience;
 		SoundComponent crowd;
+		SoundComponent radioFX;
+
+		//class RadioChannel
+
+		//void ChangeRadioChannel(int channel);
 
 	};
 }

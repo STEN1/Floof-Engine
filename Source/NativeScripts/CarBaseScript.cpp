@@ -209,7 +209,7 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
 
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_R, false) && windowIsActive) {
+        if (ImGui::IsKeyPressed(ImGuiKey_LeftShift, false) && windowIsActive) {
             scene->GetComponent<SoundComponent>(frame).GetClip("honk.wav")->Play();
         }
         if (ImGui::IsKeyPressed(ImGuiKey_Q, false) && windowIsActive) {
@@ -322,7 +322,9 @@ void FLOOF::CarBaseScript::EngineUi() {
     ImGui::Text("Press 'F' to Toggle Headlights");
     ImGui::Text("Press 'Space' to Break");
     ImGui::Text("Press 'E' 'Q' to change Gear");
-    ImGui::Text("Press 'R' to honk the horn");
+    ImGui::Text("Press 'Left Shift' to honk the horn");
+    ImGui::Text("Press 'Number keys' to change radio channel");
+    ImGui::Text("Scroll 'Mouse wheel' to adjust radio volume");
 
     auto *controller = m_Scene->TryGetComponent<PlayerControllerComponent>(frame);
     if (controller) {
