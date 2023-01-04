@@ -1,0 +1,11 @@
+Model Information:
+* title:	2020 Koenigsegg Jesco
+* source:	https://sketchfab.com/3d-models/2020-koenigsegg-jesco-cfba9c4a5fbf489a95cce262454839d8
+* author:	Mehmet Taş (https://sketchfab.com/mehmettas)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "2020 Koenigsegg Jesco" (https://sketchfab.com/3d-models/2020-koenigsegg-jesco-cfba9c4a5fbf489a95cce262454839d8) by Mehmet Taş (https://sketchfab.com/mehmettas) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

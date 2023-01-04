@@ -9,7 +9,7 @@ void FLOOF::CheckPointScript::OnCreate(FLOOF::Scene *scene, entt::entity entity)
     mCheckPointCollision = std::make_shared<CheckPointCollision>(scene, Trigger);
 
     auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-
+    transform.Scale = glm::vec3(10.f);
 
     //create trigger
     auto &body = scene->AddComponent<TriggerVolumeComponent>(Trigger, transform.Position, transform.Scale, transform.Rotation, 0.f, bt::CollisionPrimitive::Box);
@@ -17,20 +17,43 @@ void FLOOF::CheckPointScript::OnCreate(FLOOF::Scene *scene, entt::entity entity)
 
     //create flags
     {
-        Pole = scene->CreateEntity("Flag", Trigger);
-        auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(Pole, "Assets/Ball.obj");
-        auto &tform = m_Scene->GetComponent<TransformComponent>(Pole);
+        Pole = m_Scene->CreateEntity("torii_gate", Trigger);
+        auto &sm = m_Scene->AddComponent<StaticMeshComponent>(Pole, "Assets/torii_gate/scene.gltf");
+        auto &GateTransform = m_Scene->GetComponent<TransformComponent>(entity);
 
-        mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
-        mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
-        mesh.meshes[0].MeshMaterial.Normals = Texture(TextureColor::FlatNormal);
-        mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
-        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
-        
-        auto &sound = scene->AddComponent<SoundComponent>(Pole, "checkpoint.wav");
-		mCheckPointCollision->SetImpactSound(sound.GetClip("checkpoint.wav"));
+        GateTransform = transform;
 
+        GateTransform.Scale = glm::vec3(0.2f);
+
+        { // add light
+            const auto lightEntity = m_Scene->CreateEntity("Light", Pole);
+            auto &light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+            auto &transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+            //auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(lightEntity,"Assets/Ball.obj");
+            transform.Position.x = 61.7f;
+            transform.Position.y = 77.2f;
+
+            light.innerRange = 64.f;
+            light.outerRange = 128.f;
+            light.intensity = 1000.f;
+            light.diffuse = glm::vec4(1.f, 0.f, 0.f, 1.f); // red light
+        }
+        { // add light
+            const auto lightEntity = m_Scene->CreateEntity("Light", Pole);
+            auto &light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+            auto &transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+            //auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(lightEntity,"Assets/Ball.obj");
+            transform.Position.x = -58.5f;
+            transform.Position.y = 77.2f;
+
+            light.innerRange = 64.f;
+            light.outerRange = 128.f;
+            light.intensity = 1000.f;
+            light.diffuse = glm::vec4(1.f, 0.f, 0.f, 1.f); // red light
+        }
     }
+
+
     //add to physics world
     auto physics = m_Scene->GetPhysicSystem();
     physics->AddRigidBody(body.RigidBody.get());
@@ -46,16 +69,24 @@ void FLOOF::CheckPointScript::SetActive(bool active) {
     ActiveCheckPoint = active;
     mCheckPointCollision->IsActive = active;
     if (active) {
-        auto *mesh = m_Scene->TryGetComponent<StaticMeshComponent>(Pole);
-        if (mesh) {
-            mesh->meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Green);
-            mesh->meshes[0].MeshMaterial.UpdateDescriptorSet();
+        auto *rel = m_Scene->TryGetComponent<Relationship>(Pole);
+        if (rel) {
+            for (auto child: rel->Children) {
+                auto *light = TryGetComponent<PointLightComponent>(child);
+                if (light) {
+                    light->diffuse = glm::vec4(0.f, 1.f, 0.f, 1.f);
+                }
+            }
         }
     } else {
-        auto *mesh = m_Scene->TryGetComponent<StaticMeshComponent>(Pole);
-        if (mesh) {
-            mesh->meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
-            mesh->meshes[0].MeshMaterial.UpdateDescriptorSet();
+        auto *rel = m_Scene->TryGetComponent<Relationship>(Pole);
+        if (rel) {
+            for (auto child: rel->Children) {
+                auto *light = TryGetComponent<PointLightComponent>(child);
+                if (light) {
+                    light->diffuse = glm::vec4(1.f, 0.f, 0.f, 1.f);
+                }
+            }
         }
     }
 
@@ -63,7 +94,7 @@ void FLOOF::CheckPointScript::SetActive(bool active) {
 
 void FLOOF::CheckPointScript::CheckPointCollision::onBeginOverlap(void *obj1, void *obj2) {
 
-    if(!IsActive)
+    if (!IsActive)
         return;
 
     auto view = mScene->GetRegistry().view<NativeScriptComponent>();

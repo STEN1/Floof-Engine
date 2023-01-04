@@ -9,6 +9,7 @@
 namespace FLOOF {
 
     enum DebugScenes {
+        Demo,
         Physics,
         PhysicsPlayground,
         Audio,

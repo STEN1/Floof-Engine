@@ -224,10 +224,6 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
         float pitch = engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce / engine.Gears[engine.CurrentGear].second;
         pitch = engine.getEnginePitch(glm::length(car.GetLinearVelocity()));
         clip->Pitch(pitch);
-
-
-        std::cout << "Engine force: " << pitch << std::endl;
-
     }
 
 

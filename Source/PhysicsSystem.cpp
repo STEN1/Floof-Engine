@@ -15,6 +15,7 @@
 
 namespace FLOOF {
     PhysicsSystem::PhysicsSystem(entt::registry &scene) : mScene(scene) {
+
         mCollisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
         mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
@@ -159,6 +160,7 @@ namespace FLOOF {
     }
 
     void PhysicsSystem::clear() {
+        BmarkedForClear = true;
 
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
@@ -202,6 +204,7 @@ namespace FLOOF {
 
     bool PhysicsSystem::CustomContactProcessedCallback(btManifoldPoint &cp, void *body0, void *body1) {
         //body0 == body1, dont ask why just bullet things
+
         bool ret = false;
         {
             auto *ptr = reinterpret_cast<btRigidBody *>(body0)->getUserPointer();
@@ -228,14 +231,16 @@ namespace FLOOF {
         auto body0 = manifold->getBody0();
         if (body0->getUserPointer() != nullptr) {
             auto *dispatcher = static_cast<CollisionDispatcher *>(body0->getUserPointer());
-            if (dispatcher->mScene)
+            if (dispatcher->mScene && dispatcher->mScene->GetPhysicSystem() && !dispatcher->mScene->GetPhysicSystem()->BmarkedForClear) {
                 dispatcher->onEndOverlap(&body0);
+            }
         }
         auto body1 = manifold->getBody1();
         if (body1->getUserPointer() != nullptr) {
             auto *dispatcher = static_cast<CollisionDispatcher *>(body1->getUserPointer());
-            if (dispatcher->mScene)
+            if (dispatcher->mScene && dispatcher->mScene->GetPhysicSystem() && !dispatcher->mScene->GetPhysicSystem()->BmarkedForClear) {
                 dispatcher->onEndOverlap(&body1);
+            }
         }
 
     }
