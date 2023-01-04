@@ -15,30 +15,23 @@ namespace FLOOF {
 			// Background ambience
 			{
 
-				auto ent = scene->CreateEntity("Ambience", entity);
-				ambience = scene->AddComponent<SoundComponent>(ent, "wind.wav");
-
-				auto clip = ambience.GetClip("wind.wav");
-				clip->Looping(true);
-
-				ent = scene->CreateEntity("Crowd", entity);
-				crowd = scene->AddComponent<SoundComponent>(ent, "crowd.wav");
-
-				clip = crowd.GetClip("crowd.wav");
-				clip->Looping(true);
-
-				ent = scene->CreateEntity("Radio", entity);
-				radio = scene->AddComponent<SoundComponent>(ent, "pinchcliffe.wav");
-				clip = radio.GetClip("pinchcliffe.wav");
-				clip->Looping(true);
-
-				scene->GetComponent<SoundComponent>(ent).AddClip("hum.wav");
-				radio = scene->GetComponent<SoundComponent>(ent);
+				ambience = scene->CreateEntity("Ambience", entity);
+				scene->AddComponent<SoundComponent>(ambience, "wind.wav");
+				scene->GetComponent<SoundComponent>(ambience).GetClip("wind.wav")->Looping(true);
 				
-				ent = scene->CreateEntity("Radio FX", entity);
-				radioFX = scene->AddComponent<SoundComponent>(ent, "radionoise.wav");
-				clip = radioFX.AddClip("radiobutton.wav");
-				clip = radioFX.AddClip("click.wav");
+				crowd = scene->CreateEntity("Crowd", entity);
+				scene->AddComponent<SoundComponent>(crowd, "crowd.wav");
+				scene->GetComponent<SoundComponent>(crowd).GetClip("crowd.wav")->Looping(true);
+				
+				radio = scene->CreateEntity("Radio", entity);
+				scene->AddComponent<SoundComponent>(radio, "pinchcliffe.wav");
+				scene->GetComponent<SoundComponent>(radio).GetClip("pinchcliffe.wav")->Looping(true);
+				scene->GetComponent<SoundComponent>(radio).AddClip("hum.wav");
+				
+				radioFX = scene->CreateEntity("Radio FX", entity);
+				scene->AddComponent<SoundComponent>(radioFX, "radionoise.wav");
+				scene->GetComponent<SoundComponent>(radioFX).AddClip("radiobutton.wav");
+				scene->GetComponent<SoundComponent>(radioFX).AddClip("click.wav");
 
 			}
 		}
@@ -55,19 +48,19 @@ namespace FLOOF {
 		if (Input::Key(ImGuiKey_0) && windowIsActive) {
 			if (RadioChannel != 0) {
 				RadioChannel = 0;
-				for (auto& clip : radio.mClips) { clip.second->Stop(); }
-				radioFX.GetClip("radiobutton.wav")->Play();
-				radioFX.GetClip("radionoise.wav")->Play();
+				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
 			}
 		}
 
 		if (Input::Key(ImGuiKey_1) && windowIsActive) {
 			if (RadioChannel != 1) {
 				RadioChannel = 1;
-				for (auto& clip : radio.mClips) { clip.second->Stop(); }
-				radioFX.GetClip("radiobutton.wav")->Play();
-				radioFX.GetClip("radionoise.wav")->Play();
-				radio.GetClip("pinchcliffe.wav")->Play();
+				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
+				scene->GetComponent<SoundComponent>(radio).GetClip("pinchcliffe.wav")->Play();
 
 			}
 
@@ -76,28 +69,28 @@ namespace FLOOF {
 		if (Input::Key(ImGuiKey_2) && windowIsActive) {
 			if (RadioChannel != 2) {
 				RadioChannel = 2;
-				for (auto& clip : radio.mClips) { clip.second->Stop(); }
-				radioFX.GetClip("radiobutton.wav")->Play();
-				radioFX.GetClip("radionoise.wav")->Play();
-				radio.GetClip("hum.wav")->Play();
+				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
+				scene->GetComponent<SoundComponent>(radio).GetClip("hum.wav")->Play();
 			}
 		}
 		if (Input::Key(ImGuiKey_MouseWheelY) && windowIsActive) {
 			
 			float adjustment = ImGui::GetIO().MouseWheel / 30.f;
 			float MaxVolume = 1.f;
-			float volume = radio.m_Volume;
+			float volume = scene->GetComponent<SoundComponent>(radio).m_Volume;
 			volume += adjustment;
 
 			if (volume < 0.f) { volume = 0.f; }
 			else if (volume > 1.f) { volume = 1.f; }
-			else { radioFX.GetClip("click.wav")->Play(); }
+			else { scene->GetComponent<SoundComponent>(radioFX).GetClip("click.wav")->Play(); }
 
-			for (auto& clip : radio.mClips) { 
+			for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) {
 				clip.second->Volume(volume);
 			}
 
-			radio.m_Volume = volume;
+			scene->GetComponent<SoundComponent>(radio).m_Volume = volume;
 
 		}
 
@@ -110,8 +103,8 @@ namespace FLOOF {
 
 	void EnvironmentSoundScript::OnPlay() {
 		RadioChannel = 0;
-		crowd.Play("crowd.wav");
-		ambience.Play("wind.wav");
+		m_Scene->GetComponent<SoundComponent>(crowd).Play("crowd.wav");
+		m_Scene->GetComponent<SoundComponent>(ambience).Play("wind.wav");
 	}
 
 	void EnvironmentSoundScript::OnStop() {

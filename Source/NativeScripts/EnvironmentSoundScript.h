@@ -24,10 +24,10 @@ namespace FLOOF {
 		int RadioChannel{ 1 };
 
 	protected:
-		SoundComponent radio;
-		SoundComponent ambience;
-		SoundComponent crowd;
-		SoundComponent radioFX;
+		entt::entity radio;
+		entt::entity ambience;
+		entt::entity crowd;
+		entt::entity radioFX;
 
 		//class RadioChannel
 
