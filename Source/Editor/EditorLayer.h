@@ -6,6 +6,7 @@
 #include "../Renderer/SceneRenderer.h"
 #include "../Scene.h"
 #include "EditorPanels/EditorPanel.h"
+#include "../NativeScripts/EnvironmentSoundScript.h"
 
 namespace FLOOF {
 	class EditorLayer : public ApplicationLayer {
@@ -53,5 +54,8 @@ namespace FLOOF {
 		DebugScenes m_CurrentDebugScene;
 		RenderPipelineKeys m_EditorDrawMode = RenderPipelineKeys::PBR;
 		RenderPipelineKeys m_PlayDrawMode = RenderPipelineKeys::PBR;
+
+		std::shared_ptr<EnvironmentSoundScript::TerrainCollisionCallback> TerrainCallback;
+
 	};
 }

@@ -4,11 +4,11 @@
 
 namespace FLOOF {
 
-	EnviromentSoundScript::EnviromentSoundScript() {}
+	EnvironmentSoundScript::EnvironmentSoundScript() {}
 
-	EnviromentSoundScript::~EnviromentSoundScript() {}
+	EnvironmentSoundScript::~EnvironmentSoundScript() {}
 
-	void EnviromentSoundScript::OnCreate(Scene* scene, entt::entity entity) {
+	void EnvironmentSoundScript::OnCreate(Scene* scene, entt::entity entity) {
 		NativeScript::OnCreate(scene, entity);
 		{
 
@@ -45,7 +45,7 @@ namespace FLOOF {
 	
 	}
 
-	void EnviromentSoundScript::OnUpdate(float deltaTime) {
+	void EnvironmentSoundScript::OnUpdate(float deltaTime) {
 		NativeScript::OnUpdate(deltaTime);
 
 
@@ -113,7 +113,7 @@ namespace FLOOF {
 
 	}
 
-	void EnviromentSoundScript::EditorUpdate(float deltaTime) {
+	void EnvironmentSoundScript::EditorUpdate(float deltaTime) {
 	
 
 		// Stop all sounds in this script from playing
@@ -133,5 +133,23 @@ namespace FLOOF {
 
 	}
 
+
+	void EnvironmentSoundScript::TerrainCollisionCallback::onBeginOverlap(void* obj1, void* obj2) {
+		if (RollingSound) {
+			RollingSound->Play();
+		}
+	}
+
+	void EnvironmentSoundScript::TerrainCollisionCallback::onOverlap(void* obj1, void* obj2) {
+		CollisionDispatcher::onOverlap(obj1, obj2);
+
+	}
+
+	void EnvironmentSoundScript::TerrainCollisionCallback::onEndOverlap(void* obj) {
+		CollisionDispatcher::onEndOverlap(obj);
+		if (RollingSound) {
+			RollingSound->Stop();
+		}
+	}
 
 }
