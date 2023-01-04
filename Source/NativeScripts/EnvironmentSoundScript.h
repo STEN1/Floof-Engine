@@ -3,13 +3,14 @@
 #include "NativeScript.h"
 #include "../Components.h"
 #include "../SoundComponent.h"
+#include "../CollisionDispatcher.h"
 
 namespace FLOOF {
-	class EnviromentSoundScript : public NativeScript {
+	class EnvironmentSoundScript : public NativeScript {
 	public:
-		EnviromentSoundScript();
+		EnvironmentSoundScript();
 		
-		virtual ~EnviromentSoundScript();
+		virtual ~EnvironmentSoundScript();
 		
 		void OnCreate(Scene* scene, entt::entity entity) override;
 
@@ -30,6 +31,24 @@ namespace FLOOF {
 		//class RadioChannel
 
 		//void ChangeRadioChannel(int channel);
+
+	public:
+		class TerrainCollisionCallback : public CollisionDispatcher {
+		public:
+			TerrainCollisionCallback(Scene* scene, entt::entity& entity) : CollisionDispatcher(scene, entity) {};
+
+			virtual void onBeginOverlap(void* obj1, void* obj2) override;
+
+			virtual void onOverlap(void* obj1, void* obj2) override;
+
+			virtual void onEndOverlap(void* obj) override;
+
+			std::shared_ptr<SoundClip> RollingSound;
+			void SetSound(std::shared_ptr<SoundClip> impact) { RollingSound = impact; };
+			bool muted{ false };
+		};
+
+		std::shared_ptr<TerrainCollisionCallback> TruckCallback;
 
 	};
 }

@@ -163,9 +163,9 @@ namespace FLOOF {
         if (mDynamicsWorld)
             for (int i = mDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
                 btCollisionObject *obj = mDynamicsWorld->getCollisionObjectArray()[i];
-                if(!obj) continue;
+                if (!obj) continue;
                 btRigidBody *body = btRigidBody::upcast(obj);
-                if(!body) continue;
+                if (!body) continue;
                 for (int i = 0; i < body->getNumConstraintRefs(); i++) {
                     auto constraint = body->getConstraintRef(i);
                     mDynamicsWorld->removeConstraint(constraint);
@@ -204,19 +204,19 @@ namespace FLOOF {
         //body0 == body1, dont ask why just bullet things
         bool ret = false;
         {
-            auto* ptr = reinterpret_cast<btRigidBody*>(body0)->getUserPointer();
-            if(ptr != nullptr){
-                ret |=true;
-                auto* dispatcher = static_cast<CollisionDispatcher*>(ptr);
-                dispatcher->onOverlap(body0,body1);
+            auto *ptr = reinterpret_cast<btRigidBody *>(body0)->getUserPointer();
+            if (ptr != nullptr) {
+                ret |= true;
+                auto *dispatcher = static_cast<CollisionDispatcher *>(ptr);
+                dispatcher->onOverlap(body0, body1);
             }
         }
         {
-            auto* ptr = reinterpret_cast<btRigidBody*>(body1)->getUserPointer();
-            if(ptr != nullptr){
-                ret |=true;
-                auto* dispatcher = static_cast<CollisionDispatcher*>(ptr);
-                dispatcher->onOverlap(body1,body0);
+            auto *ptr = reinterpret_cast<btRigidBody *>(body1)->getUserPointer();
+            if (ptr != nullptr) {
+                ret |= true;
+                auto *dispatcher = static_cast<CollisionDispatcher *>(ptr);
+                dispatcher->onOverlap(body1, body0);
             }
         }
 
@@ -226,14 +226,16 @@ namespace FLOOF {
     void PhysicsSystem::CustomContactEndedCallback(btPersistentManifold *const &manifold) {
 
         auto body0 = manifold->getBody0();
-        if(body0->getUserPointer() != nullptr){
-            auto* dispatcher = static_cast<CollisionDispatcher*>(body0->getUserPointer());
-            dispatcher->onEndOverlap(&body0);
+        if (body0->getUserPointer() != nullptr) {
+            auto *dispatcher = static_cast<CollisionDispatcher *>(body0->getUserPointer());
+            if (dispatcher->mScene)
+                dispatcher->onEndOverlap(&body0);
         }
         auto body1 = manifold->getBody1();
-        if(body1->getUserPointer() != nullptr){
-            auto* dispatcher = static_cast<CollisionDispatcher*>(body1->getUserPointer());
-            dispatcher->onEndOverlap(&body1);
+        if (body1->getUserPointer() != nullptr) {
+            auto *dispatcher = static_cast<CollisionDispatcher *>(body1->getUserPointer());
+            if (dispatcher->mScene)
+                dispatcher->onEndOverlap(&body1);
         }
 
     }
@@ -253,7 +255,8 @@ namespace FLOOF {
         m_VertexData.push_back(vTo);
     }
 
-    void PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,int lifeTime, const btVector3 &color) {
+    void PhysicsDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance,
+                                            int lifeTime, const btVector3 &color) {
         ColorVertex vFrom;
         vFrom.Color = glm::vec3(color.x(), color.y(), color.z());
         vFrom.Pos = glm::vec3(PointOnB.x(), PointOnB.y(), PointOnB.z());

@@ -1,14 +1,14 @@
 #include "EnvironmentSoundScript.h"
 #include "../Input.h"
-
+#include "CarBaseScript.h"
 
 namespace FLOOF {
 
-	EnviromentSoundScript::EnviromentSoundScript() {}
+	EnvironmentSoundScript::EnvironmentSoundScript() {}
 
-	EnviromentSoundScript::~EnviromentSoundScript() {}
+	EnvironmentSoundScript::~EnvironmentSoundScript() {}
 
-	void EnviromentSoundScript::OnCreate(Scene* scene, entt::entity entity) {
+	void EnvironmentSoundScript::OnCreate(Scene* scene, entt::entity entity) {
 		NativeScript::OnCreate(scene, entity);
 		{
 
@@ -45,7 +45,7 @@ namespace FLOOF {
 	
 	}
 
-	void EnviromentSoundScript::OnUpdate(float deltaTime) {
+	void EnvironmentSoundScript::OnUpdate(float deltaTime) {
 		NativeScript::OnUpdate(deltaTime);
 
 
@@ -113,7 +113,7 @@ namespace FLOOF {
 
 	}
 
-	void EnviromentSoundScript::EditorUpdate(float deltaTime) {
+	void EnvironmentSoundScript::EditorUpdate(float deltaTime) {
 	
 
 		// Stop all sounds in this script from playing
@@ -133,5 +133,52 @@ namespace FLOOF {
 
 	}
 
+
+	void EnvironmentSoundScript::TerrainCollisionCallback::onBeginOverlap(void* obj1, void* obj2) {
+		if (RollingSound) {
+			RollingSound->Play();
+		}
+	}
+
+	void EnvironmentSoundScript::TerrainCollisionCallback::onOverlap(void* obj1, void* obj2) {
+		CollisionDispatcher::onOverlap(obj1, obj2);
+
+        auto view = mScene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+        for (auto [ent, player, script]: view.each()) {
+            if (player.mPlayer == mScene->ActivePlayer) {
+                auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(ent);
+                if (checkpoint) {
+                    auto *car = dynamic_cast<CarBaseScript *>(checkpoint->Script.get());
+                    if (car) {
+
+						auto & rigid = mScene->GetComponent<RigidBodyComponent>(car->frame);
+						auto velocity = glm::length(rigid.GetLinearVelocity());
+
+						if (velocity < 2.f && !muted) {
+							RollingSound->Stop();
+							muted = true;
+
+						}
+
+						else if (velocity > 2.f && muted) {
+							RollingSound->Play();
+							muted = false;
+						}
+
+							
+							//todo here you got carscript get velocity play sounds etc
+                    }
+                    }
+            }
+        }
+
+	}
+
+	void EnvironmentSoundScript::TerrainCollisionCallback::onEndOverlap(void* obj) {
+		CollisionDispatcher::onEndOverlap(obj);
+		if (RollingSound) {
+			RollingSound->Stop();
+		}
+	}
 
 }

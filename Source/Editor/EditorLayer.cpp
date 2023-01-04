@@ -839,7 +839,7 @@ namespace FLOOF {
 
         {
             auto ent = m_Scene->CreateEntity("EnviromentSound");
-            auto& script = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<EnviromentSoundScript>(), m_Scene.get(), ent);
+            auto& script = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<EnvironmentSoundScript>(), m_Scene.get(), ent);
 
         }
 
@@ -877,6 +877,15 @@ namespace FLOOF {
                                            collision.Transform.getOrigin().getZ());
             transform.Scale = extents;
             collision.RigidBody->setFriction(1.0f);
+            
+            TerrainCallback = std::make_shared<EnvironmentSoundScript::TerrainCollisionCallback>(m_Scene.get(), entity);
+            auto& sound = m_Scene->AddComponent<SoundComponent>(entity, "rolling.wav");
+            auto clip = sound.GetClip("rolling.wav");
+            clip->Looping(true);
+            TerrainCallback->SetSound(clip);
+            collision.setCollisionDispatcher(TerrainCallback.get());
+
+            
 
             //place random ramps
             {
