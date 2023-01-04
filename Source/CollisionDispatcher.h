@@ -23,6 +23,7 @@ namespace FLOOF{
         entt::entity& mEntity;
     protected:
         bool isOverlapping = false;
+    public:
         Scene* mScene;
     };
 }

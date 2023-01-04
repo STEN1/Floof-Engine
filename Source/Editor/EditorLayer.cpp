@@ -880,7 +880,7 @@ namespace FLOOF {
             
             TerrainCallback = std::make_shared<EnvironmentSoundScript::TerrainCollisionCallback>(m_Scene.get(), entity);
             auto& sound = m_Scene->AddComponent<SoundComponent>(entity, "rolling.wav");
-            TerrainCallback.get()->SetSound(sound.GetClip("rolling.wav"));
+            TerrainCallback->SetSound(sound.GetClip("rolling.wav"));
             collision.setCollisionDispatcher(TerrainCallback.get());
 
             
