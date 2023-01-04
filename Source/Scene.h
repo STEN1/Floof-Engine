@@ -19,45 +19,55 @@ namespace FLOOF {
         Sponza,
         SponzaRacing
     };
-    static const char* DebugSceneNames[] = {
+    static const char *DebugSceneNames[] = {
             "Demo Scene",
-        "Physics",
-        "Physics Playground",
-        "Audio",
-        "Landscape",
-        "RenderingDemo",
-        "RenderingDemoWithLights",
-        "Sponza",
-        "SponzaRacing",
+            "Physics",
+            "Physics Playground",
+            "Audio",
+            "Landscape",
+            "RenderingDemo",
+            "RenderingDemoWithLights",
+            "Sponza",
+            "SponzaRacing",
     };
 
     class Scene {
         friend class Application;
+
         friend class SceneRenderer;
+
         friend class EditorLayer;
+
         friend class SceneGraphPanel;
+
         friend class ComponentsPanel;
+
         friend class EditorLayer;
+
         friend class SoundSourcesPanel;
+
         friend class SoundClipPanel;
 
     public:
         Scene();
+
         ~Scene();
+
         // Get a finished render batch for scene renderer.
-        entt::registry& GetCulledScene();
+        entt::registry &GetCulledScene();
 
         // Get ref to scene registry.
-        entt::registry& GetRegistry();
+        entt::registry &GetRegistry();
 
         bool IsActiveScene() { return m_IsActiveScene; }
 
-        CameraComponent* GetEditorCamera() { return &m_EditorCamera; }
+        CameraComponent *GetEditorCamera() { return &m_EditorCamera; }
 
         // Returns the first scene camera, or the
         // editor camera if no camera was found.
-        CameraComponent* GetFirstSceneCamera();
-        CameraComponent* GetActiveCamera();
+        CameraComponent *GetFirstSceneCamera();
+
+        CameraComponent *GetActiveCamera();
 
         uint32_t GetSceneID() { return m_SceneID; }
 
@@ -66,7 +76,7 @@ namespace FLOOF {
          * @param tag: Entity name tag.
          * @return The created entity.
         */
-        entt::entity CreateEntity(const std::string& tag = "Entity", entt::entity parent = entt::null);
+        entt::entity CreateEntity(const std::string &tag = "Entity", entt::entity parent = entt::null);
 
         void DestroyEntity(entt::entity entity);
 
@@ -75,24 +85,26 @@ namespace FLOOF {
          * @return Reference to the added component.
         */
         template<typename Type, typename... Args>
-        Type& AddComponent(entt::entity entity, Args &&...args) {
+        Type &AddComponent(entt::entity entity, Args &&...args) {
             return m_Registry.emplace<Type>(entity, std::forward<Args>(args)...);
         }
 
         template<typename Type>
-        Type& GetComponent(entt::entity entity) {
+        Type &GetComponent(entt::entity entity) {
             return m_Registry.get<Type>(entity);
         }
 
         template<typename Type>
-        Type* TryGetComponent(entt::entity entity) {
+        Type *TryGetComponent(entt::entity entity) {
             return m_Registry.try_get<Type>(entity);
         }
 
-        PhysicsSystem* GetPhysicSystem(){
-            if(m_PhysicSystem)return m_PhysicSystem.get();
-        else return nullptr;}
-        PhysicsDebugDraw* GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
+        PhysicsSystem *GetPhysicSystem() {
+            if (m_PhysicSystem)return m_PhysicSystem.get();
+            else return nullptr;
+        }
+
+        PhysicsDebugDraw *GetPhysicsDebugDrawer() { return m_PhysicsDebugDrawer.get(); }
 
         int ActivePlayer{0};
         double ping{0};
@@ -106,13 +118,16 @@ namespace FLOOF {
 
         // Recursive utility for DestroyEntity()
         void DestroyChildEntity(entt::entity entity);
+
     private:
         entt::registry m_Registry;
-        std::unique_ptr<PhysicsSystem> m_PhysicSystem;       
+        std::unique_ptr<PhysicsSystem> m_PhysicSystem;
         std::unique_ptr<PhysicsDebugDraw> m_PhysicsDebugDrawer;
 
         entt::entity m_SelectedEntity = entt::null;
-        class SoundClip* m_SelectedClip = nullptr;
+
+        class SoundClip *m_SelectedClip = nullptr;
+
         entt::entity m_LastSelectedEntity = entt::null;
 
         std::unique_ptr<SceneRenderer> m_SceneRenderer;
