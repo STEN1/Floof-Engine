@@ -24,7 +24,7 @@ void FLOOF::CheckPointScript::OnCreate(FLOOF::Scene *scene, entt::entity entity)
         mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::Red);
         mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
         mesh.meshes[0].MeshMaterial.Normals = Texture(TextureColor::FlatNormal);
-        mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
+        mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
         mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
         
         auto &sound = scene->AddComponent<SoundComponent>(Pole, "checkpoint.wav");
