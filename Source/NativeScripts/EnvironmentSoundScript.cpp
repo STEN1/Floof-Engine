@@ -29,12 +29,12 @@ namespace FLOOF {
 
 				ent = scene->CreateEntity("Radio", entity);
 				radio = scene->AddComponent<SoundComponent>(ent, "pinchcliffe.wav");
-
 				clip = radio.GetClip("pinchcliffe.wav");
 				clip->Looping(true);
 
-				clip = radio.AddClip("hum.wav");
-
+				scene->GetComponent<SoundComponent>(ent).AddClip("hum.wav");
+				radio = scene->GetComponent<SoundComponent>(ent);
+				
 				ent = scene->CreateEntity("Radio FX", entity);
 				radioFX = scene->AddComponent<SoundComponent>(ent, "radionoise.wav");
 				clip = radioFX.AddClip("radiobutton.wav");
