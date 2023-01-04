@@ -31,7 +31,7 @@ namespace FLOOF {
 
         btSoftBodyWorldInfo* getSoftBodyWorldInfo(){return &mSoftBodyWorldInfo;}
 
-        static bool BmarkedForClear;
+        bool BmarkedForClear {false};
     private:
 
         entt::registry& mScene;
