@@ -76,8 +76,11 @@ namespace FLOOF {
         auto* window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
 
+        // start a thread that sorts lights in tiles. This gets joined at the end of the shadowpass.
+        // this is so the lights are ready for the main pass.
         std::thread t(&SceneRenderer::SortLightsInTiles, this, scene, camera);
 
+        // prepare drawdata so shadowpass and main pass dont have to re-calculate transforms.
         std::vector<DrawData> drawData;
         {
             auto view = scene->m_Registry.view<TransformComponent, StaticMeshComponent>();
@@ -88,12 +91,18 @@ namespace FLOOF {
             }
         }
 
+        // calculates shadow frustrums for cascades, then draws all cascades, then joins lightsorting thread
         waitSemaphore = ShadowPass(waitSemaphore, drawData, t, scene, camera);
 
+        // draws the full scene with all materials. also draws landscape and debug lines
         waitSemaphore = MainPass(waitSemaphore, drawData, scene, camera, cameraProjection, cameraView, physicDrawer);
 
+        // since we are drawing to a texture we need to remove alpha from the image, or else alpha
+        // from the last drawn object will still be in the image.
         waitSemaphore = AlphaClearPass(waitSemaphore);
 
+        // getting the gpu handle texture that was rendered to. ImGui can use this to display the texture in a widget.
+        // this enables docking and multiple viewports for 3D scenes.
         SceneRenderFinishedData renderFinishedData{};
         renderFinishedData.Texture = m_TextureFrameBuffers[frameIndex].VKTexture.DesctriptorSet;
         renderFinishedData.SceneRenderFinishedSemaphore = waitSemaphore;
@@ -661,11 +670,13 @@ namespace FLOOF {
 
         float tileSize = m_SceneFrameData.TileSize;
 
+        // converting tile size from screen space to normalized device coordinates.
         glm::vec2 ndcTileSize = 2.f * glm::vec2(tileSize, tileSize) / m_Extent;
 
         std::vector<PointLightComponent::PointLight> tempPointLights;
         auto lightView = scene->m_Registry.view<TransformComponent, PointLightComponent>();
         {
+            // NDC frustum corners.
             glm::vec3 frustumCorners[8] = {
                 // near
                 glm::vec3(-1.f, 1.f, -1.0f), // top left      0  
@@ -679,12 +690,13 @@ namespace FLOOF {
                 glm::vec3(-1.f, -1.f, 0.99999f), // bottom left    7    
             };
 
-            // Project frustum corners into world space
+            // Project frustum corners into world space with inverse projection and perspective divide.
             for (uint32_t i = 0; i < 8; i++) {
                 glm::vec4 invCorner = invProj * glm::vec4(frustumCorners[i], 1.0f);
                 frustumCorners[i] = invCorner / invCorner.w;
             }
 
+            // creating 6 planes that lights can intersect in a halfspace intersection test.
             std::pair<glm::vec3, glm::vec3> faces[6] = {
                     // near
                     { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[2] + frustumCorners[3]) / 4.f),
@@ -706,6 +718,7 @@ namespace FLOOF {
                         glm::vec3(-camera->Forward) },
                 };
 
+            // doing rough light culling and throwing away lights that are not in the view frustum
             for (auto [entity, transform, lightComp] : lightView.each()) {
                 PointLightComponent::PointLight light;
                 light.position = glm::vec4(transform.GetWorldPosition(), 1.f);
@@ -735,6 +748,7 @@ namespace FLOOF {
         }
         m_SceneFrameData.TileCountX = tileCountX;
 
+        // need to calculate how many tiles need to be created since tile size is fixed but viewport is dynamic.
         int numTiles = 0;
         for (float y = -1.f; y < 1.f; y += ndcTileSize.y) {
             for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
@@ -748,9 +762,11 @@ namespace FLOOF {
         int tileIndex = 0;
         for (float y = -1.f; y < 1.f; y += ndcTileSize.y) {
             for (float x = -1.f; x < 1.f; x += ndcTileSize.x) {
+                // dispatching 1 thread pr tile. maby it makes more sense to dispatch 1 thread pr row. needs testing.
                 futures[tileIndex] = std::async(std::launch::async, [x, y, ndcTileSize, camera, invProj](std::vector<PointLightComponent::PointLight>& pointLights,
                     std::vector<PointLightComponent::PointLight>& tempPointLights) {
 
+                    // Creating frustum for this tile.
                     glm::vec3 frustumCorners[8] = {
                     // near
                     glm::vec3(x,                 y + ndcTileSize.y, -1.0f), // top left      0  
@@ -771,8 +787,10 @@ namespace FLOOF {
                     }
 
                     // TODO: dont need to combine and divide by 4. can simply select a corner.
+                    // Does not seem to impact perf.
                     // did this just for nice debug visuals.
-                    // <face position, face normal>
+                    // 
+                    // std::pair<facePosition, faceNormal> faces[6]
                     std::pair<glm::vec3, glm::vec3> faces[6] = {
                         // near
                         { glm::vec3((frustumCorners[0] + frustumCorners[1] + frustumCorners[2] + frustumCorners[3]) / 4.f),
@@ -796,8 +814,10 @@ namespace FLOOF {
 
                     int lightCount{};
 
+                    // this reserves way to much memory but is guaranteed to not re-allocate and should be fine :)
                     pointLights.reserve(tempPointLights.size());
 
+                    // Discarding lights that are not in this specific tile
                     for (auto& light : tempPointLights) {
                         bool intersecting = true;
                         for (auto& [pos, normal] : faces) {
@@ -818,11 +838,12 @@ namespace FLOOF {
             }
         }
 
+        // joins all threads that were dispatched for tiles.
         for (auto& fut : futures)
             fut.get();
 
         std::vector<std::pair<int, int>> lightCountOffsets;
-        lightCountOffsets.reserve(256);
+        lightCountOffsets.reserve(numTiles);
         int offset{};
 
         uint32_t allLightsSize{};
@@ -832,6 +853,7 @@ namespace FLOOF {
         std::vector<PointLightComponent::PointLight> pointLights;
         pointLights.reserve(allLightsSize);
 
+        // combines data from all threads and making data for the offsetCounts array that also gets sent to the GPU
         for (auto& partialLightVec : pointLightVectors) {
             pointLights.insert(pointLights.end(), partialLightVec.begin(), partialLightVec.end());
             auto lightCount = partialLightVec.size();
@@ -839,11 +861,11 @@ namespace FLOOF {
             offset += lightCount;
         }
 
-        // Update gpu data
         auto* renderer = VulkanRenderer::Get();
         auto* window = renderer->GetVulkanWindow();
         auto frameIndex = window->FrameIndex;
 
+        // Update gpu data at the correct frame index.
         m_LightCountOffsetsSSBO[frameIndex].Update(lightCountOffsets);
         m_LightSSBO[frameIndex].Update(pointLights);
     }
