@@ -556,7 +556,10 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onBeginOverlap(void *obj1, vo
 
     }
 
-    if (ImpactSound && !Blacklist) { ImpactSound->Play(); }
+    if (ImpactSound && !Blacklist) {
+        ImpactSound->Play(); 
+        AllowOnEndOverlap = true;
+    }
 }
 
 void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *obj2) {
@@ -566,4 +569,9 @@ void FLOOF::CarBaseScript::TruckCollisionCallback::onOverlap(void *obj1, void *o
 void FLOOF::CarBaseScript::TruckCollisionCallback::onEndOverlap(void *obj) {
     CollisionDispatcher::onEndOverlap(obj);
     //std::cout << "On End Overlap" << std::endl;
+    
+    if (ImpactSound && AllowOnEndOverlap) {
+        ImpactSound->Play();
+		AllowOnEndOverlap = false;
+    }
 }

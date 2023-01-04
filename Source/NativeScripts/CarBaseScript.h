@@ -135,6 +135,7 @@ namespace FLOOF {
 
             std::shared_ptr<SoundClip> ImpactSound;
 			void SetImpactSound(std::shared_ptr<SoundClip> impact) { ImpactSound = impact; };
+            bool AllowOnEndOverlap{ false };
         };
 
         std::shared_ptr<TruckCollisionCallback> TruckCallback;
