@@ -133,6 +133,8 @@ namespace FLOOF {
         stbi_image_free(data);
 
         uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(xWidth, yHeight)))) + 1;
+        if (mipLevels > 8)
+            mipLevels = 8;
 
         // Image
         VkImageCreateInfo imageInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};

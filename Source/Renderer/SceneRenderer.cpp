@@ -21,7 +21,7 @@ namespace FLOOF {
 
         auto* renderer = VulkanRenderer::Get();
 
-        VkSampler sampler = renderer->GetTextureSampler();
+        VkSampler sampler = renderer->GetTextureSamplerClamped();
 
         std::vector<VkDescriptorImageInfo> imageInfos{
             { sampler, m_IrradienceMap.ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
