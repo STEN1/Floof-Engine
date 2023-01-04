@@ -152,6 +152,18 @@ namespace FLOOF {
         }
     }
 
+    bool SoundComponent::Stop(const std::string& name) {
+        auto it = mClips.find(name);
+
+        if (it != mClips.end()) {
+            it->second->Stop();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     bool SoundComponent::SetDefaultClip(const std::string& name) {
 
         auto it = mClips.find(name);

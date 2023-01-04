@@ -56,6 +56,8 @@ namespace FLOOF {
 		std::shared_ptr<SoundClip> GetClip(const std::string& name);
 
 		bool Play(const std::string& name); // returns true if file found
+		bool Stop(const std::string& name); // returns true if file found
+
 		bool SetDefaultClip(const std::string& name);
 		void OnPlay();
 		
