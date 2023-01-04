@@ -15,11 +15,11 @@ namespace FLOOF {
         for (uint32_t i = 0; i < numLights; i++) {
             const auto lightEntity = CreateEntity("Light", entity);
             auto& light = AddComponent<PointLightComponent>(lightEntity);
-            auto& mesh = AddComponent<StaticMeshComponent>(lightEntity, "Assets/Ball.obj");
+            /*auto& mesh = AddComponent<StaticMeshComponent>(lightEntity, "Assets/Ball.obj");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture(TextureColor::White);
             mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
             mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
-            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();*/
             light.diffuse = glm::vec4(Utils::ColorFromScalar(Math::RandFloat(0.f, 1000.f)), 1.0);
             light.outerRange = 128.f;
             light.innerRange = light.outerRange * 0.5f;

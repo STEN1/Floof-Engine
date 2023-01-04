@@ -14,6 +14,7 @@ namespace FLOOF {
         Blue,
         White,
         LightGrey,
+        Grey,
         DarkGrey,
         Black,
         FlatNormal,

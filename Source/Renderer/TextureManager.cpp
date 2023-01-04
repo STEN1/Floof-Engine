@@ -229,14 +229,19 @@ namespace FLOOF {
             case TextureColor::Black:
                 break;
             case TextureColor::DarkGrey:
-                dR = (stbi_uc) 50;
-                dG = (stbi_uc) 50;
-                dB = (stbi_uc) 50;
+                dR = (stbi_uc)25;
+                dG = (stbi_uc)25;
+                dB = (stbi_uc)25;
+                break;
+            case TextureColor::Grey:
+                dR = (stbi_uc)128;
+                dG = (stbi_uc)128;
+                dB = (stbi_uc)128;
                 break;
             case TextureColor::LightGrey:
-                dR = (stbi_uc) 125;
-                dG = (stbi_uc) 125;
-                dB = (stbi_uc) 125;
+                dR = (stbi_uc)200;
+                dG = (stbi_uc)200;
+                dB = (stbi_uc)200;
                 break;
             case TextureColor::FlatNormal:
                 dR = (stbi_uc) 128;

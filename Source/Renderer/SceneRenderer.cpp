@@ -947,7 +947,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
-            params.CullMode = VK_CULL_MODE_NONE;
+            //params.CullMode = VK_CULL_MODE_NONE;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }

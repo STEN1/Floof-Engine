@@ -460,36 +460,42 @@ namespace FLOOF {
             transform.Scale = glm::vec3(0.05f);
         }
 
-        for (float z = -700.f; z < 1000.f; z += 300.f) {
-            const auto entity = m_Scene->CreateEntity("torii_gate");
-            auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/torii_gate/scene.gltf");
-            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
-            transform.Rotation.y = glm::pi<float>();
-            transform.Scale = glm::vec3(3.f);
-            transform.Position.y = -43.3f;
-            transform.Position.z = z;
+        for (float x = -800.f; x < 900.f; x += 800.f) {
+            for (float z = -700.f; z < 1000.f; z += 300.f) {
+                const auto entity = m_Scene->CreateEntity("torii_gate");
+                auto& sm = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/torii_gate/scene.gltf");
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
 
-            { // add light
-                const auto lightEntity = m_Scene->CreateEntity("Light", entity);
-                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
-                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
-                transform.Position.x = 61.7f;
-                transform.Position.y = 77.2f;
+                transform.Rotation.y = glm::pi<float>();
 
-                light.innerRange = 256.f;
-                light.outerRange = 512.f;
-                light.intensity = 200000.f;
-            }
-            { // add light
-                const auto lightEntity = m_Scene->CreateEntity("Light", entity);
-                auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
-                auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
-                transform.Position.x = -58.5f;
-                transform.Position.y = 77.2f;
+                transform.Scale = glm::vec3(3.f);
 
-                light.innerRange = 256.f;
-                light.outerRange = 512.f;
-                light.intensity = 200000.f;
+                transform.Position.x = x;
+                transform.Position.y = -43.3f;
+                transform.Position.z = z;
+
+                { // add light
+                    const auto lightEntity = m_Scene->CreateEntity("Light", entity);
+                    auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                    auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                    transform.Position.x = 61.7f;
+                    transform.Position.y = 77.2f;
+
+                    light.innerRange = 256.f;
+                    light.outerRange = 512.f;
+                    light.intensity = 200000.f;
+                }
+                { // add light
+                    const auto lightEntity = m_Scene->CreateEntity("Light", entity);
+                    auto& light = m_Scene->AddComponent<PointLightComponent>(lightEntity);
+                    auto& transform = m_Scene->GetComponent<TransformComponent>(lightEntity);
+                    transform.Position.x = -58.5f;
+                    transform.Position.y = 77.2f;
+
+                    light.innerRange = 256.f;
+                    light.outerRange = 512.f;
+                    light.intensity = 200000.f;
+                }
             }
         }
 
@@ -513,7 +519,7 @@ namespace FLOOF {
                 transform.Position.x = xOffset;
                 mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
                 mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
-                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
                 mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             }
             {
@@ -525,7 +531,7 @@ namespace FLOOF {
                 transform.Position.x = xOffset;
                 mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
                 mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::White);
-                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Grey);
                 mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             }
             {
@@ -561,7 +567,7 @@ namespace FLOOF {
                 transform.Position.x = xOffset;
                 mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
                 mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::Black);
-                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Black);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
                 mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             }
             {
@@ -573,7 +579,7 @@ namespace FLOOF {
                 transform.Position.x = xOffset;
                 mesh.meshes[0].MeshMaterial.Diffuse = Texture(color);
                 mesh.meshes[0].MeshMaterial.Metallic = Texture(TextureColor::Black);
-                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
+                mesh.meshes[0].MeshMaterial.Roughness = Texture(TextureColor::Grey);
                 mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             }
             {
@@ -606,7 +612,7 @@ namespace FLOOF {
             static constexpr uint32_t yOffsetAmount = 3;
             static constexpr float xOffsetAmount = 3.f;
             float xOffset = 100.f;
-            auto opacityAmount = TextureColor::LightGrey;
+            auto opacityAmount = TextureColor::Grey;
             {
                 const auto entity = m_Scene->CreateEntity();
                 auto& mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
