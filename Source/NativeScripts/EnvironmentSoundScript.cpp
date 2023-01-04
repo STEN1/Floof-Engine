@@ -1,6 +1,6 @@
 #include "EnvironmentSoundScript.h"
 #include "../Input.h"
-
+#include "CarBaseScript.h"
 
 namespace FLOOF {
 
@@ -142,6 +142,20 @@ namespace FLOOF {
 
 	void EnvironmentSoundScript::TerrainCollisionCallback::onOverlap(void* obj1, void* obj2) {
 		CollisionDispatcher::onOverlap(obj1, obj2);
+
+        auto view = mScene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+        for (auto [ent, player, script]: view.each()) {
+            if (player.mPlayer == mScene->ActivePlayer) {
+                auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(ent);
+                if (checkpoint) {
+                    auto *car = dynamic_cast<CarBaseScript *>(checkpoint->Script.get());
+                    if (car) {
+                        //todo here you got carscript get velocity play sounds etc
+
+                    }
+                    }
+            }
+        }
 
 	}
 
