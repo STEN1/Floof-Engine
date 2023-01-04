@@ -71,6 +71,9 @@ namespace FLOOF {
         virtual void OnUpdate(float deltaTime) override;
 
         virtual void LastUpdate(float deltaTime) override;
+        
+        void OnPlay() override;
+        void OnStop() override;
 
         void CameraUi();
 

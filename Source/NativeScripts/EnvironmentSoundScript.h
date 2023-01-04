@@ -17,9 +17,10 @@ namespace FLOOF {
 		void OnUpdate(float deltaTime) override;
 		
 		void EditorUpdate(float deltaTime) override;
-
-		bool PlayMode{ false };
-
+		
+		void OnPlay() override;
+		void OnStop() override;
+		
 		int RadioChannel{ 1 };
 
 	protected:
