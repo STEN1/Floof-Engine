@@ -45,7 +45,7 @@ namespace FLOOF {
 
 			std::shared_ptr<SoundClip> RollingSound;
 			void SetSound(std::shared_ptr<SoundClip> impact) { RollingSound = impact; };
-			bool AllowOnEndOverlap{ false };
+			bool muted{ false };
 		};
 
 		std::shared_ptr<TerrainCollisionCallback> TruckCallback;

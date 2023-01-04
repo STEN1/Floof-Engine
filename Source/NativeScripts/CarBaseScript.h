@@ -84,12 +84,13 @@ namespace FLOOF {
 
         uint32_t CarType{0};
 
+        entt::entity frame;
+
     protected:
 
         const glm::vec3 SpawnLocation;
         Engine engine;
 
-        entt::entity frame;
 
         entt::entity CamTarget;
         entt::entity Camera;

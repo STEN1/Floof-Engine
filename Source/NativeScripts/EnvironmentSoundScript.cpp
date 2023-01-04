@@ -150,8 +150,23 @@ namespace FLOOF {
                 if (checkpoint) {
                     auto *car = dynamic_cast<CarBaseScript *>(checkpoint->Script.get());
                     if (car) {
-                        //todo here you got carscript get velocity play sounds etc
 
+						auto & rigid = mScene->GetComponent<RigidBodyComponent>(car->frame);
+						auto velocity = glm::length(rigid.GetLinearVelocity());
+
+						if (velocity < 2.f && !muted) {
+							RollingSound->Stop();
+							muted = true;
+
+						}
+
+						else if (velocity > 2.f && muted) {
+							RollingSound->Play();
+							muted = false;
+						}
+
+							
+							//todo here you got carscript get velocity play sounds etc
                     }
                     }
             }
