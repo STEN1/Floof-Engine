@@ -81,9 +81,7 @@ namespace FLOOF {
 
         OpenAL_ErrorCheck("Make context current");
 
-        alec(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
-
-        )
+        alec(alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED));
     }
 
     void SoundManager::CleanOpenAL() {

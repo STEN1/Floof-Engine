@@ -864,7 +864,7 @@ namespace FLOOF {
             auto extents = glm::vec3(1000.f, 5.f, 1000.f);
             auto mass = 0.f;
 
-            auto entity = m_Scene->CreateEntity("flooring");
+            auto entity = m_Scene->CreateEntity("Flooring");
             auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, glm::vec3(0.f), mass, bt::CollisionPrimitive::Box);
             auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
@@ -882,10 +882,9 @@ namespace FLOOF {
             collision.RigidBody->setFriction(1.0f);
 
             TerrainCallback = std::make_shared<EnvironmentSoundScript::TerrainCollisionCallback>(m_Scene.get(), entity);
-            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "rolling.wav");
-            auto clip = sound.GetClip("rolling.wav");
-            clip->Looping(true);
-            TerrainCallback->SetSound(clip);
+            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "gravel.wav");
+            sound.GetClip("gravel.wav")->Looping(true);
+            TerrainCallback->SetSound(sound.GetClip("gravel.wav"));
             collision.setCollisionDispatcher(TerrainCallback.get());
 
 
@@ -1043,7 +1042,7 @@ namespace FLOOF {
             auto extents = glm::vec3(1000.f, 5.f, 1000.f);
             auto mass = 0.f;
 
-            auto entity = m_Scene->CreateEntity("flooring");
+            auto entity = m_Scene->CreateEntity("Flooring");
             auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, glm::vec3(0.f), mass, bt::CollisionPrimitive::Box);
             auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
@@ -1061,12 +1060,10 @@ namespace FLOOF {
             collision.RigidBody->setFriction(1.0f);
 
             TerrainCallback = std::make_shared<EnvironmentSoundScript::TerrainCollisionCallback>(m_Scene.get(), entity);
-            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "rolling.wav");
-            auto clip = sound.GetClip("rolling.wav");
-            clip->Looping(true);
-            TerrainCallback->SetSound(clip);
+            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "gravel.wav");
+            sound.GetClip("gravel.wav")->Looping(true);
+            TerrainCallback->SetSound(sound.GetClip("gravel.wav"));
             collision.setCollisionDispatcher(TerrainCallback.get());
-
 
             //place random ramps
             {
