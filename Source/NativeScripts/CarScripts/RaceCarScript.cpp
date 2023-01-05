@@ -252,8 +252,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     // Sound
     {
         auto& sound = scene->GetComponent<SoundComponent>(frame);
-        sound.GetClip("supercar_stereo.wav")->Looping(true);
-
+        sound.AddClip("supercar_stereo.wav")->Looping(true);
         sound.GetClip("supercar_stereo.wav")->Volume(0.8f);
         CarSound = sound.GetClip("supercar_stereo.wav");
 
