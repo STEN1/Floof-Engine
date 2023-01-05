@@ -24,9 +24,17 @@ namespace FLOOF {
 				scene->GetComponent<SoundComponent>(crowd).GetClip("crowd.wav")->Looping(true);
 				
 				radio = scene->CreateEntity("Radio", entity);
-				scene->AddComponent<SoundComponent>(radio, "pinchcliffe.wav");
-				scene->GetComponent<SoundComponent>(radio).GetClip("pinchcliffe.wav")->Looping(true);
-				scene->GetComponent<SoundComponent>(radio).AddClip("hum.wav");
+				scene->AddComponent<SoundComponent>(radio);
+				scene->GetComponent<SoundComponent>(radio).AddQueues(3);
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(1, "hum.wav");
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(1, "checkpoint.wav");
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(2, "Danheim_Atgeir.wav");
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(2, "Danheim_Tyrfing.wav");
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(3, "Jeremy_Njol.wav");
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(3, "Jeremy_Utanlands.wav");
+				
+				scene->GetComponent<SoundComponent>(radio).PlayQueue(1);
+
 				
 				radioFX = scene->CreateEntity("Radio FX", entity);
 				scene->AddComponent<SoundComponent>(radioFX, "radionoise.wav");
