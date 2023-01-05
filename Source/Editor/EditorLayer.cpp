@@ -1044,9 +1044,9 @@ namespace FLOOF {
         }
 
         { // make woods
-            uint32_t numTrees = 100;
+            //uint32_t numTrees = 100;
 
-            for (uint32_t i = 0; i < numTrees; i++) {
+            /*for (uint32_t i = 0; i < numTrees; i++) {
                 const auto entity = m_Scene->CreateEntity("beech_tree");
                 auto& staticMesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/beech_tree/scene.gltf");
 
@@ -1058,12 +1058,23 @@ namespace FLOOF {
 
                 float x = Math::RandFloat(-500.f, 500.f);
                 float z = Math::RandFloat(-500.f, 500.f);
-                float y = landscape->landscape->getHeight(glm::vec2(x, z));
+                glm::vec3 pos = landscape->landscape->getHeight(glm::vec2(x,z));
 
                 auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
-                transform.Position = glm::vec3(x, y, z);
+                transform.Position = pos;
                 transform.Scale = glm::vec3(0.1f);
+            }*/
+            const auto entity = m_Scene->CreateEntity("beech_tree");
+            auto& staticMesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/beech_tree/scene.gltf");
+
+            for (auto& mesh : staticMesh.meshes) {
+                if (mesh.MeshMaterial.Name == "Tree_1Mat") {
+                    mesh.MeshMaterial.TwoSided = true;
+                }
             }
+
+            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position.y = -20.f;
         }
 
         //make ramps
