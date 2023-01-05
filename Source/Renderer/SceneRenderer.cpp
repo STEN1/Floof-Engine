@@ -14,7 +14,7 @@ namespace FLOOF {
     SceneRenderer::SceneRenderer() {
         CreateTextureRenderer();
 
-        m_Skybox = std::make_unique<Skybox>("Assets/Skybox/rustig_koppie_puresky_4k.hdr");
+        m_Skybox = std::make_unique<Skybox>("Assets/Skybox/kloppenheim_02_4k.hdr");
         m_IrradienceMap = m_Skybox->m_Cubemap.GetIrradienceMap();
         m_PrefilterMap = m_Skybox->m_Cubemap.GetPrefilterMap();
         m_BRDFLut = TextureManager::GetBRDFLut();
@@ -969,7 +969,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
-            //params.CullMode = VK_CULL_MODE_NONE;
+            params.CullMode = VK_CULL_MODE_NONE;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }

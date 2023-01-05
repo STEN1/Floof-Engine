@@ -20,7 +20,7 @@ namespace FLOOF {
         glm::mat4 LightSpaceMatrix[FLOOF_CASCADE_COUNT];
         glm::mat4 View = glm::mat4(1.f);
         glm::vec4 SplitDists = glm::vec4(0.f);
-        float sunStrenght = 20.f;
+        float sunStrenght = 10.f;
         int TileSize = 128;
         int CascadeCount = FLOOF_CASCADE_COUNT;
         float AmbientIntensity = 1.f;
