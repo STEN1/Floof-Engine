@@ -37,14 +37,12 @@ namespace FLOOF {
 				scene->AddComponent<SoundComponent>(radioFX, "radionoise.wav");
 				scene->GetComponent<SoundComponent>(radioFX).AddClip("radiobutton.wav");
 				scene->GetComponent<SoundComponent>(radioFX).AddClip("click.wav");
-				scene->GetComponent<SoundComponent>(radioFX).AddClip("ui_click.wav");
 
 				// Volume adjustments
 				
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Volume(1.0f);
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Volume(1.0f);
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("click.wav")->Volume(1.0f);
-				scene->GetComponent<SoundComponent>(radioFX).GetClip("ui_click.wav")->Volume(1.0f);
 
 				scene->GetComponent<SoundComponent>(crowd).GetClip("crowd.wav")->Volume(0.4f);
 				scene->GetComponent<SoundComponent>(ambience).GetClip("wind.wav")->Volume(0.4f);
@@ -126,11 +124,6 @@ namespace FLOOF {
 			}
 
 			scene->GetComponent<SoundComponent>(radio).m_Volume = volume;
-
-		}
-
-		if (Input::Key(ImGuiKey_MouseLeft)) {
-			scene->GetComponent<SoundComponent>(radioFX).GetClip("ui_click.wav")->Play();
 
 		}
 	}
