@@ -1016,6 +1016,13 @@ namespace FLOOF {
             auto *body = new btRigidBody(info);
             body->setFriction(1.5f);
             m_Scene->GetPhysicSystem()->AddRigidBody(body);
+
+            TerrainCallback = std::make_shared<EnvironmentSoundScript::TerrainCollisionCallback>(m_Scene.get(), entity);
+            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "gravel.wav");
+            sound.GetClip("gravel.wav")->Looping(true);
+            TerrainCallback->SetSound(sound.GetClip("gravel.wav"));
+            body->setUserPointer(TerrainCallback.get());
+
         }
 
         //Gamemode Script

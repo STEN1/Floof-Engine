@@ -105,7 +105,7 @@ namespace FLOOF {
 				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
-				scene->GetComponent<SoundComponent>(radio).PlayQueue(4);
+				scene->GetComponent<SoundComponent>(radio).PlayQueue(3);
 			}
 		}
 		if (Input::Key(ImGuiKey_MouseWheelY) && windowIsActive) {
