@@ -58,16 +58,21 @@ namespace FLOOF {
             if (ImGui::CollapsingHeader("Car Selection")) {
                 if (ImGui::Button("Koenigsegg")) {
                     //get Player ent
+                    glm::vec3 spawnLoc{-380.5f, -55.3f, -370.f};
                     auto view = m_Scene->GetRegistry().view<PlayerControllerComponent>();
                     for (auto [ent, player]: view.each()) {
                         if (player.mPlayer == m_Scene->ActivePlayer) {
                             PlayerEnt = ent;
+                            if (player.spawnLoc != glm::vec3(0.f)){
+                                spawnLoc = player.spawnLoc;
+                                spawnLoc.z += 3.f;
+                            }
                         }
                     }
                     if (PlayerEnt != entt::null)
                         m_Scene->DestroyEntity(PlayerEnt);
                     PlayerEnt = m_Scene->CreateEntity("Local Player");
-                    auto &script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<RaceCarScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene, PlayerEnt);
+                    auto &script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<RaceCarScript>(spawnLoc), m_Scene, PlayerEnt);
                     m_Scene->AddComponent<PlayerControllerComponent>(PlayerEnt, m_Scene->ActivePlayer);
                     auto cpScript = dynamic_cast<CarBaseScript *>(script.Script.get());
                     if (cpScript)
@@ -75,16 +80,21 @@ namespace FLOOF {
                 }
                 if (ImGui::Button("Cybertruck")) {
                     //get Player ent
+                    glm::vec3 spawnLoc{-380.5f, -55.3f, -370.f};
                     auto view = m_Scene->GetRegistry().view<PlayerControllerComponent>();
                     for (auto [ent, player]: view.each()) {
                         if (player.mPlayer == m_Scene->ActivePlayer) {
                             PlayerEnt = ent;
+                            if (player.spawnLoc != glm::vec3(0.f)){
+                                spawnLoc = player.spawnLoc;
+                                spawnLoc.z += 3.f;
+                            }
                         }
                     }
                     if (PlayerEnt != entt::null)
                         m_Scene->DestroyEntity(PlayerEnt);
                     PlayerEnt = m_Scene->CreateEntity("Local Player");
-                    auto &script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<MonsterTruckScript>(glm::vec3(0.f, -40.f, 0.f)), m_Scene, PlayerEnt);
+                    auto &script = m_Scene->AddComponent<NativeScriptComponent>(PlayerEnt, std::make_unique<MonsterTruckScript>(spawnLoc), m_Scene, PlayerEnt);
                     m_Scene->AddComponent<PlayerControllerComponent>(PlayerEnt, m_Scene->ActivePlayer);
                     auto cpScript = dynamic_cast<CarBaseScript *>(script.Script.get());
                     if (cpScript)
@@ -102,7 +112,7 @@ namespace FLOOF {
         void OnUpdate(float deltaTime) override {
             EditorUpdate(deltaTime);
 
-            if(Application::GetLayerType() != LayerType::SERVER){
+            if (Application::GetLayerType() != LayerType::SERVER) {
                 MakeUi();
             }
 

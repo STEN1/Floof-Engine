@@ -33,8 +33,14 @@ namespace FLOOF{
         std::vector<TimePoint> TimePoints;
         std::vector<double> BestTimePoints;
 
-        std::vector<glm::vec3> CheckPoints;
+        //std::vector<glm::vec3> CheckPoints;
         std::vector<entt::entity> CheckPointEntities;
+        struct tform{
+            glm::vec3 pos;
+            glm::vec3 scale;
+            glm::vec3 rot;
+        };
+        std::vector<tform> CheckTform;
 
         int ActiveCheckPoint{0};
 

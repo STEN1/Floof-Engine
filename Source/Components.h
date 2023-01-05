@@ -198,6 +198,9 @@ namespace FLOOF {
         ~PlayerControllerComponent(){};
 
         int mPlayer;
+        glm::vec3 spawnLoc{glm::vec3(0.f)};
+        glm::vec3 spawnRot{glm::vec3(0.f)};
+
     };
 }
 
