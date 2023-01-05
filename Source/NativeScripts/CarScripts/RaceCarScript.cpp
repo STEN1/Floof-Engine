@@ -32,6 +32,7 @@ void FLOOF::RaceCarScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
             m.MeshMaterial.Roughness = Texture(TextureColor::Grey);
 
         } else if (m.MeshMaterial.Name == "Material_19.001") {
+            m.MeshMaterial.Diffuse = Texture(TextureColor::HotPink);
             m.MeshMaterial.Metallic = Texture(TextureColor::Grey);
             m.MeshMaterial.Roughness = Texture(TextureColor::DarkGrey);
 

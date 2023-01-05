@@ -250,6 +250,11 @@ namespace FLOOF {
                 dG = (stbi_uc) 128;
                 dB = (stbi_uc) 255;
                 break;
+            case TextureColor::HotPink:
+                dR = (stbi_uc) 255;
+                dG = (stbi_uc) 0;
+                dB = (stbi_uc) 127;
+                break;
         }
 
         // staging buffer

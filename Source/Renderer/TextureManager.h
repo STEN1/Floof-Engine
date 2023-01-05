@@ -19,6 +19,7 @@ namespace FLOOF {
         Black,
         FlatNormal,
         Size,
+        HotPink,
     };
 
     class TextureManager {
