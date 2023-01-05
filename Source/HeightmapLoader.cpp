@@ -7,7 +7,7 @@
 namespace FLOOF {
 
     HeightmapLoader::HeightmapLoader(const char *mapstr) : filepath(mapstr) {
-        if (readMap())
+        if (readMap()) 
             std::cout << "heightmap sucsses\n";
     }
 
@@ -19,7 +19,7 @@ namespace FLOOF {
             for (int x = 0; x < height; x++) {
                 for (int y = 0; y < width; y++) {
                     float z = img[x * width + y] * zScale;
-                    mVertices.emplace_back(MeshVertex{glm::vec3(x, z, y)});
+                    mVertices.emplace_back(MeshVertex{ glm::vec3(x, z, y) });
                 }
             }
 
@@ -27,10 +27,10 @@ namespace FLOOF {
             for (int x = 0; x < height - 1; x++) {
                 for (int y = 0; y < width - 1; y++) {
 
-                    auto a{x * width + y};
-                    auto b{(x + 1) * width + y};
-                    auto c{(x + 1) * width + (y + 1)};
-                    auto d{x * width + (y + 1)};
+                    auto a{ x * width + y };
+                    auto b{ (x + 1) * width + y };
+                    auto c{ (x + 1) * width + (y + 1) };
+                    auto d{ x * width + (y + 1) };
 
                     mIndices.emplace_back(a);
                     mIndices.emplace_back(c);
@@ -43,8 +43,8 @@ namespace FLOOF {
             }
 
             //set Normals
-            for (int x = 1; x < height - 1; x += 1) {
-                for (int y = 1; y < width - 1; y += 1) {
+            for (int x = 1; x < height - 1; x++) {
+                for (int y = 1; y < width - 1; y++) {
                     glm::vec3 a = mVertices[(x * width) + y].Pos;
                     glm::vec3 b = mVertices[((x + 1) * width) + y].Pos;
                     glm::vec3 c = mVertices[((x + 1) * width) + y + 1].Pos;
@@ -61,7 +61,7 @@ namespace FLOOF {
                     auto a5 = glm::cross(g - a, f - a);
 
                     glm::vec3 normal = glm::normalize(a0 + a1 + a2 + a3 + a4 + a5);
-                    mVertices[(x * height) + y].Normal = normal * glm::vec3{-1, -1, -1};
+                    mVertices[(x * height) + y].Normal = normal * glm::vec3{ -1, -1, -1 };
 
                     //uv
                     //auto UVx = (1.f / height) * y;
@@ -72,6 +72,12 @@ namespace FLOOF {
                     mVertices[(x * width) + y].UV = glm::vec2(UVx, UVy);
                 }
             }
+            for (int x = 0; x < height-1; x++) {
+                for (int y = 0; y < width-1; y++) {
+                    mVertices[(x * width) + y].Pos.y = getAvearageHeight(x, y);
+                }
+            }
+         
             stbi_image_free(img);      //free image memory after bitmap generation
         } else {
             stbi_image_free(img);      //free image memory after bitmap generation
@@ -100,4 +106,47 @@ namespace FLOOF {
         return retrn;
     }
 
+    float HeightmapLoader::getAvearageHeight(int x, int z)
+    {
+        std::vector<float> all_Heigts;
+
+        if ((x + 1) * width < width * height) {
+            all_Heigts.push_back(mVertices[((x + 1) * width) + z].Pos.y);
+
+            if ((x * width) + z + 1 < (width * height))
+                all_Heigts.push_back(mVertices[((x + 1) * width) + z + 1].Pos.y);
+            if ((x*width) + z - 1 > 0)
+                all_Heigts.push_back(mVertices[((x + 1) * width) + (z - 1)].Pos.y);
+        }
+
+        if ((x * width) + z + 1 < width * height) {
+            all_Heigts.push_back(mVertices[(x * width) + z + 1].Pos.y);
+        }
+
+        if ((x - 1) * width > 0) {
+            all_Heigts.push_back(mVertices[((x - 1) * width) + z].Pos.y);
+
+            if ((x * width) + z - 1 > 0)
+                all_Heigts.push_back(mVertices[((x - 1) * width) + (z - 1)].Pos.y);
+
+            if ((x * width) + z + 1 < width * height)
+                all_Heigts.push_back(mVertices[((x - 1) * width) + z].Pos.y);
+        }
+
+        if ((x * width) + z - 1 > 0)
+            all_Heigts.push_back(mVertices[(x * width) + (z - 1)].Pos.y);
+
+        float average{ 0 };
+        int am{ 0 };
+
+        if (!all_Heigts.empty()) {
+            for (auto a : all_Heigts)
+            {
+                average += a;
+                am++;
+            }
+            return average / am;
+        }
+        else return 0;
+    }
 }

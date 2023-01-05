@@ -25,6 +25,7 @@ namespace FLOOF {
 
         int channels;
 		unsigned char* img { nullptr };
+		float getAvearageHeight(int x, int z);
 
 	public:
 		MeshData getMeshData();
