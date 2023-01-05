@@ -1057,17 +1057,50 @@ namespace FLOOF {
                 transform.Position = pos;
                 transform.Scale = glm::vec3(0.1f);
             }*/
-            const auto entity = m_Scene->CreateEntity("beech_tree");
-            auto& staticMesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/beech_tree/scene.gltf");
+            //{
+            //    const auto entity = m_Scene->CreateEntity("beech_tree");
+            //    auto& staticMesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/beech_tree/scene.gltf");
 
-            for (auto& mesh : staticMesh.meshes) {
-                if (mesh.MeshMaterial.Name == "Tree_1Mat") {
-                    mesh.MeshMaterial.TwoSided = true;
+            //    for (auto& mesh : staticMesh.meshes) {
+            //        if (mesh.MeshMaterial.Name == "Tree_1Mat") {
+            //            mesh.MeshMaterial.TwoSided = true;
+            //        }
+            //    }
+
+            //    auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+            //    transform.Position.y = -20.f;
+            //}
+
+            glm::vec3 treePositions[] = {
+                glm::vec3(42.f, 3.7f, -66.6f),
+                glm::vec3(278.4f, 25.7f, -191.f),
+                glm::vec3(417.f, 18.2f, -234.1f),
+                glm::vec3(336.8f, -24.8f, -427.9f),
+                glm::vec3(-270.9f, -54.2f, -149.9f),
+                glm::vec3(-441.5f, -15.1f, 63.f),
+                glm::vec3(-358.f, -11.5f, 284.2f),
+                glm::vec3(-137.4f, -41.2f, 274.6f),
+                glm::vec3(181.3f, -52.3f, 317.6f),
+                glm::vec3(261.3f, -53.3f, 357.6f),
+                glm::vec3(241.3f, -47.6f, 280.2f),
+            };
+
+            for (glm::vec3& pos : treePositions) {
+                const auto entity = m_Scene->CreateEntity("sakura_tree");
+                auto& staticMesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/sakura_tree/scene.gltf");
+
+                for (auto& mesh : staticMesh.meshes) {
+                    if (mesh.MeshMaterial.Name == "DL2X2_1") {
+                        mesh.MeshMaterial.TwoSided = true;
+                    }
                 }
-            }
 
-            auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
-            transform.Position.y = -20.f;
+                auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
+                transform.Rotation.x = -glm::half_pi<float>();
+                transform.Rotation.y = Math::RandFloat(0.f, glm::two_pi<float>());
+                transform.Scale = glm::vec3(50.f);
+                transform.Position = pos;
+            }
         }
 
         //make ramps

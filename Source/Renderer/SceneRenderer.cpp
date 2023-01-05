@@ -1003,7 +1003,7 @@ namespace FLOOF {
         }
         {    // PBR shader
             RenderPipelineParams params;
-            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.Flags = RenderPipelineFlags::DepthPass;
             params.FragmentPath = "Shaders/PBR.frag.spv";
             params.VertexPath = "Shaders/PBR.vert.spv";
             params.Key = RenderPipelineKeys::PBR;
@@ -1051,7 +1051,7 @@ namespace FLOOF {
         {    // PBR alpha shader
             RenderPipelineParams params;
             params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthRead;
-            params.FragmentPath = "Shaders/PBR.frag.spv";
+            params.FragmentPath = "Shaders/PBRAlpha.frag.spv";
             params.VertexPath = "Shaders/PBR.vert.spv";
             params.Key = RenderPipelineKeys::PBRAlpha;
             params.PolygonMode = VK_POLYGON_MODE_FILL;

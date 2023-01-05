@@ -81,9 +81,6 @@ vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float me
 
 void main() {
     float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
-    if (alpha < 0.8) {
-        discard;
-    }
 
     vec3 N = getNormal();
     vec3 V = normalize(sceneFrameUBO.cameraPos.xyz - fragPos);

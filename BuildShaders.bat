@@ -10,6 +10,7 @@ glslc Shaders/UnLit.vert -o Shaders/UnLit.vert.spv -g
 glslc Shaders/UnLit.frag -o Shaders/UnLit.frag.spv -g
 glslc Shaders/PBR.vert -o Shaders/PBR.vert.spv -g
 glslc Shaders/PBR.frag -o Shaders/PBR.frag.spv -g
+glslc Shaders/PBRAlpha.frag -o Shaders/PBRAlpha.frag.spv -g
 glslc Shaders/Skybox.vert -o Shaders/Skybox.vert.spv -g
 glslc Shaders/Skybox.frag -o Shaders/Skybox.frag.spv -g
 glslc Shaders/Cubemap.vert -o Shaders/Cubemap.vert.spv -g
