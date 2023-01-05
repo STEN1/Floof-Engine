@@ -3,6 +3,7 @@
 #include "glm/glm.hpp"
 #include "Renderer/VulkanRenderer.h"
 #include "Renderer/Mesh.h"
+#include "Utils.h"
 
 namespace FLOOF {
 
@@ -151,9 +152,70 @@ namespace FLOOF {
         else return 0;
     }
 
-    float HeightmapLoader::getHeight(const glm::vec2& pos)
+    float HeightmapLoader::GetHeightFromPos(const glm::vec3& pos)
     {
-        glm::vec2 PlayerPosCopy = pos;
+        if (mVertices.empty())
+            return pos.y;
+        auto temp = glm::vec3{ width / 2,-100,height / 2 };
+        glm::mat4x4 m_globalTransform = glm::mat4{{ temp.x,0,0,1 },{0,temp.y,0,1},{0,0,temp.z,1},{0,0,0,1} };
+        auto inverseTransform = glm::inverse(m_globalTransform);
+        glm::vec3 correctedPos = inverseTransform * glm::vec4(pos, 1.f);
+
+        int x = correctedPos.x;
+        int z = correctedPos.z;
+        auto aIndex = (x * width) + z;
+        auto bIndex = (x * width) + z + 1;
+        auto cIndex = ((x + 1) * width) + z + 1;
+        auto dIndex = ((x + 1) * width) + z;
+
+        glm::vec3 transformedA = m_globalTransform * glm::vec4{mVertices[aIndex].Pos, 1.f };
+        glm::vec3 transformedB = m_globalTransform * glm::vec4(mVertices[bIndex].Pos, 1.f);
+        glm::vec3 transformedC = m_globalTransform * glm::vec4(mVertices[cIndex].Pos, 1.f);
+        glm::vec3 transformedD = m_globalTransform * glm::vec4(mVertices[dIndex].Pos, 1.f);
+
+        glm::vec2 pos2D = { pos.z, pos.x };
+        glm::vec2 a = { transformedA.z, transformedA.x };
+        glm::vec2 b = { transformedB.z, transformedB.x };
+        glm::vec2 c = { transformedC.z, transformedC.x };
+        glm::vec2 d = { transformedD.z, transformedD.x };
+        auto barycentricCoords = barysentricCordinatats(pos2D, a, b, c);
+
+        bool btri{ true };
+        int i{ 0 };
+
+        while (btri && i > 3)
+        {
+            if (barycentricCoords[i] < 0.f || barycentricCoords[i] > 1.f)
+            {
+                btri = false;
+            }
+            i++;
+        }
+        if ((btri))
+        {
+            auto ah = transformedA.y * barycentricCoords.x;
+            auto bh = transformedB.y * barycentricCoords.y;
+            auto ch = transformedC.y * barycentricCoords.z;
+            auto h = ah + bh + ch;
+            return h;
+        }
+        else
+        {
+            barycentricCoords = barysentricCordinatats(pos2D, a, c, d);
+            auto ah = transformedA.y * barycentricCoords.x;
+            auto ch = transformedC.y * barycentricCoords.y;
+            auto dh = transformedD.y * barycentricCoords.z;
+            auto h = ah + ch + dh;
+            return h;
+        }
+    }
+    
+    glm::vec3 HeightmapLoader::getHeight(const glm::vec2& pos)
+    {
+        auto offsett = glm::vec3{ -(width / 2),-100,-(height / 2) };
+
+        glm::vec2 PlayerPosCopy = pos + glm::vec2(offsett.x, offsett.z);
+        glm::vec2 PlayerPosCopy2 = PlayerPosCopy;
         PlayerPosCopy.x = floorf(PlayerPosCopy.x);
         PlayerPosCopy.y = floorf(PlayerPosCopy.y);
 
@@ -163,12 +225,12 @@ namespace FLOOF {
         int a4 = (PlayerPosCopy.y * width) + PlayerPosCopy.x + 1;
 
         if (a1 > mVertices.size() || a2 > mVertices.size() || a3 > mVertices.size() || a4 > mVertices.size() || a1 < 0 || a2 < 0 || a3 < 0 || a4 < 0)
-            return 0;
+            return glm::vec3{ 0 };
 
-        glm::vec2 a = glm::vec2(mVertices[a1].Pos.x, mVertices[a1].Pos.y);
-        glm::vec2 b = glm::vec2(mVertices[a2].Pos.x, mVertices[a2].Pos.y);
-        glm::vec2 c = glm::vec2(mVertices[a3].Pos.x, mVertices[a3].Pos.y);
-        glm::vec2 d = glm::vec2(mVertices[a4].Pos.x, mVertices[a4].Pos.y);
+        glm::vec2 a = glm::vec2(mVertices[a1].Pos.x, mVertices[a1].Pos.z);
+        glm::vec2 b = glm::vec2(mVertices[a2].Pos.x, mVertices[a2].Pos.z);
+        glm::vec2 c = glm::vec2(mVertices[a3].Pos.x, mVertices[a3].Pos.z);
+        glm::vec2 d = glm::vec2(mVertices[a4].Pos.x, mVertices[a4].Pos.z);
 
         glm::vec3 baryLocation = barysentricCordinatats(pos, a, d, b);
 
@@ -189,7 +251,7 @@ namespace FLOOF {
             float bh = mVertices[a4].Pos.z * baryLocation.y;
             float ch = mVertices[a2].Pos.z * baryLocation.z;
             float height = ah + bh + ch;
-            return height;
+            return glm::vec3{ 0,height,0 } + glm::vec3{ PlayerPosCopy2.x, offsett.y, PlayerPosCopy2.y };
         }
         else {
             baryLocation = barysentricCordinatats(pos, a, b, c);
@@ -198,7 +260,7 @@ namespace FLOOF {
             float bh = mVertices[a2].Pos.z * baryLocation.y;
             float dh = mVertices[a3].Pos.z * baryLocation.z;
             float height = ah + bh + dh;
-            return height;
+            return glm::vec3{ 0,height,0 } + glm::vec3{ PlayerPosCopy2.x, offsett.y, PlayerPosCopy2.y };
         }
     }
 
