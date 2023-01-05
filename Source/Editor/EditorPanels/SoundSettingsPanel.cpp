@@ -37,12 +37,12 @@ namespace FLOOF {
 		if (SoundManager::Muted) { if (ImGui::Button("Unmute")) { SoundManager::UpdateMute(); } }
 		if (!SoundManager::Muted) { if (ImGui::Button("Mute")) { SoundManager::UpdateMute(); } }
 
-		if (ImGui::DragFloat("Doppler Factor", &SoundManager::DopplerFactor, 0.001f, 0.f, 1.f)) {
-			SoundManager::UpdateDopplerFactor();
-		}
-		if (ImGui::DragFloat("Doppler Velocity", &SoundManager::DopplerVelocity, 1.f, 0.f, 1000.f)) {
-			SoundManager::UpdateDopplerVelocity();
-		}
+		//if (ImGui::DragFloat("Doppler Factor", &SoundManager::DopplerFactor, 0.001f, 0.f, 1.f)) {
+		//	SoundManager::UpdateDopplerFactor();
+		//}
+		//if (ImGui::DragFloat("Doppler Velocity", &SoundManager::DopplerVelocity, 1.f, 0.f, 1000.f)) {
+		//	SoundManager::UpdateDopplerVelocity();
+		//}
     	ImGui::End();
     }
 }

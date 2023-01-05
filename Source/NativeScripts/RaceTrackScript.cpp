@@ -3,16 +3,28 @@
 #include "../Utils.h"
 #include "CheckPointScript.h"
 
-void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
+void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
     RaceTrack = entity;
 
+<<<<<<< HEAD
     auto view = m_Scene->GetRegistry().view<PlayerControllerComponent>();
     for (auto [ent, player]: view.each()) {
         if (player.mPlayer == m_Scene->ActivePlayer) {
             player.spawnLoc = glm::vec3(-350.5f, -55.3f, -302.9f);
             player.spawnRot = glm::vec3(0.f);
         }
+=======
+    // Add checkpoint sound
+    auto& sound = scene->AddComponent<SoundComponent>(RaceTrack, "checkpoint.wav");
+    sound.GetClip("checkpoint.wav")->Volume(0.8f);
+    
+
+
+    //make checkpoints;
+    for (int i{ 0 }; i <= 5; i++) {
+        CheckPoints.emplace_back(glm::vec3(Math::RandFloat(-100.f, 100.f), -45.f, Math::RandFloat(-100.f, 100.f)));
+>>>>>>> 649623d75cb4d08eb4124bd694e45e4ad5094714
     }
     //make checkpoints;
     tform tf;
@@ -21,6 +33,7 @@ void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) 
     tf.scale = glm::vec3(0.2f);
     CheckTform.emplace_back(tf);
 
+<<<<<<< HEAD
     tf.pos = glm::vec3(-390.3f, -45.2f, -91.9f);
     tf.rot = glm::vec3(0.0f, 3.14f, 0.0f);
     tf.scale = glm::vec3(0.2f);
@@ -84,11 +97,32 @@ void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) 
         transform.Position = loc.pos;
         transform.Rotation = loc.rot;
         m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
+=======
+    //bspline generate racetrack
+    auto& spline = scene->AddComponent<BSplineComponent>(RaceTrack, CheckPoints);
+
+    //create checkpoints
+    for (auto loc : CheckPoints) {
+        std::string name = "Checkpoint";
+        auto ent = CreateEntity(name, RaceTrack);
+
+        auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
+        glm::vec3 scale{ 5.f };
+        glm::vec3 rotation{ 0.f };
+
+        transform.Scale = scale;
+        transform.Position = loc;
+        transform.Rotation = rotation;
+        auto &checkpoint = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
+		auto cpScript = dynamic_cast<CheckPointScript*>(checkpoint.Script.get());
+        cpScript->mCheckPointCollision->SetImpactSound(sound.GetClip("checkpoint.wav"));
+
+>>>>>>> 649623d75cb4d08eb4124bd694e45e4ad5094714
         CheckPointEntities.emplace_back(ent);
     }
-    auto &script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
-    auto cpScript = dynamic_cast<CheckPointScript *>(script.Script.get());
-    if (cpScript)
+    auto& script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
+    auto cpScript = dynamic_cast<CheckPointScript*>(script.Script.get());
+    if (cpScript) 
         cpScript->SetActive(true);
 }
 

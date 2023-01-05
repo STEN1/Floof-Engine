@@ -21,10 +21,12 @@ namespace FLOOF {
 
 		std::string m_Path;
 		std::string m_Name;
-		float m_Volume{ 1.f };
+		float m_Volume{ 0.5f };
 		float m_Pitch{ 1.f };
 		bool isLooping{ false };
 		bool isPlaying{ false };
+		bool queueMode{ false };
+		std::shared_ptr<SoundClip> nextClip;
 		void Volume();
 		void Volume(float volume);
 		void Pitch();
@@ -59,17 +61,24 @@ namespace FLOOF {
 		bool Stop(const std::string& name); // returns true if file found
 
 		bool SetDefaultClip(const std::string& name);
-		void OnPlay();
 		
-		bool PlayOnPlay{ true };
+		int AddQueues(int numberofqueues);
+		void AddToQueue(int QueueNumber, const std::string& name);
+		void PlayQueue(int queueNumber);
+		void StopQueue(int queueNumber);
+
+		std::vector<std::vector<std::shared_ptr<SoundClip>>> m_PlayQueue;
+		int NumberOfQueues{ 0 };
+
 		std::string m_DefaultSoundClip;
 		float m_Volume{ 1.f };
 
+		// Not implemented yett
+		void OnPlay();
+		bool PlayOnPlay{ true };
 
-		// TODO Implement queue
-			//void AddToQueue(const std::string& name);
-			//void PlayQueue();
-			//std::queue<SoundClip*> m_PlayQueue;
+
+
 
 	};
 

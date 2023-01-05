@@ -46,7 +46,7 @@ namespace FLOOF {
 
 			std::shared_ptr<SoundClip> RollingSound;
 			void SetSound(std::shared_ptr<SoundClip> impact) { RollingSound = impact; };
-			bool muted{ false };
+			inline static bool muted{ true };
 		};
 
 		std::shared_ptr<TerrainCollisionCallback> TruckCallback;

@@ -864,7 +864,7 @@ namespace FLOOF {
             auto extents = glm::vec3(1000.f, 5.f, 1000.f);
             auto mass = 0.f;
 
-            auto entity = m_Scene->CreateEntity("flooring");
+            auto entity = m_Scene->CreateEntity("Flooring");
             auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, glm::vec3(0.f), mass, bt::CollisionPrimitive::Box);
             auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
             mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
@@ -882,10 +882,9 @@ namespace FLOOF {
             collision.RigidBody->setFriction(1.0f);
 
             TerrainCallback = std::make_shared<EnvironmentSoundScript::TerrainCollisionCallback>(m_Scene.get(), entity);
-            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "rolling.wav");
-            auto clip = sound.GetClip("rolling.wav");
-            clip->Looping(true);
-            TerrainCallback->SetSound(clip);
+            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "gravel.wav");
+            sound.GetClip("gravel.wav")->Looping(true);
+            TerrainCallback->SetSound(sound.GetClip("gravel.wav"));
             collision.setCollisionDispatcher(TerrainCallback.get());
 
 
@@ -1056,6 +1055,60 @@ namespace FLOOF {
                 transform.Rotation = rotation;
                 collision.RigidBody->setFriction(0.9f);
 
+<<<<<<< HEAD
+=======
+        }
+
+        //make flooring
+        {
+            auto location = glm::vec3(0.f, -50.f, 0.f);
+            auto extents = glm::vec3(1000.f, 5.f, 1000.f);
+            auto mass = 0.f;
+
+            auto entity = m_Scene->CreateEntity("Flooring");
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, glm::vec3(0.f), mass, bt::CollisionPrimitive::Box);
+            auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
+            mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
+            mesh.meshes[0].MeshMaterial.AO = Texture("Assets/crisscross-foam1-ue/crisscross-foam_ao.png");
+            mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/crisscross-foam1-ue/crisscross-foam_metallic.png");
+            mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/crisscross-foam1-ue/crisscross-foam_normal-dx.png");
+            mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/crisscross-foam1-ue/crisscross-foam_roughness.png");
+            mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
+                                           collision.Transform.getOrigin().getY(),
+                                           collision.Transform.getOrigin().getZ());
+            transform.Scale = extents;
+            collision.RigidBody->setFriction(1.0f);
+
+            TerrainCallback = std::make_shared<EnvironmentSoundScript::TerrainCollisionCallback>(m_Scene.get(), entity);
+            auto &sound = m_Scene->AddComponent<SoundComponent>(entity, "gravel.wav");
+            sound.GetClip("gravel.wav")->Looping(true);
+            TerrainCallback->SetSound(sound.GetClip("gravel.wav"));
+            collision.setCollisionDispatcher(TerrainCallback.get());
+
+            //place random ramps
+            {
+                const float mass = 0.f;
+                for (int i{0}; i < 10.f; i++) {
+                    auto extents = glm::vec3(0.1f, 0.05f, 0.05f);
+                    auto location = glm::vec3(Math::RandFloat(-200.f, 200.f), -45.f + extents.y, Math::RandFloat(-200.f, 200.f));
+                    auto rotation = glm::vec3(-glm::pi<float>() / 2.f, Math::RandFloat(0.f, 6.28f), 0.f);
+                    std::string name = "Ramp ";
+                    name += std::to_string(i);
+
+                    auto entity = m_Scene->CreateEntity(name);
+                    auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/ramp/scene.gltf");
+                    auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/ramp/scene.gltf");
+                    auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+                    transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
+                    transform.Scale = extents;
+                    transform.Rotation = rotation;
+                    collision.RigidBody->setFriction(0.9f);
+
+                }
+>>>>>>> 649623d75cb4d08eb4124bd694e45e4ad5094714
             }
         }
 
