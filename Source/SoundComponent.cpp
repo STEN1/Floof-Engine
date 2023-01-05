@@ -36,6 +36,11 @@ namespace FLOOF {
 
         ALint sourceState;
         alec(alGetSourcei(m_Source, AL_SOURCE_STATE, &sourceState));
+
+        // For radio playing
+        if (isPlaying && sourceState == AL_STOPPED && nextClip) {       
+			nextClip->Play();
+        }
     
         if (isPlaying && sourceState == AL_STOPPED) {
             isPlaying = false;
@@ -175,6 +180,41 @@ namespace FLOOF {
         else {
             return false;
         }
+    }
+
+    int SoundComponent::AddQueues(int numberofqueues) {
+        for (size_t i = 0; i < numberofqueues; i++) {
+            m_PlayQueue.push_back(std::queue<std::shared_ptr<SoundClip>>());
+            NumberOfQueues++;
+        }
+		
+        return NumberOfQueues - 1;
+    }
+
+    void SoundComponent::AddToQueue(int QueueNumber, const std::string& name) {
+        QueueNumber--;
+
+		ASSERT(QueueNumber <= NumberOfQueues, "QueueNumber is out of range");
+        m_PlayQueue[QueueNumber].push(AddClip(name));    
+    }
+
+    void SoundComponent::PlayQueue(int queueNumber) {
+        queueNumber--;
+		int queueSize = m_PlayQueue[queueNumber].size();
+        
+        auto& first = m_PlayQueue[queueNumber].front();
+        first->Play();
+        
+        for (size_t i = 0; i < queueSize; i++) {
+            auto& clip = m_PlayQueue[queueNumber].front();
+            m_PlayQueue[queueNumber].pop();
+            if (i < queueSize - 1) {
+                clip->nextClip = m_PlayQueue[queueNumber].front();
+            }
+            else {
+                clip->nextClip = first;
+            }
+        }        
     }
 
 	void SoundComponent::OnPlay() {
