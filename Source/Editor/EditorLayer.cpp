@@ -1051,10 +1051,10 @@ namespace FLOOF {
 
                 float x = Math::RandFloat(-500.f, 500.f);
                 float z = Math::RandFloat(-500.f, 500.f);
-                float y = landscape->landscape->getHeight(glm::vec2(x, z));
+                glm::vec3 pos = landscape->landscape->getHeight(glm::vec2(x,z));
 
                 auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
-                transform.Position = glm::vec3(x, y, z);
+                transform.Position = pos;
                 transform.Scale = glm::vec3(0.1f);
             }
         }

@@ -367,7 +367,7 @@ namespace FLOOF {
         HeightFieldShape = new HeightField(landscape->mVertices, landscape->height, landscape->width, 200.f, 0.f);
         triangleCol.height = landscape->height;
         triangleCol.width = landscape->width;
-
+        
         //landscape
         {
             btVector3 aabbMin, aabbMax;
