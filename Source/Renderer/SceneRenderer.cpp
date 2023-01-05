@@ -359,8 +359,79 @@ namespace FLOOF {
             m_Skybox->Draw(commandBuffer, pipelineLayout);
         }
 
-        std::vector<AlphaDrawData> transparentGeometry;
+        // Draw landscape
+        {
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
+            auto lightDescriptor = m_LightSSBO[frameIndex].GetDescriptorSet();
 
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
+                &lightDescriptor, 0, nullptr);
+
+            auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
+                &sceneDescriptor, 0, nullptr);
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
+                &m_IrradiencePrefilterDescriptorSet, 0, nullptr);
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
+                &m_BRDFLut.DesctriptorSet, 0, nullptr);
+
+            auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
+                &shadowDescriptor, 0, nullptr);
+
+            auto lightCountDescriptor = m_LightCountOffsetsSSBO[frameIndex].GetDescriptorSet();
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
+                &lightCountDescriptor, 0, nullptr);
+
+            if (m_DrawMode == RenderPipelineKeys::Wireframe) {
+                pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, m_DrawMode);
+
+                auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                    &sceneDescriptor, 0, nullptr);
+            }
+
+            auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
+            for (auto [entity, transform, landscape] : view.each()) {
+                MeshPushConstants constants;
+                glm::mat4 modelMat = transform.GetTransform();
+                constants.Model = modelMat;
+                constants.InvModelMat = glm::inverse(modelMat);
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                    0, sizeof(MeshPushConstants), &constants);
+
+                if (landscape.meshData.MeshMaterial1.DescriptorSet == VK_NULL_HANDLE) {
+                    landscape.meshData.MeshMaterial1.UpdateDescriptorSet();
+                }
+                if (landscape.meshData.MeshMaterial2.DescriptorSet == VK_NULL_HANDLE) {
+                    landscape.meshData.MeshMaterial2.UpdateDescriptorSet();
+                }
+                if (landscape.meshData.MeshMaterial3.DescriptorSet == VK_NULL_HANDLE) {
+                    landscape.meshData.MeshMaterial3.UpdateDescriptorSet();
+                }
+
+                if (m_DrawMode != RenderPipelineKeys::Wireframe) {
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        0, 1, &landscape.meshData.MeshMaterial1.DescriptorSet, 0, nullptr);
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        5, 1, &landscape.meshData.MeshMaterial2.DescriptorSet, 0, nullptr);
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        6, 1, &landscape.meshData.MeshMaterial3.DescriptorSet, 0, nullptr);
+                }
+
+                VkDeviceSize offset{ 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
+                vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
+            }
+        }
+
+        std::vector<AlphaDrawData> transparentGeometry;
         // Draw models
         {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, m_DrawMode);
@@ -437,66 +508,7 @@ namespace FLOOF {
             }
         }
 
-        // Draw landscape
-        {
-            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::Landscape);
-            auto lightDescriptor = m_LightSSBO[frameIndex].GetDescriptorSet();
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
-                &lightDescriptor, 0, nullptr);
-
-            auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
-                &sceneDescriptor, 0, nullptr);
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
-                &m_IrradiencePrefilterDescriptorSet, 0, nullptr);
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
-                &m_BRDFLut.DesctriptorSet, 0, nullptr);
-
-            auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 7, 1,
-                &shadowDescriptor, 0, nullptr);
-
-            auto lightCountDescriptor = m_LightCountOffsetsSSBO[frameIndex].GetDescriptorSet();
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 8, 1,
-                &lightCountDescriptor, 0, nullptr);
-
-            auto view = scene->m_Registry.view<TransformComponent, LandscapeComponent>();
-            for (auto [entity, transform, landscape] : view.each()) {
-                MeshPushConstants constants;
-                glm::mat4 modelMat = transform.GetTransform();
-                constants.Model = modelMat;
-                constants.InvModelMat = glm::inverse(modelMat);
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
-                    0, sizeof(MeshPushConstants), &constants);
-
-                if (landscape.meshData.MeshMaterial1.DescriptorSet == VK_NULL_HANDLE) {
-                    landscape.meshData.MeshMaterial1.UpdateDescriptorSet();
-                }
-                if (landscape.meshData.MeshMaterial2.DescriptorSet == VK_NULL_HANDLE) {
-                    landscape.meshData.MeshMaterial2.UpdateDescriptorSet();
-                }
-                if (landscape.meshData.MeshMaterial3.DescriptorSet == VK_NULL_HANDLE) {
-                    landscape.meshData.MeshMaterial3.UpdateDescriptorSet();
-                }
-
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    0, 1, &landscape.meshData.MeshMaterial1.DescriptorSet, 0, nullptr);
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    5, 1, &landscape.meshData.MeshMaterial2.DescriptorSet, 0, nullptr);
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    6, 1, &landscape.meshData.MeshMaterial3.DescriptorSet, 0, nullptr);
-
-                VkDeviceSize offset{ 0 };
-                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &landscape.meshData.VertexBuffer.Buffer, &offset);
-                vkCmdBindIndexBuffer(commandBuffer, landscape.meshData.IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
-                vkCmdDrawIndexed(commandBuffer, landscape.meshData.IndexCount, 1, 0, 0, 0);
-            }
-        }
+        
         {
             auto sortFunc = [](const AlphaDrawData& a, const AlphaDrawData& b) -> bool {
                 return a.distanceToCamera2 > b.distanceToCamera2;

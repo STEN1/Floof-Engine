@@ -1121,7 +1121,7 @@ namespace FLOOF {
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = params.PolygonMode;
 #ifdef WIN32
-        rasterizer.lineWidth = 2.0f;
+        rasterizer.lineWidth = 1.0f;
 #else
         rasterizer.lineWidth = 1.0f;
 #endif
