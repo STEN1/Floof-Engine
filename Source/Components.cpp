@@ -382,32 +382,36 @@ namespace FLOOF {
         landscape->mIndices = triangleCol.indicesOut;
 
         //vulkan data
-        meshData.setMesh(landscape->getMeshData());
-        std::string path = "Assets/Terrain";
-        
-        meshData.MeshMaterial1.Diffuse = Texture(path + "/SnowRocky/diffuse.png", true);
-        meshData.MeshMaterial1.Roughness = Texture(path + "/SnowRocky/roughness.png", true);
-        meshData.MeshMaterial1.Normals = Texture(path + "/SnowRocky/normal.png", true);
-        meshData.MeshMaterial1.UpdateDescriptorSet();
-        
-        meshData.MeshMaterial2.Diffuse = Texture(path + "/Stone/diffuse.png", true);
-        meshData.MeshMaterial2.Roughness = Texture(path + "/Stone/roughness.png", true);
-        meshData.MeshMaterial2.Normals = Texture(path + "/Stone/normal.png", true);
-        meshData.MeshMaterial2.UpdateDescriptorSet();
-        
-        meshData.MeshMaterial3.Diffuse = Texture(path + "/GrassTex/diffuse.png", true);
-        meshData.MeshMaterial3.Roughness = Texture(path + "/GrassTex/roughness.png", true);
-        meshData.MeshMaterial3.Normals = Texture(path + "/GrassTex/normal.png", true);
-        meshData.MeshMaterial3.UpdateDescriptorSet();
+        if(Application::Get().GetLayerType() != LayerType::SERVER){
+            meshData.setMesh(landscape->getMeshData());
+            std::string path = "Assets/Terrain";
+
+            meshData.MeshMaterial1.Diffuse = Texture(path + "/SnowRocky/diffuse.png", true);
+            meshData.MeshMaterial1.Roughness = Texture(path + "/SnowRocky/roughness.png", true);
+            meshData.MeshMaterial1.Normals = Texture(path + "/SnowRocky/normal.png", true);
+            meshData.MeshMaterial1.UpdateDescriptorSet();
+
+            meshData.MeshMaterial2.Diffuse = Texture(path + "/Stone/diffuse.png", true);
+            meshData.MeshMaterial2.Roughness = Texture(path + "/Stone/roughness.png", true);
+            meshData.MeshMaterial2.Normals = Texture(path + "/Stone/normal.png", true);
+            meshData.MeshMaterial2.UpdateDescriptorSet();
+
+            meshData.MeshMaterial3.Diffuse = Texture(path + "/GrassTex/diffuse.png", true);
+            meshData.MeshMaterial3.Roughness = Texture(path + "/GrassTex/roughness.png", true);
+            meshData.MeshMaterial3.Normals = Texture(path + "/GrassTex/normal.png", true);
+            meshData.MeshMaterial3.UpdateDescriptorSet();
+
+        }
 
         //meshData.BlendTex = Texture(true);
     }
 
     LandscapeComponent::~LandscapeComponent() {
-        auto *renderer = VulkanRenderer::Get();
-        renderer->DestroyVulkanBuffer(&meshData.VertexBuffer);
-        renderer->DestroyVulkanBuffer(&meshData.IndexBuffer);
-
+        if(Application::Get().GetLayerType() != LayerType::SERVER) {
+            auto *renderer = VulkanRenderer::Get();
+            renderer->DestroyVulkanBuffer(&meshData.VertexBuffer);
+            renderer->DestroyVulkanBuffer(&meshData.IndexBuffer);
+        }
         delete HeightFieldShape;
         delete landscape;
     }

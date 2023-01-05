@@ -1,6 +1,7 @@
 #include "ServerLayer.h"
 #include "Application.h"
 #include "NativeScripts/GameModeScript.h"
+#include "NativeScripts/EnvironmentSoundScript.h"
 
 FLOOF::ServerLayer::ServerLayer() {
 
@@ -20,6 +21,7 @@ void FLOOF::ServerLayer::OnUpdate(double deltaTime) {
         Server->Update();
     }
     else{
+        std::cout << "Server staret on port 9012" << std::endl;
         Server = std::make_unique<FloofServer>(9012); //todo make port editable
         Server->mScene = m_Scene.get();
 
@@ -53,10 +55,22 @@ void FLOOF::ServerLayer::StopPlay() {
 }
 
 void FLOOF::ServerLayer::MakeServerScene() {
+
     m_Scene = std::make_unique<Scene>();
 
+    //terrain
+    {
+        auto entity = m_Scene->CreateEntity("Terrain");
+        auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightmap.png", "Assets/Terrain/Terrain_Tough/texture.png");
 
-    //todo remember to copy the demo scene here
+        auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+
+        auto *state = new btDefaultMotionState();
+        btRigidBody::btRigidBodyConstructionInfo info(0, state, mesh.HeightFieldShape->mHeightfieldShape);
+        auto *body = new btRigidBody(info);
+        body->setFriction(1.5f);
+        m_Scene->GetPhysicSystem()->AddRigidBody(body);
+    }
 
     //Gamemode Script
     {
@@ -72,78 +86,62 @@ void FLOOF::ServerLayer::MakeServerScene() {
     }
 
     {
-        const auto entity = m_Scene->CreateEntity();
-        auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-        transform.Position = glm::vec4(0.f, 10.f, -0.5f, 1.f);
-        m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Ball.obj");
+        auto ent = m_Scene->CreateEntity("EnviromentSound");
+        auto &script = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<EnvironmentSoundScript>(), m_Scene.get(), ent);
     }
 
-    //make race track
+    //make ramps
     {
 
-    }
+        struct ramptform {
+            glm::vec3 pos{0.f};
+            glm::vec3 rot{0.f};
+            glm::vec3 scale{1.f};
+        };
+        std::vector<ramptform> ramps;
 
-    //make flooring
-    {
-        auto location = glm::vec3(0.f, -50.f, 0.f);
-        auto extents = glm::vec3(1000.f, 5.f, 1000.f);
-        auto mass = 0.f;
+        ramptform tf;
+        tf.pos = glm::vec3(-370.f,0.5f,133.f);
+        tf.rot= glm::vec3(-1.8f,0.f,0.f);
+        tf.scale = glm::vec3(0.1f,0.1f,0.06f);
+        ramps.emplace_back(tf);
+        //-370, 0.5, 133
+        //-1.8,0,0
+        //0.1, 0.1, 0.06
 
-        auto entity = m_Scene->CreateEntity("flooring");
-        auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, glm::vec3(0.f), mass, bt::CollisionPrimitive::Box);
-        auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityCube.fbx");
-        mesh.meshes[0].MeshMaterial.Diffuse = Texture("Assets/crisscross-foam1-ue/crisscross-foam_albedo.png");
-        mesh.meshes[0].MeshMaterial.AO = Texture("Assets/crisscross-foam1-ue/crisscross-foam_ao.png");
-        mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/crisscross-foam1-ue/crisscross-foam_metallic.png");
-        mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/crisscross-foam1-ue/crisscross-foam_normal-dx.png");
-        mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/crisscross-foam1-ue/crisscross-foam_roughness.png");
-        mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
+        //135, -44, 200
+        //half pi, 2, 0
+        //0.2, 0.05, 0.05
+        tf.pos = glm::vec3(135.f,-44.f,200.f);
+        tf.rot= glm::vec3(-glm::pi<float>()/2.f,2.f,0.f);
+        tf.scale = glm::vec3(0.2f,0.05f,0.05f);
+        ramps.emplace_back(tf);
+        //56, -27, -279.1
+        //-1.6, 5.6, 0
+        //0.2
+        tf.pos = glm::vec3(56.f,-27.f,-279.1f);
+        tf.rot= glm::vec3(-1.6f,5.6f,0.f);
+        tf.scale = glm::vec3(0.2f);
+        ramps.emplace_back(tf);
 
-        auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-        transform.Position = glm::vec3(collision.Transform.getOrigin().getX(),
-                                       collision.Transform.getOrigin().getY(),
-                                       collision.Transform.getOrigin().getZ());
-        transform.Scale = extents;
-        collision.RigidBody->setFriction(1.0f);
+        for (auto ramp: ramps) {
+            auto extents = ramp.scale;
+            auto location = ramp.pos;
+            auto rotation = ramp.rot;
+            float mass = 0.f;
+            std::string name = "Ramp ";
 
-        //place random ramps
-        {
-            auto mass = 0.f;
+            auto entity = m_Scene->CreateEntity(name);
+            auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/ramp/scene.gltf");
+            auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/ramp/scene.gltf");
+            auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
+            transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
+            transform.Scale = extents;
+            transform.Rotation = rotation;
+            collision.RigidBody->setFriction(2.f);
 
-            //blanket textures;
-            const char *albedos[4]{
-                    "Assets/soft-blanket-ue/soft-blanket_Blue_albedo.png",
-                    "Assets/soft-blanket-ue/soft-blanket_Pink_albedo.png",
-                    "Assets/soft-blanket-ue/soft-blanket_Red_albedo.png",
-                    "Assets/soft-blanket-ue/soft-blanket_Yellow_albedo.png",
-            };
-
-            for (int i{0}; i < 10.f; i++) {
-                auto extents = glm::vec3(Math::RandFloat(5.f, 30.f), Math::RandFloat(2.f, 10.f), Math::RandFloat(5.f, 30.f));
-                auto location = glm::vec3(Math::RandFloat(-200.f, 200.f), -43.f + extents.y, Math::RandFloat(-200.f, 200.f));
-                auto rotation = glm::vec3(0.f, Math::RandFloat(0.f, 6.28f), 0.f);
-                std::string name = "Random ramp ";
-                name += std::to_string(i);
-
-                auto entity = m_Scene->CreateEntity(name);
-                auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/Primitives/IdentityRamp.fbx");
-                auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/Primitives/IdentityRamp.fbx");
-                auto texture = Math::RandInt(0, 3);
-                mesh.meshes[0].MeshMaterial.Diffuse = Texture(albedos[texture]);
-                mesh.meshes[0].MeshMaterial.AO = Texture("Assets/soft-blanket-ue/soft-blanket_ao.png");
-                mesh.meshes[0].MeshMaterial.Metallic = Texture("Assets/soft-blanket-ue/soft-blanket_metallic.png");
-                mesh.meshes[0].MeshMaterial.Normals = Texture("Assets/soft-blanket-ue/soft-blanket_normal-dx.png");
-                mesh.meshes[0].MeshMaterial.Roughness = Texture("Assets/soft-blanket-ue/soft-blanket_roughness.png");
-
-                mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
-
-                auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-                transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
-                transform.Scale = extents;
-                transform.Rotation = rotation;
-                collision.RigidBody->setFriction(0.9f);
-            }
         }
-
     }
+
 }
+
