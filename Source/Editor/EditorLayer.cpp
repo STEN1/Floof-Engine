@@ -1030,47 +1030,6 @@ namespace FLOOF {
             auto &script = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<EnvironmentSoundScript>(), m_Scene.get(), ent);
         }
 
-        //place random ramps
-        {
-            const float mass = 0.f;
-            for (int i{0}; i < 10.f; i++) {
-                auto extents = glm::vec3(0.1f, 0.05f, 0.05f);
-                auto location = glm::vec3(Math::RandFloat(-200.f, 200.f), -45.f + extents.y, Math::RandFloat(-200.f, 200.f));
-                auto rotation = glm::vec3(-glm::pi<float>() / 2.f, Math::RandFloat(0.f, 6.28f), 0.f);
-                std::string name = "Ramp ";
-                name += std::to_string(i);
-
-                auto entity = m_Scene->CreateEntity(name);
-                auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/ramp/scene.gltf");
-                auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/ramp/scene.gltf");
-                auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-                transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
-                transform.Scale = extents;
-                transform.Rotation = rotation;
-                collision.RigidBody->setFriction(0.9f);
-
-                //place random ramps
-                {
-                    const float mass = 0.f;
-                    for (int i{0}; i < 10.f; i++) {
-                        auto extents = glm::vec3(0.1f, 0.05f, 0.05f);
-                        auto location = glm::vec3(Math::RandFloat(-200.f, 200.f), -45.f + extents.y, Math::RandFloat(-200.f, 200.f));
-                        auto rotation = glm::vec3(-glm::pi<float>() / 2.f, Math::RandFloat(0.f, 6.28f), 0.f);
-                        std::string name = "Ramp ";
-                        name += std::to_string(i);
-
-                        auto entity = m_Scene->CreateEntity(name);
-                        auto &collision = m_Scene->AddComponent<RigidBodyComponent>(entity, location, extents, rotation, mass, "Assets/ramp/scene.gltf");
-                        auto &mesh = m_Scene->AddComponent<StaticMeshComponent>(entity, "Assets/ramp/scene.gltf");
-                        auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
-                        transform.Position = glm::vec3(collision.Transform.getOrigin().getX(), collision.Transform.getOrigin().getY(), collision.Transform.getOrigin().getZ());
-                        transform.Scale = extents;
-                        transform.Rotation = rotation;
-                        collision.RigidBody->setFriction(0.9f);
-
-                    }
-                }
-            }
-        }
     }
+
 }
