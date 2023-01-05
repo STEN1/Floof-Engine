@@ -80,6 +80,11 @@ float filterPCF(vec4 sc, int cascadeIndex);
 vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float metallic, vec3 F0);
 
 void main() {
+    float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
+    if (alpha < 0.05) {
+        discard;
+    }
+
     vec3 N = getNormal();
     vec3 V = normalize(sceneFrameUBO.cameraPos.xyz - fragPos);
 
@@ -169,8 +174,6 @@ void main() {
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
-
-    float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
 
     if (sceneFrameUBO.showLightComplexity > 0 && lightCountOffsetsSSBO.countOffsets[tileIndex].count > 0) {
         float t = lightCountOffsetsSSBO.countOffsets[tileIndex].count / 64.0;

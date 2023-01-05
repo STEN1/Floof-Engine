@@ -11,6 +11,6 @@ layout (set = 1, binding = 5) uniform sampler2D opacityTexture;
 
 void main() {
     float alpha = texture(diffuseTexture, fragUv).a * texture(opacityTexture, fragUv).r;
-    if (alpha < 0.4)
+    if (alpha < 0.05)
         discard;
 }

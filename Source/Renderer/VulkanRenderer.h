@@ -85,6 +85,7 @@ namespace FLOOF {
         ShadowPass,
         AlphaClear,
         PBRAlpha,
+        PBRTwoSided,
     };
 
     enum class RenderSetLayouts : uint32_t {

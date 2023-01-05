@@ -313,6 +313,12 @@ namespace FLOOF {
         float distanceToCamera2;
     };
 
+    struct TwoSidedDrawData {
+        MeshData* mesh;
+        glm::mat4 transform;
+        glm::mat4 invTransform;
+    };
+
     VkSemaphore SceneRenderer::MainPass(VkSemaphore waitSemaphore, const std::vector<DrawData>& drawData, Scene* scene, CameraComponent* camera, const glm::mat4& cameraProjection, const glm::mat4& cameraView, PhysicsDebugDraw* physicDrawer)
     {
         auto* renderer = VulkanRenderer::Get();
@@ -432,6 +438,7 @@ namespace FLOOF {
         }
 
         std::vector<AlphaDrawData> transparentGeometry;
+        std::vector <TwoSidedDrawData> twoSidedGeometry;
         // Draw models
         {
             auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, m_DrawMode);
@@ -487,6 +494,12 @@ namespace FLOOF {
                             alphaDrawData.distanceToCamera2 = glm::length2(camera->Position - glm::vec3(transform[3]));
                             transparentGeometry.push_back(alphaDrawData);
                             continue;
+                        } else if (mesh.MeshMaterial.TwoSided) {
+                            TwoSidedDrawData twoSidedDrawData;
+                            twoSidedDrawData.mesh = &mesh;
+                            twoSidedDrawData.transform = transform;
+                            twoSidedDrawData.invTransform = invTransform;
+                            twoSidedGeometry.push_back(twoSidedDrawData);
                         }
                         if (m_DrawMode == RenderPipelineKeys::PBR || m_DrawMode == RenderPipelineKeys::UnLit || m_DrawMode == RenderPipelineKeys::Normals) {
                             if (mesh.MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
@@ -508,8 +521,57 @@ namespace FLOOF {
             }
         }
 
+        { // Draw twosided geometry
+
+            auto pipelineLayout = renderer->BindGraphicsPipeline(commandBuffer, RenderPipelineKeys::PBRTwoSided);
+            auto lightDescriptor = m_LightSSBO[frameIndex].GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1,
+                &lightDescriptor, 0, nullptr);
+
+            auto sceneDescriptor = m_SceneDataUBO[frameIndex].GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1,
+                &sceneDescriptor, 0, nullptr);
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 3, 1,
+                &m_IrradiencePrefilterDescriptorSet, 0, nullptr);
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 4, 1,
+                &m_BRDFLut.DesctriptorSet, 0, nullptr);
+
+            auto shadowDescriptor = m_ShadowDepthBuffers[frameIndex]->GetDescriptorSet();
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 5, 1,
+                &shadowDescriptor, 0, nullptr);
+
+            auto lightCountDescriptor = m_LightCountOffsetsSSBO[frameIndex].GetDescriptorSet();
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 6, 1,
+                &lightCountDescriptor, 0, nullptr);
+
+            for (auto& drawData : twoSidedGeometry) {
+                MeshPushConstants constants;
+                constants.Model = drawData.transform;
+                constants.InvModelMat = drawData.invTransform;
+                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                    0, sizeof(MeshPushConstants), &constants);
+                if (drawData.mesh->MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        0, 1, &drawData.mesh->MeshMaterial.DescriptorSet, 0, nullptr);
+                }
+                VkDeviceSize offset{ 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &drawData.mesh->VertexBuffer.Buffer, &offset);
+                if (drawData.mesh->IndexBuffer.Buffer != VK_NULL_HANDLE) {
+                    vkCmdBindIndexBuffer(commandBuffer, drawData.mesh->IndexBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);
+                    vkCmdDrawIndexed(commandBuffer, drawData.mesh->IndexCount,
+                        1, 0, 0, 0);
+                } else {
+                    vkCmdDraw(commandBuffer, drawData.mesh->VertexCount, 1, 0, 0);
+                }
+            }
+        }
         
-        {
+        { // draw transparent geometry
             auto sortFunc = [](const AlphaDrawData& a, const AlphaDrawData& b) -> bool {
                 return a.distanceToCamera2 > b.distanceToCamera2;
             };
@@ -544,7 +606,7 @@ namespace FLOOF {
             for (auto& drawData : transparentGeometry) {
                 MeshPushConstants constants;
                 constants.Model = drawData.transform;
-                constants.InvModelMat = glm::inverse(drawData.transform);
+                constants.InvModelMat = drawData.invTransform;
                 vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
                     0, sizeof(MeshPushConstants), &constants);
                 if (drawData.mesh->MeshMaterial.DescriptorSet != VK_NULL_HANDLE) {
@@ -936,6 +998,7 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings.resize(2);
             params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
             params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.CullMode = VK_CULL_MODE_NONE;
             renderer->CreateGraphicsPipeline(params);
         }
         {    // PBR shader
@@ -958,6 +1021,30 @@ namespace FLOOF {
             params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
             params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
             params.Renderpass = m_RenderPass;
+            params.MsaaSampleCount = renderer->GetMsaaSampleCount();
+            renderer->CreateGraphicsPipeline(params);
+        }
+        {    // PBR shader double sided
+            RenderPipelineParams params;
+            params.Flags = RenderPipelineFlags::AlphaBlend | RenderPipelineFlags::DepthPass;
+            params.FragmentPath = "Shaders/PBR.frag.spv";
+            params.VertexPath = "Shaders/PBR.vert.spv";
+            params.Key = RenderPipelineKeys::PBRTwoSided;
+            params.PolygonMode = VK_POLYGON_MODE_FILL;
+            params.Topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            params.BindingDescription = MeshVertex::GetBindingDescription();
+            params.AttributeDescriptions = MeshVertex::GetAttributeDescriptions();
+            params.PushConstantSize = sizeof(MeshPushConstants);
+            params.DescriptorSetLayoutBindings.resize(7);
+            params.DescriptorSetLayoutBindings[0] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::Material];
+            params.DescriptorSetLayoutBindings[1] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::SceneFrameUBO];
+            params.DescriptorSetLayoutBindings[2] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.DescriptorSetLayoutBindings[3] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::PBRMaps];
+            params.DescriptorSetLayoutBindings[4] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DiffuseTextureClamped];
+            params.DescriptorSetLayoutBindings[5] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::DepthTexture];
+            params.DescriptorSetLayoutBindings[6] = renderer->m_DescriptorSetLayouts[RenderSetLayouts::LightSSBO];
+            params.Renderpass = m_RenderPass;
+            params.CullMode = VK_CULL_MODE_NONE;
             params.MsaaSampleCount = renderer->GetMsaaSampleCount();
             renderer->CreateGraphicsPipeline(params);
         }

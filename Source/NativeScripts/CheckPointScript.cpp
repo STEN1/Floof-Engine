@@ -19,6 +19,14 @@ void FLOOF::CheckPointScript::OnCreate(FLOOF::Scene *scene, entt::entity entity)
     {
         Pole = m_Scene->CreateEntity("torii_gate", Trigger);
         auto &sm = m_Scene->AddComponent<StaticMeshComponent>(Pole, "Assets/torii_gate/scene.gltf");
+
+        for (auto& mesh : sm.meshes) {
+            if (mesh.MeshName == "Object264_01 - Default_0" || mesh.MeshName == "Object263_01 - Default_0"
+                || mesh.MeshName == "Object265_01 - Default_0" || mesh.MeshName == "Object266_01 - Default_0") {
+                mesh.MeshMaterial.TwoSided = true;
+            }
+        }
+
         auto &GateTransform = m_Scene->GetComponent<TransformComponent>(entity);
 
         GateTransform = transform;
