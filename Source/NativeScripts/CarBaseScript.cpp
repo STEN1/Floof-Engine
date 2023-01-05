@@ -52,6 +52,7 @@ void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
         sound.GetClip("honk.wav")->Volume(1.f);
         sound.GetClip("metal_impact_mono.wav")->Volume(1.f);
 
+        CarSound = sound.GetClip("Vehicles_idle2.wav");
     }
 
     //hinge car togheter
@@ -224,11 +225,10 @@ void FLOOF::CarBaseScript::OnUpdate(float deltaTime) {
             //engine.maxEngineForce = engine.Gears[engine.CurrentGear].second;
         }
 
-        auto clip = scene->GetComponent<SoundComponent>(frame).GetClip("Vehicles_idle2.wav");
 
         float pitch = engine.getEngineForce(car.RigidBody->getLinearVelocity().length()) / engine.maxEngineForce / engine.Gears[engine.CurrentGear].second;
         pitch = engine.getEnginePitch(glm::length(car.GetLinearVelocity()));
-        clip->Pitch(pitch);
+        CarSound->Pitch(pitch);
     }
 
 
@@ -400,7 +400,7 @@ void FLOOF::CarBaseScript::LastUpdate(float deltaTime) {
 
 void FLOOF::CarBaseScript::OnPlay() {
     auto sound = m_Scene->GetComponent<SoundComponent>(frame);
-    sound.GetClip("Vehicles_idle2.wav")->Play();
+    CarSound.get()->Play();
 }
 
 void FLOOF::CarBaseScript::OnStop() {

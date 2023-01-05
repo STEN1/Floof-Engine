@@ -107,6 +107,8 @@ namespace FLOOF {
         entt::entity HeadLightR;
         entt::entity HeadLightL;
 
+		std::shared_ptr<SoundClip> CarSound;
+
 
         std::vector<btHinge2Constraint *> axles;
         int graphnumb = 0;
