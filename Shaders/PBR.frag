@@ -353,11 +353,13 @@ float filterPCF(vec4 sc, int cascadeIndex)
     float baseBias = sceneFrameUBO.bias * (float(cascadeIndex) + 1.0);
 	float bias = max((baseBias * 10.0) * (1.0 - dot(normalize(fragNormal), normalize(sceneFrameUBO.sunPosition.xyz))), baseBias);
 
-    for (int i = 0; i < 64; i += 2) {
+    int sampleCount = 0;
+    for (int i = 0; i < 64; i += 8) {
         shadowFactor += textureProjection(sc, PoissonSamples[i] * scale, cascadeIndex, bias);
+        sampleCount++;
     }
 
-	return shadowFactor / 64;
+	return shadowFactor / sampleCount;
 }
 
 vec3 CalcDirectionalLight(vec3 V, vec3 N, vec3 albedo, float roughness, float metallic, vec3 F0) {
