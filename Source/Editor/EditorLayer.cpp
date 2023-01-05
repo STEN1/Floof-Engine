@@ -301,7 +301,7 @@ namespace FLOOF {
         //terrain
         {
             auto entity = m_Scene->CreateEntity("Terrain");
-            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
+            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightmap.png", "Assets/Terrain/Terrain_Tough/texture.png");
 
             auto &transform = m_Scene->GetComponent<TransformComponent>(entity);
             //transform.Position = glm::vec3(mesh.landscape->width/2.f,-100,mesh.landscape->height/2.f);
@@ -811,7 +811,7 @@ namespace FLOOF {
             std::string name = "Heightmap";
 
             auto entity = m_Scene->CreateEntity(name);
-            auto &mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightMap.png", "Assets/Terrain/Terrain_Tough/texture.png");
+            auto& mesh = m_Scene->AddComponent<LandscapeComponent>(entity, "Assets/Terrain/Terrain_Tough/heightmap.png", "Assets/Terrain/Terrain_Tough/texture.png");
         }
     }
 
