@@ -43,9 +43,14 @@ void FLOOF::CarBaseScript::OnCreate(Scene *scene, entt::entity entity) {
     {
         auto &sound = scene->AddComponent<SoundComponent>(frame, "Vehicles_idle2.wav");
         sound.GetClip("Vehicles_idle2.wav")->Looping(true);
-        sound.AddClip("honk.wav");
-        TruckCallback->SetImpactSound(sound.AddClip("metal_impact_mono.wav"));
 
+        sound.AddClip("honk.wav");
+        sound.AddClip("metal_impact_mono.wav");
+        TruckCallback->SetImpactSound(sound.GetClip("metal_impact_mono.wav"));
+
+        sound.GetClip("Vehicles_idle2.wav")->Volume(0.8f);
+        sound.GetClip("honk.wav")->Volume(1.f);
+        sound.GetClip("metal_impact_mono.wav")->Volume(1.f);
 
     }
 

@@ -8,6 +8,7 @@ namespace FLOOF {
         m_Path = name;
         m_Source = SoundManager::GenerateSource(this);
         alec(alSourcei(m_Source, AL_BUFFER, m_Sound));
+        Volume();
 	}
 
 	SoundClip::~SoundClip() {
@@ -184,7 +185,7 @@ namespace FLOOF {
 
     int SoundComponent::AddQueues(int numberofqueues) {
         for (size_t i = 0; i < numberofqueues; i++) {
-            m_PlayQueue.push_back(std::queue<std::shared_ptr<SoundClip>>());
+            m_PlayQueue.push_back(std::vector<std::shared_ptr<SoundClip>>());
             NumberOfQueues++;
         }
 		
@@ -195,26 +196,40 @@ namespace FLOOF {
         QueueNumber--;
 
 		ASSERT(QueueNumber <= NumberOfQueues, "QueueNumber is out of range");
-        m_PlayQueue[QueueNumber].push(AddClip(name));    
+        m_PlayQueue[QueueNumber].push_back(AddClip(name));    
     }
 
     void SoundComponent::PlayQueue(int queueNumber) {
         queueNumber--;
+        ASSERT(queueNumber <= NumberOfQueues, "QueueNumber is out of range");
+
 		int queueSize = m_PlayQueue[queueNumber].size();
         
-        auto& first = m_PlayQueue[queueNumber].front();
-        first->Play();
+		m_PlayQueue[queueNumber][0]->Play();
         
         for (size_t i = 0; i < queueSize; i++) {
-            auto& clip = m_PlayQueue[queueNumber].front();
-            m_PlayQueue[queueNumber].pop();
+            ;
             if (i < queueSize - 1) {
-                clip->nextClip = m_PlayQueue[queueNumber].front();
+                m_PlayQueue[queueNumber][i]->nextClip = m_PlayQueue[queueNumber][i+1];
             }
             else {
-                clip->nextClip = first;
+                m_PlayQueue[queueNumber][i]->nextClip = m_PlayQueue[queueNumber][0];
             }
         }        
+    }
+
+    void SoundComponent::StopQueue(int queueNumber) {
+        queueNumber--;
+        
+        ASSERT(queueNumber <= NumberOfQueues, "QueueNumber is out of range");
+
+        int queueSize = m_PlayQueue[queueNumber].size();
+
+        for (size_t i = 0; i < queueSize; i++) {
+            m_PlayQueue[queueNumber][i]->Stop();
+            m_PlayQueue[queueNumber][i]->nextClip = nullptr;
+        }
+
     }
 
 	void SoundComponent::OnPlay() {

@@ -21,7 +21,7 @@ namespace FLOOF {
 
 		std::string m_Path;
 		std::string m_Name;
-		float m_Volume{ 1.f };
+		float m_Volume{ 0.5f };
 		float m_Pitch{ 1.f };
 		bool isLooping{ false };
 		bool isPlaying{ false };
@@ -65,7 +65,9 @@ namespace FLOOF {
 		int AddQueues(int numberofqueues);
 		void AddToQueue(int QueueNumber, const std::string& name);
 		void PlayQueue(int queueNumber);
-		std::vector<std::queue<std::shared_ptr<SoundClip>>> m_PlayQueue;
+		void StopQueue(int queueNumber);
+
+		std::vector<std::vector<std::shared_ptr<SoundClip>>> m_PlayQueue;
 		int NumberOfQueues{ 0 };
 
 		std::string m_DefaultSoundClip;

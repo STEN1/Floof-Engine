@@ -3,39 +3,47 @@
 #include "../Utils.h"
 #include "CheckPointScript.h"
 
-void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
+void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene* scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
     RaceTrack = entity;
 
+    // Add checkpoint sound
+    auto& sound = scene->AddComponent<SoundComponent>(RaceTrack, "checkpoint.wav");
+    sound.GetClip("checkpoint.wav")->Volume(0.8f);
+    
+
 
     //make checkpoints;
-    for (int i{0}; i <= 5; i++) {
+    for (int i{ 0 }; i <= 5; i++) {
         CheckPoints.emplace_back(glm::vec3(Math::RandFloat(-100.f, 100.f), -45.f, Math::RandFloat(-100.f, 100.f)));
     }
     TimePoints.resize(CheckPoints.size());
     BestTimePoints.resize(CheckPoints.size());
 
     //bspline generate racetrack
-    auto &spline = scene->AddComponent<BSplineComponent>(RaceTrack, CheckPoints);
+    auto& spline = scene->AddComponent<BSplineComponent>(RaceTrack, CheckPoints);
 
     //create checkpoints
-    for (auto loc: CheckPoints) {
+    for (auto loc : CheckPoints) {
         std::string name = "Checkpoint";
         auto ent = CreateEntity(name, RaceTrack);
 
-        auto &transform = m_Scene->GetComponent<TransformComponent>(ent);
-        glm::vec3 scale{5.f};
-        glm::vec3 rotation{0.f};
+        auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
+        glm::vec3 scale{ 5.f };
+        glm::vec3 rotation{ 0.f };
 
         transform.Scale = scale;
         transform.Position = loc;
         transform.Rotation = rotation;
-        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
+        auto &checkpoint = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
+		auto cpScript = dynamic_cast<CheckPointScript*>(checkpoint.Script.get());
+        cpScript->mCheckPointCollision->SetImpactSound(sound.GetClip("checkpoint.wav"));
+
         CheckPointEntities.emplace_back(ent);
     }
-    auto &script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
-    auto cpScript = dynamic_cast<CheckPointScript *>(script.Script.get());
-    if (cpScript)
+    auto& script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
+    auto cpScript = dynamic_cast<CheckPointScript*>(script.Script.get());
+    if (cpScript) 
         cpScript->SetActive(true);
 }
 

@@ -26,20 +26,34 @@ namespace FLOOF {
 				radio = scene->CreateEntity("Radio", entity);
 				scene->AddComponent<SoundComponent>(radio);
 				scene->GetComponent<SoundComponent>(radio).AddQueues(3);
-				scene->GetComponent<SoundComponent>(radio).AddToQueue(1, "hum.wav");
-				scene->GetComponent<SoundComponent>(radio).AddToQueue(1, "checkpoint.wav");
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(1, "pinchcliffe.wav");
+				scene->GetComponent<SoundComponent>(radio).AddToQueue(1, "bardcore.wav");
 				scene->GetComponent<SoundComponent>(radio).AddToQueue(2, "Danheim_Atgeir.wav");
 				scene->GetComponent<SoundComponent>(radio).AddToQueue(2, "Danheim_Tyrfing.wav");
 				scene->GetComponent<SoundComponent>(radio).AddToQueue(3, "Jeremy_Njol.wav");
 				scene->GetComponent<SoundComponent>(radio).AddToQueue(3, "Jeremy_Utanlands.wav");
 				
-				scene->GetComponent<SoundComponent>(radio).PlayQueue(1);
-
-				
 				radioFX = scene->CreateEntity("Radio FX", entity);
 				scene->AddComponent<SoundComponent>(radioFX, "radionoise.wav");
 				scene->GetComponent<SoundComponent>(radioFX).AddClip("radiobutton.wav");
 				scene->GetComponent<SoundComponent>(radioFX).AddClip("click.wav");
+
+				// Volume adjustments
+				
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Volume(1.0f);
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Volume(1.0f);
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("click.wav")->Volume(1.0f);
+
+				scene->GetComponent<SoundComponent>(crowd).GetClip("crowd.wav")->Volume(0.4f);
+				scene->GetComponent<SoundComponent>(ambience).GetClip("wind.wav")->Volume(0.4f);
+
+				scene->GetComponent<SoundComponent>(radio).GetClip("pinchcliffe.wav")->Volume(0.2f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("bardcore.wav")->Volume(0.2f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("Danheim_Atgeir.wav")->Volume(0.2f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("Danheim_Tyrfing.wav")->Volume(0.2f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("Jeremy_Njol.wav")->Volume(0.2f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("Jeremy_Utanlands.wav")->Volume(0.2f);
+
 
 			}
 		}
@@ -59,6 +73,7 @@ namespace FLOOF {
 				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
+
 			}
 		}
 
@@ -68,7 +83,7 @@ namespace FLOOF {
 				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
-				scene->GetComponent<SoundComponent>(radio).GetClip("pinchcliffe.wav")->Play();
+				scene->GetComponent<SoundComponent>(radio).PlayQueue(1);
 
 			}
 
@@ -80,7 +95,17 @@ namespace FLOOF {
 				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
 				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
-				scene->GetComponent<SoundComponent>(radio).GetClip("hum.wav")->Play();
+				scene->GetComponent<SoundComponent>(radio).PlayQueue(2);
+			}
+		}
+
+		if (Input::Key(ImGuiKey_3) && windowIsActive) {
+			if (RadioChannel != 3) {
+				RadioChannel = 3;
+				for (auto& clip : scene->GetComponent<SoundComponent>(radio).mClips) { clip.second->Stop(); }
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radiobutton.wav")->Play();
+				scene->GetComponent<SoundComponent>(radioFX).GetClip("radionoise.wav")->Play();
+				scene->GetComponent<SoundComponent>(radio).PlayQueue(3);
 			}
 		}
 		if (Input::Key(ImGuiKey_MouseWheelY) && windowIsActive) {

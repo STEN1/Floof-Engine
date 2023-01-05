@@ -35,9 +35,10 @@ namespace FLOOF {
             void SetImpactSound(std::shared_ptr<SoundClip> impact) { ImpactSound = impact; };
         };
     private:
-        std::shared_ptr<CheckPointCollision> mCheckPointCollision;
     public:
         bool ActiveCheckPoint{false};
+        std::shared_ptr<CheckPointCollision> mCheckPointCollision;
+
     };
 }
 
