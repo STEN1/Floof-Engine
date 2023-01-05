@@ -18,7 +18,7 @@ namespace FLOOF {
 
         int height, width;
 
-		float getHeight(glm::vec2& pos);
+		float getHeight(const glm::vec2& pos);
 
 	private:
 

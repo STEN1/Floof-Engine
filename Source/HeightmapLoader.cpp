@@ -151,7 +151,7 @@ namespace FLOOF {
         else return 0;
     }
 
-    float HeightmapLoader::getHeight(glm::vec2& pos)
+    float HeightmapLoader::getHeight(const glm::vec2& pos)
     {
         glm::vec2 PlayerPosCopy = pos;
         PlayerPosCopy.x = floorf(PlayerPosCopy.x);
