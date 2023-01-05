@@ -657,8 +657,8 @@ namespace FLOOF {
 
         uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(cubemapRes))) + 1;
 
-        if (mipLevels > 4)
-            mipLevels = 4;
+        if (mipLevels > 8)
+            mipLevels = 8;
 
         VkImageCreateInfo cubeImageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         cubeImageInfo.imageType = VK_IMAGE_TYPE_2D;

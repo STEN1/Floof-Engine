@@ -14,7 +14,7 @@ namespace FLOOF {
     SceneRenderer::SceneRenderer() {
         CreateTextureRenderer();
 
-        m_Skybox = std::make_unique<Skybox>("Assets/Skybox/dikhololo_night_4k.hdr");
+        m_Skybox = std::make_unique<Skybox>("Assets/Skybox/rustig_koppie_puresky_4k.hdr");
         m_IrradienceMap = m_Skybox->m_Cubemap.GetIrradienceMap();
         m_PrefilterMap = m_Skybox->m_Cubemap.GetPrefilterMap();
         m_BRDFLut = TextureManager::GetBRDFLut();
