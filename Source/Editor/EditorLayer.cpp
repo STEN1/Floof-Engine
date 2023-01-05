@@ -611,7 +611,7 @@ namespace FLOOF {
                 mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             }
         }
-        for (uint32_t i = 1; i < static_cast<uint32_t>(TextureColor::Size); i++) {
+        /*for (uint32_t i = 1; i < static_cast<uint32_t>(TextureColor::Size); i++) {
             auto color = static_cast<TextureColor>(i);
             static constexpr uint32_t yOffsetAmount = 3;
             static constexpr float xOffsetAmount = 3.f;
@@ -729,7 +729,7 @@ namespace FLOOF {
                 mesh.meshes[0].MeshMaterial.HasOpacity = true;
                 mesh.meshes[0].MeshMaterial.UpdateDescriptorSet();
             }
-        }
+        }*/
     }
 
     void EditorLayer::MakeAudioTestScene() {
