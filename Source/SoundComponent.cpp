@@ -195,13 +195,13 @@ namespace FLOOF {
     void SoundComponent::AddToQueue(int QueueNumber, const std::string& name) {
         QueueNumber--;
 
-		ASSERT(QueueNumber <= NumberOfQueues, "QueueNumber is out of range");
+		//ASSERT(QueueNumber <= NumberOfQueues, "QueueNumber is out of range");
         m_PlayQueue[QueueNumber].push_back(AddClip(name));    
     }
 
     void SoundComponent::PlayQueue(int queueNumber) {
         queueNumber--;
-        ASSERT(queueNumber <= NumberOfQueues, "QueueNumber is out of range");
+        //ASSERT(queueNumber <= NumberOfQueues, "QueueNumber is out of range");
 
 		int queueSize = m_PlayQueue[queueNumber].size();
         
@@ -221,7 +221,7 @@ namespace FLOOF {
     void SoundComponent::StopQueue(int queueNumber) {
         queueNumber--;
         
-        ASSERT(queueNumber <= NumberOfQueues, "QueueNumber is out of range");
+        //ASSERT(queueNumber <= NumberOfQueues, "QueueNumber is out of range");
 
         int queueSize = m_PlayQueue[queueNumber].size();
 

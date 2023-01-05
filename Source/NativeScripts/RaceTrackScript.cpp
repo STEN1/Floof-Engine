@@ -3,127 +3,97 @@
 #include "../Utils.h"
 #include "CheckPointScript.h"
 
-void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene* scene, entt::entity entity) {
+void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) {
     NativeScript::OnCreate(scene, entity);
     RaceTrack = entity;
 
-<<<<<<< HEAD
     auto view = m_Scene->GetRegistry().view<PlayerControllerComponent>();
     for (auto [ent, player]: view.each()) {
         if (player.mPlayer == m_Scene->ActivePlayer) {
             player.spawnLoc = glm::vec3(-350.5f, -55.3f, -302.9f);
             player.spawnRot = glm::vec3(0.f);
         }
-=======
-    // Add checkpoint sound
-    auto& sound = scene->AddComponent<SoundComponent>(RaceTrack, "checkpoint.wav");
-    sound.GetClip("checkpoint.wav")->Volume(0.8f);
-    
 
+        // Add checkpoint sound
+        auto &sound = scene->AddComponent<SoundComponent>(RaceTrack, "checkpoint.wav");
+        sound.GetClip("checkpoint.wav")->Volume(0.8f);
 
-    //make checkpoints;
-    for (int i{ 0 }; i <= 5; i++) {
-        CheckPoints.emplace_back(glm::vec3(Math::RandFloat(-100.f, 100.f), -45.f, Math::RandFloat(-100.f, 100.f)));
->>>>>>> 649623d75cb4d08eb4124bd694e45e4ad5094714
+        //make checkpoints;
+        tform tf;
+        tf.pos = glm::vec3(-330.5f, -57.3f, -302.9f);
+        tf.rot = glm::vec3(0.0f, 2.27f, 0.0f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(-390.3f, -45.2f, -91.9f);
+        tf.rot = glm::vec3(0.0f, 3.14f, 0.0f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(-360.3f, 12.4f, 163.517f);
+        tf.rot = glm::vec3(0.0f, 3.13f, 0.0f);
+        tf.scale = glm::vec3(0.3f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(-104.8f, -47.4f, 379.4f);
+        tf.rot = glm::vec3(0.0f, 4.5f, 0.0f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(0.0f, -44.f, 250.0f);
+        tf.rot = glm::vec3(0.0f, 6.f, 0.0f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(243.8f, -39.4f, 130.7f);
+        tf.rot = glm::vec3(0.0f, 5.5f, 0.0f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(341.9f, 13.4f, -210.f);
+        tf.rot = glm::vec3(0.0f, 0.5f, 0.0f);
+        tf.scale = glm::vec3(0.3f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(251.5f, -27.2f, -390.9f);
+        tf.rot = glm::vec3(0.0f, 1.f, 0.0f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(84.9f, -28.6f, -283.9f);
+        tf.rot = glm::vec3(0.0f, 2.5f, 0.0f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(-39.f, -29.3f, -113.5f);
+        tf.rot = glm::vec3(0.2f, 2.2f, 0.25f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        tf.pos = glm::vec3(-168.5f, -55.1f, -247.f);
+        tf.rot = glm::vec3(0.f, 0.f, 0.f);
+        tf.scale = glm::vec3(0.2f);
+        CheckTform.emplace_back(tf);
+
+        TimePoints.resize(CheckTform.size());
+        BestTimePoints.resize(CheckTform.size());
+
+        //create checkpoints
+        for (auto loc: CheckTform) {
+            std::string name = "Checkpoint";
+            auto ent = CreateEntity(name, RaceTrack);
+
+            auto &transform = m_Scene->GetComponent<TransformComponent>(ent);
+            transform.Scale = loc.scale;
+            transform.Position = loc.pos;
+            transform.Rotation = loc.rot;
+            m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
+            auto &script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
+            auto cpScript = dynamic_cast<CheckPointScript *>(script.Script.get());
+            if (cpScript)
+                cpScript->SetActive(true);
+        }
     }
-    //make checkpoints;
-    tform tf;
-    tf.pos = glm::vec3(-330.5f, -57.3f, -302.9f);
-    tf.rot = glm::vec3(0.0f, 2.27f, 0.0f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-<<<<<<< HEAD
-    tf.pos = glm::vec3(-390.3f, -45.2f, -91.9f);
-    tf.rot = glm::vec3(0.0f, 3.14f, 0.0f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(-360.3f, 12.4f, 163.517f);
-    tf.rot = glm::vec3(0.0f, 3.13f, 0.0f);
-    tf.scale = glm::vec3(0.3f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(-104.8f, -47.4f, 379.4f);
-    tf.rot = glm::vec3(0.0f, 4.5f, 0.0f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(0.0f, -44.f, 250.0f);
-    tf.rot = glm::vec3(0.0f, 6.f, 0.0f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(243.8f, -39.4f, 130.7f);
-    tf.rot = glm::vec3(0.0f, 5.5f, 0.0f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(341.9f, 13.4f, -210.f);
-    tf.rot = glm::vec3(0.0f, 0.5f, 0.0f);
-    tf.scale = glm::vec3(0.3f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(251.5f, -27.2f, -390.9f);
-    tf.rot = glm::vec3(0.0f, 1.f, 0.0f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(84.9f, -28.6f, -283.9f);
-    tf.rot = glm::vec3(0.0f, 2.5f, 0.0f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(-39.f, -29.3f, -113.5f);
-    tf.rot = glm::vec3(0.2f, 2.2f, 0.25f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    tf.pos = glm::vec3(-168.5f, -55.1f, -247.f);
-    tf.rot = glm::vec3(0.f, 0.f, 0.f);
-    tf.scale = glm::vec3(0.2f);
-    CheckTform.emplace_back(tf);
-
-    TimePoints.resize(CheckTform.size());
-    BestTimePoints.resize(CheckTform.size());
-
-    //create checkpoints
-    for (auto loc: CheckTform) {
-        std::string name = "Checkpoint";
-        auto ent = CreateEntity(name, RaceTrack);
-
-        auto &transform = m_Scene->GetComponent<TransformComponent>(ent);
-        transform.Scale = loc.scale;
-        transform.Position = loc.pos;
-        transform.Rotation = loc.rot;
-        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
-=======
-    //bspline generate racetrack
-    auto& spline = scene->AddComponent<BSplineComponent>(RaceTrack, CheckPoints);
-
-    //create checkpoints
-    for (auto loc : CheckPoints) {
-        std::string name = "Checkpoint";
-        auto ent = CreateEntity(name, RaceTrack);
-
-        auto& transform = m_Scene->GetComponent<TransformComponent>(ent);
-        glm::vec3 scale{ 5.f };
-        glm::vec3 rotation{ 0.f };
-
-        transform.Scale = scale;
-        transform.Position = loc;
-        transform.Rotation = rotation;
-        auto &checkpoint = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
-		auto cpScript = dynamic_cast<CheckPointScript*>(checkpoint.Script.get());
-        cpScript->mCheckPointCollision->SetImpactSound(sound.GetClip("checkpoint.wav"));
-
->>>>>>> 649623d75cb4d08eb4124bd694e45e4ad5094714
-        CheckPointEntities.emplace_back(ent);
-    }
-    auto& script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
-    auto cpScript = dynamic_cast<CheckPointScript*>(script.Script.get());
-    if (cpScript) 
-        cpScript->SetActive(true);
 }
 
 void FLOOF::RaceTrackScript::OnUpdate(float deltaTime) {
@@ -173,7 +143,6 @@ void FLOOF::RaceTrackScript::NextCheckPoint() {
             cpScript->SetActive(true);
     }
 
-
 }
 
 std::vector<std::pair<int, double>> FLOOF::RaceTrackScript::GetCheckPointTimes() {
@@ -198,3 +167,5 @@ std::vector<std::pair<int, double>> FLOOF::RaceTrackScript::GetCheckPointTimes()
 
     return times;
 }
+
+
