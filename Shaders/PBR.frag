@@ -354,7 +354,7 @@ float filterPCF(vec4 sc, int cascadeIndex)
 	float bias = max((baseBias * 10.0) * (1.0 - dot(normalize(fragNormal), normalize(sceneFrameUBO.sunPosition.xyz))), baseBias);
 
     int sampleCount = 0;
-    for (int i = 0; i < 64; i += 8) {
+    for (int i = 0; i < 64; i += 4) {
         shadowFactor += textureProjection(sc, PoissonSamples[i] * scale, cascadeIndex, bias);
         sampleCount++;
     }
