@@ -1046,6 +1046,7 @@ namespace FLOOF {
             auto& transform = m_Scene->GetComponent<TransformComponent>(entity);
             transform.Position.y = -20.f;
         }
+
         //make ramps
         {
 
@@ -1080,7 +1081,7 @@ namespace FLOOF {
             tf.scale = glm::vec3(0.2f);
             ramps.emplace_back(tf);
 
-            for (auto ramp: ramps) {
+            for (auto& ramp: ramps) {
                 auto extents = ramp.scale;
                 auto location = ramp.pos;
                 auto rotation = ramp.rot;
