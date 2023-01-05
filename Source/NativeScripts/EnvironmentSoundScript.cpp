@@ -47,12 +47,12 @@ namespace FLOOF {
 				scene->GetComponent<SoundComponent>(crowd).GetClip("crowd.wav")->Volume(0.4f);
 				scene->GetComponent<SoundComponent>(ambience).GetClip("wind.wav")->Volume(0.4f);
 
-				scene->GetComponent<SoundComponent>(radio).GetClip("pinchcliffe.wav")->Volume(0.2f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("pinchcliffe.wav")->Volume(0.1f);
 				scene->GetComponent<SoundComponent>(radio).GetClip("bardcore.wav")->Volume(0.2f);
 				scene->GetComponent<SoundComponent>(radio).GetClip("Danheim_Atgeir.wav")->Volume(0.2f);
 				scene->GetComponent<SoundComponent>(radio).GetClip("Danheim_Tyrfing.wav")->Volume(0.2f);
-				scene->GetComponent<SoundComponent>(radio).GetClip("Jeremy_Njol.wav")->Volume(0.2f);
-				scene->GetComponent<SoundComponent>(radio).GetClip("Jeremy_Utanlands.wav")->Volume(0.2f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("Jeremy_Njol.wav")->Volume(0.7f);
+				scene->GetComponent<SoundComponent>(radio).GetClip("Jeremy_Utanlands.wav")->Volume(0.7f);
 
 
 			}
@@ -195,10 +195,10 @@ namespace FLOOF {
 
 	void EnvironmentSoundScript::TerrainCollisionCallback::onEndOverlap(void* obj) {
 		CollisionDispatcher::onEndOverlap(obj);
-		//if (RollingSound && !muted) {
-		//	RollingSound->Stop();
-		//	muted = true;
-		//}
+		if (RollingSound && !muted) {
+			RollingSound->Stop();
+			muted = true;
+		}
 	}
 
 }

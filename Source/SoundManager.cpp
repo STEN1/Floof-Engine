@@ -48,15 +48,14 @@ namespace FLOOF {
 
     void SoundManager::InitOpenAL(std::string device) {
 
-        //LastCamPos = glm::vec3(0.f);
-
+        // Check all devices available and load them
         UpdateDeviceList();
         if (device != "DEFAULT") {
             bool deviceExist{ false };
             for (auto it : s_DeviceList) {
                 if (it == device) { deviceExist = true; break; };
             }
-
+            
             if (deviceExist) {
                 s_Device = alcOpenDevice(device.c_str());
                 needsReload = true;
@@ -67,7 +66,6 @@ namespace FLOOF {
         if (device == "DEFAULT") {
             const ALCchar* defaultDeviceString = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
             s_Device = alcOpenDevice(defaultDeviceString);
-
         }
 
         if (!s_Device) { std::cerr << "Failed to get the default device for OpenAL" << std::endl; return; }
@@ -85,19 +83,6 @@ namespace FLOOF {
     }
 
     void SoundManager::CleanOpenAL() {
-
-        //auto& app = Application::Get();
-        //auto& registry = app.m_Scene->GetRegistry();
-
-        //auto view = registry.view<SoundSourceComponent>();
-        //for (auto [entity, soundsource] : view.each()) {
-           // if (soundsource.isPlaying)
-        //    {
-        //        soundsource.Stop();
-              //  
-           // }
-        //}
-
         // Make the current context null
         alec(alcMakeContextCurrent(nullptr));
         // Destroy the current context
@@ -144,17 +129,12 @@ namespace FLOOF {
     }
 
     void SoundManager::Update(Scene* scene, CameraComponent* camera) {
-
-
+        
         float globalRefDistance = 125.0f;
         float globalMaxDistance = 1250.0f;
 
-        //CameraVelocity = LastCamPos - camera->Position;
-        //LastCamPos = camera->Position;
-
         float velScale{ 1.f };
 
-        // TODO: Add listener velocity
         SetListener(camera->Position, CameraVelocity * velScale, camera->Forward, camera->Up);
 
         auto view = scene->GetRegistry().view<TransformComponent, SoundComponent>();
@@ -177,7 +157,6 @@ namespace FLOOF {
             }
         }
         if (needsReload == true) { needsReload = false; }
-
     }
 
     void SoundManager::UpdateVolume() {
