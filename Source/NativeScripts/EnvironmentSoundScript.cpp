@@ -156,10 +156,20 @@ namespace FLOOF {
 
 
 	void EnvironmentSoundScript::TerrainCollisionCallback::onBeginOverlap(void* obj1, void* obj2) {
-		
-		if (RollingSound && muted) {
-			RollingSound->Play();
-			muted = false;
+		auto view = mScene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+		for (auto [ent, player, script] : view.each()) {
+			if (player.mPlayer == mScene->ActivePlayer) {
+				auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(ent);
+				if (checkpoint) {
+					auto* car = dynamic_cast<CarBaseScript*>(checkpoint->Script.get());
+					if (car) {
+						if (RollingSound && muted) {
+							RollingSound->Play();
+							muted = false;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -173,7 +183,7 @@ namespace FLOOF {
                 if (checkpoint) {
                     auto *car = dynamic_cast<CarBaseScript *>(checkpoint->Script.get());
                     if (car) {
-
+						CollisionDispatcher::onOverlap(obj1, obj2);
 						auto & rigid = mScene->GetComponent<RigidBodyComponent>(car->frame);
 						auto velocity = glm::length(rigid.GetLinearVelocity());
 
@@ -194,11 +204,23 @@ namespace FLOOF {
 	}
 
 	void EnvironmentSoundScript::TerrainCollisionCallback::onEndOverlap(void* obj) {
-		CollisionDispatcher::onEndOverlap(obj);
-		if (RollingSound && !muted) {
-			RollingSound->Stop();
-			muted = true;
-		}
+
+		/*auto view = mScene->GetRegistry().view<PlayerControllerComponent, NativeScriptComponent>();
+		for (auto [ent, player, script] : view.each()) {
+			if (player.mPlayer == mScene->ActivePlayer) {
+				auto checkpoint = mScene->TryGetComponent<NativeScriptComponent>(ent);
+				if (checkpoint) {
+					auto* car = dynamic_cast<CarBaseScript*>(checkpoint->Script.get());
+					if (car) {
+						CollisionDispatcher::onEndOverlap(obj);
+						if (RollingSound && !muted) {
+							RollingSound->Stop();
+							muted = true;
+						}
+					}
+				}
+			}
+		}*/
 	}
 
 }
