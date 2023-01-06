@@ -88,15 +88,16 @@ void FLOOF::RaceTrackScript::OnCreate(FLOOF::Scene *scene, entt::entity entity) 
         transform.Scale = loc.scale;
         transform.Position = loc.pos;
         transform.Rotation = loc.rot;
-        m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
+        auto& checkpoint = m_Scene->AddComponent<NativeScriptComponent>(ent, std::make_unique<CheckPointScript>(), m_Scene, ent);
+        auto cpScript = dynamic_cast<CheckPointScript*>(checkpoint.Script.get());
+        cpScript->mCheckPointCollision->SetImpactSound(sound.GetClip("checkpoint.wav"));
         CheckPointEntities.emplace_back(ent);
     }
     auto &script = m_Scene->GetComponent<NativeScriptComponent>(CheckPointEntities[ActiveCheckPoint]);
     auto cpScript = dynamic_cast<CheckPointScript *>(script.Script.get());
     if (cpScript)
         cpScript->SetActive(true);
-
-
+   
 }
 
 void FLOOF::RaceTrackScript::OnUpdate(float deltaTime) {
